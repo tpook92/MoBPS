@@ -7,6 +7,7 @@ The package is designed in a way to allow for a maximum of flexibility and possi
 I would highly appreciate detailled explanation of the genetics/breeding you are trying to model to make it easier for me to add in the options needed in an efficient manner.
  
 Planned release: Mid of October 2018
+
 In special cases we would also offer to sent out the current alpha version on request or collaborate on projects.
 
 Current programming projects:
