@@ -16,7 +16,12 @@ Start of Open-Beta: 12nd November 2018
 Current programming projects:
 1. Extension of the economic cost tracking
 2. Web-based userinterface + direct link to R-package
+3. Cleaning up the source code and removing old functions
 
 Updates since release:
+
+Version 0.14.1:
+Renaming parameters in breeding.diploid()
+Adding new version of bv.development()
 
 
