@@ -20,8 +20,14 @@ Current programming projects:
 
 Updates since release:
 
-Version 0.14.1:
+Version 0.14.1 (13.11.18):
+
 Renaming parameters in breeding.diploid()
 Adding new version of bv.development()
 
+Version 0.14.2 (14.11.18):
+
+Improved documentation with traditional help function in R
+Corrected some non-uniform parameter namings
+Fixed CRAN-check Warnings
 
