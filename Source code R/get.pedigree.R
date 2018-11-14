@@ -1,0 +1,232 @@
+'#
+  Authors
+Torsten Pook, torsten.pook@uni-goettingen.de
+
+Copyright (C) 2017 -- 2018  Torsten Pook
+
+This program is free software; you can redistribute it and/or
+modify it under the terms of the GNU General Public License
+as published by the Free Software Foundation; either version 3
+of the License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+'#
+
+#' Bestimme Pedigree der Ausgewaehlten Tiere
+#'
+#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @export
+
+
+get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+
+  if(length(gen)>0){
+    database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
+  }
+  if(length(database)>0 && ncol(database)==2){
+    start <- end <- numeric(nrow(database))
+    for(index in 1:nrow(database)){
+      start[index] <- 1
+      end[index] <- population$info$size[database[index,1], database[index,2]]
+    }
+    database <- cbind(database, start, end)
+  }
+  if(length(cohorts)>0){
+    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
+    for(index in 1:length(cohorts)){
+      row <- which(population$info$cohorts==cohorts[index])
+      gen <- as.numeric(population$info$cohorts[row,2])
+      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
+      first <- as.numeric(population$info$cohorts[row,5 + sex])
+      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
+      database2[index,] <- c(gen,sex,first,last)
+    }
+    database <- rbind(database, database2)
+  }
+
+  n.animals <- sum(database[,4] - database[,3] +1)
+
+  pedigree <- matrix(0, nrow=n.animals, ncol=3)
+  rindex <- 1
+
+  for(row in 1:nrow(database)){
+    animals <- database[row,]
+    for(index in database[row,3]:database[row,4]){
+      father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
+      mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+      father_t <- paste(if(father[2]==1) "M" else "W", father[3], "_", father[1], sep="")
+      mother_t <- paste(if(mother[2]==1) "M" else "W", mother[3], "_", mother[1], sep="")
+      child_t <- paste(if(database[row,2]==1) "M" else "W", index, "_", database[row,1], sep="")
+      pedigree[rindex,] <- c(child_t, father_t, mother_t)
+      rindex <- rindex + 1
+    }
+  }
+
+  colnames(pedigree) <- c("offspring", "father", "mother")
+  return(pedigree)
+}
+
+#' Bestimme Pedigree zweiten Grades und Anteil jedes Grosselternteils
+#'
+#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param shares Determine actual inherited shares of grandparents
+#' @export
+
+get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, shares=FALSE){
+
+  if(length(gen)>0){
+    database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
+  }
+  if(length(database)>0 && ncol(database)==2){
+    start <- end <- numeric(nrow(database))
+    for(index in 1:nrow(database)){
+      start[index] <- 1
+      end[index] <- population$info$size[database[index,1], database[index,2]]
+    }
+    database <- cbind(database, start, end)
+  }
+  if(length(cohorts)>0){
+    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
+    for(index in 1:length(cohorts)){
+      row <- which(population$info$cohorts==cohorts[index])
+      gen <- as.numeric(population$info$cohorts[row,2])
+      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
+      first <- as.numeric(population$info$cohorts[row,5 + sex])
+      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
+      database2[index,] <- c(gen,sex,first,last)
+    }
+    database <- rbind(database, database2)
+  }
+
+  n.animals <- sum(database[,4] - database[,3] +1)
+
+
+  if(shares){
+    cols <- 9
+  } else{
+    cols <- 5
+  }
+  pedigree <- matrix(0, nrow=n.animals, ncol=cols)
+  rindex <- 1
+
+  for(row in 1:nrow(database)){
+    animals <- database[row,]
+    for(index in database[row,3]:database[row,4]){
+      father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
+      mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+      grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]]
+      grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[17]]
+      grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8]]
+      grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[17]]
+      grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]]
+      grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[18]]
+      grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8]]
+      grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[18]]
+
+      grandf1_t <- paste(if(grandf1[2]==1) "M" else "W", grandf1[3], "_", grandf1[1], sep="")
+      grandm1_t <- paste(if(grandm1[2]==1) "M" else "W", grandm1[3], "_", grandm1[1], sep="")
+      grandf2_t <- paste(if(grandf2[2]==1) "M" else "W", grandf2[3], "_", grandf2[1], sep="")
+      grandm2_t <- paste(if(grandm2[2]==1) "M" else "W", grandm2[3], "_", grandm2[1], sep="")
+      child_t <- paste(if(sex==1) "M" else "W", index, "_", gen, sep="")
+
+      father_t <- paste(if(father[2]==1) "M" else "W", father[3], "_", father[1], sep="")
+      mother_t <- paste(if(mother[2]==1) "M" else "W", mother[3], "_", mother[1], sep="")
+      child_t <- paste(if(database[row,2]==1) "M" else "W", index, "_", database[row,1], sep="")
+      if(shares){
+        pedigree[rindex,] <- c(child_t, grandf1_t, grandm1_t, grandf2_t, grandm2_t, grandf1share, grandm1share, grandf2share, grandm2share)
+      } else{
+        pedigree[rindex,] <- c(child_t, grandf1_t, grandm1_t, grandf2_t, grandm2_t)
+      }
+      rindex <- rindex + 1
+    }
+  }
+  return(pedigree)
+}
+
+#' Bestimme Pedigree 2stufen
+#'
+#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @export
+#'
+get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+  if(length(gen)>0){
+    database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
+  }
+  if(length(database)>0 && ncol(database)==2){
+    start <- end <- numeric(nrow(database))
+    for(index in 1:nrow(database)){
+      start[index] <- 1
+      end[index] <- population$info$size[database[index,1], database[index,2]]
+    }
+    database <- cbind(database, start, end)
+  }
+  if(length(cohorts)>0){
+    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
+    for(index in 1:length(cohorts)){
+      row <- which(population$info$cohorts==cohorts[index])
+      gen <- as.numeric(population$info$cohorts[row,2])
+      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
+      first <- as.numeric(population$info$cohorts[row,5 + sex])
+      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
+      database2[index,] <- c(gen,sex,first,last)
+    }
+    database <- rbind(database, database2)
+  }
+
+  n.animals <- sum(database[,4] - database[,3] +1)
+  pedigree <- matrix(0, nrow=n.animals, ncol=7)
+  rindex <- 1
+
+  for(row in 1:nrow(database)){
+    animals <- database[row,]
+    for(index in database[row,3]:database[row,4]){
+      father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
+      mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+      grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]]
+      grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[17]]
+      grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8]]
+      grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[17]]
+      grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]]
+      grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[18]]
+      grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8]]
+      grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[18]]
+
+      f1_t <- paste(if(father[2]==1) "M" else "W", father[3], "_", father[1], sep="")
+      m1_t <- paste(if(mother[2]==1) "M" else "W", mother[3], "_", mother[1], sep="")
+      grandf1_t <- paste(if(grandf1[2]==1) "M" else "W", grandf1[3], "_", grandf1[1], sep="")
+      grandm1_t <- paste(if(grandm1[2]==1) "M" else "W", grandm1[3], "_", grandm1[1], sep="")
+      grandf2_t <- paste(if(grandf2[2]==1) "M" else "W", grandf2[3], "_", grandf2[1], sep="")
+      grandm2_t <- paste(if(grandm2[2]==1) "M" else "W", grandm2[3], "_", grandm2[1], sep="")
+      child_t <- paste(if(sex==1) "M" else "W", index, "_", gen, sep="")
+
+      father_t <- paste(if(father[2]==1) "M" else "W", father[3], "_", father[1], sep="")
+      mother_t <- paste(if(mother[2]==1) "M" else "W", mother[3], "_", mother[1], sep="")
+      child_t <- paste(if(database[row,2]==1) "M" else "W", index, "_", database[row,1], sep="")
+
+      pedigree[rindex,] <- c(child_t, f1_t, m1_t, grandf1_t, grandm1_t, grandf2_t, grandm2_t)
+      rindex <- rindex + 1
+    }
+  }
+
+  colnames(pedigree) <- c("offspring", "father", "mother", "grandfatherf", "grandmotherf", "grandfatherm", "grandmotherm")
+  return(pedigree)
+}
