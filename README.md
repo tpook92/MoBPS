@@ -31,3 +31,5 @@ Improved documentation with traditional help function in R
 Corrected some non-uniform parameter namings
 Fixed CRAN-check Warnings
 
+Version 0.14.3 (16.11.18):
+Integer-storing in get.geno & get.haplo, fixed bug in creating.diploid when generating multiple traits and chromosomes jointly
