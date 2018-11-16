@@ -269,6 +269,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
     trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative
     test <- list(NULL)
+
     if(length(var.additive.l) < length(trait_sum)){
       var.additive.l <- c(var.additive.l, rep(test,length.out=length(trait_sum)-length(var.additive.l)))
     }
@@ -366,24 +367,29 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             var_additive <- 1
           }
           var_additive <- rep(1, length.out=n.additive[index_trait])
+          var.additive.l[[index_trait]] <- var_additive
         }
         if(n.dominant[index_trait]>0 && length(var_dominante)<n.dominant[index_trait]){
           if(length(var_dominante)==0){
             var_dominante <- 1
           }
           var_dominante <- rep(1, length.out=n.dominant[index_trait])
+          var_dominante.l[[index_trait]] <- var_dominante
         }
         if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
           if(length(var_qualitative)==0){
             var_qualitative <- 1
           }
           var_qualitative <- rep(1, length.out=n.qualitative[index_trait])
+          var_qualitative.l[[index_trait]] <- var_qualitative
         }
         if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
           if(length(var_quantitative)==0){
             var_quantitative <- 1
           }
           var_quantitative <- rep(1, length.out=n.quantitative[index_trait])
+          var_quantitative.l[[index_trait]] <- var_quantitative
+
         }
 
         if(length(var_additive)!= n.additive[index_trait]){
@@ -407,7 +413,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         if(sum(nsnp)>0){
           snpdata <- c(snpdata, nsnp)
         } else if(is.matrix(dataset) && nrow(dataset)){
-          snpdata <- c(snpdata, nrow(dataset))
+          if(length(chr.nr)>0 && length(unique(chr.nr))>1){
+            for(chr.index in unique(chr.nr)){
+              snpdata <- c(snpdata, sum(chr.nr==chr.index))
+            }
+          } else{
+            snpdata <- c(snpdata, nrow(dataset))
+          }
+
         }
 
         # Generating additive
@@ -665,7 +678,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
       ## KEINE EDITS ZWISCHEN [[1]] und [[18]] snps.equidistant ++ Miraculix aenderungen sonst erforderlich!
       population$info <- list()
-      population$info$schlather_slot1 <- "miraculix_not_activated"
+      population$info$schlather.slot1 <- "miraculix_not_activated"
       population$info$chromosome <- 1L
       population$info$snp <- nrow(dataset)
       population$info$position <- list()
@@ -1057,7 +1070,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                      length.behind = length.behind,
                                      skip.rest = skip.rest,
                                      sex.s = sex.s,
-                                     name.cohort = name.cohort
+                                     name.cohort = name.cohort,
+                                     real.bv.add = real.bv.add,
+                                     real.bv.mult = real.bv.mult,
+                                     real.bv.dice = real.bv.dice
                                      )
     }
 

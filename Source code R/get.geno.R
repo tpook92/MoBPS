@@ -70,7 +70,7 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
     database <- cbind(database, start, end)
   }
   if(length(cohorts)>0){
-    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
+    database2 <- matrix(0L, nrow=length(cohorts), ncol=4)
     for(index in 1:length(cohorts)){
       row <- which(population$info$cohorts==cohorts[index])
       gen <- as.numeric(population$info$cohorts[row,2])

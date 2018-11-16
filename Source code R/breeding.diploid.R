@@ -142,7 +142,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param maxZtotal Number of matrix entries to consider jointly (maxZ = maxZtotal/number of animals)
 #' @param delete.sex Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)
 #' @param gen.architecture.m Genetic architecture for male animal (default: 0 - no transformation)
-#' @param gen.architecture.f Genetic architecture for female animal (default: 0 - no transformation)
+#' @param gen.architecture.f Genetic architecture for female animal (default: gen.architecture.m - no transformation)
 #' @param add.architecture List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)
 #' @param ncore Cores used for parallel computing in compute.snps
 #' @param Z.integer If TRUE save Z as a integer in parallel computing
