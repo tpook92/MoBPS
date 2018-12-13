@@ -33,3 +33,7 @@ Fixed CRAN-check Warnings
 
 Version 0.14.3 (16.11.18):
 Integer-storing in get.geno & get.haplo, fixed bug in creating.diploid when generating multiple traits and chromosomes jointly
+
+Version 0.14.4 (13.12.18):
+Minor Updates to get.pedigree, get.pedigree2, get.pedigree3 (display "0" for founder individuals)
+New miraculix version to computationally efficiently exclude markers from the study.
