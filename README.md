@@ -36,4 +36,4 @@ Integer-storing in get.geno & get.haplo, fixed bug in creating.diploid when gene
 
 Version 0.14.4 (13.12.18):
 Minor Updates to get.pedigree, get.pedigree2, get.pedigree3 (display "0" for founder individuals)
-New miraculix version to computationally efficiently exclude markers from the study.
+Uniform display of individual names in get.recombi
