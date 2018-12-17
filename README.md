@@ -37,3 +37,7 @@ Integer-storing in get.geno & get.haplo, fixed bug in creating.diploid when gene
 Version 0.14.4 (13.12.18):
 Minor Updates to get.pedigree, get.pedigree2, get.pedigree3 (display "0" for founder individuals)
 Uniform display of individual names in get.recombi
+
+miraculix 0.3.2 & RandomFieldsUtils 0.4.0 (17.12.18):
+C-implementation for remove.effect.position=TRUE// unification of RandomFieldsUtils-code to HaploBlocker 
+
