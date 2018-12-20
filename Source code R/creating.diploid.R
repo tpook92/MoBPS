@@ -67,12 +67,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.phenotype.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param add.architecture Add genetic architecture (marker positions)
-#' @param position.scaling Manual scaling of bp position to postion in M
+#' @param position.scaling Manual scaling of snp.position
 #' @param name.cohort Name of the newly added cohort
 #' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
 #' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
+#' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
 #' @param snp.name Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)
 #' @param hom0 Vector containing the first allelic variant in each marker (default: 0)
 #' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
@@ -84,6 +85,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
+                             bpcm.conversion=0,
                              nsnp=0, nindi=0, freq=0.5, population=NULL, sex.s="fixed", add.individual=FALSE,
                              add.chromosome=FALSE, generation=1, class=0L,
                              sex.quota = 0.5, chromosome.length=5,length.before=5, length.behind=5,
@@ -592,6 +594,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
   }
+
+  if(bpcm.conversion>0 && length(snp.position)==0){
+    snp.position <- bp / bpcm.conversion
+  } else if(bpcm.conversion>0 && length(snp.position)>0){
+    print("Do not use bpcm.conversion and snp.position jointly!")
+  }
+
   if(is.numeric(dataset[1,1])){
     data.matrix <- dataset
     if(storage.mode(data.matrix)!= "integer"){

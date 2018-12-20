@@ -26,10 +26,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @export
 
 
-get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE){
 
   if(length(gen)>0){
     database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
@@ -74,6 +75,17 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL){
   }
 
   colnames(pedigree) <- c("offspring", "father", "mother")
+
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,2])
+    if(length(set0)>0){
+      pedigree[set0,2] <- "0"
+    }
+    set0 <- which(pedigree[,1]==pedigree[,3])
+    if(length(set0)>0){
+      pedigree[set0,3] <- "0"
+    }
+  }
   return(pedigree)
 }
 
@@ -85,9 +97,10 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL){
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param shares Determine actual inherited shares of grandparents
+#' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @export
 
-get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, shares=FALSE){
+get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, shares=FALSE, founder.zero=TRUE){
 
   if(length(gen)>0){
     database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
@@ -155,6 +168,27 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
       rindex <- rindex + 1
     }
   }
+
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,2])
+    if(length(set0)>0){
+      pedigree[set0,2] <- "0"
+    }
+    set0 <- which(pedigree[,1]==pedigree[,3])
+    if(length(set0)>0){
+      pedigree[set0,3] <- "0"
+    }
+  }
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,4])
+    if(length(set0)>0){
+      pedigree[set0,4] <- "0"
+    }
+    set0 <- which(pedigree[,1]==pedigree[,5])
+    if(length(set0)>0){
+      pedigree[set0,5] <- "0"
+    }
+  }
   return(pedigree)
 }
 
@@ -165,9 +199,10 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @export
 #'
-get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE){
   if(length(gen)>0){
     database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
   }
@@ -226,7 +261,36 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL){
       rindex <- rindex + 1
     }
   }
-
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,2])
+    if(length(set0)>0){
+      pedigree[set0,2] <- "0"
+    }
+    set0 <- which(pedigree[,1]==pedigree[,3])
+    if(length(set0)>0){
+      pedigree[set0,3] <- "0"
+    }
+  }
+  if(founder.zero){
+    set0 <- which(pedigree[,2]==pedigree[,4])
+    if(length(set0)>0){
+      pedigree[set0,4] <- "0"
+    }
+    set0 <- which(pedigree[,2]==pedigree[,5])
+    if(length(set0)>0){
+      pedigree[set0,5] <- "0"
+    }
+  }
+  if(founder.zero){
+    set0 <- which(pedigree[,3]==pedigree[,6])
+    if(length(set0)>0){
+      pedigree[set0,6] <- "0"
+    }
+    set0 <- which(pedigree[,3]==pedigree[,7])
+    if(length(set0)>0){
+      pedigree[set0,7] <- "0"
+    }
+  }
   colnames(pedigree) <- c("offspring", "father", "mother", "grandfatherf", "grandmotherf", "grandfatherm", "grandmotherm")
   return(pedigree)
 }

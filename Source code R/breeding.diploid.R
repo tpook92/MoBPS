@@ -866,7 +866,7 @@ breeding.diploid <- function(population,
     y <- get.pheno(population, database=breedR.groups)
     animal_list <- get.individual.loc(population, database = breedR.groups)
 
-    ped1 <- ped <- get.pedigree(population, database=breedR.groups)
+    ped1 <- ped <- get.pedigree(population, database=breedR.groups, founder.zero=FALSE)
     y_real <- y_hat <- array(0,dim=c(ncol(y),population$info$bv.nr))
     setna <- 1
     while(sum(setna)>0){
@@ -978,7 +978,6 @@ breeding.diploid <- function(population,
         Z.code <- miraculix::computeSNPS(population, loop_elements[,4], loop_elements[,5], loop_elements[,2], what="geno", output_compressed=TRUE)
         if(computation.A!="vanRaden"){
           Zt <- miraculix::computeSNPS(population, loop_elements[,4], loop_elements[,5], loop_elements[,2], what="geno", output_compressed=FALSE)
-
         }
         if(store.comp.times.bve){
           after <- as.numeric(Sys.time())
@@ -1054,11 +1053,20 @@ breeding.diploid <- function(population,
     }
 
 
-    if(remove.effect.position==TRUE && sequenceZ==FALSE && miraculix==FALSE){
-      Zt <- Zt[-population$info$effect.p,]
+    if(remove.effect.position==TRUE && sequenceZ==FALSE){
+      if(miraculix && exists("Z.code")){
+        Z.code <- miraculix::zeroNthGeno(Z.code, population$info$effect.p)
+      } else{
+        Zt <- Zt[-population$info$effect.p,]
+      }
+
     }
-    if(remove.effect.position=="only_effect" && sequenceZ==FALSE && miraculix==FALSE){
-      Zt <- Zt[population$info$effect.p,]
+    if(remove.effect.position=="only_effect" && sequenceZ==FALSE){
+      if(miraculix && exists("Z.code")){
+        Z.code <- miraculix::zeroNthGeno(Z.code, (1:sum(population$info$snp))[-population$info$effect.p])
+      } else{
+        Zt <- Zt[population$info$effect.p,]
+      }
     }
     if(bve.0isNA){
       y[y==0] <- NA
@@ -1160,6 +1168,24 @@ breeding.diploid <- function(population,
             if(store.comp.times.bve){
               after <- as.numeric(Sys.time())
               zcalc <- zcalc + after - before
+            }
+          }
+
+          activ_effect <- population$info$effect.p - first + 1
+          activ_effect <- activ_effect[activ_effect>0]
+          activ_effect <- activ_effect[activ_effect<=last]
+          if(remove.effect.position==TRUE){
+            if(miraculix && exists("Z.code")){
+              Z.code <- miraculix::zeroNthGeno(Z.code, activ_effect)
+            } else{
+              Zt <- Zt[-activ_effect,]
+            }
+
+          } else if(remove.effect.position=="only_effect"){
+            if(miraculix && exists("Z.code")){
+              Z.code <- miraculix::zeroNthGeno(Z.code, (1:(last-first+1))[-activ_effect])
+            } else{
+              Zt <- Zt[activ_effect,]
             }
           }
 
