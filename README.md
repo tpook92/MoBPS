@@ -41,6 +41,6 @@ Uniform display of individual names in get.recombi
 Version 0.14.5 (20.12.18) including miraculix 0.3.2 & RandomFieldsUtils 0.4.0 (17.12.18):
 C-implementation for remove.effect.position=TRUE// unification of RandomFieldsUtils-code to HaploBlocker. Add bp to cM conversion in creating.diploid
 
-Version 0.14.6 (20.12.18):
+Version 0.14.6 (03.01.19):
 Minor fixes in creating.diploid (bp to cM conversion) + progress bars
 
