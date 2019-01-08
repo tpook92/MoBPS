@@ -44,3 +44,5 @@ C-implementation for remove.effect.position=TRUE// unification of RandomFieldsUt
 Version 0.14.6 (03.01.19):
 Minor fixes in creating.diploid (bp to cM conversion) + progress bars
 
+Version 0.14.7 (08.01.19):
+Hot-fix for chicken template in case small chromosomes contain less than 1 marker, add ignore.best as a selection technique
