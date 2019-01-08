@@ -171,6 +171,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param print.error.sources If TRUE print head of kinship matrix and selected animals
 #' @param name.cohort Name of the newly added cohort
 #' @param add.class.cohorts Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)
+#' @param display.progress Set FALSE to not display progress bars
 #' @export
 
 breeding.diploid <- function(population,
@@ -181,7 +182,8 @@ breeding.diploid <- function(population,
             selection.f=NULL,
             new.selection.calculation= TRUE,
             selection.function.matrix= NULL,
-            selection.size=c(0,0),
+            selection.size=0,
+            ignore.best=0,
             breeding.size=0,
             breeding.sex=0.5,
             breeding.sex.random=FALSE,
@@ -212,7 +214,7 @@ breeding.diploid <- function(population,
             store.breeding.totals=FALSE,
             forecast.sigma.s=TRUE,
             multiple.bve="add",
-            multiple.bve.weights=c(1),
+            multiple.bve.weights=1,
             store.bve.data=FALSE,
             fixed.assignment=FALSE,
             reduce.group=NULL,
@@ -319,11 +321,13 @@ breeding.diploid <- function(population,
             best.selection.manual.ratio.f=NULL,
             bve.class=NULL,
             parallel.generation=FALSE,
-            name.cohort=NULL
+            name.cohort=NULL,
+            display.progress=TRUE
             ){
   #######################################################################
   ############################### To-Dos ################################
   #######################################################################
+  # Ignore.best implementieren.
   # Duplication re-work - account for true genetic structure of duplications - known?
   # Duplikationen in Duplizierten Bereichen werden nicht doppelt dupliziert
   # Keine feste matrix-struktur in 11/12? - testelement 13 entfernen
@@ -333,7 +337,7 @@ breeding.diploid <- function(population,
   #
   # STORE BREEDING.totals fur fixed.breeding implementieren
   #######################################################################
-
+  # Implementiere default selection.size => alle
   #######################################################################
   ## Pre-work to allow for flexiblity when inputing parameter values ####
   # Initialisize parameters that were not initialized in early versions #
@@ -507,6 +511,9 @@ breeding.diploid <- function(population,
 
   if(length(selection.size)==1){
     selection.size <- rep(selection.size,2)
+  }
+  if(length(ignore.best)==1){
+    ignore.best <- rep(ignore.best,2)
   }
   if(length(breeding.size)==1){
     breeding.size.total <- breeding.size
@@ -727,6 +734,7 @@ breeding.diploid <- function(population,
 
 
   if(length(heritability)>0){
+    cat("Start deriving enviromental variance (according to given heritability.\n")
     if(length(heritability)!=population$info$bv.nr){
       heritability <- rep(heritability, population$info$bv.nr)
     }
@@ -756,6 +764,7 @@ breeding.diploid <- function(population,
   }
 
   if(length(new.bv.observation)>0 && population$info$bve){
+    cat("Start simulating phenotypes.\n")
     temp1 <- FALSE
     if(new.bv.observation=="all" || new.bv.observation=="non_obs"){
       temp1 <- TRUE
@@ -787,6 +796,7 @@ breeding.diploid <- function(population,
   # Ubernehme Zuchtwert der Kinder fuer die Eltern
 
   if(bve.childbase){
+    cat("Import phenotypes of offspring.\n")
     for(index in 1:nrow(bve.childbase.parents)){
       activ.parents <- bve.childbase.parents[index,]
       new.bv <- matrix(0, nrow=nrow(population$breeding[[activ.parents[1]]][[activ.parents[2]+2]]), ncol=ncol(population$breeding[[activ.parents[1]]][[activ.parents[2]+2]]))
@@ -863,6 +873,9 @@ breeding.diploid <- function(population,
       population$breeding[[activ.base[1]]][[activ.base[2]+2]] <- population$breeding[[activ.base[1]]][[activ.base[2]+8]]
     }
   } else if(bve && breedR.bve==TRUE){
+
+    cat("Start pedigree-based BVE.\n")
+
     y <- get.pheno(population, database=breedR.groups)
     animal_list <- get.individual.loc(population, database = breedR.groups)
 
@@ -891,6 +904,8 @@ breeding.diploid <- function(population,
 
 
   } else if(bve){
+
+    cat("Start genomic BVE.\n")
     n.animals <- 0
     for(index in 1:nrow(bve.database)){
       if(length(bve.class)>0){
@@ -1004,7 +1019,7 @@ breeding.diploid <- function(population,
 
 
         Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
-                     .packages="RekomBre") %dopar% {
+                     .packages="MoBPS") %dopar% {
           Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
           sub <- min(batche[[indexb]]) -1
           for(index in batche[[indexb]]){
@@ -1126,7 +1141,7 @@ breeding.diploid <- function(population,
               print("No valid backend specified")
             }
             Zt <- foreach::foreach(indexb=1:ncore, .combine = "rbind", .multicombine = TRUE,.maxcombine = 1000,
-                         .packages="RekomBre") %dopar% {
+                         .packages="MoBPS") %dopar% {
               Ztpar <- array(0,dim=c(last-first+1, length(batche[[indexb]])))
               sub <- min(batche[[indexb]]) -1
               for(index in batche[[indexb]]){
@@ -1414,7 +1429,7 @@ breeding.diploid <- function(population,
                   print("No valid backend specified")
                 }
                 Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
-                           .packages="RekomBre") %dopar% {
+                           .packages="MoBPS") %dopar% {
                   Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
                   sub <- min(batche[[indexb]]) -1
                   for(index in batche[[indexb]]){
@@ -2171,6 +2186,7 @@ breeding.diploid <- function(population,
   # keine Vektorweise implementierung bisher
 
   if(length(fixed.breeding)==0){
+    cat("Start selection procedure.\n")
     selection.size.sex <- list(selection.size.m, selection.size.f)
     selection.sex <- list(selection.m, selection.f)
     for(sex in 1:2){
@@ -2503,7 +2519,12 @@ breeding.diploid <- function(population,
     for(sex in 1:2){
       if(nrow(best[[sex]])>1){
         best[[sex]] <- best[[sex]][sort(best[[sex]][,4], index.return=TRUE, decreasing = selection.critera[sex])$ix,]
+        if(ignore.best[sex]>0){
+          best[[sex]] <- best[[sex]][-(1:ignore.best[sex]),]
+          selection.size[sex] <- selection.size[sex] - ignore.best[sex]
+        }
       }
+
     }
 
   '#
@@ -2790,12 +2811,16 @@ breeding.diploid <- function(population,
     bv_stuff <- 0
   }
   if(parallel.generation && breeding.size.total>0){
+    cat("Start generation of new individuals.\n")
 
     if(store.comp.times.generation){
       tick <- as.numeric(Sys.time())
     }
     info_father_list <- info_mother_list <- matrix(0, nrow=breeding.size.total, ncol=5)
+
+
     for(animal.nr in 1:breeding.size.total){
+
       sex <- sex.animal[animal.nr]
       if(length(fixed.breeding)>0){
         info.father <- fixed.breeding[animal.nr,1:3]
@@ -2873,10 +2898,12 @@ breeding.diploid <- function(population,
       info_father_list[animal.nr,] <- info.father
       info_mother_list[animal.nr,] <- info.mother
     }
+
     if(store.comp.times.generation){
       tock <- as.numeric(Sys.time())
       pre_stuff <- tock-tick
     }
+
 
     if(backend=="doParallel"){
       doParallel::registerDoParallel(cores=ncore.generation)
@@ -2895,8 +2922,10 @@ breeding.diploid <- function(population,
       if(store.comp.times.generation){
         tick <- as.numeric(Sys.time())
       }
+
+
       new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
-                            .packages="RekomBre") %dopar% {
+                            .packages="MoBPS") %dopar% {
 
                               info.father <- info_father_list[indexb,]
                               info.mother <- info_mother_list[indexb,]
@@ -3082,7 +3111,7 @@ breeding.diploid <- function(population,
 
       # This currently does not work since computeSNPS does not work in doParallel enviroment.
       new.bv.list <- foreach::foreach(indexb=(1:length(new_animal)),
-                            .packages=c("RekomBre", "miraculix")) %dopar% {
+                            .packages=c("MoBPS", "miraculix")) %dopar% {
                             new.bv <- new.bv_approx <-  numeric(population$info$bv.nr)
                             activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
 
@@ -3153,7 +3182,7 @@ breeding.diploid <- function(population,
 
                             temp1 <- c(new.bv, new.bv_approx)
                             temp1
-                            }
+                          }
       new.bv.list <- matrix(unlist(new.bv.list), ncol=length(new_animal))
       population$breeding[[current.gen+1]][[sex_running+6]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:(nrow(new.bv.list)/2),,drop=FALSE]
       population$breeding[[current.gen+1]][[sex_running+8]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[-(1:(nrow(new.bv.list)/2)),,drop=FALSE]
@@ -3170,6 +3199,11 @@ breeding.diploid <- function(population,
 
 
   } else if(breeding.size.total>0){
+    cat("Start generation of new individuals.\n")
+    if(display.progress){
+          pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
+    }
+
     for(animal.nr in 1:breeding.size.total){
       if(store.comp.times.generation){
         tick <- as.numeric(Sys.time())
@@ -3523,8 +3557,16 @@ breeding.diploid <- function(population,
         tock2 <- as.numeric(Sys.time())
         bv_stuff <- bv_stuff+tock2-tock
       }
+      if(display.progress){
+        utils::setTxtProgressBar(pb, animal.nr)
+      }
+
       current.size[sex] <- current.size[sex] +1
     }
+    if(display.progress){
+      close(pb)
+    }
+
   }
 
   delete.haplotypes <- delete.haplotypes[delete.haplotypes>1]
@@ -3586,7 +3628,7 @@ breeding.diploid <- function(population,
     comp.times <- c(comp.times[-1] - comp.times[-length(comp.times)], comp.times[length(comp.times)]-comp.times[1])
     population$info$comp.times <- round(rbind(population$info$comp.times, comp.times, deparse.level = 0), digits=4)
     if(nrow(population$info$comp.times)==1){
-      colnames(population$info$comp.times) <- c("Preparation", "New_Real_ZW", "Phenotypes", "ZWS","Selektion","Generation","Total")
+      colnames(population$info$comp.times) <- c("preparation", "new real BV", "phenotypes", "BVE","selection","generate new individuals","total")
     }
   }
   if(store.comp.times.bve){
@@ -3607,8 +3649,8 @@ breeding.diploid <- function(population,
   if(length(name.cohort)>0){
     if(breeding.size[1] > 0 && breeding.size[2]>0){
       population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), current.gen+1, breeding.size[1],0, new.class, (current.size-breeding.size)[1], 0),
-                                       c(paste0(name.cohort, "_W"), current.gen+1, 0, breeding.size[2], new.class, 0, (current.size-breeding.size)[2]))
-      print("Added _M, _W to cohort names!")
+                                       c(paste0(name.cohort, "_F"), current.gen+1, 0, breeding.size[2], new.class, 0, (current.size-breeding.size)[2]))
+      print("Added _M, _F to cohort names!")
     } else{
       population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, current.gen+1, breeding.size[1:2], new.class, current.size-breeding.size))
     }

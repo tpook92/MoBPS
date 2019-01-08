@@ -146,12 +146,15 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       chr.nr <- numeric(sum(nsnp))
       start1 <- 1
       for(index in 1:length(nsnp)){
-        chr.nr[start1:(start1+nsnp[index]-1)] <- index
-        start1 <- start1 + nsnp[index]
+        if(nsnp[index]!=0){
+          chr.nr[start1:(start1+nsnp[index]-1)] <- index
+          start1 <- start1 + nsnp[index]
+        }
+
       }
     } else if(template.chip=="chicken"){
       target_snp <- nsnp
-      chromosome.length <- chicken_chip[,2]
+      chromosome.length <- chicken_chip[,2]/100
       nsnp <- round(chicken_chip[,3] * chromosome.length)
       if(target_snp>0){
         nsnp_temp  <- nsnp * target_snp / sum(nsnp)
@@ -164,12 +167,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       chr.nr <- numeric(sum(nsnp))
       start1 <- 1
       for(index in 1:length(nsnp)){
-        chr.nr[start1:(start1+nsnp[index]-1)] <- index
-        start1 <- start1 + nsnp[index]
+        if(nsnp[index]!=0){
+          chr.nr[start1:(start1+nsnp[index]-1)] <- index
+          start1 <- start1 + nsnp[index]
+        }
       }
     } else if(template.chip=="pig"){
       target_snp <- nsnp
-      chromosome.length <- pig_chip[,2]
+      chromosome.length <- pig_chip[,2]/100
       nsnp <- round(pig_chip[,3] * chromosome.length)
       if(target_snp>0){
         nsnp_temp  <- nsnp * target_snp / sum(nsnp)
@@ -182,8 +187,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       chr.nr <- numeric(sum(nsnp))
       start1 <- 1
       for(index in 1:length(nsnp)){
-        chr.nr[start1:(start1+nsnp[index]-1)] <- index
-        start1 <- start1 + nsnp[index]
+        if(nsnp[index]!=0){
+          chr.nr[start1:(start1+nsnp[index]-1)] <- index
+          start1 <- start1 + nsnp[index]
+        }
       }
     } else if(template.chip=="sheep"){
       target_snp <- nsnp
@@ -200,8 +207,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       chr.nr <- numeric(sum(nsnp))
       start1 <- 1
       for(index in 1:length(nsnp)){
-        chr.nr[start1:(start1+nsnp[index]-1)] <- index
-        start1 <- start1 + nsnp[index]
+        if(nsnp[index]!=0){
+          chr.nr[start1:(start1+nsnp[index]-1)] <- index
+          start1 <- start1 + nsnp[index]
+        }
       }
     } else if(template.chip=="maize"){
       target_snp <- nsnp
@@ -218,8 +227,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       chr.nr <- numeric(sum(nsnp))
       start1 <- 1
       for(index in 1:length(nsnp)){
-        chr.nr[start1:(start1+nsnp[index]-1)] <- index
-        start1 <- start1 + nsnp[index]
+        if(nsnp[index]!=0){
+          chr.nr[start1:(start1+nsnp[index]-1)] <- index
+          start1 <- start1 + nsnp[index]
+        }
       }
     }
 
@@ -234,7 +245,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=3,stop=3))
 
       chr.nr <- as.numeric(vcf_file@fix[,1])
-      bp <- vcf_file@fix[,2]
+      bp <- as.numeric(vcf_file@fix[,2])
       snp.name <- vcf_file@fix[,3]
       hom0 <- vcf_file@fix[,4]
       hom1 <- vcf_file@fix[,5]
@@ -595,11 +606,49 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
-  if(bpcm.conversion>0 && length(snp.position)==0){
-    snp.position <- bp / bpcm.conversion
-  } else if(bpcm.conversion>0 && length(snp.position)>0){
-    print("Do not use bpcm.conversion and snp.position jointly!")
+  if(length(chr.nr)==0){
+    chr.nr <- numeric(sum(nsnp))
+    start1 <- 1
+    for(index in 1:length(nsnp)){
+      if(nsnp[index]!=0){
+        chr.nr[start1:(start1+nsnp[index]-1)] <- index
+        start1 <- start1 + nsnp[index]
+      }
+
+    }
   }
+  if(length(bp)==0){
+    bp <- numeric(sum(nsnp))
+    start1 <- 1
+    for(index in 1:length(nsnp)){
+      bp[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
+      start1 <- start1 + nsnp[index]
+    }
+  }
+  if(length(snp.name)==0){
+    nsnpnr <- numeric(sum(nsnp))
+    start1 <- 1
+    for(index in 1:length(nsnp)){
+      nsnpnr[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
+      start1 <- start1 + nsnp[index]
+    }
+    snp.name <- paste0("Chr", chr.nr, "SNP", nsnpnr)
+  }
+
+  if(length(unique(chr.nr))==1){
+    if(bpcm.conversion>0 && length(snp.position)==0){
+      snp.position <- bp / bpcm.conversion
+      chromosome.length <- max(snp.position) - snp.position[length(snp.position)-1] + snp.position[length(snp.position)]
+    } else if(bpcm.conversion>0 && length(snp.position)>0){
+      cat("Do not use bpcm.conversion and snp.position jointly!\n")
+    }
+  }
+  if(length(bpcm.conversion)!=length(unique(chr.nr))){
+    bpcm.conversion <- rep(bpcm.conversion, length.out=length(unique(chr.nr)))
+  }
+
+
+
 
   if(is.numeric(dataset[1,1])){
     data.matrix <- dataset
@@ -651,31 +700,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
-  if(length(chr.nr)==0){
-    chr.nr <- numeric(sum(nsnp))
-    start1 <- 1
-    for(index in 1:length(nsnp)){
-      chr.nr[start1:(start1+nsnp[index]-1)] <- index
-      start1 <- start1 + nsnp[index]
-    }
-  }
-  if(length(bp)==0){
-    bp <- numeric(sum(nsnp))
-    start1 <- 1
-    for(index in 1:length(nsnp)){
-      bp[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
-      start1 <- start1 + nsnp[index]
-    }
-  }
-  if(length(snp.name)==0){
-    nsnpnr <- numeric(sum(nsnp))
-    start1 <- 1
-    for(index in 1:length(nsnp)){
-      nsnpnr[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
-      start1 <- start1 + nsnp[index]
-    }
-    snp.name <- paste0("Chr", chr.nr, "SNP", nsnpnr)
-  }
+
 
   if(length(unique(chr.nr))!=length(chromosome.length)){
     chromosome.length <- rep(chromosome.length, length.out=length(unique(chr.nr)))
@@ -1024,9 +1049,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
       if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
         population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0),
-                                                                  c(paste0(name.cohort, "_W"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2]))
+                                                                  c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2]))
 
-        print("Added _M, _W to cohort names!")
+        cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
       } else{
         population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, generation, counter - counter.start, class, counter.start))
       }
@@ -1071,7 +1096,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                      generation = generation,
                                      add.chromosome.ends = add.chromosome.ends,
                                      miraculix = miraculix,
-                                     snp.position = snp.position_activ,
+                                     snp.position = if(bpcm.conversion[chr_index]==0){snp.position_activ} else NULL,
                                      snps.equidistant= snps.equidistant,
                                      position.scaling= position.scaling,
                                      chromosome.length= chromosome.length[chr_index],
@@ -1082,12 +1107,20 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                      name.cohort = name.cohort,
                                      real.bv.add = real.bv.add,
                                      real.bv.mult = real.bv.mult,
-                                     real.bv.dice = real.bv.dice
+                                     real.bv.dice = real.bv.dice,
+                                     bpcm.conversion = bpcm.conversion[chr_index]
                                      )
     }
 
   }
 
-
+  if(length(population$info$real.bv.add)==0){
+    population$info$real.bv.add <- list()
+    population$info$real.bv.mult <- list()
+    population$info$real.bv.dice <- list()
+    population$info$real.bv.add[[1]] <- "placeholder" # Use nbv instead of bv.calc
+    population$info$real.bv.mult[[1]] <- "placeholder"
+    population$info$real.bv.dice[[1]] <- "placeholder"
+  }
   return(population)
 }
