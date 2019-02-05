@@ -46,3 +46,6 @@ Minor fixes in creating.diploid (bp to cM conversion) + progress bars
 
 Version 0.14.7 (08.01.19):
 Hot-fix for chicken template in case small chromosomes contain less than 1 marker, add ignore.best as a selection technique
+
+Version 0.14.22 (05.02.19):
+Lots of minor updates & fixes resulting from practial use, paralellization now for both windows & linux for generation of new individuals, Conversion from json to R-script for the user-interface.
