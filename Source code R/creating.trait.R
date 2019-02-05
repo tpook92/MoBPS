@@ -447,9 +447,13 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
         for(index2 in shuffle.traits){
           if(length(store.add[[index2]])>0){
             new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3))))
+            zeros <- rowSums(abs(new.add[,3:5]))
+            new.add <- new.add[zeros>0,,drop=FALSE]
           }
           if(length(store.mult[[index2]])>0){
             new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
+            zeros <- rowSums(abs(new.mult[,5:13]))
+            new.mult <- new.add[zeros>0,,drop=FALSE]
           }
           if(length(store.dice[[index2]])>0){
             before <- length(new.dice2)

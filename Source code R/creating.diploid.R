@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population Population list
 #' @param sex.s Specify with newly added individuals are male (1) or female (2)
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
-#' @param add.individual If TRUE add additional individuals to the dataset
 #' @param add.chromosome If TRUE add an additional chromosome to the dataset
 #' @param generation Generation of the newly added individuals (default: 1)
 #' @param class Migration level of the newly added individuals
@@ -86,11 +85,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
                              bpcm.conversion=0,
-                             nsnp=0, nindi=0, freq=0.5, population=NULL, sex.s="fixed", add.individual=FALSE,
+                             nsnp=0, nindi=0, freq="unif", population=NULL, sex.s="fixed",
                              add.chromosome=FALSE, generation=1, class=0L,
-                             sex.quota = 0.5, chromosome.length=5,length.before=5, length.behind=5,
+                             sex.quota = 0.5, chromosome.length=NULL,length.before=5, length.behind=5,
                              real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
-                             change.order=TRUE, bv.total=0, polygenic.variance=100,
+                             change.order=FALSE, bv.total=0, polygenic.variance=100,
                              bve.mult.factor=NULL, bve.poly.factor=NULL,
                              base.bv=NULL, add.chromosome.ends=TRUE,
                              new.phenotype.correlation=NULL,
@@ -120,6 +119,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
+  }
+  if(length(chromosome.length)==0 || (length(chromosome.length)==1 && chromosome.length==0)){
+    if(length(snp.position)>0){
+      chromosome.length <- max(snp.position) + min(snp.position)
+      if(chromosome.length<=0){
+        print("invalid setting for snp.position - Proceed with chromosome of 5M and equidistant markers")
+        chromosome.length <- 5
+        snps.equidistant <- TRUE
+      }
+    } else{
+      chromosome.length <- 5
+    }
   }
   if (requireNamespace("miraculix", quietly = TRUE)) {
     codeOriginsU <- miraculix::codeOrigins
@@ -577,9 +588,36 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
     if(change.order && length(snp.position)>0){
-      order <- sort(snp.position,index.return=TRUE)$ix
-      snp.position <- snp.position[order]
-      dataset <- dataset[order,]
+      if(length(chr.nr)>0 && length(unique(chr.nr))>0){
+        dataset_temp <- dataset
+        snp.position_temp <- snp.position
+        bp_temp <- bp_temp
+        snp.name_temp <- snp.name_temp
+        for(index in unique(chr.nr)){
+          consider <- which(chr.nr==index)
+          order <- sort(snp.position_temp, index.return)$ix
+          snp.position <- snp.position_temp[consider][order]
+          chr.nr <- chr.nr_temp[consider][order]
+          if(length(bp)==length(snp.position)){
+            bp <- bp_temp[consider][order]
+          }
+          if(length(snp.name)==length(snp.position)){
+            snp.name <- snp.name_temp[consider][order]
+          }
+
+        }
+      } else{
+        order <- sort(snp.position,index.return=TRUE)$ix
+        snp.position <- snp.position[order]
+        dataset <- dataset[order,]
+        if(length(bp)==length(snp.position)){
+          bp <- bp[order]
+        }
+        if(length(snp.name)==length(snp.position)){
+          snp.name <- snp.name[order]
+        }
+      }
+
     }
 
 
@@ -604,6 +642,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       hom0 <- hom1 <- numeric(nrow(dataset))
     }
 
+  } else{
+    nsnp <- nrow(dataset)
+    nindi <- ncol(dataset)/2
   }
 
   if(length(chr.nr)==0){
@@ -635,16 +676,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     snp.name <- paste0("Chr", chr.nr, "SNP", nsnpnr)
   }
 
-  if(length(unique(chr.nr))==1){
+  chr.opt <- unique(chr.nr)
+
+  if(length(chr.opt)==1){
     if(bpcm.conversion>0 && length(snp.position)==0){
       snp.position <- bp / bpcm.conversion
-      chromosome.length <- max(snp.position) - snp.position[length(snp.position)-1] + snp.position[length(snp.position)]
+      chromosome.length <- max(snp.position) - min(snp.position)
     } else if(bpcm.conversion>0 && length(snp.position)>0){
       cat("Do not use bpcm.conversion and snp.position jointly!\n")
     }
   }
-  if(length(bpcm.conversion)!=length(unique(chr.nr))){
-    bpcm.conversion <- rep(bpcm.conversion, length.out=length(unique(chr.nr)))
+  if(length(bpcm.conversion)!=length(chr.opt)){
+    bpcm.conversion <- rep(bpcm.conversion, length.out=length(chr.opt))
   }
 
 
@@ -700,13 +743,19 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
+  if(length(chr.opt)!=length(chromosome.length)){
+    if(length(snp.position)==length(chr.nr)){
+      chromosome.length <- numeric(length(chr.opt))
+      for(index in 1:length(chr.opt)){
+        chromosome.length[index] <- max(snp.position[chr.nr==chr.opt[index]]) + min(snp.position[chr.nr==chr.opt[index]])
+      }
+    } else{
+      chromosome.length <- rep(chromosome.length, length.out=length(chr.opt))
+    }
 
-
-  if(length(unique(chr.nr))!=length(chromosome.length)){
-    chromosome.length <- rep(chromosome.length, length.out=length(unique(chr.nr)))
   }
 
-  if(length(unique(chr.nr))==1){
+  if(length(chr.opt)==1){
     if(length(population)==0){
       population <- list()
 
@@ -753,6 +802,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
     } else if(add.chromosome==TRUE){
+      if(length(chr.opt)>1){
+        print("You can only add a single chromosome using add.chromosome!")
+      }
       population$info$chromosome <- population$info$chromosome + 1L
       population$info$snp <- c(population$info$snp, nrow(dataset))
       population$info$position[[length(population$info$position)+1]] <- position
@@ -810,6 +862,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
     if(add.chromosome==FALSE){
+
       for(index in 1:length(sex.s)){
         sex <- sex.s[index]
 
@@ -868,11 +921,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[9]] <- cbind(population$breeding[[generation]][[9]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # geschaetzer ZW
         population$breeding[[generation]][[10]] <-cbind(population$breeding[[generation]][[10]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
       }
-      if(add.individual==FALSE){
-        population$info$sex <- sex.s
-      } else{
-        population$info$sex <- c(population$info$sex, sex.s)
-      }
+
+      population$info$sex <- c(population$info$sex, sex.s)
+
 
     } else{
       counter <- c(1,1)
@@ -991,9 +1042,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             for(index2 in shuffle.traits){
               if(length(store.add[[index2]])>0){
                 new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3))))
+                zeros <- rowSums(abs(new.add[,3:5]))
+                new.add <- new.add[zeros>0,,drop=FALSE]
               }
               if(length(store.mult[[index2]])>0){
                 new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
+                zeros <- rowSums(abs(new.mult[,5:13]))
+                new.mult <- new.add[zeros>0,,drop=FALSE]
               }
               if(length(store.dice[[index2]])>0){
                 before <- length(new.dice2)
@@ -1045,7 +1100,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
 
     }
-    if(length(name.cohort)>0 && add.chromosome==FALSE){
+    if(length(name.cohort)>=1 && add.chromosome==FALSE){
 
       if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
         population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0),
@@ -1062,57 +1117,103 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
   } else{
-    for(chr_index in 1:length(unique(chr.nr))){
-      index <- unique(chr.nr)[chr_index]
-      activ <- which(chr.nr==index)
-      chr_activ <- chr.nr[activ]
-      bp_activ <- bp[activ]
-      snp.name_activ <- snp.name[activ]
-      hom0_activ <- hom0[activ]
-      hom1_activ <- hom1[activ]
-      dataset_activ <- dataset[activ,]
-      snp.position_activ <- position[activ]
+    if(length(population)==0 || add.chromosome==TRUE){
+      for(chr_index in 1:length(chr.opt)){
+        index <- chr.opt[chr_index]
+        activ <- which(chr.nr==index)
+        chr_activ <- chr.nr[activ]
+        bp_activ <- bp[activ]
+        snp.name_activ <- snp.name[activ]
+        hom0_activ <- hom0[activ]
+        hom1_activ <- hom1[activ]
+        dataset_activ <- dataset[activ,]
+        snp.position_activ <- position[activ]
 
-      if(chr_index==1){
-        skip.rest <- FALSE
-        add.chromosome <- add.chromosome
-      } else{
-        skip.rest <- TRUE
-        add.chromosome <- TRUE
-      }
-      if(add.chromosome==FALSE){
-        name.cohort <- name.cohort
-      } else{
-        name.cohort <- NULL
-      }
+        if(chr_index==1){
+          skip.rest <- FALSE
+          add.chromosome <- add.chromosome
+        } else{
+          skip.rest <- TRUE
+          add.chromosome <- TRUE
+        }
+        if(add.chromosome==FALSE){
+          name.cohort <- name.cohort
+        } else{
+          name.cohort <- NULL
+        }
 
-      population <- creating.diploid(population=population, dataset=dataset_activ,
-                                     nsnp=nsnp[chr_index], nindi=nindi,
-                                     add.chromosome=add.chromosome, chr.nr = chr_activ,
-                                     bp= bp_activ, snp.name = snp.name_activ,
-                                     hom0= hom0_activ, hom1 = hom1_activ,
-                                     add.individual = add.individual,
-                                     class = class,
-                                     generation = generation,
-                                     add.chromosome.ends = add.chromosome.ends,
-                                     miraculix = miraculix,
-                                     snp.position = if(bpcm.conversion[chr_index]==0){snp.position_activ} else NULL,
-                                     snps.equidistant= snps.equidistant,
-                                     position.scaling= position.scaling,
-                                     chromosome.length= chromosome.length[chr_index],
-                                     length.before = length.before,
-                                     length.behind = length.behind,
-                                     skip.rest = skip.rest,
-                                     sex.s = sex.s,
-                                     name.cohort = name.cohort,
-                                     real.bv.add = real.bv.add,
-                                     real.bv.mult = real.bv.mult,
-                                     real.bv.dice = real.bv.dice,
-                                     bpcm.conversion = bpcm.conversion[chr_index]
-                                     )
+        population <- creating.diploid(population=population, dataset=dataset_activ,
+                                       nsnp=nsnp[chr_index], nindi=nindi,
+                                       add.chromosome=add.chromosome, chr.nr = chr_activ,
+                                       bp= bp_activ, snp.name = snp.name_activ,
+                                       hom0= hom0_activ, hom1 = hom1_activ,
+                                       class = class,
+                                       generation = generation,
+                                       add.chromosome.ends = add.chromosome.ends,
+                                       miraculix = miraculix,
+                                       snp.position = if(bpcm.conversion[chr_index]==0){snp.position_activ} else NULL,
+                                       snps.equidistant= snps.equidistant,
+                                       position.scaling= position.scaling,
+                                       chromosome.length= chromosome.length[chr_index],
+                                       length.before = length.before,
+                                       length.behind = length.behind,
+                                       skip.rest = skip.rest,
+                                       sex.s = sex.s,
+                                       name.cohort = name.cohort,
+                                       real.bv.add = real.bv.add,
+                                       real.bv.mult = real.bv.mult,
+                                       real.bv.dice = real.bv.dice,
+                                       bpcm.conversion = bpcm.conversion[chr_index])
+      }
+    } else{
+      if(min(diff(chr.nr))<0){
+        dataset_temp <- dataset
+        till <- 0
+        for(chr_index in 1:length(chr.opt)){
+          index <- unique(chr.nr)[chr_index]
+          activ <- which(chr.nr==index)
+          chr_activ <- chr.nr[activ]
+          bp_activ <- bp[activ]
+          snp.name_activ <- snp.name[activ]
+          hom0_activ <- hom0[activ]
+          hom1_activ <- hom1[activ]
+          dataset_activ <- dataset[activ,]
+          snp.position_activ <- position[activ]
+          if(length(activ)>0){
+            dataset[1:length(activ)+till,] <- dataset_temp[activ,]
+          }
+          if((dataset[1+till,1]!=hom0_activ[1] && dataset[1+till,1]!=hom1_activ[1])){
+            dataset[1:length(activ)+till,][dataset[1:length(activ)+till,]==hom0_activ] <- 0
+            dataset[1:length(activ)+till,][dataset[1:length(activ)+till,]==hom1_activ] <- 1
+          }
+          till <- till + length(activ)
+
+        }
+      } else{
+        if((dataset[1,1]!=hom0[1] && dataset[1,1]!=hom1[1])){
+          dataset[dataset==hom0_activ] <- 0
+          dataset[dataset==hom1_activ] <- 1
+        }
+      }
+      skip.rest <- TRUE
+
+      population <- creating.diploid(population=population, dataset=dataset,
+                                       class = class,
+                                       generation = generation,
+                                       add.chromosome.ends = add.chromosome.ends,
+                                       miraculix = miraculix,
+                                       skip.rest = skip.rest,
+                                       sex.s = sex.s,
+                                       name.cohort = name.cohort,
+                                       real.bv.add = real.bv.add,
+                                       real.bv.mult = real.bv.mult,
+                                       real.bv.dice = real.bv.dice,
+                                       hom0 =population$info$snp.base[1,],
+                                       hom1 =population$info$snp.base[2,])
     }
 
   }
+
 
   if(length(population$info$real.bv.add)==0){
     population$info$real.bv.add <- list()

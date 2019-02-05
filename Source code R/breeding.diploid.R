@@ -172,6 +172,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param name.cohort Name of the newly added cohort
 #' @param add.class.cohorts Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)
 #' @param display.progress Set FALSE to not display progress bars
+#' @param ignore.best Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)
+#' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @export
 
 breeding.diploid <- function(population,
@@ -322,8 +324,11 @@ breeding.diploid <- function(population,
             bve.class=NULL,
             parallel.generation=FALSE,
             name.cohort=NULL,
-            display.progress=TRUE
+            display.progress=TRUE,
+            combine=FALSE
             ){
+
+
   #######################################################################
   ############################### To-Dos ################################
   #######################################################################
@@ -345,6 +350,19 @@ breeding.diploid <- function(population,
 {
   if(length(randomSeed)>0){
     set.seed(randomSeed)
+  }
+  if(combine==TRUE){
+    # combine is modelled via cloning with no recombination
+    copy.individual <- TRUE
+    selfing.mating <- TRUE
+    selfing.sex <- 0
+    class.m <- unique(c(class.m, class.f))
+    best1.from.cohort <- c(best1.from.cohort, best2.from.cohort)
+    best2.from.cohort <- NULL
+    best1.from.group <- c(best1.from.group, best2.from.group)
+    best2.from.group <- NULL
+    used.generations.m <- used.generations.m + used.generations.f
+    max.offspring = c(1,1)
   }
   if(length(population$info$cumsnp)==0){
     population$info$cumsnp <- cumsum(population$info$snp)
@@ -1017,7 +1035,7 @@ breeding.diploid <- function(population,
           print("No valid backend specified")
         }
 
-
+        require("foreach")
         Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
                      .packages="MoBPS") %dopar% {
           Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
@@ -1140,6 +1158,7 @@ breeding.diploid <- function(population,
             } else{
               print("No valid backend specified")
             }
+            require("foreach")
             Zt <- foreach::foreach(indexb=1:ncore, .combine = "rbind", .multicombine = TRUE,.maxcombine = 1000,
                          .packages="MoBPS") %dopar% {
               Ztpar <- array(0,dim=c(last-first+1, length(batche[[indexb]])))
@@ -1428,6 +1447,7 @@ breeding.diploid <- function(population,
                 } else{
                   print("No valid backend specified")
                 }
+                require("foreach")
                 Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
                            .packages="MoBPS") %dopar% {
                   Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
@@ -2923,7 +2943,7 @@ breeding.diploid <- function(population,
         tick <- as.numeric(Sys.time())
       }
 
-
+      require("foreach")
       new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
                             .packages="MoBPS") %dopar% {
 
@@ -3110,7 +3130,10 @@ breeding.diploid <- function(population,
       }
 
       # This currently does not work since computeSNPS does not work in doParallel enviroment.
-      new.bv.list <- foreach::foreach(indexb=(1:length(new_animal)),
+      require("foreach")
+      index_loop <- NULL
+      if(length(new_animal)>0) index_loop <- 1:length(new_animal)
+      new.bv.list <- foreach::foreach(indexb=index_loop,
                             .packages=c("MoBPS", "miraculix")) %dopar% {
                             new.bv <- new.bv_approx <-  numeric(population$info$bv.nr)
                             activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
@@ -3182,10 +3205,12 @@ breeding.diploid <- function(population,
 
                             temp1 <- c(new.bv, new.bv_approx)
                             temp1
-                          }
-      new.bv.list <- matrix(unlist(new.bv.list), ncol=length(new_animal))
-      population$breeding[[current.gen+1]][[sex_running+6]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:(nrow(new.bv.list)/2),,drop=FALSE]
-      population$breeding[[current.gen+1]][[sex_running+8]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[-(1:(nrow(new.bv.list)/2)),,drop=FALSE]
+                            }
+      if(length(index_loop)>0){
+        new.bv.list <- matrix(unlist(new.bv.list), ncol=length(new_animal))
+        population$breeding[[current.gen+1]][[sex_running+6]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:(nrow(new.bv.list)/2),,drop=FALSE]
+        population$breeding[[current.gen+1]][[sex_running+8]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[-(1:(nrow(new.bv.list)/2)),,drop=FALSE]
+      }
 
       if(store.comp.times.generation){
         tock <- as.numeric(Sys.time())
