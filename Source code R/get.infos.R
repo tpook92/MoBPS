@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 
 
-get.infos<- function(population, database=NULL, gen=NULL, cohort=NULL){
+get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL){
 
   if(length(population$info$origin.gen)>0){
     population$info$origin.gen <- as.integer(population$info$origin.gen)

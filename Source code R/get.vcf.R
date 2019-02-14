@@ -49,8 +49,14 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   rownames(map) <- rownames(haplo)
   geno <- haplo[,(1:(ncol(haplo)/2)*2)] + haplo[,(1:(ncol(haplo)/2)*2)-1]
   geno[geno==1] <- haplo[,(1:(ncol(haplo)/2)*2)][geno==1]*2-1
-  gp <- create.gpData(geno=t(geno), map=map)
-  write.vcf(gp, file=path, unphased=FALSE)
-  cat(paste0("Successfully generated vcf-file in ", getwd(), "/", path))
+
+  if (requireNamespace("synbreed", quietly = TRUE)) {
+    gp <- synbreed::create.gpData(geno=t(geno), map=map)
+    synbreed::write.vcf(gp, file=path, unphased=FALSE)
+    cat(paste0("Successfully generated vcf-file in ", getwd(), "/", path))
+  } else{
+    stop("writting of vcf currently uses synbreed-package. More efficient version coming soon!")
+  }
+
   return()
 }

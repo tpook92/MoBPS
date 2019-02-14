@@ -385,10 +385,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         for(index in takes){
           take <- c(take, starts[index]:(starts[index+1]-1))
         }
-        p_i <- allele_freq(miraculix::createSNPmatrix(dataset[,-takes]))*2
+        p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset[,-takes]))*2
         dataset[,take] <- stats::rbinom(nrow(dataset)*length(take),1, prob=p_i)
       } else{
-        p_i <- miraculix::allele_freq(createSNPmatrix(dataset))*2
+        p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset))*2
       }
     }
 
@@ -442,7 +442,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         mnr <- 1:population$info$size[1,1]
       }
       mgeno <- miraculix::computeSNPS(population, mgen, msex, mnr, what = "geno", output_compressed=TRUE)
-      p_i <- allele_freq(mgeno)
+      p_i <- miraculix::allele_freq(mgeno)
     }
     # Correct Scaling
 
