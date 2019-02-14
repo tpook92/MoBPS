@@ -49,3 +49,6 @@ Hot-fix for chicken template in case small chromosomes contain less than 1 marke
 
 Version 0.14.22 (05.02.19):
 Lots of minor updates & fixes resulting from practial use, paralellization now for both windows & linux for generation of new individuals, Conversion from json to R-script for the user-interface.
+
+Version 1.0.0 (14.02.19):
+Mostly fixes of the documentation.
