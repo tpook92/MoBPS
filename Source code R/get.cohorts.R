@@ -19,21 +19,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' par function for plots
+#' Export Cohort-names
 #'
-#' par function for plots#'
-#' @param x x
-#' @param y y
-#' @param digits digits
-#' @param prefix prefix
-#' @param cex.cor cex.cor
+#' Function to export cohort names for the population list
+#' @param population Population list
+#' @param extended extended cohorts
+#' @export
 
-panel.cor <- function(x, y, digits=2, prefix="", cex.cor) {
-  usr <- graphics::par("usr"); on.exit(graphics::par(usr))
-  graphics::par(usr = c(0, 1, 0, 1))
-  r <- stats::cor(x, y, use="complete.obs")
-  txt <- format(c(r, 0.123456789), digits=digits)[1]
-  txt <- paste(prefix, txt, sep="")
-  if(missing(cex.cor)) cex <- 0.8/graphics::strwidth(txt)
-  graphics::text(0.5, 0.5, txt, cex = cex * abs(r))
+get.cohorts <- function(population, extended=FALSE){
+  if(extended){
+    return(population$info$cohorts)
+  } else{
+    return(population$info$cohorts[,1])
+  }
+
 }

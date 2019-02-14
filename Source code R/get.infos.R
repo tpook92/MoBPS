@@ -19,34 +19,51 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Extrahiere ZW/Pheno/Geno ausgewaehlter Tiere
+#' Extract bv/pheno/geno of selected individuals
 #'
-#' Funktion zur Bestimmung der Zuchtwerte, Phenotypen und Genotypen ausgewaehlter Tiere
-#' @param population Datenvektor
-#' @param database Menge ausgewahlter Tiere - Matrix( pro Spalte: Generation / Geschlecht)
-#' @param gen Schnelleingabe von database (Vektor mit allen relevanten Generationen)
-#' @export
+#' Function to extract bv/pheno/geno of selected individuals
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 
 
-get.infos<- function(population, database=NULL, gen=NULL){
+get.infos<- function(population, database=NULL, gen=NULL, cohort=NULL){
 
   if(length(population$info$origin.gen)>0){
     population$info$origin.gen <- as.integer(population$info$origin.gen)
   } else{
     population$info$origin.gen <- 1:64L
   }
-
   if(length(gen)>0){
     database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
   }
-  if(nrow(database)>100){
-    print("Beschwere dich beim Programmierer fuer den ineffizienten Mist den er programmiert hat")
+  if(length(database)>0 && ncol(database)==2){
+    start <- end <- numeric(nrow(database))
+    for(index in 1:nrow(database)){
+      start[index] <- 1
+      end[index] <- population$info$size[database[index,1], database[index,2]]
+    }
+    database <- cbind(database, start, end)
+  }
+  if(length(cohorts)>0){
+    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
+    for(index in 1:length(cohorts)){
+      row <- which(population$info$cohorts==cohorts[index])
+      gen <- as.numeric(population$info$cohorts[row,2])
+      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
+      first <- as.numeric(population$info$cohorts[row,5 + sex])
+      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
+      database2[index,] <- c(gen,sex,first,last)
+    }
+    database <- rbind(database, database2)
   }
 
-  pheno <- as.numeric(get.pheno(population, database)[-1])
-  bv <- as.numeric(get.bv(population, database)[-1])
 
-  size <- (population$info$size[database])
+  pheno <- as.numeric(get.pheno(population, database=database)[-1])
+  bv <- as.numeric(get.bv(population, database=database)[-1])
+
+  size <- database[,4]-database[,3]+1
   cindex <- 1
   loop_elements <- matrix(0,nrow=sum(size), ncol=3)
   for(index in 1:nrow(database)){

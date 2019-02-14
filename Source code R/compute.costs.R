@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Origins-coding(R)
+#' Compute costs of a breeding program
 #'
-#' R-Version von interner Codierungsfunktion
+#' Function to derive the costs of a breeding program / population-list
 #' @param population population-list
 #' @param phenotyping.costs Costs for the generation of a phenotype
 #' @param genotyping.costs Costs for the geneation of a genotype

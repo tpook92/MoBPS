@@ -19,14 +19,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' @name Beispieldatensatz
-#' @title Example dataset
-#' @description Replace this!
-#' @usage Beispieldatensatz
-#' @source Simulated
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
-NULL
-
 #' @name cattle_chip
 #' @title Cattle chip
 #' @description Genome for cattle according to Ma et al.

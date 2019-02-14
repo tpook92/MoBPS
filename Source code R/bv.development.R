@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Entwicklung der verschiedenen Zuchtwerte
+#' Devolopment of genetic/breeding value
 #'
-#' Plot zur Entwicklung der realen/beobachteten/geschaetzten Zuchtwerte
+#' Function to plot genetic/breeding values for multiple generation/cohorts
 #' @param population population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -100,7 +100,7 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
       graphics::lines(ob[art,], col=color[art], lty=3, lwd=2)
       graphics::lines(ub[art,], col=color[art], lty=3, lwd=2)
     }
-    graphics::legend("bottomright",c("breeding value","phenotype","breeding value estimate")[inc], lty=c(1,1,1)[inc], col=color[inc], lwd=c(2,2,2)[inc])
+    graphics::legend("bottomright",c("breeding value","breeding value estimate","phenotype")[inc], lty=c(1,1,1)[inc], col=color[inc], lwd=c(2,2,2)[inc])
   }
 
 

@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param chromosomen Beschraenkung der Haplotypen auf bestimmte Chromosomen (default: 1)
+#' @param chromosomen Only consider a specific chromosome in calculations (default: 1)
 #' @export
 
 ld.decay <- function(population, chromosomen=1, step=5, max=500,database=NULL, gen=NULL, cohorts= NULL){
@@ -39,10 +39,10 @@ ld.decay <- function(population, chromosomen=1, step=5, max=500,database=NULL, g
   for(index in 1:length(calc)){
     lds <- numeric(population$info$snp[chromosomen]-calc[index])
     for(index2 in 1:(population$info$snp[chromosomen]-calc[index])){
-      lds[index2] <- cor(dataset[,index2], dataset[,index2+calc[index]])
+      lds[index2] <- stats::cor(dataset[,index2], dataset[,index2+calc[index]])
     }
     ld[index] <- mean(lds^2, rm.na=TRUE)
   }
-  plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2))
-  lines(calc, ld)
+  graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2))
+  graphics::lines(calc, ld)
 }

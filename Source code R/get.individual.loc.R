@@ -22,10 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Export location of individuals from the population list
 #'
 #' Export location of individuals from the population list
-#' @param population Datenvektor
-#' @param database Menge ausgewahlter Tiere - Matrix( pro Spalte: Generation / Geschlecht)
-#' @param gen Schnelleingabe von database (Vektor mit allen relevanten Generationen)
-#' @param cohorts Liste aller Cohorten die betrachtet werden sollen
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @export
 
 get.individual.loc <- function(population, database=NULL, gen=NULL, cohorts=NULL){

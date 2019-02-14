@@ -21,8 +21,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Calculate allele frequcenies of a miraculix Z matrix without miraculix::allele_freq()
 #'
-#' Ersetze durch miraculixpackage
-#' @param Z.code codierte Genotypen-Matrix
+#' Calculate allele frequcenies of a miraculix Z matrix without miraculix::allele_freq()
+#' @param Z.code bit-wise coded genotype matrix
 
 allele.freq <- function(Z.code){
   if (requireNamespace("miraculix", quietly = TRUE)) {

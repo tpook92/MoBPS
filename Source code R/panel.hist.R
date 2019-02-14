@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' par function for plots
 #'
-#' par function for plots#' @param population Datenvektor
+#' par function for plots
 #' @param x x
 #' @param ... Skip it!
 

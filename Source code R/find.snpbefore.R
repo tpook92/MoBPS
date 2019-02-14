@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Position detection
 #'
 #' Internal function for the detection on which position each marker is
-#' @param position Position auf dem Genome
-#' @param snp.position Position der SNPs auf dem Genome
+#' @param position Position on the genome
+#' @param snp.position Position of the SNPs on the genome
 #' @export
 
 

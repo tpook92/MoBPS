@@ -35,13 +35,12 @@ alpha_to_beta <- function(alpha,G,Z) {
   }
 }
 
-#' Martini-Test-Funktion
+#' Martini-Test function
 #'
-#' Interne Testfunktion Martini
+#' Internal function to perform martini test
 #' @param y y
 #' @param Z genomic information matrix
 #' @param G kinship matrix
-#' @export
 
 epi <- function(y,Z, G=NULL) {
   n <- length(y)

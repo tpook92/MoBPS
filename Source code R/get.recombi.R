@@ -19,12 +19,12 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Bestimmung der Urspruenge ausgewaehlter Tiere
+#' Derive genetic origins
 #'
-#' Funktion zur Bestimmung der Ursprungstiere fuer das genetische Material ausgewaehlter Tiere.
-#' @param population Datenvektor
-#' @param database Menge ausgewahlter Tiere - Matrix( pro Spalte: Generation / Geschlecht)
-#' @param gen Schnelleingabe von database (Vektor mit allen relevanten Generationen)
+#' Function to derive genetic origin
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @export
 

@@ -19,11 +19,11 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Empirische Pedigree Berechnung
+#' Empirical pedigree
 #'
-#' Funktion zur empirischen berechnung des Pedigree
-#' @param animals Liste aller zu betrachtender Tiere
-#' @param skip.diagonal Wenn TRUE vernachlaessige HBD
+#' Function to compute the empirical pedigree
+#' @param animals List of individuals to consider
+#' @param skip.diagonal Set to TRUE to ignore HBD
 #' @export
 
 pedigree.emp <- function(animals, skip.diagonal=FALSE){

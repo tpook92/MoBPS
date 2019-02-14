@@ -125,7 +125,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.effect.combination If TRUE use QTL combinations (epistatic/mult) in special.comb
 #' @param max.auswahl Maximum amount of times a individuals is considered in special.comb
 #' @param ogc If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)
-#' @param gene.editing If TRUE perform gene editing on selected individual
 #' @param gene.editing.offspring If TRUE perform gene editing on newly generated individuals
 #' @param gene.editing.best If TRUE perform gene editing on selected individuals
 #' @param gene.editing.offspring.sex Which sex to perform editing on (Default c(TRUE,TRUE), mw)
@@ -350,6 +349,12 @@ breeding.diploid <- function(population,
 {
   if(length(randomSeed)>0){
     set.seed(randomSeed)
+  }
+  if(length(sigma.e.database)==0){
+    sigma.e.database <- cbind(nrow(population$info$size), 1:2)
+  }
+  if(length(bve.database)==0){
+    bve.database <- cbind(nrow(population$info$size), 1:2)
   }
   if(combine==TRUE){
     # combine is modelled via cloning with no recombination
@@ -1035,7 +1040,10 @@ breeding.diploid <- function(population,
           print("No valid backend specified")
         }
 
-        require("foreach")
+        if (requireNamespace("foreach", quietly = TRUE)) {
+        } else{
+          stop("Usage of foreach without being installed!")
+        }
         Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
                      .packages="MoBPS") %dopar% {
           Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
@@ -1158,7 +1166,10 @@ breeding.diploid <- function(population,
             } else{
               print("No valid backend specified")
             }
-            require("foreach")
+            if (requireNamespace("foreach", quietly = TRUE)) {
+            } else{
+              stop("Usage of foreach without being installed!")
+            }
             Zt <- foreach::foreach(indexb=1:ncore, .combine = "rbind", .multicombine = TRUE,.maxcombine = 1000,
                          .packages="MoBPS") %dopar% {
               Ztpar <- array(0,dim=c(last-first+1, length(batche[[indexb]])))
@@ -1447,7 +1458,10 @@ breeding.diploid <- function(population,
                 } else{
                   print("No valid backend specified")
                 }
-                require("foreach")
+                if (requireNamespace("foreach", quietly = TRUE)) {
+                } else{
+                  stop("Usage of foreach without being installed!")
+                }
                 Zt <- foreach::foreach(indexb=1:ncore, .combine = "cbind", .multicombine = TRUE,.maxcombine = 1000,
                            .packages="MoBPS") %dopar% {
                   Ztpar <- array(0,dim=c(sum(population$info$snp), length(batche[[indexb]])))
@@ -2823,7 +2837,6 @@ breeding.diploid <- function(population,
     breeding.size <- c(sum(fixed.breeding[,7]==1), sum(fixed.breeding[,7]==2))
   }
 
-## HERE IS AN ATTEMPT AT PARALLEL-GENERATION
 ##  store.effect.freq and multiple correlated bvs deactivated
   if(store.comp.times.generation){
     pre_stuff <- 0
@@ -2943,7 +2956,10 @@ breeding.diploid <- function(population,
         tick <- as.numeric(Sys.time())
       }
 
-      require("foreach")
+      if (requireNamespace("foreach", quietly = TRUE)) {
+      } else{
+        stop("Usage of foreach without being installed!")
+      }
       new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
                             .packages="MoBPS") %dopar% {
 
@@ -3126,11 +3142,13 @@ breeding.diploid <- function(population,
       }
       if(store.effect.freq){
         store.effect.freq <- FALSE
-        print("Effekt-Freq not available in parallel computing")
+        print("Effect-Freq not available in parallel computing")
       }
 
-      # This currently does not work since computeSNPS does not work in doParallel enviroment.
-      require("foreach")
+      if (requireNamespace("foreach", quietly = TRUE)) {
+      } else{
+        stop("Usage of foreach without being installed!")
+      }
       index_loop <- NULL
       if(length(new_animal)>0) index_loop <- 1:length(new_animal)
       new.bv.list <- foreach::foreach(indexb=index_loop,

@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to compute empirical kinship for a set of individuals)
 #' @param animals List of animals to compute kinship for
 #' @param sym If True derive matrix entries below principle-diagonal
-#' @export
 
 kinship.emp <- function(animals, sym=FALSE){
   n <- length(animals)

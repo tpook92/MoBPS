@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Bestimme Pedigree der Ausgewaehlten Tiere
+#' Derive pedigree
 #'
-#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' Derive pedigree for selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -89,9 +89,9 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
   return(pedigree)
 }
 
-#' Bestimme Pedigree zweiten Grades und Anteil jedes Grosselternteils
+#' Derive pedigree including grandparents
 #'
-#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' Derive pedigree for selected individuals including grandparents
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -192,9 +192,9 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
   return(pedigree)
 }
 
-#' Bestimme Pedigree 2stufen
+#' Derive pedigree parents and grandparents
 #'
-#' Funktion zur Bestimmung des Genotypen ausgewaehlter Tiere
+#' Derive pedigree for selected individuals including parents/grandparents
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)

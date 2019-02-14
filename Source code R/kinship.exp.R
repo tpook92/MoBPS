@@ -19,17 +19,16 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Bestimmung der erwarteten Kinship
+#' Derive expected kinship
 #'
-#' Funktion zur erwarteten Kinship (Verwandtschaftsbeziehung)
-#' @param population Populationsliste
-#' @param prev.gen Maximaler Abstand direkter Nachkommen (default: Inf - kleinere Wahl zur Rechenzeitoptimierung)
-#' @param generation1.kinship Einlesen einer manuellen Kinshipmatrix fuer die erste Generation (default: Erste Generation unverwandt)
-#' @param start.diagonal Setzte die ersten X Tiere als unverwandte Tiere (Default: 0)
-#' @param calculate.averages Setzte "generations" oder "generationsex" zum Zusammenfassen von Kohorten
-#' @param ignore.diag Wenn TRUE Kinshipdefinition aus Sitzenstock-Paper
+#' Function to derive expected kinship
+#' @param population Population list
+#' @param prev.gen Maximum generatin gap between parent/offspring (default: Inf)
+#' @param generation1.kinship Pedigree of the first generation (default: diag(1))
+#' @param start.diagonal First X individuals are unrelated (default: 0)
+#' @param calculate.averages Set to "generations" or "generationsex" to combine cohorts
+#' @param ignore.diag Use kinship definition from Sitzenstock et al.
 #' @param plot_grp Plot development of kinship per group
-#' @export
 
 
 kinship.exp <- function(population, prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE){
