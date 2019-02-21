@@ -52,3 +52,6 @@ Lots of minor updates & fixes resulting from practial use, paralellization now f
 
 Version 1.0.0 (14.02.19):
 Mostly fixes of the documentation.
+
+Version 1.0.1 (21.02.19):
+Cohort-based versions of compute.costs and analyze.population added
