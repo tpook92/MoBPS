@@ -8,14 +8,12 @@ Same goes for questions regarding the tool or how to set up your simulation. We 
 
 Hopefully our extensive User Manual containing some exemplary simulation should answer most questions but it can definitly be still improved. Slide from presentations / working paper are available on request.
 
+
+Note that the currently available version is still an OPEN-BETA version and all results obtained should be viewed with caution and we do not take any liability for errors nor guaranty warranty. We are always thankful for advice, for additional things to implement, feedback and/or reports of errors.
+
 # Web-based interface
 We are now able to perform simulations based on a json-file generated in our web-based application. You can find some of the code to transfer the json-file into usage R-code for the tool. Development issues currently are mostly setting up a user/login structure and server to perform smaller simulations internally.
 If interested in testing the web-based application just contact me (torsten.pook@uni-goettingen.de)
-
-
-Note that the currently available version is still an OPEN-BETA version and all results obtained should be viewed with caution and we do not take any liability for errors nor guaranty warranty.
-
-We are always thankful for advice, for additional things to implement, feedback and/or reports of errors.
 
 # Update
 
