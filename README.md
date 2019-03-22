@@ -23,7 +23,7 @@ User-Manual according to version 1.1.0!
 
 ### Version 1.1.1 (22.03.19):
 
-Fixed a bug in the generation of phenotypes + typos in 1.1.0.
+Fixed some TYPOS in 1.1.0.
 
 Cohort-based implementation of breeding value estimation, sigma.e / sigma.g computation, gwas, bve insertion.
 
