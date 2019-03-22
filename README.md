@@ -19,22 +19,34 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
+User-Manual according to version 1.1.0!
+
 Version 1.1.1 (22.03.19):
 
 Fixed a bug in the generation of phenotypes + typos in 1.1.0.
+
 Cohort-based implementation of breeding value estimation, sigma.e / sigma.g computation, gwas, bve insertion.
+
 Renamed sigma.s to sigma.g
+
 Removed new.bv.observation.sex
+
 Default for randomly generated SNP-datasets is now uniformly distributed minor allele frequency instead of all 0 - use dataset <- "all0" for the old version.
 
 Version 1.1.0 (20.03.19):
 
 As there are minor changes to the the data storage we highly discourage the use of population list generated in MoBPS 1.0.X or earlier in MoBPS 1.1+
+
 Cohort/group/generation simulation of phenotypes
+
 Multiple matings from the same dam/sire combination
+
 Tracking of time point / generation type (mostly relevant for web-based application)
+
 Improved version of bv.development
+
 Empirical (and fast) version of kinship.emp
+
 Combining of cohorts
 
 Version 1.0.1 (21.02.19):
