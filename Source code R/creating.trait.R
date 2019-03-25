@@ -435,6 +435,12 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     if(nrow(LT)!=length(shuffle.traits)){
       stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
     } else{
+
+      population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+      if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
+        print("No-covariance matrix for traits given! Values above diagonal used.")
+      }
+
       store.add <- population$info$real.bv.add
       store.mult <- population$info$real.bv.mult
       store.dice <- population$info$real.bv.dice

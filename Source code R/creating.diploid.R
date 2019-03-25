@@ -79,6 +79,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param skip.rest Internal variable needed when adding multipe chromosomes jointly
 #' @param beta_shape1 First parameter of the beta distribution for simulating allele frequencies
 #' @param beta_shape2 Second parameter of the beta distribution for simulating allele frequencies
+#' @param time.point Time point at which the new individuals are generated
+#' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @examples
 #' creating.diploid(dataset="random", nindi=100, nsnp=1000)
 #' @export
@@ -115,7 +117,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              name.cohort=NULL,
                              template.chip=NULL,
                              beta_shape1=1,
-                             beta_shape2=1){
+                             beta_shape2=1,
+                             time.point=0,
+                             creating.type=0){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -562,16 +566,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       bv.calc <- nbv +1 ## WARUM STEHT HIER +1 SINN ist calc nicht gerade anzahl der ZW mit berechenbaren wert? # ALLES SO RICHTIG in breeding.diploid!
     }
 
-    if(length(dataset)==0){
-      dataset <- matrix((c(rep(0,nindi*2*sum(nsnp)))),ncol=nindi*2, nrow=sum(nsnp))
+    if(length(dataset)==0 || (length(dataset)==1 && dataset=="random")){
+      dataset <- matrix((c(stats::rbinom(nindi*2*sum(nsnp),1,freq))),ncol=nindi*2, nrow=sum(nsnp))
     }
     if(length(dataset)==1 && dataset=="all0"){
       dataset <- matrix((c(rep(0,nindi*2*sum(nsnp)))),ncol=nindi*2, nrow=sum(nsnp))
     }
-    if(length(dataset)==1 && dataset=="random"){
-      dataset <- matrix((c(stats::rbinom(nindi*2*sum(nsnp),1,freq))),ncol=nindi*2, nrow=sum(nsnp))
 
-    }
     if(length(dataset)==1 && dataset=="homorandom"){
       dataset <- matrix((c(stats::rbinom(nindi*sum(nsnp),1,freq))),ncol=nindi, nrow=sum(nsnp))
       dataset <- dataset[,rep(1:nindi, each=2)]
@@ -591,11 +592,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(length(chr.nr)>0 && length(unique(chr.nr))>0){
         dataset_temp <- dataset
         snp.position_temp <- snp.position
-        bp_temp <- bp_temp
-        snp.name_temp <- snp.name_temp
+        bp_temp <- bp
+        snp.name_temp <- snp.name
+        chr.nr_temp <- chr.nr
         for(index in unique(chr.nr)){
           consider <- which(chr.nr==index)
-          order <- sort(snp.position_temp, index.return)$ix
+          order <- sort(snp.position_temp, index.return=TRUE)$ix
           snp.position <- snp.position_temp[consider][order]
           chr.nr <- chr.nr_temp[consider][order]
           if(length(bp)==length(snp.position)){
@@ -909,6 +911,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # geschaetzer ZW
         population$breeding[[generation]][[10]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+        population$breeding[[generation]][[11]] <- rep(time.point,counter[1]-1) # Time point
+        population$breeding[[generation]][[12]] <- rep(time.point,counter[2]-1)
+        population$breeding[[generation]][[13]] <- rep(creating.type,counter[1]-1) # Time point
+        population$breeding[[generation]][[14]] <- rep(creating.type,counter[2]-1)
 
         # calculate Real-ZW
       } else{
@@ -920,6 +926,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[8]] <- cbind(population$breeding[[generation]][[8]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
         population$breeding[[generation]][[9]] <- cbind(population$breeding[[generation]][[9]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # geschaetzer ZW
         population$breeding[[generation]][[10]] <-cbind(population$breeding[[generation]][[10]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+        population$breeding[[generation]][[11]] <- c(population$breeding[[generation]][[11]], rep(time.point ,counter[1]-counter.start[1])) # Time point
+        population$breeding[[generation]][[12]] <- c(population$breeding[[generation]][[12]], rep(time.point ,counter[2]-counter.start[2]))
+        population$breeding[[generation]][[13]] <- c(population$breeding[[generation]][[13]], rep(time.point ,counter[1]-counter.start[1])) # Creating type
+        population$breeding[[generation]][[14]] <- c(population$breeding[[generation]][[14]], rep(time.point ,counter[2]-counter.start[2]))
+
       }
 
       population$info$sex <- c(population$info$sex, sex.s)
@@ -1030,6 +1041,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         if(nrow(LT)!=length(shuffle.traits)){
           stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
         } else{
+
+          population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+          if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
+            print("No-covariance matrix for traits given! Values above diagonal used.")
+          }
+
           store.add <- population$info$real.bv.add
           store.mult <- population$info$real.bv.mult
           store.dice <- population$info$real.bv.dice
@@ -1103,15 +1120,19 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     if(length(name.cohort)>=1 && add.chromosome==FALSE){
 
       if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
-        population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0),
-                                                                  c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2]))
+        population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0,
+                                                                    time.point, creating.type),
+                                                                  c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
+                                                                    time.point, creating.type))
 
         cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
       } else{
-        population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, generation, counter - counter.start, class, counter.start))
+        population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, generation, counter - counter.start, class, counter.start,
+                                                                    time.point, creating.type))
       }
       if(nrow(population$info$cohorts)<=2){
-        colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female")
+        colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
+                                               "time point", "creating.type")
       }
     }
 

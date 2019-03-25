@@ -23,16 +23,75 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Analyze allele frequency of a single marker
 #' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param chromosome Number of the chromosome of the relevant SNP
+#' @param snp Number of the relevant SNP
+#' @export
+
+analyze.population <- function(population, chromosome, snp, database=NULL, gen=NULL, cohorts=NULL){
+
+  groups <- sum(nrow(database), length(gen), length(cohorts))
+  state <- matrix(0, nrow=3, ncol = groups)
+  p.snp <- sum(population$info$length[0:(chromosome-1)]) + population$info$position[[chromosome]][snp]
+  n.snp <- sum(population$info$snp[0:(chromosome-1)]) + snp
+
+  col <- 1
+  if(length(gen)>0){
+    for(index in 1:length(gen)){
+      genos <- get.geno(population, gen = gen[index])[n.snp,]
+      state[,col] <- c(sum(genos==0), sum(genos==1), sum(genos==2))
+      col <- col + 1
+    }
+  }
+  if(length(database)>0){
+    for(index in 1:nrow(database)){
+      genos <- get.geno(population, database = database[index,])[n.snp,]
+      state[,col] <- c(sum(genos==0), sum(genos==1), sum(genos==2))
+      col <- col + 1
+    }
+  }
+  if(length(cohorts)>0){
+    for(index in 1:length(cohorts)){
+      genos <- get.geno(population, cohorts = cohorts[index])[n.snp,]
+      state[,col] <- c(sum(genos==0), sum(genos==1), sum(genos==2))
+      col <- col + 1
+    }
+  }
+
+
+  state.prob <- t(t(state)/colSums(state))
+  maxp <- max(state.prob)
+  graphics::plot(1:groups ,state.prob[1,],xlim=c(1,groups),ylim=c(0,maxp),type="l",xlab="group", ylab="share", lwd=3,
+                 main=paste("Allele frequencies in Chr", chromosome, "SNP", snp))
+  graphics::lines(1:groups ,state.prob[2,],lty=2, lwd=3)
+  graphics::lines(1:groups ,state.prob[3,],lty=3, lwd=3)
+  graphics::legend("topleft",legend = c("hom0","hetero","hom1"),lty=c(1,2,3), lwd=c(3,3,3))
+  return(state)
+}
+
+
+
+
+#' Old Analyze allele frequency of a single marker
+#'
+#' Old Analyze allele frequency of a single marker
+#' @param population Population list
 #' @param chromosome Number of the chromosome of the relevant SNP
 #' @param snp Number of the relevant SNP
 #' @param include include male/female (1/2) individuals in computation default( c(1,2))
 #' @export
 
-analyze.population <- function(population, chromosome, snp, include=c(1,2)){
+analyze.population.old <- function(population,  chromosome, snp, include=c(1,2)){
 
-  if (requireNamespace("miraculix", quietly = TRUE)) {
-    codeOriginsU <- miraculix::codeOrigins
-    decodeOriginsU <- miraculix::decodeOrigins
+  if (population$info$miraculix){
+    if(requireNamespace("miraculix", quietly = TRUE)) {
+      codeOriginsU <- miraculix::codeOrigins
+      decodeOriginsU <- miraculix::decodeOrigins
+    } else{
+      cat("Package miraculix required. Original simulations used the package.")
+    }
   } else{
     codeOriginsU <- codeOriginsR
     decodeOriginsU <- decodeOriginsR
@@ -42,22 +101,23 @@ analyze.population <- function(population, chromosome, snp, include=c(1,2)){
   p.snp <- sum(population$info$length[0:(chromosome-1)]) + population$info$position[[chromosome]][snp]
   n.snp <- sum(population$info$snp[0:(chromosome-1)]) + snp
   for(index in 1:generations){
-#    active.animals <- NULL
+    #    active.animals <- NULL
     for(sex in include){
       n.animals <- length(population$breeding[[index]][[sex]])
-      for(animal in 1:n.animals){
-        position1 <- sum(population$breeding[[index]][[sex]][[animal]][[1]]< p.snp)
-        position2 <- sum(population$breeding[[index]][[sex]][[animal]][[2]]< p.snp)
-        ursprung1 <- decodeOriginsU(population$breeding[[index]][[sex]][[animal]][[5]],position1)
-        ursprung2 <- decodeOriginsU(population$breeding[[index]][[sex]][[animal]][[6]],position2)
-        mutation1 <- sum (population$breeding[[index]][[sex]][[animal]][[3]]==p.snp)
-        mutation2 <- sum (population$breeding[[index]][[sex]][[animal]][[4]]==p.snp)
-        gen1 <- population$breeding[[ursprung1[1]]][[ursprung1[2]]][[ursprung1[[3]]]][[ursprung1[4]+8]][n.snp] + mutation1
-        gen2 <- population$breeding[[ursprung2[1]]][[ursprung2[2]]][[ursprung2[[3]]]][[ursprung2[4]+8]][n.snp] + mutation2
-        gen1 <- gen1 - 2* (gen1==2)
-        gen2 <- gen2 - 2* (gen2==2)
-        state[(gen1+gen2+1), index] <- state[(gen1+gen2+1), index] +1
+      if(n.animals>0){
+        for(animal in 1:n.animals){
+
+          if(population$info$miraculix){
+            geno <- miraculix::computeSNPS(population, index, sex, animal)[n.snp]
+          } else{
+            geno <- sum(compute.snps(population, index, sex, animal)[,n.snp])
+          }
+
+          state[(geno+1), index] <- state[(geno+1), index] +1
+
+        }
       }
+
     }
   }
   state.prob <- t(t(state)/colSums(state))
@@ -69,3 +129,11 @@ analyze.population <- function(population, chromosome, snp, include=c(1,2)){
   graphics::legend("topleft",legend = c("hom0","hetero","hom1"),lty=c(1,2,3), lwd=c(3,3,3))
   return(state)
 }
+
+
+
+
+
+
+
+

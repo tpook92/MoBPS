@@ -57,6 +57,4 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   } else{
     stop("writting of vcf currently uses synbreed-package. More efficient version coming soon!")
   }
-
-  return()
 }

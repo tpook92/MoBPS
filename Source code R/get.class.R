@@ -19,34 +19,32 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export location of individuals from the population list
+#' Derive class
 #'
-#' Export location of individuals from the population list
+#' Function to devide the class for each individual
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @export
 
-get.individual.loc <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+get.class <- function(population, database=NULL, gen=NULL, cohorts=NULL){
 
   database <- get.database(population, gen, database, cohorts)
 
   n.animals <- sum(database[,4] - database[,3] +1)
-  data <- matrix(0, nrow=n.animals, ncol=3)
+  data <- rep(0, n.animals)
   before <- 0
-  rown <- numeric(n.animals)
+  names <- numeric(n.animals)
   for(row in 1:nrow(database)){
     animals <- database[row,]
     nanimals <- database[row,4] - database[row,3] +1
-    data[(before+1):(before+nanimals),] <- cbind(database[row,1], database[row,2], database[row,3]:database[row,4])
-    rown[(before+1):(before+nanimals)] <- paste(if(database[row,2]==1) "M" else "W", database[row,3]:database[row,4], "_", database[row,1], sep="")
-    before <- before + nanimals
-
+    if(nanimals>0){
+      data[(before+1):(before+nanimals)] <- population$breeding[[animals[1]]][[4+ animals[2]]][animals[3]:animals[4]]
+      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "W", animals[3]:animals[4],"_", animals[1], sep="")
+      before <- before + nanimals
+    }
   }
-  colnames(data) <- c("generation", "sex", "individual nr.")
-  row.names(data) <- rown
-
+  names(data) <- names
   return(data)
-
 }

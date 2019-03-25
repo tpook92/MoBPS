@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect.position=FALSE){
   if(length(file)>0){
     if (requireNamespace("jsonlite", quietly = TRUE)) {
-      total <- jsonlite::read_json(path="C:/Users/pook/Desktop/chicken_4lineCross_v7.json")
+      total <- jsonlite::read_json(path=file)
     } else{
       stop("Usage of jsonlite without being installed!")
     }
@@ -43,20 +43,74 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
   traitinfo <- total[[4]]
   major <- list()
   n_traits <- length(traitinfo)
-  for(index in 1:n_traits){
-    major[[index]] <- total[[index+4]]
+  if((n_traits)>0){
+    for(index in 1:n_traits){
+      major[[index]] <- total[[index+4]]
+    }
   }
 
-  cor_gen <- matrix(as.numeric(unlist(total[[15]])), nrow=n_traits, ncol=n_traits)
-  cor_pheno <- matrix(as.numeric(unlist(total[[16]])), nrow=n_traits, ncol=n_traits)
+  if(n_traits>0){
+    cor_gen <- matrix(as.numeric(unlist(total[[15]])), nrow=n_traits, ncol=n_traits, byrow=TRUE)
+    cor_pheno <- matrix(as.numeric(unlist(total[[16]])), nrow=n_traits, ncol=n_traits, byrow=TRUE)
+  }
+  #### Character - Numeric trafo ######
+  for(index in 1:length(nodes)){
+    nodes[[index]]$individuals <- as.numeric(nodes[[index]]$individuals)
+    nodes[[index]]$MaleGenderQuota <- as.numeric(nodes[[index]]$MaleGenderQuota)
+  }
 
+
+  #### MANUEL MODIFICATION:
+
+  {
+    if(n_traits>0){
+      for(index in 1:n_traits){
+        traitinfo[[index]]$pheno <- "both"
+      }
+      pheno.sex <- c(1,2)
+    }
+
+    remove.effect.position <- FALSE
+  }
 
   ######################## REALITY - CHECKS ############################
   {
+    {
+      for(index in 1:length(nodes)){
+        if(length(nodes[[index]]$earliest_time)==0){
+          print("Manually entered earliest time.")
+          nodes[[index]]$earliest_time <- 0
+        }
+      }
+    }
+    {
+      for(index in 1:length(edges)){
+        if(length(edges[[index]]$time_needed)==0){
+          print("Manually entered time_needed")
+          if(edges[[index]]$Breedingtype=="Selection" ||edges[[index]]$Breedingtype=="Combine"){
+            edges[[index]]$time_needed <- 0
+          } else{
+            edges[[index]]$time_needed <- 1
+          }
+        }
+      }
+    }
+    # Diagonal of pheno/cor-matrix
+    if(n_traits>0 && sum(diag(cor_gen)==1)!= nrow(cor_gen)){
+      diag(cor_gen) <- 1
+      print("Diagonal of cor-matrix must be 1")
+    }
+    if(n_traits>0 && sum(diag(cor_pheno)==1)!= nrow(cor_pheno)){
+      diag(cor_pheno) <- 1
+      print("Diagonal of cor-matrix must be 1")
+    }
+
+
     # Correct nodes are Founders
-    ids <- possible_founder <-  numeric(length(nodes))
+    ids <- possible_founder <-  earliest_time <- numeric(length(nodes))
     for(index in 1:length(nodes)){
       ids[index] <- nodes[[index]]$id
+      earliest_time[index] <- nodes[[index]]$earliest_time
     }
     for(index in 1:length(edges)){
       possible_founder[which(edges[[index]]$to==ids)] <- 1
@@ -147,9 +201,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
 
 
-    ids <- numeric(length(nodes))
+    ids <- earliest_time <- numeric(length(nodes))
     sex <- numeric(length(nodes))
     for(index in 1:length(nodes)){
+      earliest_time[index] <- nodes[[index]]$earliest_time
       ids[index] <- nodes[[index]]$id
       sex[index] <- as.numeric(nodes[[index]]$sex=="Female")
     }
@@ -166,13 +221,14 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
     # Identify founder cohorts
     # Add "Founder" as a breeding type - If selected allow for a dataset to be imported!
     founder <- NULL
-    ids <- numeric(length(nodes))
+    ids <- earliest_time <-  numeric(length(nodes))
     repeat_node <- numeric(length(nodes))
     for(index in 1:length(nodes)){
       if(nodes[[index]]$Founder=="Yes"){
         founder <- c(founder,index)
       }
       ids[index] <- nodes[[index]]$id
+      earliest_time[index] <- nodes[[index]]$earliest_time
     }
     for(index in 1:length(edges)){
       if(edges[[index]]$Breedingtype=="Repeat"){
@@ -265,13 +321,14 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         }
 
         founder <- NULL
-        ids <- numeric(length(nodes))
+        ids <- earliest_time <- numeric(length(nodes))
         repeat_node <- numeric(length(nodes))
         for(index in 1:length(nodes)){
           if(nodes[[index]]$Founder=="Yes"){
             founder <- c(founder,index)
           }
           ids[index] <- nodes[[index]]$id
+          earliest_time[index] <- nodes[[index]]$earliest_time
         }
         for(index in 1:length(edges)){
           if(edges[[index]]$Breedingtype=="Repeat"){
@@ -302,14 +359,25 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
       }
     }
 
-    trait_matrix <- matrix(unlist(traitinfo), nrow=n_traits, byrow=TRUE)
+    if(n_traits>0){
+      trait_matrix <- matrix(unlist(traitinfo), nrow=n_traits, byrow=TRUE)
 
-    #traitmean <- as.numeric(c(geninfo[[1]]$MilkYield_Mean, geninfo[[1]]$NonReturnRate_Mean, geninfo[[1]]$SomaticCellScore_Mean))
-    traitmean <- as.numeric(trait_matrix[,4])
-    trait_weigths <- as.numeric(trait_matrix[,9])
+      #traitmean <- as.numeric(c(geninfo[[1]]$MilkYield_Mean, geninfo[[1]]$NonReturnRate_Mean, geninfo[[1]]$SomaticCellScore_Mean))
+      traitmean <- as.numeric(trait_matrix[,4])
+      trait_weigths <- as.numeric(trait_matrix[,9])
+
+      #heritability <- as.numeric(c(geninfo[[1]]$MilkYield_Hertit, geninfo[[1]]$NonReturnRate_Hertit, geninfo[[1]]$SomaticCellScore_Hertit))
+      heritability <- as.numeric(trait_matrix[,6])
+      if(sum(is.na(heritability))>0){
+        print("No heritability entered - set heritability to 0.5 for all those traits")
+        heritability[is.na(heritability)]==0
+      }
+
+    } else{
+      heritability <- NULL
+    }
     groups <- length(nodes)
-    #heritability <- as.numeric(c(geninfo[[1]]$MilkYield_Hertit, geninfo[[1]]$NonReturnRate_Hertit, geninfo[[1]]$SomaticCellScore_Hertit))
-    heritability <- as.numeric(trait_matrix[,6])
+
 
     # Species not needed, traitvariance not needed,
     position <- matrix(0, nrow=length(nodes), ncol=4)
@@ -332,7 +400,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
       sex.s <- c(sex.s, rep(sex, size))
       if(sex==1){
         mig_m <- c(mig_m, rep(new_mig[1], size))
-        mig <- new_mig[2]
+        mig <- new_mig[1]
         new_mig[1] <- new_mig[1] + 1
       }
       if(sex==2){
@@ -341,7 +409,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         new_mig[2] <- new_mig[2] + 1
       }
       position[founder[index],] <- c(1, sex, mig, size)
-      if(length(nodes[[founder[index]]]$path)>0){
+      if(nchar(nodes[[founder[index]]]$path)>0){
         founder_data <- TRUE
       }
 
@@ -385,10 +453,20 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         for(index in takes){
           take <- c(take, starts[index]:(starts[index+1]-1))
         }
-        p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset[,-takes]))*2
+        if(miraculix){
+          p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset[,-takes]))*2
+        } else{
+          p_i <- rowMeans(dataset[,-takes])
+        }
+
         dataset[,take] <- stats::rbinom(nrow(dataset)*length(take),1, prob=p_i)
       } else{
-        p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset))*2
+        if(miraculix){
+          p_i <- miraculix::allele_freq(miraculix::createSNPmatrix(dataset))*2
+        } else{
+          p_i <- rowMeans(dataset[,-takes])
+        }
+
       }
     }
 
@@ -412,7 +490,16 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                    chr.nr = chr.nr
     )
     # Cohort names
-    cohort_info <- cbind(ids[founder], 1, position[founder,4], position[founder,4], position[founder,3], 1+cumsum(c(0,position[founder,4]))[-length(founder)], 1+cumsum(c(0,position[founder,4]))[-length(founder)] - sum(sex.s==1) )
+    gender_founder <- numeric(length(founder))
+    nr <- 1
+    for(index in 1:length(founder)){
+      gender_founder[index] <- sex.s[nr]
+      nr <- nr + position[founder[index],4]
+    }
+    founder_temp <- founder[sort(gender_founder,index.return=TRUE)$ix]
+    cohort_info <- cbind(ids[founder_temp], 1, position[founder_temp,4], position[founder_temp,4], position[founder_temp,3], 1+cumsum(c(0,position[founder_temp,4]))[-(length(founder_temp)+1)], 1+cumsum(c(0,position[founder_temp,4]))[-(length(founder_temp)+1)] - sum(sex.s==1),
+                         earliest_time[founder_temp], 0)
+
 
     cohort_info[(cohort_info[,7]>=1),c(3,6)] <- 0
     cohort_info[(cohort_info[,7]<1),c(4,7)] <- 0
@@ -420,54 +507,71 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
     population$info$cohorts <- cohort_info
 
-    colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female")
+    colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
+                                           "time point", "creating.type")
 
-
-
-    population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,7]),
-                                 shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
-                                 shuffle.traits=1:n_traits)
-
-
-    pheno.sex <- c(1,2)
-
-    if(length(dataset)==1){
-      mgen <- rep(1,sum(population$info$size[1,]))
-      msex <- c(rep(1,population$info$size[1,1]), rep(2, population$info$size[1,2]))
-      mnr <- c(1:population$info$size[1,1], 1:population$info$size[1,2])
-      if(population$info$size[1,1]==0){
-        mnr <- 1:population$info$size[1,2]
-      }
-      if(population$info$size[1,2]==0){
-        mnr <- 1:population$info$size[1,1]
-      }
-      mgeno <- miraculix::computeSNPS(population, mgen, msex, mnr, what = "geno", output_compressed=TRUE)
-      p_i <- miraculix::allele_freq(mgeno)
+    if(n_traits>0){
+      population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,7]),
+                                   shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
+                                   shuffle.traits=1:n_traits)
     }
-    # Correct Scaling
 
 
-    snp.before <- cumsum(c(0,population$info$snp))
-    for(index in 1:n_traits){
-      effect_p <- population$info$real.bv.add[[index]][,1]+ snp.before[population$info$real.bv.add[[index]][,2]]
-      mean <- population$info$real.bv.add[[index]][,3]*(1-p_i[effect_p])^2 + population$info$real.bv.add[[index]][,4]*(1-p_i[effect_p])*p_i[effect_p] +
-        population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
-      new_var <- as.numeric(trait_matrix[index,5])
-      old_var <- sum((population$info$real.bv.add[[index]][,3]-mean)^2*(1-p_i[effect_p])^2)+
-        sum((population$info$real.bv.add[[index]][,4]-mean)^2*(1-p_i[effect_p])*p_i[effect_p]) +
-        sum((population$info$real.bv.add[[index]][,5]-mean)^2*(p_i[effect_p])^2)
-      population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(new_var / old_var)
 
-      mqtl <- NULL
-      if(length(major[[index]])>0){
-        for(index in 1:length(major[[index]])){
-          rbind(mqtl, as.numeric(unlist(major[[index]]))[1:7])
+
+    if(n_traits>0){
+      if(length(dataset)==1){
+        mgen <- rep(1,sum(population$info$size[1,]))
+        msex <- c(rep(1,population$info$size[1,1]), rep(2, population$info$size[1,2]))
+        mnr <- c(1:population$info$size[1,1], 1:population$info$size[1,2])
+        if(population$info$size[1,1]==0){
+          mnr <- 1:population$info$size[1,2]
         }
+        if(population$info$size[1,2]==0){
+          mnr <- 1:population$info$size[1,1]
+        }
+        if(miraculix){
+          mgeno <- miraculix::computeSNPS(population, mgen, msex, mnr, what = "geno", output_compressed=TRUE)
+          p_i <- miraculix::allele_freq(mgeno)
+        } else{
+          mgeno <- matrix(0, nrow=sum(population$info$snp), ncol=length(mgen))
+          for(index in 1:length(mgen)){
+            mgeno[,index] <- colSums(compute.snps(population, mgen[index], msex[index], mnr[index]))
+          }
+          p_i <- rowMeans(mgeno)/2
+        }
+
       }
-      mqtl <- mqtl[mqtl[,1]!=0,,drop=FALSE]
-      population$info$real.bv.add[[index]] <- rbind(population$info$real.bv.add[[index]],
-                                                    mqtl[,c(1,4:7)])
-      population$info$base.bve[index] <- traitmean[index] - sum(mqtl[,5:7]*c(1,2,1)/4) - sum(mean)
+      # Correct Scaling
+
+
+      snp.before <- cumsum(c(0,population$info$snp))
+
+      for(index in 1:n_traits){
+        effect_p <- population$info$real.bv.add[[index]][,1]+ snp.before[population$info$real.bv.add[[index]][,2]]
+        mean <- population$info$real.bv.add[[index]][,3]*(1-p_i[effect_p])^2 + population$info$real.bv.add[[index]][,4]*(1-p_i[effect_p])*p_i[effect_p] +
+          population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
+        new_var <- as.numeric(trait_matrix[index,5])
+        old_var <- sum((population$info$real.bv.add[[index]][,3]-mean)^2*(1-p_i[effect_p])^2)+
+          sum((population$info$real.bv.add[[index]][,4]-mean)^2*(1-p_i[effect_p])*p_i[effect_p]) +
+          sum((population$info$real.bv.add[[index]][,5]-mean)^2*(p_i[effect_p])^2)
+        population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(new_var / old_var)
+
+        mean <- population$info$real.bv.add[[index]][,3]*(1-p_i[effect_p])^2 + population$info$real.bv.add[[index]][,4]*(1-p_i[effect_p])*p_i[effect_p] +
+          population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
+
+        mqtl <- NULL
+        if(length(major[[index]])>0){
+          for(index2 in 1:length(major[[index]])){ ### XXX index2
+            rbind(mqtl, as.numeric(unlist(major[[index2]]))[1:7]) ### XXX index2
+          }
+        }
+        mqtl <- mqtl[mqtl[,1]!=0,,drop=FALSE]
+        population$info$real.bv.add[[index]] <- rbind(population$info$real.bv.add[[index]],
+                                                      mqtl[,c(1,4:7)])
+        population$info$base.bv[index] <- traitmean[index] - sum(mqtl[,5:7]*c(1,2,1)/4) - sum(mean)
+      }
+
     }
 
 
@@ -493,27 +597,46 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         nodes[[to_node]]$RelationshipMatrix <- edges[[index]]$RelationshipMatrix
         nodes[[to_node]]$BVEMethod <- edges[[index]]$BVEMethod
         nodes[[to_node]]$offspring <- edges[[index]]$offspring
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="Reproduction"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="Recombination"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
         nodes[[to_node]]$mutation <- edges[[index]]$New_Mutation_Rate
         nodes[[to_node]]$remutation <- edges[[index]]$New_Remutation_Rate
         nodes[[to_node]]$recom <- edges[[index]]$Number_of_Recombination_Per_M
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="Reproduction_Selfing"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="DH_Gene"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="Cloning"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
       if(nodes[[to_node]]$Breedingtype=="Combine"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
+      }
+      if(nodes[[to_node]]$Breedingtype=="Aging"){
+        nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$time_needed <- c(nodes[[to_node]]$time_needed,edges[[index]]$time_needed)
       }
 
     }
@@ -604,6 +727,17 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         migration.level.m <- involved_groups[involved_groups[,2]==1,3]
         migration.level.w <- involved_groups[involved_groups[,2]==2,3]
 
+        # Derive time.point
+        time.point <- 0
+        origins <- nodes[[which(ids==group)]]$origin
+        time_needed <- nodes[[which(ids==group)]]$time_needed
+        for(temp1 in 1:length(origins)){
+          time.point <- as.numeric(population$info$cohorts[population$info$cohorts[,1]==origins[temp1],8]) + time_needed[temp1]
+
+        }
+        time.point <- max(nodes[[which(ids==group)]]$earliest_time, time.point)
+
+
 
         if(nodes[[groupnr]]$Breedingtype=="Selection"){
           activemmreml <- FALSE
@@ -636,10 +770,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
           if(nodes[[groupnr]]$offspring=="Yes"){
             bve.childbase.parents <- involved_groups[,1:2,drop=FALSE]
             if(length(pheno.sex)==1){
-              bve.childbase.children <- cbind((min(bve.childbase.parents[,1])+1): length(used.generations.m),pheno.sex)
+              bve.childbase.children <- cbind((min(bve.childbase.parents[,1])+1): nrow(population$info$size),pheno.sex)
             } else{
-              bve.childbase.children <- rbind(cbind((min(bve.childbase.parents[,1])+1): length(used.generations.m),1),
-                                              cbind((min(bve.childbase.parents[,1])+1): length(used.generations.m),2))
+              bve.childbase.children <- rbind(cbind((min(bve.childbase.parents[,1])+1): nrow(population$info$size),1),
+                                              cbind((min(bve.childbase.parents[,1])+1): nrow(population$info$size),2))
             }
 
             population <- breeding.diploid(population, breeding.size=breeding.size,
@@ -666,12 +800,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                            used.generations.m = used.generations.m,
                                            used.generations.f = used.generations.w,
                                            new.class = new_mig[sex],
-                                           new.bv.observation.sex = pheno.sex,
                                            multiple.bve.scale=TRUE,
                                            multiple.bve.weights = trait_weigths,
                                            remove.effect.position = remove.effect.position,
                                            name.cohort = nodes[[groupnr]]$label,
-                                           bve.class=c(migration.level.m, migration.level.w))
+                                           bve.class=c(migration.level.m, migration.level.w),
+                                           time.point = time.point,
+                                           creating.type = 1)
           } else{
             population <- breeding.diploid(population, breeding.size=breeding.size,
                                            bve=bve, computation.A = computeA,
@@ -694,12 +829,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                            used.generations.m = used.generations.m,
                                            used.generations.f = used.generations.w,
                                            new.class = new_mig[sex],
-                                           new.bv.observation.sex = pheno.sex,
                                            multiple.bve.scale=TRUE,
                                            multiple.bve.weights = trait_weigths,
                                            remove.effect.position = remove.effect.position,
                                            name.cohort = nodes[[groupnr]]$label,
-                                           bve.class=c(migration.level.m, migration.level.w))
+                                           bve.class=c(migration.level.m, migration.level.w),
+                                           time.point = time.point,
+                                           creating.type = 1)
           }
 
         } else if(nodes[[groupnr]]$Breedingtype=="Reproduction"){
@@ -720,8 +856,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          new.class = new_mig[sex],
                                          same.sex.activ = same.sex.activ,
                                          same.sex.sex = same.sex.sex,
-                                         new.bv.observation.sex = pheno.sex,
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 2)
         } else if(nodes[[groupnr]]$Breedingtype=="Reproduction_Selfing"){
 
           selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -741,8 +878,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          used.generations.m = used.generations.m,
                                          used.generations.f = used.generations.w,
                                          new.class = new_mig[sex],
-                                         new.bv.observation.sex = pheno.sex,
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 4)
         } else if(nodes[[groupnr]]$Breedingtype=="DH_Gene"){
 
           dh.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -764,8 +902,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          used.generations.m = used.generations.m,
                                          used.generations.f = used.generations.w,
                                          new.class = new_mig[sex],
-                                         new.bv.observation.sex = pheno.sex,
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 5)
         } else if(nodes[[groupnr]]$Breedingtype=="Recombination"){
 
           population <- breeding.diploid(population, breeding.size=breeding.size,
@@ -785,8 +924,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          used.generations.m = used.generations.m,
                                          used.generations.f = used.generations.w,
                                          new.class = new_mig[sex],
-                                         new.bv.observation.sex = pheno.sex,
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 3)
         } else if(nodes[[groupnr]]$Breedingtype=="Cloning"){
 
           selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -807,8 +947,35 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          used.generations.m = used.generations.m,
                                          used.generations.f = used.generations.w,
                                          new.class = new_mig[sex],
-                                         new.bv.observation.sex = pheno.sex,
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 6)
+
+        } else if(nodes[[groupnr]]$Breedingtype=="Aging"){
+
+          selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
+          population <- breeding.diploid(population, breeding.size=breeding.size,
+                                         selection.size= selection.size,
+                                         copy.individual = TRUE,
+                                         selfing.mating = TRUE,
+                                         selfing.sex =  selfing.sex,
+                                         heritability = heritability,
+                                         sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
+                                         new.bv.observation = "non_obs",
+                                         selection.m = "random",
+                                         phenotype.bv = phenotype.bv,
+                                         add.gen = generation,
+                                         bve.database = involved_groups[,1:2, drop=FALSE],
+                                         class.m = migration.level.m,
+                                         class.f = migration.level.w,
+                                         used.generations.m = used.generations.m,
+                                         used.generations.f = used.generations.w,
+                                         new.class = new_mig[sex],
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         max.offspring = 1,
+                                         time.point = time.point,
+                                         creating.type = 8)
+
         } else if(nodes[[groupnr]]$Breedingtype=="Combine"){
           selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
 
@@ -828,7 +995,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          used.generations.m = used.generations.m,
                                          used.generations.f = used.generations.w,
                                          new.class = new_mig[sex],
-                                         name.cohort = nodes[[groupnr]]$label)
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 7)
         }
 
         position[groupnr,] <- c(generation, sex, new_mig[sex], sum(breeding.size))
@@ -848,6 +1017,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
     }
 
   }
+
+  ############## Attach json-infos ########################
+
+  population$info$json <- list(nodes, edges, geninfo, traitinfo, major)
 
   return(population)
 

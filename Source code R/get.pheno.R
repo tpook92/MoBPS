@@ -30,30 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 get.pheno <- function(population, database=NULL, gen=NULL, cohorts=NULL){
 
-  if(length(gen)>0){
-    database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
-  }
-  if(length(database)>0 && ncol(database)==2){
-    start <- end <- numeric(nrow(database))
-    for(index in 1:nrow(database)){
-      start[index] <- 1
-      end[index] <- population$info$size[database[index,1], database[index,2]]
-    }
-    database <- cbind(database, start, end)
-  }
-  if(length(cohorts)>0){
-    database2 <- matrix(0, nrow=length(cohorts), ncol=4)
-    for(index in 1:length(cohorts)){
-      row <- which(population$info$cohorts==cohorts[index])
-      gen <- as.numeric(population$info$cohorts[row,2])
-      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
-      first <- as.numeric(population$info$cohorts[row,5 + sex])
-      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
-      database2[index,] <- c(gen,sex,first,last)
-    }
-    database <- rbind(database, database2)
-  }
-
+  database <- get.database(population, gen, database, cohorts)
 
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- matrix(0, ncol=n.animals, nrow=population$info$bv.nr)
