@@ -122,7 +122,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              beta_shape2=1,
                              time.point=0,
                              creating.type=0,
-                             trait.name=NULL){
+                             trait.name=NULL,
+                             map=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
