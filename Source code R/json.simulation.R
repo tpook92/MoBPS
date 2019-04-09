@@ -29,14 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect.position=FALSE){
-  if(length(file)>0){
-    if (requireNamespace("jsonlite", quietly = TRUE)) {
-      total <- jsonlite::read_json(path=file)
-    } else{
-      stop("Usage of jsonlite without being installed!")
-    }
-
+  if(requireNamespace("miraculix", quietly = TRUE)){
+    miraculix <- TRUE
+    library(miraculix)
+  } else{
+    miraculix <- FALSE
   }
+
+  total <- read_json(path="C:/Users/pook/Desktop/reference1.json")
   nodes <- total[[1]]
   edges <- total[[2]]
   geninfo <- total[[3]]
@@ -67,7 +67,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
     vector_pheno <- unlist(total[[6]])
     vector_gen <- unlist(total[[7]])
     for(index1 in 1:n_traits){
-      for(index2 in index1:n_traits){
+      for(index2 in 1:index1){
         cor_pheno[index2,index1] <- cor_pheno[index1,index2] <- vector_pheno[nr]
         cor_gen[index2,index1] <- cor_gen[index1,index2] <- vector_gen[nr]
         nr <- nr + 1
@@ -86,6 +86,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
   # 6 - Cloning
   # 7 - Combine
   # 8 - Aging
+  # 9 - Split
 
 
   #### Character - Numeric trafo ######
@@ -96,7 +97,6 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
 
   #### MANUEL MODIFICATION:
-
   {
     pheno.sex <- 1:2
     remove.effect.position <- FALSE
@@ -104,6 +104,19 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
   ######################## REALITY - CHECKS ############################
   {
+    for(index in 1:length(nodes)){
+      if(nodes[[index]]$Sex=="Both" && (nodes[[index]]$`Proportion of Male`==0 ||nodes[[index]]$`Proportion of Male`==1)){
+        nodes[[index]]$`Proportion of Male` <- 0.5
+        cat("Both node used with only one sex - set Proportion of male to 0.5. \n")
+      }
+    }
+    for(index in 1:length(edges)){
+      if(length(edges[[index]]$'Use Offspring for BVE')==0){
+        cat("Manually entered Use offspring for BVE \n")
+        edges[[index]]$'Use Offspring for BVE' <- "No" ## Ask Thuy if implemented XXX
+      }
+    }
+
     {
       for(index in 1:length(nodes)){
         if(length(nodes[[index]]$earliest_time)==0){
@@ -116,7 +129,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
       for(index in 1:length(edges)){
         if(length(edges[[index]]$'Time Needed')==0){
           print("Manually entered time_needed")
-          if(edges[[index]]$'Breeding Type'=="Selection" ||edges[[index]]$'Breeding Type'=="Combine"){
+          if(edges[[index]]$'Breeding Type'=="Selection" ||edges[[index]]$'Breeding Type'=="Combine" || edges[[index]]$'Breeding Type'=="Split"){
             edges[[index]]$'Time Needed' <- 0
           } else{
             edges[[index]]$'Time Needed' <- 1
@@ -153,6 +166,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
     }
 
     # All edges
+    for(index in length(edges):1){
+      if(sum(edges[[index]]$to==ids)==0 || sum(edges[[index]]$from==ids)==0){
+        cat("Remove illegal edge. Connected Node not present\n")
+        edges[[index]] <- NULL
+      }
+    }
+
     for(index in 1:length(edges)){
       if(edges[[index]]$'Breeding Type'==""){
         cat(paste0("Edge ", edges[[index]]$Name, " without breeding type. Invalid breeding program!\n"))
@@ -244,6 +264,12 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
       sex2 <- sex[which(edges[[index]]$to==ids)]
       if(sex1!=sex2 && edges[[index]]$'Breeding Type'!="Reproduction"){
         edges[[index]] <- NULL
+        #      if(sex1==2){
+        #        cat("Invalid Edge to generate female from male individuals")
+        #      } else{
+        #        cat("Invalid Edge to generate male from female individuals")
+        #      }
+
       }
     }
 
@@ -399,13 +425,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
     } else if(geninfo$'Chromosomes of Equal Length'=="Yes"){
       nchromo <- as.numeric(geninfo$'Number of Chromosomes')
-      nsnp <- rep(as.numeric(geninfo$'Chromosomes Info'[[1]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[1]]$MD), nchromo)
+      nsnp <- ceiling(rep(as.numeric(geninfo$'Chromosomes Info'[[1]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[1]]$MD), nchromo))
       chromo.length <- rep(as.numeric(geninfo$'Chromosomes Info'[[1]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[1]]$Recombination, nchromo) /100, nchromo)
     } else{
       nchromo <- as.numeric(geninfo$'Number of Chromosomes')
       chromo.length <- nsnp <- numeric(nchromo)
       for(index in 1:nchromo){
-        nsnp[index] <- rep(as.numeric(geninfo$'Chromosomes Info'[[index]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[index]]$MD), nchromo)
+        nsnp[index] <- ceiling(rep(as.numeric(geninfo$'Chromosomes Info'[[index]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[index]]$MD), nchromo))
         chromo.length[index] <- rep(as.numeric(geninfo$'Chromosomes Info'[[index]]$Length) * as.numeric(geninfo$'Chromosomes Info'[[index]]$Recombination, nchromo) /100, nchromo)
 
       }
@@ -470,7 +496,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         new_mig[2] <- new_mig[2] + 1
       }
       position[founder[index],] <- c(1, sex, mig, size)
-      if(nchar(nodes[[founder[index]]]$Path)>0){
+      if(length(nodes[[founder[index]]]$Path)>0 && nchar(nodes[[founder[index]]]$Path)>0){
         founder_data <- TRUE
       }
 
@@ -490,7 +516,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
       }
       starts <- cumsum(c(1, position[founder,4]))*2-1
       for(path in unique(c("",path_list))[-1]){
+        Map <- map ## Lisas subpos contain a element named map"
         load(path)
+        map <- Map
         takes <- which(path_list==path)
         no_data[takes] <- 1
         take <- NULL
@@ -501,6 +529,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
           nsnp <- floor(nsnp*nrow(haplo)/sum(nsnp))
           nsnp[1] <- nsnp[1] + nrow(haplo)-sum(nsnp)
           dataset <- matrix(0L, nrow= sum(nsnp), ncol = sum(position[,4])*2)
+          map <- NULL
+          for(index in 1:nchromo){
+            map <- rbind(map, cbind(index, paste0("SNP", 1:nsnp[index]), NA, NA, NA))
+          }
         }
         if(length(haplo) != length(dataset[,take])){
           cat("Size of Founder-dataset not in concorance with node size!\n")
@@ -571,7 +603,8 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
     if(n_traits>0){
       population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),
                                    shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
-                                   shuffle.traits=1:n_traits)
+                                   shuffle.traits=1:n_traits,
+                                   trait.name = trait_matrix[,1])
     }
 
 
@@ -619,9 +652,9 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
           population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
 
         mqtl <- to_enter <- NULL
-        if(length(major[[index]])>0){
+        if(length(major[[index]])>1){
           mqtl <- matrix(unlist(major[[index]]), ncol=8, byrow=TRUE)
-          to_enter <- mqtl[,c(1,4:7)]
+          to_enter <- mqtl[,c(1,4:7), drop=FALSE]
           storage.mode(to_enter) <- "numeric"
         }
 
@@ -660,6 +693,11 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
         nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
         nodes[[to_node]]$'Selection Index' <- edges[[index]]$'Selection Index'
+      }
+      if(nodes[[to_node]]$'Breeding Type'=="Split"){
+        nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
+        nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
+        nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
       }
       if(nodes[[to_node]]$'Breeding Type'=="Reproduction"){
         nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
@@ -720,6 +758,24 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
   }
 
+  # Check for Split nodes
+  to_split <- NULL
+  split_info <- list()
+  split_part <- list()
+  for(index in 1:length(edges)){
+    if(edges[[index]]$'Breeding Type'=="Split"){
+      to_split <- unique(c(to_split, edges[[index]]$from))
+      split_nr <- which(to_split==edges[[index]]$from)
+      nodes_nr <- which(edges[[index]]$from==ids)
+      split_info[[split_nr]] <- 1:nodes[[nodes_nr]]$'Number of Individuals'
+      if(length(split_part)>= split_nr){
+        split_part[[split_nr]] <- c(split_part[[split_nr]], edges[[index]]$to)
+      } else{
+        split_part[[split_nr]] <- edges[[index]]$to
+      }
+
+    }
+  }
 
   ############## Actual simulations ########################
   {
@@ -767,34 +823,22 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
         sex <- as.numeric(nodes[[groupnr]]$'Sex'=="Female") + 1
 
 
-        breeding.size <- as.numeric(nodes[[groupnr]]$individual) * c(sex==1, sex==2)
-        involved_groups <- position[nodes[[groupnr]]$origin,,drop=FALSE]
-        involved_groups <- unique(position[nodes[[groupnr]]$origin,,drop=FALSE])
-        selection.size <- c(sum(involved_groups[,4]*(involved_groups[,2]==1)), sum(involved_groups[,4] * (involved_groups[,2]==2)))
+        breeding.size <- as.numeric(nodes[[groupnr]]$'Number of Individuals') * c(sex==1, sex==2)
+        involved_cohorts <- nodes[[groupnr]]$origin
+        cohort_data <- population$info$cohorts[involved_cohorts,,drop=FALSE]
+        sex_cohorts <- (as.numeric(cohort_data[,3])==0) +1
+        selection.size <- c(sum(as.numeric(cohort_data[,3])), sum(as.numeric(cohort_data[,4])))
 
+        cohorts.m <- involved_cohorts[sex_cohorts==1]
+        cohorts.f <- involved_cohorts[sex_cohorts==2]
 
-        used.generations.m <- numeric(generation-1)
-        for(index in 1:nrow(involved_groups)){
-          if(involved_groups[index,2]==1){
-            used.generations.m[involved_groups[index,1]] <- used.generations.m[involved_groups[index,1]] + involved_groups[index,4]
-          }
-        }
-        used.generations.w <- numeric(generation-1)
-        for(index in 1:nrow(involved_groups)){
-          if(involved_groups[index,2]==2){
-            used.generations.w[involved_groups[index,1]] <- used.generations.w[involved_groups[index,1]] + involved_groups[index,4]
-          }
-        }
-        migration.level.m <- involved_groups[involved_groups[,2]==1,3]
-        migration.level.w <- involved_groups[involved_groups[,2]==2,3]
-
+        involved_groups <- cbind(as.numeric(cohort_data[,2]), sex_cohorts)
         # Derive time.point
         time.point <- 0
         origins <- nodes[[which(ids==group)]]$origin
         time_needed <- as.numeric(nodes[[which(ids==group)]]$'Time Needed')
         for(temp1 in 1:length(origins)){
           time.point <- as.numeric(population$info$cohorts[population$info$cohorts[,1]==origins[temp1],8]) + time_needed[temp1]
-
         }
         time.point <- max(nodes[[which(ids==group)]]$earliest_time, time.point)
 
@@ -855,16 +899,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                            bve.database = involved_groups[,1:2, drop=FALSE],
                                            selfing.mating=TRUE,
                                            selfing.sex=(sex-1),
-                                           class.m = migration.level.m,
-                                           class.f = migration.level.w,
-                                           used.generations.m = used.generations.m,
-                                           used.generations.f = used.generations.w,
+                                           best1.from.cohort = cohorts.m,
+                                           best2.from.cohort = cohorts.f,
                                            new.class = new_mig[sex],
                                            multiple.bve.scale=TRUE,
                                            multiple.bve.weights = selection_index[which(selection_index_name==nodes[[groupnr]]$'Selection Index')],
                                            remove.effect.position = remove.effect.position,
                                            name.cohort = nodes[[groupnr]]$label,
-                                           bve.class=c(migration.level.m, migration.level.w),
                                            time.point = time.point,
                                            creating.type = 1)
           } else{
@@ -884,16 +925,13 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                            bve.database = involved_groups[,1:2, drop=FALSE],
                                            selfing.mating=TRUE,
                                            selfing.sex=(sex-1),
-                                           class.m = migration.level.m,
-                                           class.f = migration.level.w,
-                                           used.generations.m = used.generations.m,
-                                           used.generations.f = used.generations.w,
+                                           best1.from.cohort = cohorts.m,
+                                           best2.from.cohort = cohorts.f,
                                            new.class = new_mig[sex],
                                            multiple.bve.scale=TRUE,
                                            multiple.bve.weights = selection_index[which(selection_index_name==nodes[[groupnr]]$'Selection Index')],
                                            remove.effect.position = remove.effect.position,
                                            name.cohort = nodes[[groupnr]]$label,
-                                           bve.class=c(migration.level.m, migration.level.w),
                                            time.point = time.point,
                                            creating.type = 1)
           }
@@ -906,13 +944,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         #                                     phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          same.sex.activ = same.sex.activ,
                                          same.sex.sex = same.sex.sex,
@@ -930,13 +965,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          time.point = time.point,
@@ -954,13 +986,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          time.point = time.point,
@@ -976,13 +1005,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          time.point = time.point,
@@ -999,13 +1025,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          time.point = time.point,
@@ -1013,7 +1036,7 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
 
         } else if(nodes[[groupnr]]$'Breeding Type'=="Aging"){
 
-          selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
+          selfing.sex <- (as.numeric(selection.size[2])>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
           population <- breeding.diploid(population, breeding.size=breeding.size,
                                          selection.size= selection.size,
                                          copy.individual = TRUE,
@@ -1023,13 +1046,10 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
                                          new.bv.observation = "non_obs",
                                          selection.m = "random",
-                                         phenotype.bv = phenotype.bv,
                                          add.gen = generation,
                                          bve.database = involved_groups[,1:2, drop=FALSE],
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          max.offspring = 1,
@@ -1037,27 +1057,51 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
                                          creating.type = 8)
 
         } else if(nodes[[groupnr]]$'Breeding Type'=="Combine"){
-          selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
+          selfing.sex <- (as.numeric(selection.size[2])>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
 
-          if(sum(breeding.size)!=sum(c(used.generations.m,used.generations.w))){
-            cat("Number of individuals in combined note doesnt fit - automatically changed!\n")
-            breeding.size <- breeding.size * sum(c(used.generations.m,used.generations.w)) / sum(breeding.size)
-          }
           population <- breeding.diploid(population, breeding.size=breeding.size,
                                          selection.size= breeding.size,
                                          copy.individual = TRUE,
                                          max.offspring = c(1,1),
                                          selfing.mating=TRUE,
                                          selfing.sex=selfing.sex,
-                                         class.m = migration.level.m,
-                                         class.f = migration.level.w,
                                          add.gen = generation,
-                                         used.generations.m = used.generations.m,
-                                         used.generations.f = used.generations.w,
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
                                          new.class = new_mig[sex],
                                          name.cohort = nodes[[groupnr]]$label,
                                          time.point = time.point,
                                          creating.type = 7)
+        } else if(nodes[[groupnr]]$'Breeding Type'=="Split"){
+
+          split_nr <- which(nodes[[groupnr]]$origin==to_split)
+
+          selfing.sex <- (as.numeric(selection.size[2])>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
+          population <- breeding.diploid(population, breeding.size=breeding.size,
+                                         selection.size= breeding.size,
+                                         max.offspring = c(1,1),
+                                         copy.individual = TRUE,
+                                         selfing.mating = TRUE,
+                                         selfing.sex =  selfing.sex,
+                                         heritability = heritability,
+                                         sigma.e.database = cbind(1,(1:2)[population$info$size[1,]>0]),
+                                         new.bv.observation = "non_obs",
+                                         selection.m = "random",
+                                         add.gen = generation,
+                                         bve.database = involved_groups[,1:2, drop=FALSE],
+                                         best1.from.cohort = cohorts.m,
+                                         best2.from.cohort = cohorts.f,
+                                         reduced.selection.panel.m = split_info[[split_nr]],
+                                         reduced.selection.panel.f = split_info[[split_nr]],
+                                         new.class = new_mig[sex],
+                                         name.cohort = nodes[[groupnr]]$label,
+                                         time.point = time.point,
+                                         creating.type = 9,
+                                         store.breeding.totals = TRUE)
+          print(split_info)
+          split_info[[split_nr]] <- sort(setdiff(split_info[[split_nr]], split_info[[split_nr]][population$info$breeding.totals[[length(population$info$breeding.totals)]][[7]][[selfing.sex+1]]]))
+          print(split_info)
+
         }
 
         position[groupnr,] <- c(generation, sex, new_mig[sex], sum(breeding.size))
@@ -1081,7 +1125,6 @@ json.simulation <- function(file=NULL, total=NULL, miraculix=TRUE, remove.effect
   ############## Attach json-infos ########################
 
   population$info$json <- list(nodes, edges, geninfo, traitinfo, major)
-
   return(population)
 
 }
