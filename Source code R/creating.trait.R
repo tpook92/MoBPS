@@ -46,6 +46,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param base.bv Average genetic value of a trait
 #' @param new.phenotype.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
+#' @param trait.name Name of the trait generated
 #' @export
 
 creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL,
@@ -65,7 +66,8 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            randomSeed=NULL,
                            shuffle.traits=NULL,
                            shuffle.cor= NULL,
-                           replace.real.bv=FALSE){
+                           replace.real.bv=FALSE,
+                           trait.name=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -492,6 +494,25 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
         col <- col +1
       }
 
+    }
+  }
+
+  if(bv.total){
+    population$info$trait.name <- trait.name
+    if(length(trait.name)<bv.total){
+      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+    }
+  }
+
+  # Add traits with no generated phenotypes
+  for(gen in 1:length(population$breeding)){
+    for(sex in 1:2){
+      if(length(population$breeding[[gen]][[sex]])>0){
+        to_add <- population$info$bv.nr - length(population$breeding[[gen]][[sex]][[1]][[15]])
+        for(index in 1:length(population$breeding[[gen]][[sex]][[index]])){
+          population$breeding[[gen]][[sex]][[index]][[15]] <- c(population$breeding[[gen]][[sex]][[index]][[15]], rep(0, to_add))
+        }
+      }
     }
   }
 

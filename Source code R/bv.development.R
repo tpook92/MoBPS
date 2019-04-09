@@ -37,6 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param development Include development of (1- bv, 2- bve, 3- pheno; default: c(1,2,3))
 #' @param display.cohort.name Set TRUE to display the name of the cohort in the x-axis
 #' @param display.sex Set TRUE to display the creating.type (Shape of Points - web-based-application)
+#' @param display.line Set FALSE to not display the line connecting cohorts
+#' @param time_reorder Set TRUE to order cohorts according to the time point of generation
 #' @export
 
 bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
@@ -46,7 +48,9 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
                            display.creating.type=FALSE,
                            display.cohort.name=FALSE,
                            display.sex=FALSE,
-                           equal.spacing = FALSE){
+                           equal.spacing = FALSE,
+                           time_reorder=FALSE,
+                           display.line=TRUE){
 
   if(length(bvrow)==1 && bvrow=="all"){
     bvrow <- 1:population$info$bv.nr
@@ -64,7 +68,7 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     for(index in 1:length(ids)){
       ids[index] <- population$info$json[[1]][[index]]$label
       if(length(population$info$json[[1]][[index]]$bv_plot)>0){
-        to_plot[index] <- population$info$json[[1]][[index]]$bv_plot
+        to_plot[index] <- population$info$json[[1]][[index]]$'BV Plot'
       }
       cohorts <- ids[which(to_plot>0)]
       if(length(cohorts)==0){
@@ -158,12 +162,18 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     ob <- means + sds * q
 
     # time sort
-    reorder <- sort(time_plot, index.return=TRUE)$ix
+    if(time_reorder){
+      reorder <- sort(time_plot, index.return=TRUE)$ix
+    } else{
+      reorder <- 1:length(time_plot)
+    }
+
     means <- means[,reorder]
     sds <- sds[,reorder]
     all0 <- all0[,reorder]
     time_plot <- time_plot[reorder]
     type_plot <- type_plot[reorder]
+    sex <- sex[reorder]
 
     if(equal.spacing){
       xlabel <- time_plot
@@ -176,12 +186,13 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     } else{
       graphics::par(mar=c(4.1,4.1,2.1,0.1))
     }
-    graphics::plot(time_plot, means[1,],type="l",  main=paste("Development of breeding values - Trait", nr),
+
+    graphics::plot(time_plot, means[1,],type=if(display.line) {"l"} else {NULL},  main=paste("Development:", population$info$trait.name[nr]),
                    xlab=if(display.cohort.name){""}else{"time"}, ylab="breeding value", ylim=c(min(ub, na.rm=TRUE),max(ob, na.rm=TRUE)), lwd=2,
-                   xaxt = if(display.cohort.name || equal.spacing){'n'}else {NULL})
+                   xaxt = if(display.cohort.name || equal.spacing){'n'}else {NULL}, cex=1.5)
     graphics::lines(time_plot, means[2,], col="blue", lwd=2)
     graphics::lines(time_plot, means[3,], col="red", lwd=2)
-    graphics::points(time_plot, means[1,], pch=type_plot, col= c("black", "blue", "red")[sex+1], cex=1.5)
+    graphics::points(time_plot, means[1,], pch=type_plot, col= c("black", "blue", "red")[sex+1], cex=1.5, lwd=2)
 #    graphics::points(means[2,], pch=type_plot, col="blue")
 #    graphics::points(means[3,], pch=type_plot, col="red")
     for(art in confidence){
@@ -191,7 +202,7 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     graphics::legend("bottomright",c("breeding value","breeding value estimate","phenotype")[inc], lty=c(1,1,1)[inc], col=color[inc], lwd=c(2,2,2)[inc])
     temp1 <- unique(type_plot)
     if(length(temp1)>1){
-      graphics::legend("topleft", c("Founder", "Selection", "Reproduction", "Recombination", "Selfing", "DH-Gene", "Cloning", "Combine", "Aging")[temp1+1],
+      graphics::legend("topleft", c("Founder", "Selection", "Reproduction", "Recombination", "Selfing", "DH-Gene", "Cloning", "Combine", "Aging", "Split")[temp1+1],
                        pch=temp1, cex=0.75)
     }
     if(equal.spacing && !display.cohort.name){

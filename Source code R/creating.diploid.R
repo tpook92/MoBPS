@@ -81,13 +81,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param beta_shape2 Second parameter of the beta distribution for simulating allele frequencies
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
+#' @param trait.name Name of the trait generated
+#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @examples
 #' creating.diploid(dataset="random", nindi=100, nsnp=1000)
 #' @export
 
 creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
                              bpcm.conversion=0,
-                             nsnp=0, nindi=0, freq="unif", population=NULL, sex.s="fixed",
+                             nsnp=0, nindi=0, freq="beta", population=NULL, sex.s="fixed",
                              add.chromosome=FALSE, generation=1, class=0L,
                              sex.quota = 0.5, chromosome.length=NULL,length.before=5, length.behind=5,
                              real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
@@ -100,7 +102,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              position.scaling=FALSE,
                              bit.storing=FALSE,
                              nbits=30, randomSeed=NULL,
-                             miraculix=FALSE,
+                             miraculix=TRUE,
                              n.additive=0,
                              n.dominant=0,
                              n.qualitative=0,
@@ -119,10 +121,34 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              beta_shape1=1,
                              beta_shape2=1,
                              time.point=0,
-                             creating.type=0){
+                             creating.type=0,
+                             trait.name=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
+  }
+
+  if(length(map)>0){
+    while(ncol(map)<5){
+      map <- cbind(map, NA)
+      chr.nr <- map[,1]
+      snp.name <- map[,2]
+      if(sum(!is.na(map[,3]))>0){
+        if(length(bp)==0){
+          bp <- numeric(nrow(map))
+        }
+        bp[!is.na(map[,3])] <- map[!is.na(map[,3]),3]
+      }
+      if(sum(!is.na(map[,4]))==nrow(map)){
+        snp.position <- map[,4]
+      }
+      if(sum(!is.na(map[,5]))==nrow(map)){
+        freq <- map[,5]
+      }
+
+
+
+    }
   }
   if(length(chromosome.length)==0 || (length(chromosome.length)==1 && chromosome.length==0)){
     if(length(snp.position)>0){
@@ -268,9 +294,6 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
-    if(sum(nsnp)>0 && length(freq)==1 && freq=="unif"){
-      freq <- stats::runif(sum(nsnp))
-    }
     if(sum(nsnp)>0 && length(freq)==1 && freq=="beta"){
       freq <- stats::rbeta(sum(nsnp), shape1=beta_shape1, shape2=beta_shape2)
     }
@@ -279,6 +302,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     if(length(freq)>1 && length(freq)>sum(nsnp)){
       nsnp <- length(freq)
+    }
+    if(length(freq)>0 && sum(is.na(freq))>0){
+      replace <- which(is.na(freq))
+      freq[replace] <- stats::rbeta(sum(is.na(freq)), shape1=beta_shape1, shape2=beta_shape2)
+      freq <- as.numeric(freq)
     }
 
 
@@ -896,7 +924,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[11]] <- NULL
         population$breeding[[generation]][[sex]][[counter[sex]]][[12]] <- NULL
         #      population$breeding[[generation]][[sex]][[counter[sex]]][[13]] <- "test"
-        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- 0
+        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0, population$info$bv.nr)
         population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- 0
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
@@ -1149,7 +1177,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         hom1_activ <- hom1[activ]
         dataset_activ <- dataset[activ,]
         snp.position_activ <- position[activ]
-
+        freq_activ <- freq[activ]
         if(chr_index==1){
           skip.rest <- FALSE
           add.chromosome <- add.chromosome
@@ -1184,6 +1212,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        real.bv.add = real.bv.add,
                                        real.bv.mult = real.bv.mult,
                                        real.bv.dice = real.bv.dice,
+                                       freq = freq_activ,
                                        bpcm.conversion = bpcm.conversion[chr_index])
       }
     } else{
@@ -1235,7 +1264,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
-
+  if(bv.total){
+    population$info$trait.name <- trait.name
+    if(length(trait.name)<bv.total){
+      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+    }
+  }
   if(length(population$info$real.bv.add)==0){
     population$info$real.bv.add <- list()
     population$info$real.bv.mult <- list()

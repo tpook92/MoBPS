@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Generate LD pot
 #' @param population Population list
+#' @param genotype.dataset Genotype dataset (default: NULL - just to save computation time when get.geno was already run)
 #' @param step Stepsize to calculate LD
 #' @param max Maximum distance between markers to consider for LD-plot
 #' @param database Groups of individuals to consider for the export
@@ -31,9 +32,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param chromosomen Only consider a specific chromosome in calculations (default: 1)
 #' @export
 
-ld.decay <- function(population, chromosomen=1, step=5, max=500,database=NULL, gen=NULL, cohorts= NULL){
+ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, step=5, max=500,database=NULL, gen=NULL, cohorts= NULL){
   max <- min(population$info$snp[chromosomen]-1, max)
-  dataset <- t(get.geno(population, chromosomen = chromosomen, gen=gen, database=database,cohorts=cohorts))
+  if(length(dataset)==0){
+    dataset <- t(get.geno(population, chromosomen = chromosomen, gen=gen, database=database,cohorts=cohorts))
+  } else{
+    dataset <- t(genotype.dataset)
+  }
+
   calc <- unique(c(1,seq(from=step, to=max, by=step)))
   ld <- numeric(length(calc))
   for(index in 1:length(calc)){
@@ -41,7 +47,7 @@ ld.decay <- function(population, chromosomen=1, step=5, max=500,database=NULL, g
     for(index2 in 1:(population$info$snp[chromosomen]-calc[index])){
       lds[index2] <- stats::cor(dataset[,index2], dataset[,index2+calc[index]])
     }
-    ld[index] <- mean(lds^2, rm.na=TRUE)
+    ld[index] <- mean(lds^2, na.rm=TRUE)
   }
   graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2))
   graphics::lines(calc, ld)
