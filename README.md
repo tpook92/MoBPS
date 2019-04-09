@@ -21,6 +21,17 @@ Updates since release:
 
 User-Manual according to version 1.1.0!
 
+### Version 1.1.4 (09.04.19):
+Lot of minor hotfixes for cohort-based implementations
+
+Possible different number of phenotypes generated for each trait
+
+Import of map from Ensembl (ensembl.map() )
+
+Maps as potential input in creating.diploid
+
+Remove single individuals from the group of individuals to select from (mostly relevant for Web-based application)
+
 ### Version 1.1.1 (22.03.19):
 
 Fixed some TYPOS in 1.1.0.
