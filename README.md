@@ -32,6 +32,8 @@ Maps as potential input in creating.diploid
 
 Remove single individuals from the group of individuals to select from (mostly relevant for Web-based application)
 
+Boxplot alternative to bv.development ((bv.development.box))
+
 ### Version 1.1.1 (22.03.19):
 
 Fixed some TYPOS in 1.1.0.
