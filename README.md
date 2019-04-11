@@ -19,7 +19,10 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
-User-Manual according to version 1.1.0!
+### Version 1.1.6 (11.04.19)
+Updates to documentation and guidelines. Especially example on how to generate a base population with LD and a hard-sweep.
+
+Added function kinship.development
 
 ### Version 1.1.4 (09.04.19):
 Lot of minor hotfixes for cohort-based implementations
