@@ -1,7 +1,7 @@
 Package: MoBPS
 Type: Package
 Title: Simulation of breeding programs
-Version: 1.1.6
+Version: 1.1.7
 Author: Torsten Pook
 Maintainer: Torsten Pook <torsten.pook@uni-goettingen.de>
 Description: Simulation of breeding programs under selection, recombination ect.

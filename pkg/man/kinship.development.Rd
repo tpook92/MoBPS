@@ -5,7 +5,9 @@
 \title{Devolopment of genetic/breeding value}
 \usage{
 kinship.development(population, database = NULL, gen = NULL,
-  cohorts = NULL, json = FALSE, ibd.obs = 50, hbd.obs = 10)
+  cohorts = NULL, json = FALSE, ibd.obs = 50, hbd.obs = 10,
+  display.cohort.name = FALSE, display.time.point = FALSE,
+  equal.spacing = FALSE, time_reorder = FALSE)
 }
 \arguments{
 \item{population}{population list}
@@ -21,6 +23,14 @@ kinship.development(population, database = NULL, gen = NULL,
 \item{ibd.obs}{Number of Individual pairs to sample for IBD estimation}
 
 \item{hbd.obs}{Number of Individuals to sample for HBD estimation}
+
+\item{display.cohort.name}{Set TRUE to display the name of the cohort in the x-axis}
+
+\item{display.time.point}{Set TRUE to use time point of generated to sort groups}
+
+\item{equal.spacing}{Equal distance between groups (independent of time.point)}
+
+\item{time_reorder}{Set TRUE to order cohorts according to the time point of generation}
 }
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts

@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "25FA6450",
-    "lastKnownWriteTime" : 1555068710,
-    "last_content_update" : 1555068710625,
+    "lastKnownWriteTime" : 1555317825,
+    "last_content_update" : 1555317825169,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/kinship.development.R",
     "project_path" : "R/kinship.development.R",
     "properties" : {
-        "cursorPosition" : "83,16",
-        "scrollLine" : "66",
+        "cursorPosition" : "130,2",
+        "scrollLine" : "99",
         "tempName" : "Untitled30"
     },
     "relative_order" : 39,

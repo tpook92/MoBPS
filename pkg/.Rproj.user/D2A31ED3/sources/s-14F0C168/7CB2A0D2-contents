@@ -125,24 +125,24 @@ get.vcf(population, path="C:/Users/pook/Desktop/Like_to_save_on_Desktop.vcf", ge
   # From each plant 19 offspring are generated
   # Selfing can acure here! - need to add something to it here!
   population <- breeding.diploid(population, breeding.size=c(190,0), selection.size=c(20,0),
-                                 same.sex.activ = TRUE, same.sex.sex=0, 
-                                 max.offspring = c(19,0), best1.from.cohort="F0", 
+                                 same.sex.activ = TRUE, same.sex.sex=0,
+                                 max.offspring = c(19,0), best1.from.cohort="F0",
                                  name.cohort = "F1")
 
   # Couple of generations of random mating between the plants of the last generation
   # To keep diversity each plant is limited to 2 offspring.
 
   population <- breeding.diploid(population, breeding.size=c(190,0), selection.size=c(190,0),
-                                 same.sex.activ = TRUE, same.sex.sex=0, 
+                                 same.sex.activ = TRUE, same.sex.sex=0,
                                  max.offspring = c(2,0),
                                  best1.from.cohort = "F1", name.cohort = "F2")
   population <- breeding.diploid(population, breeding.size=c(190,0), selection.size=c(190,0),
-                                 same.sex.activ = TRUE, same.sex.sex=0, 
-                                 max.offspring = c(2,0), best1.from.cohort = "F2", 
+                                 same.sex.activ = TRUE, same.sex.sex=0,
+                                 max.offspring = c(2,0), best1.from.cohort = "F2",
                                  name.cohort = "F3")
   population <- breeding.diploid(population, breeding.size=c(190,0), selection.size=c(190,0),
-                                 same.sex.activ = TRUE, same.sex.sex=0, 
-                                 max.offspring = c(2,0), best1.from.cohort = "F3", 
+                                 same.sex.activ = TRUE, same.sex.sex=0,
+                                 max.offspring = c(2,0), best1.from.cohort = "F3",
                                  name.cohort = "F4")
 }
 }
@@ -704,7 +704,7 @@ set.seed(1)
     population <- creating.diploid(population=population, nindi=6, nsnp=5000, sex.quota = 0.833,
                                    name.cohort = paste0("Box_",index,"gen_0"))
   }
-  
+
   # Simulate 25 generations of matings. Hens are rotated by one box per generation.
   for(gen in 1:25){
     print(gen)
@@ -719,37 +719,37 @@ set.seed(1)
   }
 
 
-  
+
   # Generate initial boxes with 5 hens and 1 cock
   pop1 <- creating.diploid(nindi=42, nsnp=5000, sex.quota = 0.833)
 
-  
+
   for(gen in 1:25){
-    pop1 <- breeding.diploid(pop1, breeding.size=c(7,35), 
+    pop1 <- breeding.diploid(pop1, breeding.size=c(7,35),
                                    selection.size = c(7,35))
   }
-  
+
   kin <- kinship.development(population, gen=1:26, ibd.obs = 300, hbd.obs = 50)
   kin1 <- kinship.development(pop1, gen=1:26, ibd.obs = 300, hbd.obs = 50)
-  
+
   png(file="C:/Users/pook/Desktop/inbreed_rota.png", width=2450, height= 1060, res=300)
   par(mar=c(4.1,4.1,1.6,0.6))
   plot(0:25,kin[,1], xlab="generation", ylab="kinship", type="l", lwd=2, col="red", ylim=c(0, max(kin[,1], kin1[,1])))
   lines(0:25,kin1[,1], col="blue", lwd=2)
   legend("topleft", c("Cock-rotation", "Random mating"), lty=c(1,1), lwd=c(2,2), col=c("red", "blue"))
   dev.off()
-  
+
   population$info$size
-  
+
   a <- kinship.emp(population = population, gen=26, sym=TRUE)
   b <- kinship.emp(population = pop1, gen=26, sym=TRUE)
-  
-  
+
+
 }
 ## Json Example
 
 
-population <- json.simulation(file="C:/Users/pook/Desktop/reference1.json")
+population <- json.simulation(file="C:/Users/pook/Desktop/Simple_cattle.json")
 bv.development(population, json=TRUE, bvrow=1, confidence = 1, development = 1,
                display.creating.type = TRUE, display.sex = TRUE,
                display.cohort.name = TRUE)
@@ -761,18 +761,18 @@ bv.development(population, json=TRUE, bvrow=1, confidence = 1, development = 1,
 dev.off()
 
 
-population <- json.simulation(file="C:/Users/pook/Desktop/reference1.json")
+population <- json.simulation(file="C:/Users/pook/Desktop/Simple_cattle.json")
 bv.development.box(population, json=TRUE, bvrow=1)
 
 png(file="C:/Users/pook/Desktop/bv_development_box_plot.png", width=2450, height= 1460, res=300)
 bv.development.box(population, json=TRUE, bvrow=1)
 dev.off()
 
-population <- json.simulation(file="C:/Users/pook/Desktop/reference1.json")
-kinship.development(population, json=TRUE)
+population <- json.simulation(file="C:/Users/pook/Desktop/Simple_cattle.json")
+kinship.development(population, json=TRUE, display.cohort.name = TRUE)
 
 png(file="C:/Users/pook/Desktop/kinship_development_plot.png", width=2450, height= 1460, res=300)
-kinship.development(population, json=TRUE)
+kinship.development(population, json=TRUE, display.cohort.name = TRUE)
 dev.off()
 
 
