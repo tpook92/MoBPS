@@ -18,6 +18,11 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.1.7 (15.04.19)
+
+Minor updates to kinship.development, improved documentation.
+
+Package can now be installed via install_github("tpook92/MoBPS", subdir="pkg")
 
 ### Version 1.1.6 (11.04.19)
 Updates to documentation and guidelines. Especially example on how to generate a base population with LD and a hard-sweep.
