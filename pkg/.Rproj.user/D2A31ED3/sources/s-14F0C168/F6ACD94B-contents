@@ -1,0 +1,45 @@
+ped <- get.pedigree(population, gen=55:63)
+
+pheno <- get.pheno(population, gen=55:63)
+bv <- get.bv(population, gen=55:63)
+
+
+ped1 <- ped
+for(index in 1:100){
+  setna <- !duplicated(c(ped1[,1], ped1[,2]))[-(1:nrow(ped))]
+  ped1[setna,2] <- NA
+  setna <- !duplicated(c(ped1[,1], ped1[,3]))[-(1:nrow(ped))]
+  ped1[setna,3] <- NA
+}
+ped3 <- ped1
+for(index in 1:nrow(ped1)){
+  change <- which(ped1==ped[index,1])
+  ped3[change] <- index
+}
+
+#ped2 <- pedigree(ped1[,2], ped1[,3], ped1[,1])
+ped2 <- pedigree(ped3[,2], ped3[,3], ped3[,1])
+
+x <- rep(1,length(pheno[1,]))
+y <- pheno[1,]
+fit <- remlf90(fixed = pheno~1,genetic=list('add_animal', pedigree=ped2, id='self'), data=data.frame(pheno=y, x=x, self=ped3[,1], mum = ped3[,3], dad=ped3[,2]))
+
+
+fit <- remlf90(fixed = pheno~1,genetic=list('add_animal', pedigree=ped2, id='self'), data=data.frame(pheno=y, x=x, self=ped2@label, mum = ped2@dam, dad=ped2@sire))
+
+summary(fit)
+plot(pheno[1,],fitted(fit))
+cor(pheno[1,],fitted(fit))
+cor(bv[1,],fitted(fit))
+cor(pheno[1,], bv[1,])
+
+library(pedigree)
+blup(y~1, ped=ped, alpha=0.4)
+
+
+
+dim(pheno)
+n <- 1e3
+dat <- transform(data.frame(x = runif(n)),
+                 y = 1 + 2*x + rnorm(n, sd = sqrt(3)))
+res.lm <- remlf90(fixed = y ~ x, data = dat)

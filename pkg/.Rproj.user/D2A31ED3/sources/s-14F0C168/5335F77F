@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1554802942718.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "318400841",
+    "id" : "5335F77F",
+    "lastKnownWriteTime" : 1554816028,
+    "last_content_update" : 1554816028546,
+    "path" : "C:/Users/pook/Desktop/Ensembl_maps.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "41,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled30"
+    },
+    "relative_order" : 36,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

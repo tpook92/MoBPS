@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1553186183487.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3608243745",
+    "id" : "AF52110F",
+    "lastKnownWriteTime" : 1553269294,
+    "last_content_update" : 1553269294530,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/get.database.R",
+    "project_path" : "R/get.database.R",
+    "properties" : {
+        "cursorPosition" : "30,46",
+        "scrollLine" : "0",
+        "tempName" : "Untitled24"
+    },
+    "relative_order" : 24,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

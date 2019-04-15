@@ -1,0 +1,73 @@
+library(MoBPS)
+map_pig1 <- ensembl.map(dataset="sscrofa_snp", filter.values = "Axiom Genotyping Array")
+save(file="Ensembl_maps/pig1.RData", list=c("map_pig1"))
+map_pig2 <- ensembl.map(dataset="sscrofa_snp", filter.values = "GGP Porcine HD")
+save(file="Ensembl_maps/pig2.RData", list=c("map_pig2"))
+map_pig3 <- ensembl.map(dataset="sscrofa_snp", filter.values = "GGP Porcine LD")
+save(file="Ensembl_maps/pig3.RData", list=c("map_pig3"))
+map_pig4 <- ensembl.map(dataset="sscrofa_snp", filter.values = "Illumina_PorcineSNP60")
+save(file="Ensembl_maps/pig4.RData", list=c("map_pig4"))
+
+map_chicken1 <- ensembl.map(dataset="ggallus_snp", filter.values = "Affymetrix Chicken600K Array")
+save(file="Ensembl_maps/chicken1.RData", list=c("map_chicken1"))
+
+map_cattle1 <- ensembl.map(filter.values = "Illumina BovineSNP50 BeadChip")
+save(file="Ensembl_maps/cattle1.RData", list=c("map_cattle1"))
+map_cattle2 <- ensembl.map(filter.values = "Illumina BovineHD BeadChip")
+save(file="Ensembl_maps/cattle2.RData", list=c("map_cattle2"))
+map_cattle3 <- ensembl.map(filter.values = "Illumina BovineLD BeadChip")
+save(file="Ensembl_maps/cattle3.RData", list=c("map_cattle3"))
+map_cattle4 <- ensembl.map(filter.values = "Genotyping chip variations")
+save(file="Ensembl_maps/cattle4.RData", list=c("map_cattle4"))
+
+map_horse1 <- ensembl.map(dataset="ecaballus_snp", filter.values = "Illumina EquineSNP50 BeadChip")
+save(file="Ensembl_maps/horse1.RData", list=c("map_horse1"))
+
+map_sheep1 <- ensembl.map(dataset="oaries_snp", filter.values = "IlluminaOvineHDSNP")
+save(file="Ensembl_maps/sheep1.RData", list=c("map_sheep1"))
+map_sheep2 <- ensembl.map(dataset="oaries_snp", filter.values = "IlluminaOvineSNP50")
+save(file="Ensembl_maps/sheep2.RData", list=c("map_sheep2"))
+map_sheep3 <- ensembl.map(dataset="oaries_snp", filter.values = "Genotyping chip variants")
+save(file="Ensembl_maps/sheep3.RData", list=c("map_sheep3"))
+
+map_goat1 <- ensembl.map(dataset="chircus_snp", filter.values = "Illumina_GoatSNP50")
+save(file="Ensembl_maps/goat1.RData", list=c("map_goat1"))
+
+map_human1 <- ensembl.map(dataset="hsapiens_snp", filter.values = "Affy GeneChip500K")
+save(file="Ensembl_maps/human1.RData", list=c("map_human1"))
+map_human2 <- ensembl.map(dataset="hsapiens_snp", filter.values = "Illumina_1M-duo")
+save(file="Ensembl_maps/human2.RData", list=c("map_human2"))
+map_human3 <- ensembl.map(dataset="hsapiens_snp", filter.values = "Illumina_HumanHap550")
+save(file="Ensembl_maps/human3.RData", list=c("map_human3"))
+
+map_dog1 <- ensembl.map(dataset="cfamiliaris_snp") # 5.5 M Variants - no chip
+
+map_zebrafish1 <- ensembl.map(dataset="drerio_snp") # 17.3 M Variants - no chip
+
+map_cat1 <- ensembl.map(dataset="fcatus_snp") # 3.4 M Variants - no chip
+
+map_opossum1 <- ensembl.map(dataset="mdomestica_snp") # 1.1 M Variants
+
+map_turkey1 <- ensembl.map(dataset="mgallopavo_snp") # 5.7 k Variants
+
+map_macaque1 <- ensembl.map(dataset="mmulatta_snp") # 52M variants
+
+map_mouse1 <- ensembl.map(dataset="mmusculus_snp") # Ensemble crash!
+
+map_gibbon <- ensembl.map(dataset="nleucogenys_snp") # 1.1 M variants
+
+map_platypus1 <- ensembl.map(dataset="oanatinus_snp") # 1.2 M variants
+
+map_orangutan1 <- ensembl.map(dataset="pabelii_snp") # 9.6 M variants
+
+map_chimpanzee1 <- ensembl.map(dataset="ptroglodytes_snp") # 1.6M variants
+
+map_rat1 <- ensembl.map(dataset="rnorvegicus_snp") # 4.7M variants
+
+map_saccaromyces1 <- ensembl.map(dataset="scerevisiae_snp") # 263K variants
+
+map_zebrafinch1 <- ensembl.map(dataset="tguttata_snp") # 1.6M variants
+
+map_tetraodon1 <- ensembl.map(dataset="tnigroviridis_snp") # 884k variants
+
+

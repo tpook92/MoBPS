@@ -1,0 +1,8 @@
+population$breeding[[22]][[6]] <- rep(0,60)
+population$breeding[[22]][[5]] <- rep(0,3)
+
+pop1 <- population
+
+pop2 <- breeding.diploid(pop1, breeding.size=100, selection.size=c(3,15), repeat.mating = 5)
+
+get.pedigree(pop2, gen=23)
