@@ -18,6 +18,13 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+
+### Version 1.1.12 (18.04.19)
+
+Updated versions of miraculix and RandomFieldsUtils
+
+Minor modification to MoBPS itself - mostly related web-interface (still close-beta)
+
 ### Version 1.1.7 (15.04.19)
 
 Minor updates to kinship.development, improved documentation.
