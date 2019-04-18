@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1549984493995.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "FE63CC05",
+    "lastKnownWriteTime" : 1549984574,
+    "last_content_update" : 1549984574366,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/example.dataset.R",
+    "project_path" : "R/example.dataset.R",
+    "properties" : {
+        "cursorPosition" : "20,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 31,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,20 @@
+gain <- NULL
+sd <- NULL
+for(index in 1:100){
+  print(index)
+  population <- json.simulation(file="C:/Users/pook/Desktop/reference1.json")
+  bv1 <- mean(get.bv(population, cohorts="bull")[1,])
+  sd1 <- sd(get.bv(population, cohorts="bull")[1,])
+  bv2 <- mean(get.bv(population, cohorts="bull_s")[1,])
+  bv3 <- mean(get.bv(population, cohorts="cow")[1,])
+  sd2 <- sd(get.bv(population, cohorts="cow")[1,])
+  sd3 <- sd(get.bv(population, cohorts=c("cow", "bull"))[1,])
+  bv4 <- mean(get.bv(population, cohorts="Cow_s")[1,])
+  gain <- c(gain, bv2-bv1, bv4-bv3)
+  sd <- c(sd, sd1, sd2,sd3)
+  print(mean(gain))
+  print(sd)
+}
+
+
+# 1.755 * 0.5 * 5

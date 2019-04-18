@@ -1,0 +1,64 @@
+population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),
+                             shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
+                             shuffle.traits=1:n_traits,
+                             trait.name = trait_matrix[,1])
+
+mgeno <- miraculix::computeSNPS(population, mgen, msex, mnr, what = "geno", output_compressed=FALSE)
+p_i_1 <- rbind(rowMeans(mgeno==0), rowMeans(mgeno==1), rowMeans(mgeno==2))
+if(n_traits>0){
+  if(length(dataset)==1){
+    mgen <- rep(1,sum(population$info$size[1,]))
+    msex <- c(rep(1,population$info$size[1,1]), rep(2, population$info$size[1,2]))
+    mnr <- c(1:population$info$size[1,1], 1:population$info$size[1,2])
+    if(population$info$size[1,1]==0){
+      mnr <- 1:population$info$size[1,2]
+    }
+    if(population$info$size[1,2]==0){
+      mnr <- 1:population$info$size[1,1]
+    }
+    if(miraculix){
+      mgeno <- miraculix::computeSNPS(population, mgen, msex, mnr, what = "geno", output_compressed=TRUE)
+      p_i <- miraculix::allele_freq(mgeno)
+    } else{
+      mgeno <- matrix(0, nrow=sum(population$info$snp), ncol=length(mgen))
+      for(index in 1:length(mgen)){
+        mgeno[,index] <- colSums(compute.snps(population, mgen[index], msex[index], mnr[index]))
+      }
+      p_i <- rowMeans(mgeno)/2
+    }
+    
+  }
+  # Correct Scaling
+  
+  
+  snp.before <- cumsum(c(0,population$info$snp))
+  
+  for(index in 1:n_traits){
+    effect_p <- population$info$real.bv.add[[index]][,1]+ snp.before[population$info$real.bv.add[[index]][,2]]
+    mean <- population$info$real.bv.add[[index]][,3]*(1-p_i[effect_p])^2 + population$info$real.bv.add[[index]][,4]*(1-p_i[effect_p])*p_i[effect_p] +
+      population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
+    new_var <- as.numeric(trait_matrix[index,4])
+    p_i_1 <- rbind(rowMeans(mgeno==0), rowMeans(mgeno==1), rowMeans(mgeno==2))
+    old_var <- sum((population$info$real.bv.add[[index]][,3]-mean)^2*(p_i_1[1,effect_p])^2)+
+      sum((population$info$real.bv.add[[index]][,4]-mean)^2*(p_i_1[2,effect_p])) +
+      sum((population$info$real.bv.add[[index]][,5]-mean)^2*(p_i_1[3,effect_p])^2)
+    population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(new_var / old_var)
+    
+    mean <- population$info$real.bv.add[[index]][,3]*(1-p_i[effect_p])^2 + population$info$real.bv.add[[index]][,4]*(1-p_i[effect_p])*p_i[effect_p] +
+      population$info$real.bv.add[[index]][,5]*(p_i[effect_p])^2
+    
+    mqtl <- to_enter <- NULL
+    if(length(major[[index]])>1){
+      mqtl <- matrix(unlist(major[[index]]), ncol=8, byrow=TRUE)
+      to_enter <- mqtl[,c(1,4:7), drop=FALSE]
+      storage.mode(to_enter) <- "numeric"
+    }
+    
+    
+    mqtl <- mqtl[mqtl[,1]!=0,,drop=FALSE]
+    population$info$real.bv.add[[index]] <- rbind(population$info$real.bv.add[[index]],
+                                                  to_enter)
+    population$info$base.bv[index] <- traitmean[index] - sum(to_enter[,3:5]*c(1,2,1)/4) - sum(mean)
+  }
+  
+}

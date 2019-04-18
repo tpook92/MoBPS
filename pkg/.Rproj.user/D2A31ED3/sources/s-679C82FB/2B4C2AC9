@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1554471695349.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2B4C2AC9",
+    "lastKnownWriteTime" : 1549963341,
+    "last_content_update" : 1549963341,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/allele.freq.R",
+    "project_path" : "R/allele.freq.R",
+    "properties" : {
+        "cursorPosition" : "24,47",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 29,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1550003518940.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "AA5F5F0",
+    "lastKnownWriteTime" : 1549383765,
+    "last_content_update" : 1549383765,
+    "path" : "C:/Users/pook/Desktop/comp_time_test3.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "212,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
