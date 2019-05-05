@@ -9,7 +9,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   selection.m = c("random"), selection.f = NULL,
   new.selection.calculation = TRUE, selection.function.matrix = NULL,
   selection.size = 0, ignore.best = 0, breeding.size = 0,
-  breeding.sex = 0.5, breeding.sex.random = FALSE,
+  breeding.sex = NULL, breeding.sex.random = FALSE,
   used.generations.m = 1, used.generations.f = NULL,
   relative.selection = FALSE, class.m = 0, class.f = 0,
   add.gen = 0, recom.f.indicator = NULL, recom.f.polynom = NULL,
@@ -35,7 +35,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   bve.childbase.children = NULL, n.observation = 1, bve.0isNA = TRUE,
   phenotype.bv = FALSE, standardize.bv = FALSE,
   standardize.bv.level = 100, standardize.bv.gen = 1,
-  delete.same.ursprung = FALSE, remove.effect.position = FALSE,
+  delete.same.origin = FALSE, remove.effect.position = FALSE,
   estimate.u = FALSE, BGLR.print = FALSE,
   new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
   estimate.add.gen.var = FALSE, estimate.pheno.var = FALSE,
@@ -47,9 +47,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   SNP.density = 10, use.effect.markers = FALSE,
   use.effect.combination = FALSE, import.position.calculation = NULL,
   special.comb.add = FALSE, BGLR.save = "RKHS",
-  BGLR.save.random = FALSE, ogc = FALSE, emmreml.bve = FALSE,
-  sommer.bve = FALSE, breedR.bve = FALSE, breedR.groups = NULL,
-  nr.edits = 0, gene.editing.offspring = FALSE,
+  BGLR.save.random = FALSE, ogc = FALSE, ogc_cAc = NA,
+  emmreml.bve = FALSE, sommer.bve = FALSE, breedR.bve = FALSE,
+  breedR.groups = NULL, nr.edits = 0, gene.editing.offspring = FALSE,
   gene.editing.best = FALSE, gene.editing.offspring.sex = c(TRUE,
   TRUE), gene.editing.best.sex = c(TRUE, TRUE), gwas.u = FALSE,
   approx.residuals = TRUE, sequenceZ = FALSE, maxZ = 5000,
@@ -77,7 +77,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   sigma.g.database = NULL, gwas.gen = NULL, gwas.cohorts = NULL,
   gwas.database = NULL, bve.insert.gen = NULL,
   bve.insert.cohorts = NULL, bve.insert.database = NULL,
-  reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL)
+  reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
+  breeding.all.combination = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -222,7 +223,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{standardize.bv.gen}{Generations to use in standardize.bv}
 
-\item{delete.same.ursprung}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
+\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
 
 \item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
 
@@ -275,6 +276,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{BGLR.save.random}{Add random number to store location of internal BGLR computations (only needed when simulating a lot in parallel!)}
 
 \item{ogc}{If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)}
+
+\item{ogc_cAc}{Increase of average relationship in ogc. Default: minimize inbreeding rate.}
 
 \item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
 
@@ -415,6 +418,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{reduced.selection.panel.m}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
 
 \item{reduced.selection.panel.f}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
+
+\item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
 }
 \description{
 Function to simulate a step in a breeding scheme

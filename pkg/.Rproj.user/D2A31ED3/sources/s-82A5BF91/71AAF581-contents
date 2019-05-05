@@ -1,0 +1,4 @@
+dataset="sscrofa_snp"
+            filter= list(variation_set_name="GGP Porcine HD", chr_name=1)
+            filter.values = list(variation_set_name="GGP Porcine HD", chr_name=1)
+            

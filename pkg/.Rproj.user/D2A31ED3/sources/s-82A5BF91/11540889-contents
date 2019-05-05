@@ -1,0 +1,35 @@
+# Loading of a Map-file
+map <- read.table("/mnt/ceph_space/nfrioni/chicken/snpsnotbinary.map", stringsAsFactors = FALSE)
+
+
+for(chromo in c(1,7,20)){
+  filename <- paste0("/mnt/ceph_space/nfrioni/chicken/natfito/out.snpbeag.chr-",chromo,".dat.phased.gz")
+  dataset <- read.table(filename, stringsAsFactors = FALSE)
+  take <- which(duplicated(c(dataset[,2],map[,2])))-nrow(dataset) # only take markers in both map and dataset
+  
+  map1 <- cbind(chromo, map[take,2], 0, map[take,4])
+  dataset <- dataset[-(1:3), -(1:2)] # those rows/cols are no genetic data
+  
+  peddata <- matrix("A",nrow=ncol(dataset)/2, ncol= nrow(dataset)*2)
+  
+  even <- 1:888*2
+  odd <- even -1 
+  for(snp in 1:nrow(dataset)){
+    print(snp)
+    
+    replace1 <- which(dataset[snp,odd]!="A")
+    replace2 <- which(dataset[snp,even]!="A")
+    if(length(replace1)>0){
+      peddata[replace1,snp*2-1] <- "C"
+    }
+    if(length(replace2)>0){
+      peddata[replace2,snp*2] <- "C"
+    }
+    
+  }
+  ped <- cbind(1, 1:nrow(peddata),0,0,0,0,peddata)
+  pedname <- paste0("Chicken",chromo,"Nicoped.txt")
+  write.table(file=pedname, ped, col.names = FALSE, row.names = FALSE, quote=FALSE)
+  mapname <- paste0("Chicken",chromo,"Nicomap.txt")
+  write.table(file=mapname, map1, col.names = FALSE, row.names = FALSE, quote=FALSE)
+}

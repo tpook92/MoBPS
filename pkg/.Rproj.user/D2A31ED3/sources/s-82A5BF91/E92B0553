@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1556127427015.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E92B0553",
+    "lastKnownWriteTime" : 1556128791,
+    "last_content_update" : 1556128791978,
+    "path" : "C:/Users/pook/Desktop/Block_prediction_maze_cross_24_4_19.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "25,0",
+        "scrollLine" : "0",
+        "tempName" : "Untitled37"
+    },
+    "relative_order" : 53,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

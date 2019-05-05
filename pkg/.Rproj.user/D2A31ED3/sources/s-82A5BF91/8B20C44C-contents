@@ -1,0 +1,56 @@
+args <- commandArgs(TRUE)
+# args <- c("PE",10,3)
+family  <- args[1]
+chromo <- as.numeric(args[2])
+
+library(rehh)
+load(paste0("Genetic_Datasets/DatasetsOverlapMarkers_DH_S0_S1/B73v4/",family,"chromo",chromo,".RData"))
+
+score_sabeti <- NULL
+for(stand in 0:2){
+  if(stand==2){
+    data <- t(data_s1)
+  } else if(stand==1){
+    data <- t(data_dh)
+  } else{
+    data <- t(data_s0)
+  }
+
+
+  data(haplohh_cgu_bta12)
+
+  dt <- haplohh_cgu_bta12
+  str(dt)
+
+  #data <- data[1:10000,1:500]
+
+  dt@nhap <- ncol(data)
+  dt@nsnp <- nrow(data)
+
+  dt@position <- seq(1,nrow(data), by=1)
+
+  dt@snp.name <- paste0("SNP", 1:nrow(data))
+  dt@haplo <- t(data)
+  dt@haplo[dt@haplo==0] <- 1
+  dt@chr.name <- "1"
+
+
+  ihs_sabeti <- numeric(nrow(data)/50)
+  for(index in 1:length(ihs_sabeti)){
+    print(index)
+    res.ehhs <- calc_ehhs(dt, mrk=index*50, plotehhs=FALSE)
+    ihs_sabeti[index] <- sum(res.ehhs$EHHS_Sabeti_et_al_2007)
+  }
+
+  score_sabeti <- rbind(score_sabeti, ihs_sabeti)
+}
+
+
+save(file=paste0("EHH_scores/",family,"chromo", chromo,"_sabeti.RData"), list=c("score_sabeti"))
+png(file=paste0("EHH_scores/",family,"chromo", chromo,"_sabeti.png"), width=2250, height= 1360, res=300)
+
+plot(1:(nrow(data)/50)*50, score_sabeti[1,], type="l", lwd=2, ylim=c(0, max(score_sabeti)), col="green", xlab="SNP", ylab="IHH_sabeti")
+lines(1:(nrow(data)/50)*50, score_sabeti[2,], type="l", lwd=2, ylim=c(0, max(score_sabeti)))
+lines(1:(nrow(data)/50)*50, score_sabeti[3,], type="l", lwd=2, ylim=c(0, max(score_sabeti)), col="red")
+
+dev.off()

@@ -1,0 +1,99 @@
+library(MoBPS)
+
+
+##### Input Variables
+
+# Genetic Map: Chromosome, SNP-Name, bp, Morgan, allele freq
+
+### For small Testing:
+map <- cbind(c(rep(1,5000), rep(2,5000), rep(3,5000)), paste0("SNP", 1:15000), NA, NA, NA)
+### Base-pair level
+map <- ensembl.map(dataset="sscrofa_snp", filter = "chr_nr", filter.values = 3)
+
+# Number of Individuals
+nindi <- 200
+# Generations of LD build up
+ld_generation <- 100
+length_in_M <- 1.3
+# Number of QTL
+n_qtl <- 3
+
+# Generation of matings with selection
+select_generation <- 100
+ratio <- 5
+
+# After this many generations export genotypes
+export <- c(5,10,25,50,100)
+
+
+population <- creating.diploid(nsnp=nrow(map), nindi=nindi, chr.nr = map[,1], snp.name = map[,2],
+                               bp= as.numeric(map[,3]),
+                               miraculix=TRUE, chromosome.length = length_in_M)
+
+# LD build up via generations of random mating
+
+for(index in 1:ld_generation){
+  print(index)
+  population <- breeding.diploid(population, breeding.size = nindi, selection.size=population$info$size[nrow(population$info$size),])
+}
+
+# Generate Plot to look at LD-decy + allele frequences in population after LD-build up
+X11()
+par(mfrow=c(1,2))
+genotypen_check <- get.geno(population, gen=length(population$breeding))
+p_i <- rowMeans(genotypen_check)/2
+hist(p_i)
+# If interested in LD-decay
+# ld.decay(population, genotype.dataset = genotypen_check, step=ceiling(nrow(map)/25/25), max=ceiling(nrow(map)/25))
+
+# Split population into two sets // Change migration status of half of the individuals
+population$breeding[[length(population$breeding)]][[5]][(nindi/4+1):(nindi/2)] <- 1
+population$breeding[[length(population$breeding)]][[6]][(nindi/4+1):(nindi/2)] <- 1
+
+fixated_markers <- which(p_i==0)
+qtl_posi <- sample(fixated_markers, n_qtl)
+
+possible_chrnr <- unique(map[,1])
+qtl_chromo <- numeric(length(qtl_posi))
+for(index in 1:length(qtl_posi)){
+  qtl_chromo <- which(map[qtl_posi,1]==possible_chrnr)[1]
+}
+
+qtl_snp <- qtl_posi - c(0, population$info$cumsnp)[qtl_chromo]
+
+trait <- cbind(qtl_snp, qtl_chromo, 0, 1 , 2)
+population <- creating.trait(population, real.bv.add = trait)
+
+pop1 <- population ## Just a save to possiblity rerun
+
+# Randomly select individuals to have the New Mutation
+qtl_individuals <- cbind(c(1:(nindi/4)+nindi/4, 1:(nindi/4)+nindi/4), c(rep(1,nindi/4), rep(2,nindi/4)))[sample(1:(nindi/2), n_qtl),]
+for(index in 1:nrow(qtl_individuals)){
+  if(sum(population$breeding[[length(population$breeding)]][[qtl_individuals[index,2]]][[qtl_individuals[index,1]]][[3]]==qtl_posi[index])==0){
+    population$breeding[[length(population$breeding)]][[qtl_individuals[index,2]]][[qtl_individuals[index,1]]][[3]] <- sort(c(qtl_posi[index],population$breeding[[length(population$breeding)]][[qtl_individuals[index,2]]][[qtl_individuals[index,1]]][[3]]))
+  } else{
+    population$breeding[[length(population$breeding)]][[qtl_individuals[index,2]]][[qtl_individuals[index,1]]][[3]] <- unique(c(qtl_posi[index],population$breeding[[length(population$breeding)]][[qtl_individuals[index,2]]][[qtl_individuals[index,1]]][[3]]))[-1]
+  }
+}
+
+# Simulate
+
+for(index in 1:select_generation){
+  print(index)
+  population <- breeding.diploid( population, breeding.size= c(nindi/2), selection.size= c(nindi/4, nindi/4),
+                                  class.m = 0, class.f = 0, new.class = 0) # continue random mating
+  population <- breeding.diploid( population, breeding.size= c(nindi/2), selection.size= c(nindi/4, nindi/4),
+                                  class.m = 1, class.f = 1, new.class = 1, add.gen = length(population$breeding),
+                                  best.selection.ratio.m=ratio, best.selection.ratio.f=ratio) # mating with pressure
+
+  if(sum(index==export)>0){
+    genos <- get.geno(population, gen=length(population$breeding))
+    save(file=paste0("C:/Users/pook/Desktop/Fst_data_gen", index,".RData"), list=c("genos"))
+  }
+}
+save(file=paste0("C:/Users/pook/Desktop/Fst_data_map.RData"), list=c("map"))
+save(file=paste0("C:/Users/pook/Desktop/Sim_data.RData"), list=c("trait", "population"))
+X11()
+analyze.population(population, gen=100:length(population$breeding), chromosome = qtl_chromo[1], snp=qtl_snp[1] )
+
+

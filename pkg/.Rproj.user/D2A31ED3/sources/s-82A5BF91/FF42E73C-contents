@@ -1,0 +1,24 @@
+par(mfrow=c(1,2))
+set.seed(1)
+population <- creating.diploid(nindi=50, nsnp=10000, n.additive = 300)
+
+for(index in 1:10){
+  population <- breeding.diploid(population, bve=TRUE, selection.m="function", selection.f="function",
+                                 breeding.size=50, selection.size=c(20,5), new.bv.observation = "all",
+                                 heritability = 0.5)
+}
+
+bv.development(population, gen=1:11)
+print(mean(kinship.emp(population=population, gen=11)))
+
+set.seed(1)
+population <- creating.diploid(nindi=50, nsnp=10000, n.additive = 300)
+
+for(index in 1:10){
+  population <- breeding.diploid(population, bve=TRUE, selection.m="function", selection.f="function",
+                                 breeding.size=50, selection.size=c(20,5), new.bv.observation = "non_obs",
+                                 heritability = 0.5, ogc=TRUE, store.breeding.totals = TRUE)
+}
+
+bv.development(population, gen=1:11)
+print(mean(kinship.emp(population=population, gen=11)))

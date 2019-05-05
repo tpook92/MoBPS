@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1556284115590.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "C065AD45",
+    "lastKnownWriteTime" : 1553268871,
+    "last_content_update" : 1553268871,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/compute.costs.R",
+    "project_path" : "R/compute.costs.R",
+    "properties" : {
+        "cursorPosition" : "161,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 56,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

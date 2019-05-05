@@ -1,0 +1,24 @@
+library(biomaRt)
+ensembl = useEnsembl(biomart="snp", dataset="btaurus_snp")
+mart = useEnsembl('ENSEMBL_MART_SNP')
+listDatasets(mart)
+
+listFilters(ensembl)
+head(listAttributes(ensembl))
+
+snps <- getBM(attributes=c('chr_name','refsnp_id', 'chrom_start', 'chrom_end', 'minor_allele_freq'),
+              filters='variation_set_name', values="Illumina BovineSNP50 BeadChip", mart=ensembl)
+
+## Map generation
+map <- NULL
+nchromo <- 29
+for(index in 1:nchromo){
+  take <- which(snps[,1]==index)
+  current_chromo <- snps[take,]
+  reorder <- sort(as.numeric(current_chromo[,3]), index.return=TRUE)$ix
+  current_chromo <- current_chromo[reorder,]
+  
+  map <- rbind(map, cbind(current_chromo[,1], current_chromo[,2], current_chromo[,3], NA, NA)) # 4 should be cM position, 5 should be allele freq
+}
+reorder <- sort(snps[,1], index.return=TRUE)
+

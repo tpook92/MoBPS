@@ -7,7 +7,7 @@
 breeding.intern(info.parent, parent, population, mutation.rate,
   remutation.rate, recombination.rate, recom.f.indicator, recom.f.polynom,
   duplication.rate, duplication.length, duplication.recombination,
-  delete.same.ursprung = FALSE, gene.editing = gene.editing,
+  delete.same.origin = FALSE, gene.editing = gene.editing,
   nr.edits = nr.edits, gen.architecture = 0,
   decodeOriginsU = decodeOriginsR)
 }
@@ -34,7 +34,7 @@ breeding.intern(info.parent, parent, population, mutation.rate,
 
 \item{duplication.recombination}{Average number of recombinations per 1 length uit of duplication (default: 1)}
 
-\item{delete.same.ursprung}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
+\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
 
 \item{gene.editing}{If TRUE perform gene editing on newly generated individual}
 

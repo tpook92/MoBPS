@@ -1,0 +1,127 @@
+
+
+hit1 <- NULL
+hit2 <- NULL
+for(nr in 1:50){
+  print(nr)
+  load(paste0("C:/Users/pook/Desktop/qtl-sim/qtl_sim",nr,".RData"))
+  hit1 <- c(hit1, hit_posi1)
+  hit2 <- c(hit2, hit_posi2)
+}
+
+X11()
+
+par(mfrow=c(1,2))
+hist(hit1, nclass = 100, main="100 chicken F2", ylim=c(0,300))
+hist(hit2, nclass = 100, main="200 chicken F2", ylim=c(0,300))
+
+savePlot(file="C:/Users/pook/Desktop/GWAS_weigend.png", type="png")
+
+#################
+, "alt2", "alt3", "current"
+
+for(type in c("current", "alt4")){
+  hit1 <- NULL
+  for(qtl in c(50)){
+    for(heri in c(0.3)){
+      for(nr in 1:50){
+        print(nr)
+        name <- paste0("qtl-sim/qtl_sim", nr, "_", qtl, "_", heri, type, "p.RData")
+        load(name)
+        hit1 <- c(hit1, hit_posi1)
+      }
+      save(file=paste0("hit", type,"_", qtl,"_", heri, ".RData"), list=c("hit1"))
+    }
+
+  }
+}
+
+qtl <- 50
+X11(width=15,height = 10)
+par(mfrow=c(2,2))
+setwd("C:/Users/pook/Desktop/")
+nr <- 1
+col <- c("black", "red", "blue", "green")
+for(type in c("current", "alt", "alt2", "alt3")){
+  load(paste0("hit", type, qtl, ".RData"))
+  hist(hit1, nclass=25, main=c("1.", "2.", "3.", "4.")[nr], ylim=c(0,7500))
+  #edf(hit1, Norm=F, col=col[nr])
+  print(type)
+  print(sum(hit1<5))
+  nr <- nr + 1
+}
+
+qtl <- 50
+X11(width=15,height = 10)
+par(mfrow=c(1,1))
+setwd("C:/Users/pook/Desktop/")
+nr <- 1
+col <- c("black", "red", "blue", "green")
+y <- NULL
+for(type in c("current", "alt", "alt2", "alt3")){
+  load(paste0("hit", type, qtl, ".RData"))
+  #hist(hit1, nclass=25, main=type)
+  y <- rbind(y, edf(hit1, Norm=F, col=col[nr], same=nr!=1))
+  print(type)
+  print(sum(hit1<5))
+  nr <- nr + 1
+}
+legend(50000,0.4, c("current", "alt", "alt2", "alt3"), cex=2,lty=c(1,1,1,1), col=col, lwd=5)
+
+edf <- function(x = NULL, Norm=T, xlab = "", ylab = "", col=1, same=F, ...)
+{
+  # Aufgabe: Die Funktion edf zeichnet die empirische Verteilungsfunktion
+  # des Datenvektors x.
+  # Inputparameter:
+  # x ... Datenvektor mit den Beobachtungswerten
+  # Ergebnis:
+  # Graphische Darstellung der empirischen Verteilungsfunktion
+  # samt einer angepassten Normalverteilung
+  x <- sort(x)
+  y <- c(0, cumsum(table(x))/length(x), 1)
+  x.min <- floor(min(x) - (max(x) - min(x)) * 0.05)
+  x.max <- ceiling(max(x) + (max(x) - min(x)) * 0.05)
+  if(same==TRUE){
+    lines(c(x.min, unique(x), x.max), y, type = "s",xlab = xlab,
+         ylab = ylab, xlim = c(x.min, 200000), ylim = c(0, 1),
+         axes = F, col=col, lwd=3,...)
+  } else{
+    plot(c(x.min, unique(x), x.max), y, type = "s",xlab = xlab,
+         ylab = ylab, xlim = c(x.min, 200000), ylim = c(0, 1),
+         axes = F, col=col, lwd=3,...)
+  }
+
+  if (Norm) lines(c(x.min, unique(x), x.max),
+                  pnorm(c(x.min, unique(x), x.max),
+                        mean(x), sqrt(var(x))))
+  axis(1, pos = 0)
+  axis(2, pos = x.min)
+  invisible()
+  return(y)
+} 
+
+X11()
+name <- paste0("C:/Users/pook/Desktop/qtl_sim1_5currentp.RData")
+load(name)
+plot(ans_snp1$M.scores$score[1,])
+abline(v=population$info$effect.p, col="red")
+
+
+qtl <- 50
+X11(width=15,height = 10)
+par(mfrow=c(1,1))
+setwd("C:/Users/pook/Desktop/")
+nr <- 1
+col <- c("black", "red", "blue", "green")
+y <- NULL
+for(type in c("current", "alt4")){
+  load(paste0("hit", type,"_", qtl,"_", 0.3, ".RData"))
+  #hist(hit1, nclass=25, main=type)
+  y <- rbind(y, edf(hit1, Norm=F, col=col[nr], same=nr!=1))
+  print(type)
+  print(sum(hit1<5))
+  nr <- nr + 1
+}
+plot(y[1,]/y[2,], ylim=c(0.9,1.1))
+legend(50000,0.4, c("current", "alt", "alt2", "alt3"), cex=2,lty=c(1,1,1,1), col=col, lwd=5)
+
