@@ -18,6 +18,23 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.1.23 (20.05.19)
+
+Implemented preliminary versions of OGC & ssBLUP (not efficient and no general used recommended)
+
+Improved functions for derivation of empirical kinship (kinship.emp)
+
+Exemplary maps added to the package (as size is high there will be a separate package (MoBPS_maps) coming soon!
+
+Web-interface now hosted under http://134.76.137.69/ (For access to closed-beta contact me (torsten.pook@uni-goettingen.de)
+
+Function to analyze correlation between bv/bve/pheno added analyze.bv()
+
+Cohort based economic evaluation added compute.costs.cohorts()
+
+Function to generate pedmap (PLINK-format) files added (get.pedmap())
+
+Minor changes for nicer looking plots - mostly same functionality & input parameters
 
 ### Version 1.1.12 (18.04.19)
 
