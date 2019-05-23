@@ -18,6 +18,10 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.1.24 (23.05.19)
+
+Minor updates to json.simulation()
+
 ### Version 1.1.23 (20.05.19)
 
 Implemented preliminary versions of OGC & ssBLUP (not efficient and no general used recommended)
