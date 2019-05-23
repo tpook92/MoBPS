@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558087656155.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "2B03F33B",
+    "lastKnownWriteTime" : 1558610029,
+    "last_content_update" : 1558610029986,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/analyze.bv.R",
+    "project_path" : "R/analyze.bv.R",
+    "properties" : {
+        "cursorPosition" : "39,85",
+        "scrollLine" : "31",
+        "tempName" : "Untitled39"
+    },
+    "relative_order" : 72,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

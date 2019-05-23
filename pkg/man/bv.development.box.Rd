@@ -6,7 +6,8 @@
 \usage{
 bv.development.box(population, database = NULL, gen = NULL,
   cohorts = NULL, bvrow = "all", json = FALSE, display = "bv",
-  display.selection = FALSE, display.reproduction = FALSE)
+  display.selection = FALSE, display.reproduction = FALSE,
+  ylim = NULL, fix_mfrow = FALSE)
 }
 \arguments{
 \item{population}{population list}
@@ -26,6 +27,10 @@ bv.development.box(population, database = NULL, gen = NULL,
 \item{display.selection}{Display lines between generated cohorts via selection (webinterface)}
 
 \item{display.reproduction}{Display lines between generated cohorts via reproduction (webinterface)}
+
+\item{ylim}{Set this to fix the y-axis of the plot}
+
+\item{fix_mfrow}{Set TRUE to not use mfrow - use for custom plots}
 }
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts

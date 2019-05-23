@@ -1,0 +1,134 @@
+### Dataset generation - NRGENE
+setwd("C:/Users/pook/Desktop/")
+
+
+################## SNP - Dataset ##############################
+load("Genetic_Datasets/Batch3_KEPE/PE_DH_SNP.RData")
+lines_chip <- colnames(datas)
+lines_chip <- substr(lines_chip, start=6, stop=9)
+# Derive overlap to NRGene 340-panel
+lines <- scan("NRGene_MAZE_sequence/haplotypes_similarity_B73_coords.vcf", nlines=1, what="character", skip=6)
+lines <- substr(lines[-(1:60)], start=6, stop=9)
+take <- which(duplicated(c(lines,lines_chip))[-(1:length(lines))])
+geno_chip <- datas[,take]
+storage.mode(geno_chip) <- "integer"
+
+################## HaploBlocker - Datasets ####################
+library(HaploBlocker)
+
+geno_blocker <- NULL
+geno_window <- NULL
+geno_window2 <- NULL
+
+for(chromo in 1:10){
+  load(paste0("Genetic_Datasets/Batch3_KEPE/PE_DH_chromo", chromo, ".RData"))
+  data <- data[,take]
+  blocklist <- block_calculation(data)
+  block_data <- block_matrix_construction(blocklist)
+  window_data <- block_windowdataset(blocklist)
+  window_data2 <- block_windowdataset(blocklist, data, consider_nonblock = TRUE)
+
+  geno_blocker <- rbind(geno_blocker, block_data)
+  geno_window <- rbind(geno_window, window_data)
+  geno_window2 <- rbind(geno_window2, window_data2)
+}
+
+geno_blocker <- geno_blocker * 2L
+geno_window <- geno_window *2L
+geno_window2 <- geno_window2 * 2L
+
+storage.mode(geno_blocker) <- "integer"
+storage.mode(geno_window) <- "integer"
+storage.mode(geno_window2) <- "integer"
+
+
+################## NRGene - Datasets ############################
+
+data <- read.table("NRGene_MAZE_sequence/haplotypes_similarity_B73_coords.vcf")
+data2 <- as.matrix(data)
+geno_haplo <- substr(data2[,-(1:60)], start=1, stop=1)
+
+# Binary Coding presence/absence NRgene-blocks
+var_t <- numeric(nrow(geno_haplo)) # Derive number of variants
+for(index in 1:nrow(geno_haplo)){
+  var_t[index] <- length(unique(geno_haplo[index,]))
+}
+
+geno_code <- matrix(0L, nrow=sum(var_t), ncol=ncol(geno_haplo))
+row <- 1
+for(index in 1:nrow(geno_haplo)){
+  for(var in unique(geno_haplo[index,])){
+    geno_code[row,] <- (geno_haplo[index,]==var)*2L
+    row <- row + 1
+    if(row%%1000==0) print(row)
+  }
+}
+
+
+# HaploBlocker NRgene blocks
+library(HaploBlocker)
+geno_code_blocker <-NULL
+geno_code_window <-NULL
+geno_code_window2 <-NULL
+for(chromo in 1:10){
+  ischromo <- which(as.numeric(data2[,1])==chromo)
+  blocklist <- block_calculation(geno_haplo[ischromo,], target_coverage=0.9)
+
+  block_data <- block_matrix_construction(blocklist)
+#  window_data <- block_windowdataset(blocklist)
+#  window_data2 <- block_windowdataset(blocklist, data, consider_nonblock = TRUE)
+
+  geno_code_blocker <- rbind(geno_code_blocker, block_data)
+#  geno_code_window <- rbind(geno_code_window, window_data)
+#  geno_code_window2 <- rbind(geno_code_window2, window_data2)
+}
+
+geno_code_blocker <- geno_code_blocker * 2L
+geno_code_window <- geno_code_window *2L
+geno_code_window2 <- geno_code_window2 * 2L
+
+storage.mode(geno_code_blocker) <- "integer"
+storage.mode(geno_code_window) <- "integer"
+storage.mode(geno_code_window2) <- "integer"
+
+############## NRGene - Datasets Reduced ###########################
+
+var_t <- numeric(nrow(geno_haplo)) # Derive number of variants
+for(index in 1:nrow(geno_haplo)){
+  var_t[index] <- length(unique(geno_haplo[index,]))
+}
+keep <- which(var_t>1)
+
+geno_reduced <- geno_haplo[keep,]
+
+merge <- numeric(length(keep))
+for(index in 1:(nrow(geno_reduced)-1)){
+  checker <- unique(t(geno_reduced[index:(index+1),]))
+  if(index%%100==0) print(index)
+  if(length(unique(checker[,1]))==nrow(checker) && length(unique(checker[,2]))==nrow(checker)){
+    merge[index] <- index
+  }
+}
+
+geno_reduced <- geno_reduced[-merge,]
+
+var_t <- numeric(nrow(geno_reduced)) # Derive number of variants
+for(index in 1:nrow(geno_reduced)){
+  var_t[index] <- length(unique(geno_reduced[index,]))
+}
+
+geno_code2 <- matrix(0L, nrow=sum(var_t), ncol=ncol(geno_reduced))
+row <- 1
+for(index in 1:nrow(geno_reduced)){
+  for(var in unique(geno_reduced[index,])){
+    geno_code2[row,] <- (geno_reduced[index,]==var)*2L
+    row <- row + 1
+    if(row%%1000==0) print(row)
+  }
+}
+
+storage.mode(geno_code2) <- "integer"
+
+save(file="NRGene_MAZE_sequence/Datasets_PE340_variants.RData", list=c("geno_chip", "geno_blocker", "geno_window", "geno_window2", "geno_code", "geno_code2",
+                                                                       "geno_code_blocker"))
+

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558090366758.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "B77E73E6",
+    "lastKnownWriteTime" : 1553269416,
+    "last_content_update" : 1553269416,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/get.bv.R",
+    "project_path" : "R/get.bv.R",
+    "properties" : {
+        "cursorPosition" : "34,2",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 74,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

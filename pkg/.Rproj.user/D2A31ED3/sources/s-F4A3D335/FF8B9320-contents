@@ -1,0 +1,44 @@
+dataset = dataset; nindi=length(sex.s);
+sex.s = sex.s; chromosome.length = chromo.length;
+snps.equidistant = if(is.na(map[1,4])) {TRUE} else {FALSE}; miraculix = miraculix;
+chr.nr = map[,1]; bp=map[,3]; snp.name = map[,2];
+freq = map[,5]; snp.position = if(is.na(map[1,4])) {NULL} else {map[,4]};
+  
+  
+  dataset=NULL; vcf=NULL; chr.nr=NULL; bp=NULL; snp.name=NULL; hom0=NULL; hom1=NULL;
+  bpcm.conversion=0;
+  nsnp=0; nindi=0; freq="beta"; population=NULL; sex.s="fixed";
+  add.chromosome=FALSE; generation=1; class=0L;
+  sex.quota = 0.5; chromosome.length=NULL;length.before=5; length.behind=5;
+  real.bv.add=NULL; real.bv.mult=NULL; real.bv.dice=NULL; snps.equidistant=NULL;
+  change.order=FALSE; bv.total=0; polygenic.variance=100;
+  bve.mult.factor=NULL; bve.poly.factor=NULL;
+  base.bv=NULL; add.chromosome.ends=TRUE;
+  new.phenotype.correlation=NULL;
+  new.breeding.correlation=NULL;
+  add.architecture=NULL; snp.position=NULL;
+  position.scaling=FALSE;
+  bit.storing=FALSE;
+  nbits=30; randomSeed=NULL;
+  miraculix=TRUE;
+  n.additive=0;
+  n.dominant=0;
+  n.qualitative=0;
+  n.quantitative=0;
+  var.additive.l=NULL;
+  var.dominant.l=NULL;
+  var.qualitative.l=NULL;
+  var.quantitative.l=NULL;
+  exclude.snps=NULL;
+  replace.real.bv=FALSE;
+  shuffle.traits=NULL;
+  shuffle.cor=NULL;
+  skip.rest=FALSE;
+  name.cohort=NULL;
+  template.chip=NULL;
+  beta_shape1=1;
+  beta_shape2=1;
+  time.point=0;
+  creating.type=0;
+  trait.name=NULL;
+  map=NULL

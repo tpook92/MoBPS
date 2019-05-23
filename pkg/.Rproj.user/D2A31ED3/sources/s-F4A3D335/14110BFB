@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1558086814570.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "14110BFB",
+    "lastKnownWriteTime" : 1558086844,
+    "last_content_update" : 1558086844360,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/dataset_generation_NRGENE.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "134,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 71,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

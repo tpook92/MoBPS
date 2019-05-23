@@ -7,7 +7,7 @@
 kinship.development(population, database = NULL, gen = NULL,
   cohorts = NULL, json = FALSE, ibd.obs = 50, hbd.obs = 10,
   display.cohort.name = FALSE, display.time.point = FALSE,
-  equal.spacing = FALSE, time_reorder = FALSE)
+  equal.spacing = FALSE, time_reorder = FALSE, display.hbd = FALSE)
 }
 \arguments{
 \item{population}{population list}
@@ -31,6 +31,8 @@ kinship.development(population, database = NULL, gen = NULL,
 \item{equal.spacing}{Equal distance between groups (independent of time.point)}
 
 \item{time_reorder}{Set TRUE to order cohorts according to the time point of generation}
+
+\item{display.hbd}{Set to TRUE to also display HBD in plot}
 }
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts

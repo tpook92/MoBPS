@@ -78,7 +78,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   gwas.database = NULL, bve.insert.gen = NULL,
   bve.insert.cohorts = NULL, bve.insert.database = NULL,
   reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
-  breeding.all.combination = FALSE)
+  breeding.all.combination = FALSE, depth.pedigree = Inf)
 }
 \arguments{
 \item{population}{Population list}
@@ -420,6 +420,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{reduced.selection.panel.f}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
 
 \item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
+
+\item{depth.pedigree}{Depth of the pedigree in generations}
 }
 \description{
 Function to simulate a step in a breeding scheme

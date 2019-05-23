@@ -9,7 +9,8 @@ bv.development(population, database = NULL, gen = NULL,
   quantile = 0.95, bvrow = "all", ignore.zero = TRUE, json = FALSE,
   display.time.point = FALSE, display.creating.type = FALSE,
   display.cohort.name = FALSE, display.sex = FALSE,
-  equal.spacing = FALSE, time_reorder = FALSE, display.line = TRUE)
+  equal.spacing = FALSE, time_reorder = FALSE, display.line = TRUE,
+  ylim = NULL, fix_mfrow = FALSE)
 }
 \arguments{
 \item{population}{population list}
@@ -45,6 +46,10 @@ bv.development(population, database = NULL, gen = NULL,
 \item{time_reorder}{Set TRUE to order cohorts according to the time point of generation}
 
 \item{display.line}{Set FALSE to not display the line connecting cohorts}
+
+\item{ylim}{Set this to fix the y-axis of the plot}
+
+\item{fix_mfrow}{Set TRUE to not use mfrow - use for custom plots}
 }
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts

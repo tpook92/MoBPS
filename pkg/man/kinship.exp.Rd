@@ -6,7 +6,7 @@
 \usage{
 kinship.exp(population, prev.gen = Inf, generation1.kinship = NULL,
   calculate.averages = FALSE, start.diagonal = 0,
-  ignore.diag = FALSE, plot_grp = FALSE)
+  ignore.diag = FALSE, plot_grp = FALSE, depth.pedigree = Inf)
 }
 \arguments{
 \item{population}{Population list}
@@ -22,6 +22,8 @@ kinship.exp(population, prev.gen = Inf, generation1.kinship = NULL,
 \item{ignore.diag}{Use kinship definition from Sitzenstock et al.}
 
 \item{plot_grp}{Plot development of kinship per group}
+
+\item{depth.pedigree}{Depth of the pedigree in generations}
 }
 \description{
 Function to derive expected kinship
