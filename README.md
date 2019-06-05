@@ -18,6 +18,28 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.1.35 (05.06.19)
+
+New server at http://134.76.18.242/ (Now providing 20 cores, 64GB RAM) 
+
+Faster and improved pedigree-based breeding value estimation. New parameter depth.pedigree to control the depth of the pedigree
+
+kinship.exp now supports gen/database/cohort structure. Old version of the function still available at kinship.exp.old
+
+Generalized get.database()
+
+Bug-fix in analyze.bv()
+
+Automatically report accuracies of breeding value estimation
+
+Individuals in bve.insert are now automatically added to pool of individuals to consider in bve
+
+Added [[15/16]] to population$breeding[[generation]] to assign each individual an ID and avoid use of duplicated in breeding value estimation (generated via copy.individual).
+
+Improved computation speed in json.simulation() and updates allow with the web-based application.
+
+Updated documentation
+
 ### Version 1.1.24 (23.05.19)
 
 Minor updates to json.simulation()
