@@ -20,7 +20,7 @@ If interested in testing the web-based application just contact me (torsten.pook
 Updates since release:
 ### Version 1.1.36 (05.06.19)
 
-Hot-fixes for version 1.1.35.
+Hot-fixes of typos in 1.1.35.
 
 ### Version 1.1.35 (05.06.19)
 
