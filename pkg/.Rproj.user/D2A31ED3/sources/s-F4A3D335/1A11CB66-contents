@@ -1185,7 +1185,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         snp.name_activ <- snp.name[activ]
         hom0_activ <- hom0[activ]
         hom1_activ <- hom1[activ]
-        dataset_activ <- dataset[activ,]
+        dataset_activ <- dataset[activ,,drop=FALSE]
         snp.position_activ <- position[activ]
         freq_activ <- freq[activ]
         if(chr_index==1){

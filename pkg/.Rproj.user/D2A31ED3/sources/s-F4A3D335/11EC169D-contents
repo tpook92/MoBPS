@@ -1,0 +1,6 @@
+population1 <- creating.diploid(nindi=500,  ## here we create the population base with ne as number of individuals 
+                                nsnp=1000,  ## this is the number of SNPs
+                                n.additive = 100, ## this is some random trait with 100 qtl
+                                chr.nr = 1:1000,
+                                chromosome.length = 0.0000000000001,
+                                miraculix=FALSE)

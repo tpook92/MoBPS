@@ -182,6 +182,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param name.cohort Name of the newly added cohort
 #' @param add.class.cohorts Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)
 #' @param display.progress Set FALSE to not display progress bars
+#' @param max.ticks Maximal number of ticks in a progress bar
 #' @param ignore.best Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @param repeat.mating Generate multiple mating from the same dam/sire combination
@@ -343,6 +344,7 @@ breeding.diploid <- function(population,
             parallel.generation=FALSE,
             name.cohort=NULL,
             display.progress=TRUE,
+            max.ticks=Inf,
             combine=FALSE,
             repeat.mating=1,
             time.point=0,
@@ -895,34 +897,40 @@ breeding.diploid <- function(population,
 
 
   if(length(heritability)>0){
-    cat("Start deriving enviromental variance (according to given heritability).\n")
-    if(length(heritability)!=population$info$bv.nr){
-      heritability <- rep(heritability, population$info$bv.nr)
-    }
-    n.animals <- 0
-    for(index in 1:nrow(sigma.e.database)){
-      n.animals <- n.animals + diff(sigma.e.database[index,3:4]) + 1
-    }
-    y_real <- array(0, dim=c(n.animals,(population$info$bv.nr))) # schaetzung sigma.g
 
-    cindex <- 1
-    temp1 <- 1:(population$info$bv.nr)
-    for(index in 1:nrow(sigma.e.database)){
-      k.database <- sigma.e.database[index,]
-      if(diff(k.database[3:4])>=0){
-        for(kindex in k.database[3]:k.database[4]){
-          y_real[cindex,temp1] <- population$breeding[[k.database[1]]][[6+k.database[2]]][temp1,kindex]
-          cindex <- cindex +1
+    if(length(population$info$last.sigma.e.database)>0 || (nrow(population$info$last.sigma.e.database)==nrow(sigma.e.database) && prod(population$info$last.sigma.e.database==sigma.e.database)==1)){
+      cat("Start deriving enviromental variance (according to given heritability).\n")
+      if(length(heritability)!=population$info$bv.nr){
+        heritability <- rep(heritability, population$info$bv.nr)
+      }
+      n.animals <- 0
+      for(index in 1:nrow(sigma.e.database)){
+        n.animals <- n.animals + diff(sigma.e.database[index,3:4]) + 1
+      }
+      y_real <- array(0, dim=c(n.animals,(population$info$bv.nr))) # schaetzung sigma.g
+
+      cindex <- 1
+      temp1 <- 1:(population$info$bv.nr)
+      for(index in 1:nrow(sigma.e.database)){
+        k.database <- sigma.e.database[index,]
+        if(diff(k.database[3:4])>=0){
+          for(kindex in k.database[3]:k.database[4]){
+            y_real[cindex,temp1] <- population$breeding[[k.database[1]]][[6+k.database[2]]][temp1,kindex]
+            cindex <- cindex +1
+          }
         }
       }
+
+      for(bven in 1:population$info$bv.nr){
+        if(forecast.sigma.g){
+          sigma.g.temp <- stats::var(y_real[,bven])
+        }
+        sigma.e[bven] <- ((1- heritability[bven]) * sigma.g.temp)/ heritability[bven]
+      }
+    } else{
+      sigma.e <- population$info$last.sigma.e
     }
 
-    for(bven in 1:population$info$bv.nr){
-      if(forecast.sigma.g){
-        sigma.g.temp <- stats::var(y_real[,bven])
-      }
-      sigma.e[bven] <- ((1- heritability[bven]) * sigma.g.temp)/ heritability[bven]
-    }
   }
 
 
@@ -1052,8 +1060,18 @@ breeding.diploid <- function(population,
             y_hat_report <- cbind(y_hat_report, population$breeding[[activ.base[1]]][[activ.base[2]+8]][,activ.base[3]:activ.base[4]])
           }
         }
-        cat("Correlation between genetic values and BVE:\n")
-        cat(diag(stats::cor(t(y_real_report), t(y_hat_report))))
+        cat("Correlation between genetic values and BVE (phenotypic BVE):\n")
+
+        if(nrow(y_real_report)==1){
+          acc <- stats::cor(y_real_report, y_hat_report)
+        } else{
+          acc <- stats::cor(t(y_real_report), t(y_hat_report))
+        }
+
+        if(sum(is.na(acc))>0){
+          acc[is.na(acc)] <- 0
+        }
+        cat(diag(acc))
         cat("\n")
       }
 
@@ -1094,7 +1112,7 @@ breeding.diploid <- function(population,
     cat("Start genomic BVE.\n")
     loop_elements_list <- derive.loop.elements(population=population, bve.database=bve.database,
                                           bve.class=bve.class, bve.avoid.duplicates=bve.avoid.duplicates,
-                                          store.which.adding = TRUE)
+                                          store.which.adding = TRUE, list.of.copys = TRUE)
     loop_elements <- loop_elements_list[[1]]
     n.animals <- nrow(loop_elements)
 
@@ -1711,7 +1729,8 @@ breeding.diploid <- function(population,
         comp.times.bve[4] <- as.numeric(Sys.time())
       }
 
-      if(length(bve.database)==length(bve.insert.database) && prod(bve.database==bve.insert.database)){
+      n.rep <- 0
+      if(length(bve.database)==length(bve.insert.database) && prod(bve.database==bve.insert.database) && nrow(loop_elements_list[[3]])==0){
         bve.insert <- rep(TRUE, n.animals)
       } else{
         bve.insert <- rep(FALSE, n.animals)
@@ -1720,14 +1739,45 @@ breeding.diploid <- function(population,
           add_insert <- loop_elements[,2] <= bve.insert.database[index,4] & loop_elements[,2] >= bve.insert.database[index,3] & loop_elements[,4] == bve.insert.database[index,1] & loop_elements[,5] == bve.insert.database[index,2]
           bve.insert[add_insert] <- TRUE
         }
+
+        loop_elements_copy <- loop_elements_list[[3]]
+        n.rep <- nrow(loop_elements_copy)
+        if(n.rep>0){
+          bve.insert.copy <- rep(FALSE, n.rep)
+
+          for(index in 1:nrow(bve.insert.database)){
+            add_insert <- loop_elements_copy[,2] <= bve.insert.database[index,4] & loop_elements_copy[,2] >= bve.insert.database[index,3] & loop_elements_copy[,4] == bve.insert.database[index,1] & loop_elements_copy[,5] == bve.insert.database[index,2]
+            bve.insert.copy[add_insert] <- TRUE
+          }
+        }
+
       }
 
       if(report.accuracy && bven==population$info$bv.nr){
         cat("Correlation between genetic values and BVE:\n")
-        cat(diag(stats::cor(y_real[bve.insert,], y_hat[bve.insert,])))
+        if(n.rep==0){
+          acc <- stats::cor(y_real[bve.insert,], y_hat[bve.insert,])
+        } else{
+          acc <- stats::cor(rbind(y_real[bve.insert,], y_real[loop_elements_copy[bve.insert.copy,6],]),
+                            rbind(y_hat[bve.insert,], y_hat[loop_elements_copy[bve.insert.copy,6],]))
+        }
+        if(length(acc)==1){
+          acc <- matrix(acc,nrow=1)
+        }
+
+        if(sum(is.na(acc))>0){
+          acc[is.na(acc)] <- 0
+        }
+        cat(diag(acc))
+        cat("\n")
       }
       for(index in (1:nrow(loop_elements))[bve.insert]){
         population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][, loop_elements[index,2]] <- y_hat[index,]
+      }
+      if(n.rep>0){
+        for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
+          population$breeding[[loop_elements_copy[index,4]]][[loop_elements_copy[index,5]+2]][, loop_elements_copy[index,2]] <- y_hat[loop_elements_copy[index,6],]
+        }
       }
 
 
@@ -3905,7 +3955,7 @@ breeding.diploid <- function(population,
     population$info$bve.data[[cur]][[10]] <- y
   }
   population$info$last.sigma.e <- sigma.e
-
+  population$info$last.sigma.e.database <- sigma.e.database
 
   if(store.comp.times){
     comp.times[7] <- as.numeric(Sys.time())

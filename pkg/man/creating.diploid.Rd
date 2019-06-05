@@ -23,8 +23,8 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   var.qualitative.l = NULL, var.quantitative.l = NULL,
   exclude.snps = NULL, replace.real.bv = FALSE,
   shuffle.traits = NULL, shuffle.cor = NULL, skip.rest = FALSE,
-  name.cohort = NULL, template.chip = NULL, beta_shape1 = 1,
-  beta_shape2 = 1, time.point = 0, creating.type = 0,
+  name.cohort = NULL, template.chip = NULL, beta.shape1 = 1,
+  beta.shape2 = 1, time.point = 0, creating.type = 0,
   trait.name = NULL, map = NULL)
 }
 \arguments{
@@ -138,9 +138,9 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 
 \item{template.chip}{Import genetic map and chip from a species ("cattle", "chicken", "pig")}
 
-\item{beta_shape1}{First parameter of the beta distribution for simulating allele frequencies}
+\item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies}
 
-\item{beta_shape2}{Second parameter of the beta distribution for simulating allele frequencies}
+\item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
 
 \item{time.point}{Time point at which the new individuals are generated}
 

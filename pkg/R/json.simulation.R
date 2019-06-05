@@ -1282,10 +1282,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
             } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Last 2 Generations"){
               bve.database <- get.database(population, gen=max(1,generation-2):(generation-1))
               if(generation_bv_size[[generation-1]][1]>0){
-                rbind(bve.database, c(generation,1,1,generation_bv_size[[generation-1]][1]))
+                bve.database <- rbind(bve.database, c(generation,1,1,generation_bv_size[[generation-1]][1]))
               }
               if(generation_bv_size[[generation-1]][2]>0){
-                rbind(bve.database, c(generation,2,1,generation_bv_size[[generation-1]][2]))
+                bve.database <- rbind(bve.database, c(generation,2,1,generation_bv_size[[generation-1]][2]))
               }
 
             } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="All"){

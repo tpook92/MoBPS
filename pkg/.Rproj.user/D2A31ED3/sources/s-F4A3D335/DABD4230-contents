@@ -30,9 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.duplicates, store.adding=FALSE,
-                                 store.which.adding=FALSE){
+                                 store.which.adding=FALSE, list.of.copys=FALSE){
   max.animals <- 0
-  start <- 1
+  start <- non_start <- 1
   full_adding <- NULL
   for(index in 1:nrow(bve.database)){
     if(length(bve.class)>0){
@@ -45,8 +45,12 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
   }
   loop_elements <- matrix(nrow=max.animals, ncol=5)
   loop_elements[,1] <- 1:max.animals
+  if(list.of.copys){
+    copy_elements <- cbind(loop_elements,0)
+  }
+
   used <- NULL
-  prior <- 0
+  prior <- non_prior <- 0
   prior3 <- 0
   for(index in 1:nrow(bve.database)){
     k.database <- bve.database[index,]
@@ -60,6 +64,8 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
         }
 
         adding <- news[to_add]
+
+
         kn <- length(adding)
         start <- c(start, max(start) + kn)
         if(kn>0){
@@ -73,6 +79,39 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
           loop_elements[1:kn+ prior,5] <- k.database[2]
           prior <- prior + kn
         }
+
+        if(list.of.copys){
+          if(length(to_add)==0){
+            non_adding <- news
+          } else{
+            non_adding <- news[-to_add]
+          }
+
+          non_kn <- length(non_adding)
+
+          non_start <- c(non_start, max(non_start) + non_kn)
+          if(non_kn>0){
+            if(length(to_add)==0){
+              copy_elements[1:non_kn + non_prior,2] <- (k.database[3]:k.database[4])
+            } else{
+              copy_elements[1:non_kn + non_prior,2] <- (k.database[3]:k.database[4])[-to_add]
+            }
+
+            copy_elements[1:non_kn + non_prior,3] <- index
+            copy_elements[1:non_kn + non_prior,4] <- k.database[1]
+            copy_elements[1:non_kn + non_prior,5] <- k.database[2]
+
+            for(check_id in 1:non_kn){
+              copy_elements[check_id + non_prior,6] <- which(used==non_adding[check_id])
+            }
+            non_prior <- non_prior + non_kn
+
+
+          }
+
+
+        }
+
       }
     } else{
       start <- c(start, max(start))
@@ -100,6 +139,38 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
             loop_elements[1:kn+ prior,5] <- k.database[2]
             prior <- prior + kn
           }
+
+          if(list.of.copys){
+            if(length(to_add)==0){
+              non_adding <- news
+            } else{
+              non_adding <- news[-to_add]
+            }
+
+            non_kn <- length(non_adding)
+
+            non_start <- c(non_start, max(non_start) + non_kn)
+            if(non_kn>0){
+              if(length(to_add)==0){
+                copy_elements[1:non_kn + non_prior,2] <- (k.database[3]:k.database[4])
+              } else{
+                copy_elements[1:non_kn + non_prior,2] <- (k.database[3]:k.database[4])[-to_add]
+              }
+
+              copy_elements[1:non_kn + non_prior,3] <- index
+              copy_elements[1:non_kn + non_prior,4] <- k.database[1]
+              copy_elements[1:non_kn + non_prior,5] <- k.database[2]
+
+              for(check_id in 1:non_kn){
+                copy_elements[check_id + non_prior,6] <- which(used==non_adding[check_id])
+              }
+              non_prior <- non_prior + non_kn
+
+
+            }
+
+
+          }
         }
       }
     }
@@ -108,12 +179,24 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
   }
   loop_elements <- loop_elements[1:prior,]
 
+  output <- list()
+
+  output[[1]] <- loop_elements
   if(store.adding){
-    return(list(loop_elements, start))
-  } else if(store.which.adding){
-    return(list(loop_elements, full_adding))
-  } else{
-    return(loop_elements)
+    output[[length(output) +1]] <- start
   }
+  if(store.which.adding){
+    output[[length(output) +1]] <- full_adding
+  }
+  if(list.of.copys){
+    if(non_prior>0){
+      copy_elements <- copy_elements[1:non_prior,,drop=FALSE]
+    } else{
+      copy_elements <- copy_elements[0,,drop=FALSE]
+    }
+
+    output[[length(output) +1]] <- copy_elements
+  }
+  return(output)
 
 }

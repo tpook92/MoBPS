@@ -77,8 +77,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param hom0 Vector containing the first allelic variant in each marker (default: 0)
 #' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
 #' @param skip.rest Internal variable needed when adding multipe chromosomes jointly
-#' @param beta_shape1 First parameter of the beta distribution for simulating allele frequencies
-#' @param beta_shape2 Second parameter of the beta distribution for simulating allele frequencies
+#' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
+#' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @param trait.name Name of the trait generated
@@ -118,8 +118,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              skip.rest=FALSE,
                              name.cohort=NULL,
                              template.chip=NULL,
-                             beta_shape1=1,
-                             beta_shape2=1,
+                             beta.shape1=1,
+                             beta.shape2=1,
                              time.point=0,
                              creating.type=0,
                              trait.name=NULL,
@@ -296,7 +296,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
     if(sum(nsnp)>0 && length(freq)==1 && freq=="beta"){
-      freq <- stats::rbeta(sum(nsnp), shape1=beta_shape1, shape2=beta_shape2)
+      freq <- stats::rbeta(sum(nsnp), shape1=beta.shape1, shape2=beta.shape2)
     }
     if(sum(nsnp)>0 && length(freq)<sum(nsnp)){
       freq <- rep(freq, length.out=sum(nsnp))
@@ -306,7 +306,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     if(length(freq)>0 && sum(is.na(freq))>0){
       replace <- which(is.na(freq))
-      freq[replace] <- stats::rbeta(sum(is.na(freq)), shape1=beta_shape1, shape2=beta_shape2)
+      freq[replace] <- stats::rbeta(sum(is.na(freq)), shape1=beta.shape1, shape2=beta.shape2)
       freq <- as.numeric(freq)
     }
 
@@ -1185,7 +1185,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         snp.name_activ <- snp.name[activ]
         hom0_activ <- hom0[activ]
         hom1_activ <- hom1[activ]
-        dataset_activ <- dataset[activ,]
+        dataset_activ <- dataset[activ,,drop=FALSE]
         snp.position_activ <- position[activ]
         freq_activ <- freq[activ]
         if(chr_index==1){

@@ -13,7 +13,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 #total <- read_json(path="C:/Users/pook/Desktop/Turbo1_new.json")
 total <- jsonlite::read_json(path="C:/Users/pook/Downloads/Turbo 4.0_5Rep.json")
 total <- jsonlite::read_json(path="C:/Users/pook/Downloads/Reference5.4.json")
-total <- jsonlite::read_json(path="C:/Users/pook/Downloads/Duin Simple.json")
+total <- jsonlite::read_json(path="C:/Users/pook/Desktop/basic_correct.json")
 #total <- jsonlite::read_json(path="C:/Users/pook/Desktop/DH_breeding_scheme01.json")
 #total <- jsonlite::read_json(path="C:/Users/pook/Desktop/MoBPS_inferface_bucket/Simple_cattle.json")
 fast.mode <- FALSE
@@ -1258,10 +1258,10 @@ progress.bars <- FALSE
           } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Last 2 Generations"){
             bve.database <- get.database(population, gen=max(1,generation-2):(generation-1))
             if(generation_bv_size[[generation-1]][1]>0){
-              rbind(bve.database, c(generation,1,1,generation_bv_size[[generation-1]][1]))
+              bve.database <- rbind(bve.database, c(generation,1,1,generation_bv_size[[generation-1]][1]))
             }
             if(generation_bv_size[[generation-1]][2]>0){
-              rbind(bve.database, c(generation,2,1,generation_bv_size[[generation-1]][2]))
+              bve.database <- rbind(bve.database, c(generation,2,1,generation_bv_size[[generation-1]][2]))
             }
 
           } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="All"){

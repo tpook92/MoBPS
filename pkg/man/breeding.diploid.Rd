@@ -66,10 +66,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
   best.selection.manual.ratio.m = NULL,
   best.selection.manual.ratio.f = NULL, bve.class = NULL,
   parallel.generation = FALSE, name.cohort = NULL,
-  display.progress = TRUE, combine = FALSE, repeat.mating = 1,
-  time.point = 0, creating.type = 0, multiple.observation = FALSE,
-  new.bv.observation = NULL, new.bv.observation.gen = NULL,
-  new.bv.observation.cohorts = NULL,
+  display.progress = TRUE, max.ticks = Inf, combine = FALSE,
+  repeat.mating = 1, time.point = 0, creating.type = 0,
+  multiple.observation = FALSE, new.bv.observation = NULL,
+  new.bv.observation.gen = NULL, new.bv.observation.cohorts = NULL,
   new.bv.observation.database = NULL, bve.gen = NULL,
   bve.cohorts = NULL, bve.database = NULL, sigma.e.gen = NULL,
   sigma.e.cohorts = NULL, sigma.e.database = NULL,
@@ -368,6 +368,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{name.cohort}{Name of the newly added cohort}
 
 \item{display.progress}{Set FALSE to not display progress bars}
+
+\item{max.ticks}{Maximal number of ticks in a progress bar}
 
 \item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 

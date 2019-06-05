@@ -254,7 +254,7 @@ dev.off()
 
 {
   race <- "KE"
-  errort <- matrix(nrow=10, ncol=63)
+  errort <- matrix(nrow=10, ncol=68)
   
   for(chromo in 1:10){
     index <- 1
@@ -269,8 +269,9 @@ dev.off()
                   "beagle5ne100", "beagle5ne1000", "beagle5ne10000", "beagle5ne100000", "modelscale125", "modelscale175", "buildwindow25nsamples25",
                   "buildwindow25nsamples25niterations2", "buildwindow25nsamples25niterations25", "burnin2", "burnin25",
                   "modelscale15niterations2", "modelscale15niterations25",
-                  "buildwindow200", "buildwindow1", "buildwindow2", "buildwindow3", "buildwindow5", "buildwindow6", "buildwindow8")){
-      name <- paste0("C:/Users/pook/Desktop/Imputing_error/errorPosi", race, chromo, type, ".txt")
+                  "buildwindow200", "buildwindow1", "buildwindow2", "buildwindow3", "buildwindow5", "buildwindow6", "buildwindow8",
+                  "cluster0001", "cluster001", "cluster002","err000001")){
+      name <- paste0("C:/Users/pook/Desktop/Imputation_paper_bucket/Imputing_error/errorPosi", race, chromo, type, ".txt")
       err <- read.table(name)
       errort[chromo, index] <- mean(err[err[,1]!=0,1])
       index <- index +1
@@ -289,7 +290,8 @@ dev.off()
                         "beagle5ne100", "beagle5ne1000", "beagle5ne10000", "beagle5ne100000",
                         "modelscale125", "modelscale175", "buildwindow25nsamples25",
                         "buildwindow25nsamples25niterations2", "buildwindow25nsamples25niterations25", "burnin2", "burnin25",
-                        "modelscale15niterations2", "modelscale15niterations25", "buildwindow200","buildwindow1", "buildwindow2", "buildwindow3", "buildwindow5", "buildwindow6", "buildwindow8")
+                        "modelscale15niterations2", "modelscale15niterations25", "buildwindow200","buildwindow1", "buildwindow2", "buildwindow3", "buildwindow5", "buildwindow6", "buildwindow8",
+                        "cluster0001", "cluster001", "cluster002", "err000001", "err0001")
 }
 colnames(errort)
 

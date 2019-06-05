@@ -1,0 +1,9 @@
+
+
+  pb <- utils::txtProgressBar(min = 0, max = 1000, style =6)
+
+for(index in 1:1000){
+    for(index2 in 1:100000){}
+    utils::setTxtProgressBar(pb, index)
+}
+  
