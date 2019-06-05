@@ -18,6 +18,10 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.1.36 (05.06.19)
+
+Hot-fixes for version 1.1.35.
+
 ### Version 1.1.35 (05.06.19)
 
 New server at http://134.76.18.242/ (Now providing 20 cores, 64GB RAM) 
