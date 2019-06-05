@@ -2,18 +2,18 @@
     "collab_server" : "",
     "contents" : "",
     "created" : 1542189303030.000,
-    "dirty" : false,
+    "dirty" : true,
     "encoding" : "UTF-8",
     "folds" : "",
     "hash" : "0",
     "id" : "1A11CB66",
-    "lastKnownWriteTime" : 1558596100,
-    "last_content_update" : 1558596100221,
+    "lastKnownWriteTime" : 1559567305,
+    "last_content_update" : 1559724789828,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/creating.diploid.R",
     "project_path" : "R/creating.diploid.R",
     "properties" : {
-        "cursorPosition" : "34,25",
-        "scrollLine" : "0"
+        "cursorPosition" : "581,22",
+        "scrollLine" : "561"
     },
     "relative_order" : 2,
     "source_on_save" : false,

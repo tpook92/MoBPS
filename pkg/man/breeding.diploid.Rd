@@ -78,7 +78,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   gwas.database = NULL, bve.insert.gen = NULL,
   bve.insert.cohorts = NULL, bve.insert.database = NULL,
   reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
-  breeding.all.combination = FALSE, depth.pedigree = Inf)
+  breeding.all.combination = FALSE, depth.pedigree = Inf,
+  copy.individual.keep.bve = TRUE, bve.avoid.duplicates = TRUE,
+  report.accuracy = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -422,6 +424,12 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
 
 \item{depth.pedigree}{Depth of the pedigree in generations}
+
+\item{copy.individual.keep.bve}{Set to FALSE to not keep estimated breeding value in case of use of copy.individuals}
+
+\item{bve.avoid.duplicates}{If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)}
+
+\item{report.accuracy}{Report the accuracy of the breeding value estimation}
 }
 \description{
 Function to simulate a step in a breeding scheme

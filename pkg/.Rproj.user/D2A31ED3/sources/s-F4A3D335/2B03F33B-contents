@@ -35,9 +35,9 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
   if(length(bvrow)==1 && bvrow=="all"){
     bvrow <- 1:population$info$bv.nr
   }
-  bv <- get.bv(population, gen=gen, database = database, cohorts = cohorts)[bvrow,]
-  bve <- get.bve(population, gen=gen, database = database, cohorts = cohorts)[bvrow,]
-  pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts)[bvrow,]
+  bv <- get.bv(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
+  bve <- get.bve(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
+  pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
 
 
   cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))

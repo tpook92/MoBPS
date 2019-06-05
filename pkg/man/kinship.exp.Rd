@@ -4,26 +4,21 @@
 \alias{kinship.exp}
 \title{Derive expected kinship}
 \usage{
-kinship.exp(population, prev.gen = Inf, generation1.kinship = NULL,
-  calculate.averages = FALSE, start.diagonal = 0,
-  ignore.diag = FALSE, plot_grp = FALSE, depth.pedigree = Inf)
+kinship.exp(population, gen = NULL, database = NULL, cohorts = NULL,
+  depth.pedigree = Inf, start.kinship = NULL)
 }
 \arguments{
 \item{population}{Population list}
 
-\item{prev.gen}{Maximum generatin gap between parent/offspring (default: Inf)}
+\item{gen}{Quick-insert for database (vector of all generations to export)}
 
-\item{generation1.kinship}{Pedigree of the first generation (default: diag(1))}
+\item{database}{Groups of individuals to consider for the export}
 
-\item{calculate.averages}{Set to "generations" or "generationsex" to combine cohorts}
-
-\item{start.diagonal}{First X individuals are unrelated (default: 0)}
-
-\item{ignore.diag}{Use kinship definition from Sitzenstock et al.}
-
-\item{plot_grp}{Plot development of kinship per group}
+\item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{depth.pedigree}{Depth of the pedigree in generations}
+
+\item{start.kinship}{Relationship matrix of the individuals in the first considered generation}
 }
 \description{
 Function to derive expected kinship

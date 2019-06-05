@@ -5,15 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "3714081483",
     "id" : "95D70B3A",
-    "lastKnownWriteTime" : 1542194670,
-    "last_content_update" : 1542194670,
+    "lastKnownWriteTime" : 1559558264,
+    "last_content_update" : 1559558264258,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/calculate.bv.R",
     "project_path" : "R/calculate.bv.R",
     "properties" : {
-        "cursorPosition" : "64,110",
-        "scrollLine" : "0"
+        "cursorPosition" : "70,10",
+        "scrollLine" : "51"
     },
     "relative_order" : 31,
     "source_on_save" : false,

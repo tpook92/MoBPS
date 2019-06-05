@@ -1,0 +1,8 @@
+chromolen<-c(2.865,2.633,2.251,2.122,2.082,1.922,1.89,1.733,1.687,1.735,1.638,1.742,1.289,1.238,1.302,1.342,1.375,1.242,1.122,1.025,0.685,0.861)
+length(chromolen)
+size<-sum(chromolen)
+population1 <- creating.diploid(nindi=2000,  ## here we create the population base with ne as number of individuals 
+                                nsnp=11000,  ## this is the number of SNPs
+                                n.additive = 100, ## this is some random trait with 100 qtl
+                                chr.nr = sort(rep(1:22,500)),
+                                chromosome.length = chromolen) 

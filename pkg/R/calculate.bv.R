@@ -62,7 +62,15 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     # Additive Effekte -Vektorielle loesung
     if(length(real.bv.adds)>0){
       position <- population$info$effect.p.add[[bven]]
-      bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[cbind(1:nrow(real.bv.adds),3+ geno[position])])^population$info$bve.poly.factor[bven])
+      neff <- nrow(real.bv.adds)
+      take <- (geno[position] +2 ) * neff + 1:neff
+      ## ^ seems to be extremely inefficient!
+      if(population$info$bve.poly.factor[bven]==1){
+        bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))
+      } else{
+        bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take])^population$info$bve.poly.factor[bven])
+      }
+
     }
 
 

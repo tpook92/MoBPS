@@ -31,7 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
 
   if(length(gen)>0){
-    database <- rbind(database,cbind(rep(gen,each=2), rep(1:2, length(gen))))
+    database_gen <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
+    if(length(database)>0 && ncol(database)==4){
+      database_gen <- cbind(database_gen,1,population$info$size[database_gen])
+    }
+    database <- rbind(database, database_gen)
   }
   if(length(database)>0 && ncol(database)==2){
     start <- end <- numeric(nrow(database))
@@ -54,6 +58,8 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
     database <- rbind(database, database2)
   }
 
+  keep <- database[,3]<=database[,4]
+  database <- database[keep,,drop=FALSE]
 
   return(database)
 }

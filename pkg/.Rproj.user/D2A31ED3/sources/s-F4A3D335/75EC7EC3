@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559649487264.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "75EC7EC3",
+    "lastKnownWriteTime" : 1549989413,
+    "last_content_update" : 1549989413,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/pedigree.emp.R",
+    "project_path" : "R/pedigree.emp.R",
+    "properties" : {
+        "cursorPosition" : "86,0",
+        "scrollLine" : "7"
+    },
+    "relative_order" : 85,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

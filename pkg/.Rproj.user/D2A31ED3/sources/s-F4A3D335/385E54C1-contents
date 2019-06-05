@@ -1,5 +1,5 @@
-breeding.size=c(0,30);
-bve=TRUE; computation.A = computeA;
+breeding.size=breeding.size;
+bve=bve; computation.A = computeA;
 BGLR.bve = activbglr;
 emmreml.bve = activemmreml;
 selection.size= breeding.size;
@@ -24,7 +24,13 @@ n.observation = add.observation;
 remove.effect.position = remove.effect.position;
 name.cohort = nodes[[groupnr]]$label;
 time.point = time.point;
-creating.type = 1
+creating.type = creating.type;
+depth.pedigree = depth;
+store.breeding.totals = TRUE;
+reduced.selection.panel.m = reduced.selection.panel.m;
+reduced.selection.panel.f = reduced.selection.panel.f;
+bve.insert.cohorts = c(cohorts.m, cohorts.f)
+
 
 breeding.size=breeding.size;
 bve=bve; computation.A = computeA;

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559569573099.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "70E20FDA",
+    "lastKnownWriteTime" : 1553269548,
+    "last_content_update" : 1553269548,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/get.class.R",
+    "project_path" : "R/get.class.R",
+    "properties" : {
+        "cursorPosition" : "41,19",
+        "scrollLine" : "25"
+    },
+    "relative_order" : 80,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

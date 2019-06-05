@@ -814,6 +814,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$cumsnp <- nrow(dataset)
       population$info$bp <- bp
       population$info$snp.name <- snp.name
+      population$info$next.animal <- 1
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
@@ -943,6 +944,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[12]] <- rep(time.point,counter[2]-1)
         population$breeding[[generation]][[13]] <- rep(creating.type,counter[1]-1) # Time point
         population$breeding[[generation]][[14]] <- rep(creating.type,counter[2]-1)
+        population$breeding[[generation]][[15]] <- seq(population$info$next.animal, population$info$next.animal + counter[1] -2, length.out= counter[1] -1)
+        population$info$next.animal <- population$info$next.animal + counter[1] -1
+        population$breeding[[generation]][[16]] <- seq(population$info$next.animal, population$info$next.animal + counter[2] -2, length.out= counter[2] -1)
+        population$info$next.animal <- population$info$next.animal + counter[2] -1
 
         # calculate Real-ZW
       } else{
@@ -958,6 +963,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[12]] <- c(population$breeding[[generation]][[12]], rep(time.point ,counter[2]-counter.start[2]))
         population$breeding[[generation]][[13]] <- c(population$breeding[[generation]][[13]], rep(time.point ,counter[1]-counter.start[1])) # Creating type
         population$breeding[[generation]][[14]] <- c(population$breeding[[generation]][[14]], rep(time.point ,counter[2]-counter.start[2]))
+
+        population$breeding[[generation]][[15]] <- c(population$breeding[[generation]][[15]] , seq(population$info$next.animal, population$info$next.animal + counter[1] -2, length.out= counter[1] -1))
+        population$info$next.animal <- population$info$next.animal + counter[1] -1
+        population$breeding[[generation]][[16]] <- c(population$breeding[[generation]][[16]] , seq(population$info$next.animal, population$info$next.animal + counter[2] -2, length.out= counter[2] -1))
+        population$info$next.animal <- population$info$next.animal + counter[2] -1
 
       }
 

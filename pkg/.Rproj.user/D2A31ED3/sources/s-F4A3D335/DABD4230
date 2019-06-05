@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559640231285.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "403989388",
+    "id" : "DABD4230",
+    "lastKnownWriteTime" : 1559662496,
+    "last_content_update" : 1559662496336,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/derive.loop.elements.R",
+    "project_path" : "R/derive.loop.elements.R",
+    "properties" : {
+        "cursorPosition" : "113,31",
+        "scrollLine" : "87",
+        "tempName" : "Untitled42"
+    },
+    "relative_order" : 84,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
