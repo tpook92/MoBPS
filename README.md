@@ -18,7 +18,10 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
-### Version 1.1.37 (06.06.19)
+### Version 1.1.39 (06.06.19)
+Added Implemenation of Single Step GBLUP with H according to Legarra et al 2014
+
+Added share.genotyped / genotyped.s to control which individuals are genotyped
 
 Hot-fixes of typos in 1.1.35.
 
