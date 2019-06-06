@@ -198,6 +198,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param bve.avoid.duplicates If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)
 #' @param report.accuracy Report the accuracy of the breeding value estimation
+#' @param share.genotyped Share of individuals genotyped in the founders
+#' @param singlestep.active Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)
+#' @param remove.non.genotyped Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well
 #' @export
 
 
@@ -375,7 +378,10 @@ breeding.diploid <- function(population,
             depth.pedigree=Inf,
             copy.individual.keep.bve=TRUE,
             bve.avoid.duplicates=TRUE,
-            report.accuracy=TRUE
+            report.accuracy=TRUE,
+            share.genotyped=1,
+            singlestep.active=FALSE,
+            remove.non.genotyped=TRUE
             ){
 
   reduced.selection.panel <- list(reduced.selection.panel.m, reduced.selection.panel.f)
@@ -1115,7 +1121,44 @@ breeding.diploid <- function(population,
                                           store.which.adding = TRUE, list.of.copys = TRUE)
     loop_elements <- loop_elements_list[[1]]
     n.animals <- nrow(loop_elements)
+    genotyped <- numeric(n.animals)
 
+    if(remove.non.genotyped && singlestep.active==FALSE && computation.A!="kinship"){
+      for(index in 1:n.animals){
+
+        k.database <- bve.database[loop_elements[index,3],]
+        kindex <- loop_elements[index,2]
+        genotyped[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+      }
+
+      loop_elements_copy <- loop_elements_list[[3]]
+      n.rep <- nrow(loop_elements_copy)
+      if(n.rep>0){
+        genotyped.copy <- numeric(n.rep)
+        for(index in 1:n.rep){
+          kindex <- loop_elements_copy[index,2]
+          k.database <- bve.database[loop_elements_copy[index,3],]
+          genotyped[loop_elements_copy[index,6]] <-  genotyped.copy[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+        }
+        remove.loop.elements <- which(genotyped.copy==0)
+        if(length(remove.loop.elements)>0){
+          loop_elements_list[[3]] <- loop_elements_list[[3]][-remove.loop.elements,]
+        }
+      }
+      remove.loop.elements <- which(genotyped==0)
+      if(length(remove.loop.elements)>0){
+        loop_elements_list[[1]] <- loop_elements_list[[1]][-remove.loop.elements,]
+        loop_elements_list[[2]] <- loop_elements_list[[2]][-remove.loop.elements]
+      }
+
+
+
+      loop_elements <- loop_elements_list[[1]]
+      n.animals <- nrow(loop_elements)
+      loop_elements_list[[1]][,1] <- 1:n.animals
+      genotyped <- numeric(n.animals)
+
+    }
     if(sequenceZ){
       if(maxZtotal>0){
         maxZ <- floor(maxZtotal / n.animals)
@@ -1132,22 +1175,35 @@ breeding.diploid <- function(population,
     size <- cumsum(c(0,as.vector(t(population$info$size))))
 
     for(index in 1:n.animals){
+
       k.database <- bve.database[loop_elements[index,3],]
-      cindex <- loop_elements[index,1]
       kindex <- loop_elements[index,2]
-      population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]] <- 1
-      y[cindex,] <- population$breeding[[k.database[[1]]]][[8+k.database[[2]]]][,kindex]
-      y_real[cindex,] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][,kindex]
-      grid.position[cindex] <- kindex + size[sum(k.database[1:2]*c(2,1))-2] # how many individuals are in earlier generations
+      y[index,] <- population$breeding[[k.database[[1]]]][[8+k.database[[2]]]][,kindex]
+      y_real[index,] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][,kindex]
+      grid.position[index] <- kindex + size[sum(k.database[1:2]*c(2,1))-2] # how many individuals are in earlier generations
+      genotyped[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+      if(!remove.non.genotyped && singlestep.active==FALSE){
+        genotyped[index] <- 1
+      }
+
       if(estimate.add.gen.var){
         father <- population$breeding[[k.database[1]]][[k.database[2]]][[kindex]][[7]]
         mother <- population$breeding[[k.database[1]]][[k.database[2]]][[kindex]][[8]]
         if(sum(father[1:3]==c(k.database[1:2], kindex))==3 ||sum(mother[1:3]==c(k.database[1:2], kindex))==3){
           print("Schaetzung der additiv genetischen Varianz extrem problematisch. Kein Elterntier fuer jedes Tier vorhanden!")
         }
-        y_parent[cindex,] <- mean(population$breeding[[father[1]]][[8+father[2]]][[,father[3]]],population$breeding[[mother[1]]][[8+mother[2]]][[,mother[3]]])
+        y_parent[index,] <- mean(population$breeding[[father[1]]][[8+father[2]]][[,father[3]]],population$breeding[[mother[1]]][[8+mother[2]]][[,mother[3]]])
       }
     }
+
+    if(nrow(loop_elements_list[[3]])>0){
+      for(index in 1:nrow(loop_elements_list[[3]])){
+        kindex <- loop_elements_list[[3]][index,2]
+        k.database <- bve.database[loop_elements_list[[3]][index,3],]
+        genotyped[loop_elements_list[[3]][index,6]] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+      }
+    }
+    genotype.included <- which(genotyped==1)
 
     batch <- ceiling(nrow(loop_elements)/ncore)
     batche <- list()
@@ -1397,19 +1453,72 @@ breeding.diploid <- function(population,
 
 
       } else{
-        if(miraculix){
-          p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
-          A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
 
-        } else if(miraculix.mult){
-          p_i <- rowSums(Zt)/ncol(Zt)/2
-          Zt_miraculix <- miraculix::createSNPmatrix(Zt)
-          A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
-        } else{
-          p_i <- rowSums(Zt)/ncol(Zt)/2
-          Ztm <- Zt - p_i * 2
-          A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+        if(singlestep.active){
+          n.geno <- length(genotype.included)
+          n.ped <- n.animals - n.geno
+          if(n.ped==0){
+            cat("No non genotyped individuals included. Automatically switch to regular GBLUP instead of ssGBLUP")
+            singlestep.active <- FALSE
+          }
+          if(n.geno==0){
+            cat("No genotyped individuals included. Automatically switch to pedigree BLUP instead of ssGBLUP")
+            singlestep.active <- FALSE
+            computation.A <- "kinship"
+            A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree)[loop_elements_list[[2]],loop_elements_list[[2]]] * 2
+          }
         }
+        if(singlestep.active){
+          cat("Start derive Single-step relationship matrix \n")
+          A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree)[loop_elements_list[[2]],loop_elements_list[[2]]] * 2
+
+          if(miraculix){
+            Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
+            p_i <- miraculix::allele_freq(Z.code.small)
+            A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
+          } else if(miraculix.mult){
+            p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+            Zt_miraculix <- miraculix::createSNPmatrix(Zt[,genotype.included])
+            A_geno <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+          } else{
+            p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+            Ztm <- Zt[,genotype.included] - p_i * 2
+            A_geno <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+          }
+
+          A_geno_ped <- A_pedigree[genotype.included, genotype.included]
+          A_nongeno <- A_pedigree[-genotype.included, -genotype.included]
+          A_overlap <- A_pedigree[-genotype.included, genotype.included]
+
+          genotype.included
+
+          reorder <- c((1:n.animals)[-genotype.included], genotype.included)
+          H_order <- H <- ssGBLUP(A11= A_nongeno, A12 = A_overlap, A22 = A_geno_ped, G = A_geno)
+          H[genotype.included, genotype.included] <- H_order[(ncol(A_nongeno)+1):ncol(H_order), (ncol(A_nongeno)+1):ncol(H_order)]
+          H[-genotype.included, -genotype.included] <- H_order[1:(ncol(A_nongeno)), 1:(ncol(A_nongeno))]
+          H[-genotype.included, genotype.included] <- H_order[1:(ncol(A_nongeno)), (ncol(A_nongeno)+1):ncol(H_order)]
+          H[genotype.included, -genotype.included] <- H_order[(ncol(A_nongeno)+1):ncol(H_order), 1:(ncol(A_nongeno))]
+
+          A <- H
+
+        } else if(computation.A=="vanRaden"){
+          if(miraculix){
+            p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
+            A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
+
+          } else if(miraculix.mult){
+            p_i <- rowSums(Zt)/ncol(Zt)/2
+            Zt_miraculix <- miraculix::createSNPmatrix(Zt)
+            A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+          } else{
+            p_i <- rowSums(Zt)/ncol(Zt)/2
+            Ztm <- Zt - p_i * 2
+            A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+          }
+        }
+
+
+
 
       }
 
@@ -3334,7 +3443,7 @@ breeding.diploid <- function(population,
                               } else{
                                 child[[15]] <- rep(0, population$info$bv.nr)
                               }
-                              child[[16]] <- 0
+                              child[[16]] <- rbinom(1,1,share.genotyped)
                               child[[19]] <- child1[[7]]
                               child[[20]] <- child2[[7]]
 
@@ -3758,7 +3867,7 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- rep(0, population$info$bv.nr)
       }
 
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- 0
+      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- rbinom(1,1, share.genotyped)
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[19]] <- child1[[7]]
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[20]] <- child2[[7]]
 

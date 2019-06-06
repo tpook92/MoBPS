@@ -7,13 +7,13 @@
     "folds" : "",
     "hash" : "0",
     "id" : "1A11CB66",
-    "lastKnownWriteTime" : 1559745724,
-    "last_content_update" : 1559745724829,
+    "lastKnownWriteTime" : 1559828651,
+    "last_content_update" : 1559828651746,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/creating.diploid.R",
     "project_path" : "R/creating.diploid.R",
     "properties" : {
-        "cursorPosition" : "1178,54",
-        "scrollLine" : "0"
+        "cursorPosition" : "121,48",
+        "scrollLine" : "113"
     },
     "relative_order" : 2,
     "source_on_save" : false,

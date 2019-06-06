@@ -1,0 +1,8 @@
+set.seed(1)
+pop1 <- json.simulation(file="C:/Users/pook/Downloads/Cattle_Traits_Empty (4).json")
+set.seed(1)
+pop2 <- json.simulation(file="C:/Users/pook/Downloads/Cattle_Traits_Empty (5).json")
+set.seed(1)
+pop3 <- json.simulation(file="C:/Users/pook/Downloads/Cattle_Traits_Empty (6).json")
+set.seed(1)
+pop4 <- json.simulation(file="C:/Users/pook/Downloads/Cattle_Traits_Empty (7).json")

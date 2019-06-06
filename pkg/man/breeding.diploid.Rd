@@ -80,7 +80,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
   breeding.all.combination = FALSE, depth.pedigree = Inf,
   copy.individual.keep.bve = TRUE, bve.avoid.duplicates = TRUE,
-  report.accuracy = TRUE)
+  report.accuracy = TRUE, share.genotyped = 1,
+  singlestep.active = FALSE, remove.non.genotyped = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -432,6 +433,12 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{bve.avoid.duplicates}{If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)}
 
 \item{report.accuracy}{Report the accuracy of the breeding value estimation}
+
+\item{share.genotyped}{Share of individuals genotyped in the founders}
+
+\item{singlestep.active}{Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)}
+
+\item{remove.non.genotyped}{Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well}
 }
 \description{
 Function to simulate a step in a breeding scheme

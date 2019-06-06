@@ -5,7 +5,7 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "0",
+    "hash" : "3480356420",
     "id" : "7CB2A0D2",
     "lastKnownWriteTime" : 1557353828,
     "last_content_update" : 1557353828958,
@@ -15,7 +15,7 @@
         "cursorPosition" : "760,0",
         "scrollLine" : "0"
     },
-    "relative_order" : 7,
+    "relative_order" : 5,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"

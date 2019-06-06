@@ -513,41 +513,41 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
       ## Determine genetic architecture
 
       if(geninfo$'Use Ensembl Map'=="Yes"){
-        if(geninfo$'`Ensembl Filter Values`'=="Axiom Genotyping Array"){
+        if(geninfo$`Ensembl Dataset`=="Axiom Genotyping Array"){
           map <- map_pig1
-        } else if(geninfo$'`Ensembl Filter Values`'=="GGP Porcine HD"){
+        } else if(geninfo$`Ensembl Dataset`=="GGP Porcine HD"){
           map <- map_pig2
-        } else if(geninfo$'`Ensembl Filter Values`'=="GGP Porcine LD"){
+        } else if(geninfo$`Ensembl Dataset`=="GGP Porcine LD"){
           map <- map_pig3
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina_PorcineSNP60"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina_PorcineSNP60"){
           map <- map_pig4
-        } else if(geninfo$'`Ensembl Filter Values`'=="Affymetrix Chicken600K Array"){
+        } else if(geninfo$`Ensembl Dataset`=="Affymetrix Chicken600K Array"){
           map <- map_chicken1
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina BovineSNP50 BeadChip"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina BovineSNP50 BeadChip"){
           map <- map_cattle1
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina BovineHD BeadChip"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina BovineHD BeadChip"){
           map <- map_cattle2
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina BovineLD BeadChip"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina BovineLD BeadChip"){
           map <- map_cattle3
-        }else if(geninfo$'`Ensembl Filter Values`'=="Genotyping chip variations"){
+        }else if(geninfo$`Ensembl Dataset`=="Genotyping chip variations"){
           map <- map_cattle4
-        }else if(geninfo$'`Ensembl Filter Values`'=="Illumina EquineSNP50 BeadChip"){
+        }else if(geninfo$`Ensembl Dataset`=="Illumina EquineSNP50 BeadChip"){
           map <- map_horse1
-        }else if(geninfo$'`Ensembl Filter Values`'=="IlluminaOvineHDSNP"){
+        }else if(geninfo$`Ensembl Dataset`=="IlluminaOvineHDSNP"){
           map <- map_sheep1
-        }else if(geninfo$'`Ensembl Filter Values`'=="IlluminaOvineSNP50"){
+        }else if(geninfo$`Ensembl Dataset`=="IlluminaOvineSNP50"){
           map <- map_sheep2
-        } else if(geninfo$'`Ensembl Filter Values`'=="Genotyping chip variants"){
+        } else if(geninfo$`Ensembl Dataset`=="Genotyping chip variants"){
           map <- map_sheep3
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina_GoatSNP50"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina_GoatSNP50"){
           map <- map_goat1
-        } else if(geninfo$'`Ensembl Filter Values`'=="Affy GeneChip500K"){
+        } else if(geninfo$`Ensembl Dataset`=="Affy GeneChip500K"){
           map <- map_human1
-        } else if(geninfo$'`Ensembl Filter Values`'=="Illumina_1M-duo"){
+        } else if(geninfo$`Ensembl Dataset`=="Illumina_1M-duo"){
           map <- map_human2
-        } else if(geninfo$'`Ensembl Filter Values`'== "Illumina_HumanHap550"){
+        } else if(geninfo$`Ensembl Dataset`== "Illumina_HumanHap550"){
           map <- map_human3
-        } else if(geninfo$'`Ensembl Filter Values`'== "Affymetrix Axiom Maize Array"){
+        } else if(geninfo$`Ensembl Dataset`== "Affymetrix Axiom Maize Array"){
           map <- map_maize1
         } else{
           map <- ensembl.map(dataset = geninfo$'Ensembl Dataset',
@@ -565,8 +565,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
         nchromo <- max(as.numeric(map[,1]))
         nsnp <- chromo.length <- numeric(nchromo)
         for(index in 1:nchromo){
-          nsnp[index] <- sum(map[,1]==index)
-          chromo.length[index] <- max(as.numeric(map[map[,1]==index,3])) / 100000000
+          nsnp[index] <- sum(as.numeric(map[,1])==index)
+          chromo.length[index] <- max(as.numeric(map[as.numeric(map[,1])==index,3])) / 100000000
 
         }
         cat("Assume 100.000.000 bp/M in Ensembl Map \n")
@@ -671,6 +671,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
       mig_f <- numeric(0)
 
       sex.s <- NULL
+      genotyped.s <- NULL
       # CHECK FOR ME THAN 2 FOUNDERS (MORE THAN 1 of a sex- Migration level...)
       new_mig <- c(0,0)
 
@@ -682,6 +683,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
         size <- as.numeric(nodes[[founder[index]]]$'Number of Individuals')
         founding_a[sex] <- founding_a[sex] + size
         sex.s <- c(sex.s, rep(sex, size))
+        genotyped.s <- c(genotyped.s, rbinom(as.numeric(nodes[[founder[index]]]$'Number of Individuals'), 1,
+                                             as.numeric(nodes[[founder[index]]]$`Proportion of genotyped individuals`)))
         if(sex==1){
           mig_m <- c(mig_m, rep(new_mig[1], size))
           mig <- new_mig[1]
@@ -697,6 +700,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
           founder_data <- TRUE
         }
       }
+
+
     }
 
 
@@ -887,7 +892,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
       population <- NULL
 
       population <- creating.diploid(dataset = dataset, nindi=length(sex.s),
-                                     sex.s = sex.s, chromosome.length = chromo.length,
+                                     sex.s = sex.s, genotyped.s = genotyped.s,
+                                     chromosome.length = chromo.length,
                                      snps.equidistant = if(is.na(map[1,4])) {TRUE} else {FALSE}, miraculix = miraculix,
                                      chr.nr = map[,1], bp=map[,3], snp.name = map[,2],
                                      freq = map[,5], snp.position = if(is.na(map[1,4])) {NULL} else {map[,4]}
@@ -1272,6 +1278,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
           sex_cohorts <- (as.numeric(cohort_data[,3])==0) +1
           selection.size <- c(sum(as.numeric(cohort_data[,3])), sum(as.numeric(cohort_data[,4])))
 
+          share.genotyped <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
           cohorts.m <- involved_cohorts[sex_cohorts==1]
           cohorts.f <- involved_cohorts[sex_cohorts==2]
 
@@ -1301,7 +1308,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
 
             } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="All"){
               bve.database <- get.database(population, gen=1:(generation-1))
-            } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Manuel") {
+            } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Manuel select") {
               stop("Manual selection of cohorts for BVE not implemented")
             } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Only this cohort"){
               bve.database <- involved_groups[,1:2, drop=FALSE]
@@ -1311,6 +1318,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
           if(bve.breeding.type){
             activemmreml <- FALSE
             activbglr <- FALSE
+            singlestep.active <- FALSE
             depth <- 0
             if(length(nodes[[groupnr]]$'Selection Type')==0){
               cat("No selection type selected in some edges. Assume selection type 'Random'")
@@ -1330,6 +1338,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
               if(nodes[[groupnr]]$'Relationship Matrix'=="Pedigree"){
                 computeA <- "kinship"
                 depth <- as.numeric(nodes[[groupnr]]$'Depth of Pedigree')
+              } else if(nodes[[groupnr]]$'Relationship Matrix'=="Single Step"){
+                computeA <- "vanRaden"
+                depth <- as.numeric(nodes[[groupnr]]$'Depth of Pedigree')
+                singlestep.active <- TRUE
               } else{
                 computeA <- "vanRaden"
               }
@@ -1419,7 +1431,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                              reduced.selection.panel.m = reduced.selection.panel.m,
                                              reduced.selection.panel.f = reduced.selection.panel.f,
                                              bve.insert.cohorts = c(cohorts.m, cohorts.f),
-                                             display.progress=progress.bars
+                                             display.progress=progress.bars,
+                                             singlestep.active=singlestep.active,
+                                             share.genotyped = share.genotyped
               )
 
             } else{
@@ -1455,7 +1469,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                              reduced.selection.panel.m = reduced.selection.panel.m,
                                              reduced.selection.panel.f = reduced.selection.panel.f,
                                              bve.insert.cohorts = c(cohorts.m, cohorts.f),
-                                             display.progress=progress.bars)
+                                             display.progress=progress.bars,
+                                             singlestep.active=singlestep.active,
+                                             share.genotyped = share.genotyped)
 
             }
             if(nodes[[groupnr]]$'Breeding Type'=="Split"){
@@ -1482,7 +1498,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 2,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
           } else if(nodes[[groupnr]]$'Breeding Type'=="Selfing"){
 
             selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1504,7 +1521,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 4,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
           } else if(nodes[[groupnr]]$'Breeding Type'=="DH-Production"){
 
             dh.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1528,7 +1546,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 5,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
           } else if(nodes[[groupnr]]$'Breeding Type'=="Recombination"){
 
             population <- breeding.diploid(population, breeding.size=breeding.size,
@@ -1550,7 +1569,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 3,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
           } else if(nodes[[groupnr]]$'Breeding Type'=="Cloning"){
 
             selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1581,7 +1601,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 6,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
 
           } else if(nodes[[groupnr]]$'Breeding Type'=="Combine"){
             selfing.sex <- (as.numeric(selection.size[2])>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1610,7 +1631,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE, progress.bar
                                            time.point = time.point,
                                            creating.type = 7,
                                            store.breeding.totals = TRUE,
-                                           display.progress=progress.bars)
+                                           display.progress=progress.bars,
+                                           share.genotyped = share.genotyped)
           }
           position[groupnr,] <- c(generation, sex, new_mig[sex], sum(breeding.size))
           new_mig[sex] <- new_mig[sex] + 1

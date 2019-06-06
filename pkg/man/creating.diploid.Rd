@@ -25,7 +25,8 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   shuffle.traits = NULL, shuffle.cor = NULL, skip.rest = FALSE,
   name.cohort = NULL, template.chip = NULL, beta.shape1 = 1,
   beta.shape2 = 1, time.point = 0, creating.type = 0,
-  trait.name = NULL, map = NULL)
+  trait.name = NULL, share.genotyped = 1, genotyped.s = NULL,
+  map = NULL)
 }
 \arguments{
 \item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
@@ -147,6 +148,10 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 \item{creating.type}{Technique to generate new individuals (usage in web-based application)}
 
 \item{trait.name}{Name of the trait generated}
+
+\item{share.genotyped}{Share of individuals genotyped in the founders}
+
+\item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
 
 \item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
 }

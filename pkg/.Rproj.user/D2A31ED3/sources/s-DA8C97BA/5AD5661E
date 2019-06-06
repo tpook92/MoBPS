@@ -7,16 +7,16 @@
     "folds" : "",
     "hash" : "0",
     "id" : "5AD5661E",
-    "lastKnownWriteTime" : 1559808744,
-    "last_content_update" : 1559808744985,
+    "lastKnownWriteTime" : 1559829375,
+    "last_content_update" : 1559829375736,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/json.simulation.R",
     "project_path" : "R/json.simulation.R",
     "properties" : {
-        "cursorPosition" : "1638,3",
-        "scrollLine" : "1614",
+        "cursorPosition" : "1660,3",
+        "scrollLine" : "1628",
         "tempName" : "Untitled24"
     },
-    "relative_order" : 21,
+    "relative_order" : 16,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"

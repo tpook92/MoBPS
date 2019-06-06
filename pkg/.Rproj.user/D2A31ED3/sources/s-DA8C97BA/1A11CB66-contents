@@ -82,6 +82,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @param trait.name Name of the trait generated
+#' @param share.genotyped Share of individuals genotyped in the founders
+#' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @examples
 #' creating.diploid(dataset="random", nindi=100, nsnp=1000)
@@ -123,6 +125,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              time.point=0,
                              creating.type=0,
                              trait.name=NULL,
+                             share.genotyped=1,
+                             genotyped.s=NULL,
                              map=NULL){
 
   if(length(randomSeed)>0){
@@ -651,7 +655,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
     }
 
-
+    if(length(genotyped.s)==0){
+      genotyped.s <- rbinom((ncol(dataset))/2, 1, share.genotyped)
+    }
     if(sex.s[1]=="random"){
 
       sex.s <- stats::rbinom((ncol(dataset))/2, 1,sex.quota) +1
@@ -896,6 +902,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
       for(index in 1:length(sex.s)){
         sex <- sex.s[index]
+        genotyped <- genotyped.s[index]
 
         population$breeding[[generation]][[sex]][[counter[sex]]] <- list()
         population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- c(0, sum(population$info$length))
@@ -926,7 +933,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[12]] <- NULL
         #      population$breeding[[generation]][[sex]][[counter[sex]]][[13]] <- "test"
         population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0, population$info$bv.nr)
-        population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- 0
+        population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- genotyped
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -978,6 +985,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       counter <- c(1,1)
       for(index in 1:length(sex.s)){
         sex <- sex.s[index]
+        genotyped <- genotyped.s[index]
         population$breeding[[generation]][[sex]][[counter[sex]]][[1]][2] <- sum(population$info$length)
         population$breeding[[generation]][[sex]][[counter[sex]]][[2]][2] <- sum(population$info$length)
         if(add.chromosome.ends==TRUE){

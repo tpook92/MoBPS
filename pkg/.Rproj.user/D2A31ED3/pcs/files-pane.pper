@@ -2,12 +2,12 @@
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R",
     "sortOrder" : [
         {
-            "ascending" : false,
-            "columnIndex" : 4
-        },
-        {
             "ascending" : true,
             "columnIndex" : 2
+        },
+        {
+            "ascending" : false,
+            "columnIndex" : 4
         },
         {
             "ascending" : false,

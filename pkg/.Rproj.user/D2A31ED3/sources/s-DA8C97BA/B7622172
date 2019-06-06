@@ -7,15 +7,15 @@
     "folds" : "",
     "hash" : "0",
     "id" : "B7622172",
-    "lastKnownWriteTime" : 1559811312,
-    "last_content_update" : 1559811312085,
+    "lastKnownWriteTime" : 1559832286,
+    "last_content_update" : 1559832286992,
     "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/breeding.diploid.R",
     "project_path" : "R/breeding.diploid.R",
     "properties" : {
-        "cursorPosition" : "3698,6",
-        "scrollLine" : "3695"
+        "cursorPosition" : "377,25",
+        "scrollLine" : "367"
     },
-    "relative_order" : 59,
+    "relative_order" : 35,
     "source_on_save" : false,
     "source_window" : "",
     "type" : "r_source"
