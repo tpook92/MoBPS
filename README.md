@@ -18,6 +18,28 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+### Version 1.2.9 (25.06.19)
+Improved import of offspring phenotypes (offspring.bve.XXX)
+
+Additional functionality for handling ungenotyped individuals in BVE
+
+Massiv! speed-up of kinship.exp()
+
+population-list is now of class population with generic function for summary()
+
+get.pedigree now also provides raw-output (before "M"/"F" coding)
+
+Ensembl-maps now included in R-package MoBPSmaps
+
+Major update to miraculix (0.7.8) including:
+
+Prepration for CRAN submission
+
+Direct generation of genotype data via miraculix (reduced memory needs in creating.diploid() )
+
+
+
+
 ### Version 1.1.39 (06.06.19)
 Added Implemenation of Single Step GBLUP with H according to Legarra et al 2014
 
