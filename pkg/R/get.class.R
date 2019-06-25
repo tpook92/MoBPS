@@ -41,7 +41,7 @@ get.class <- function(population, database=NULL, gen=NULL, cohorts=NULL){
     nanimals <- database[row,4] - database[row,3] +1
     if(nanimals>0){
       data[(before+1):(before+nanimals)] <- population$breeding[[animals[1]]][[4+ animals[2]]][animals[3]:animals[4]]
-      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "W", animals[3]:animals[4],"_", animals[1], sep="")
+      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
       before <- before + nanimals
     }
   }

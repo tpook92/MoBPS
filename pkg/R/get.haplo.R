@@ -90,7 +90,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
         }
       }
 
-      names[(before+1):(before+nanimals*2)] <- paste(if(animals[2]==1) "M" else "W", rep(animals[3]:animals[4], each=2), "_", animals[1],"_set", 1:2, sep="")
+      names[(before+1):(before+nanimals*2)] <- paste(if(animals[2]==1) "M" else "F", rep(animals[3]:animals[4], each=2), "_", animals[1],"_set", 1:2, sep="")
       if(TRUE || !population$info$miraculix){
         rindex <- 1
         for(index in animals[3]:animals[4]){

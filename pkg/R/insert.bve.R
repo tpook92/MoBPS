@@ -38,7 +38,7 @@ insert.bve <- function(population, bves, type="bve", count=1){
   }
 
   for(index in 1:nrow(bves)){
-    sex <- as.numeric(substr(bves[index,1], start=1, stop=1)=="W") + 1
+    sex <- as.numeric(substr(bves[index,1], start=1, stop=1)=="F") + 1
     split <- strsplit(bves[index,1], split=c("_"))
     nr <- as.numeric(substr(split[[1]][1], start=2, stop=nchar(split[[1]][1])))
     gen <- as.numeric(split[[1]][2])

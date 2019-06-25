@@ -1,8 +1,0 @@
-library(MoBPS)
-population <- creating.diploid(nindi=100, nsnp=10000, miraculix=TRUE, chromosome.length = 1)
-
-system.time(
-  pop1 <- breeding.diploid(population, breeding.size=1000, selection.size=c(50,50)) 
-)
-object.size(population)
-pop1 <- breeding.diploid(population, breeding.size=1000, selection.size=c(50,50))

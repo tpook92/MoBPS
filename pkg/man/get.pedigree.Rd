@@ -5,7 +5,7 @@
 \title{Derive pedigree}
 \usage{
 get.pedigree(population, database = NULL, gen = NULL, cohorts = NULL,
-  founder.zero = TRUE)
+  founder.zero = TRUE, raw = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -17,6 +17,8 @@ get.pedigree(population, database = NULL, gen = NULL, cohorts = NULL,
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{founder.zero}{Parents of founders are displayed as "0" (default: TRUE)}
+
+\item{raw}{Set to TRUE to not convert numbers into Sex etc.}
 }
 \description{
 Derive pedigree for selected individuals

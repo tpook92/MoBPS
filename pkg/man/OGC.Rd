@@ -4,7 +4,7 @@
 \alias{OGC}
 \title{THIS NEEDs SOME REWORK BEFORE USAGE}
 \usage{
-OGC(A, u, Q, cAc = NA)
+OGC(A, u, Q, cAc = NA, single = TRUE)
 }
 \arguments{
 \item{A}{A}
@@ -14,6 +14,8 @@ OGC(A, u, Q, cAc = NA)
 \item{Q}{Q}
 
 \item{cAc}{cAc}
+
+\item{single}{single}
 }
 \description{
 THIS NEEDs SOME REWORK BEFORE USAGE

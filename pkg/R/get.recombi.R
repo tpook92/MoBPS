@@ -43,7 +43,7 @@ get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL){
       for(index in database[row,3]:database[row,4]){
         data[[rindex]] <-  list()
 
-        colnamed <- paste(if(animals[2]==1) "M" else "W", index,"_", animals[1],sep="")
+        colnamed <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")
         data[[rindex]][[1]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[1]]
         data[[rindex]][[2]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[2]]
         if(population$info$miraculix){

@@ -90,7 +90,7 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
           data[, (before+1):(before+nanimals)] <- miraculix::computeSNPS(population,rep(animals[1], nanimals), rep(animals[2], nanimals) ,animals[3]:animals[4], what="geno")
         }
       }
-      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "W", animals[3]:animals[4], "_", animals[1], sep="")
+      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4], "_", animals[1], sep="")
       if(!population$info$miraculix){
         rindex <- 1
         for(index in animals[3]:animals[4]){

@@ -40,7 +40,7 @@ get.individual.loc <- function(population, database=NULL, gen=NULL, cohorts=NULL
     animals <- database[row,]
     nanimals <- database[row,4] - database[row,3] +1
     data[(before+1):(before+nanimals),] <- cbind(database[row,1], database[row,2], database[row,3]:database[row,4])
-    rown[(before+1):(before+nanimals)] <- paste(if(database[row,2]==1) "M" else "W", database[row,3]:database[row,4], "_", database[row,1], sep="")
+    rown[(before+1):(before+nanimals)] <- paste(if(database[row,2]==1) "M" else "F", database[row,3]:database[row,4], "_", database[row,1], sep="")
     before <- before + nanimals
 
   }

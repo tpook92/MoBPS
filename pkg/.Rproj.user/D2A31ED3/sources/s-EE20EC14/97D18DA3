@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559912709036.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "26|1|1692|0|\n",
+    "hash" : "0",
+    "id" : "97D18DA3",
+    "lastKnownWriteTime" : 1560940737,
+    "last_content_update" : 1561462458669,
+    "path" : "C:/Users/pook/Desktop/MoBPS_json_convertion_28_05.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "18,34",
+        "scrollLine" : "0",
+        "tempName" : "Untitled40"
+    },
+    "relative_order" : 8,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

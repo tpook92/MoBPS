@@ -17,9 +17,9 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
   add.architecture = NULL, snp.position = NULL,
   position.scaling = FALSE, bit.storing = FALSE, nbits = 30,
-  randomSeed = NULL, miraculix = TRUE, n.additive = 0,
-  n.dominant = 0, n.qualitative = 0, n.quantitative = 0,
-  var.additive.l = NULL, var.dominant.l = NULL,
+  randomSeed = NULL, miraculix = TRUE, miraculix.dataset = TRUE,
+  n.additive = 0, n.dominant = 0, n.qualitative = 0,
+  n.quantitative = 0, var.additive.l = NULL, var.dominant.l = NULL,
   var.qualitative.l = NULL, var.quantitative.l = NULL,
   exclude.snps = NULL, replace.real.bv = FALSE,
   shuffle.traits = NULL, shuffle.cor = NULL, skip.rest = FALSE,
@@ -107,7 +107,9 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 
 \item{randomSeed}{Set random seed of the process}
 
-\item{miraculix}{If TRUE use miraculix package for data storage and computation time relevant computations}
+\item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
+
+\item{miraculix.dataset}{Set FALSE to deactive miraculix package for dataset generation}
 
 \item{n.additive}{Number of additive QTL}
 
@@ -157,7 +159,4 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 }
 \description{
 Generation of the starting population
-}
-\examples{
-creating.diploid(dataset="random", nindi=100, nsnp=1000)
 }

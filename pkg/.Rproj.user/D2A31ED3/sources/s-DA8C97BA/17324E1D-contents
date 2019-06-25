@@ -1,4 +1,0 @@
-set.seed(1)
-pop1 <- json.simulation(file="C:/Users/pook/Desktop/Reference5.4.json")
-set.seed(1)
-pop2 <- json.simulation(file="C:/Users/pook/Downloads/Reference5.4.json")

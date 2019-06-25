@@ -1,0 +1,26 @@
+population=population; dataset=dataset_activ;
+nsnp=nsnp[chr_index]; nindi=nindi;
+add.chromosome=add.chromosome; chr.nr = chr_activ;
+bp= bp_activ; snp.name = snp.name_activ;
+hom0= hom0_activ; hom1 = hom1_activ;
+class = class;
+generation = generation;
+add.chromosome.ends = add.chromosome.ends;
+miraculix = miraculix;
+snp.position = if(bpcm.conversion[chr_index]==0){snp.position_activ} else NULL;
+snps.equidistant= snps.equidistant;
+position.scaling= position.scaling;
+chromosome.length= chromosome.length[chr_index];
+length.before = length.before;
+length.behind = length.behind;
+skip.rest = skip.rest;
+sex.s = sex.s;
+name.cohort = name.cohort;
+real.bv.add = real.bv.add;
+real.bv.mult = real.bv.mult;
+real.bv.dice = real.bv.dice;
+freq = freq_activ;
+bpcm.conversion = bpcm.conversion[chr_index]
+
+
+
