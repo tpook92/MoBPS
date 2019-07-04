@@ -141,24 +141,43 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(map)>0){
     while(ncol(map)<5){
       map <- cbind(map, NA)
-      chr.nr <- map[,1]
-      snp.name <- map[,2]
-      if(sum(!is.na(map[,3]))>0){
-        if(length(bp)==0){
-          bp <- numeric(nrow(map))
-        }
-        bp[!is.na(map[,3])] <- map[!is.na(map[,3]),3]
-      }
-      if(sum(!is.na(map[,4]))==nrow(map)){
-        snp.position <- map[,4]
-      }
-      if(sum(!is.na(map[,5]))==nrow(map)){
-        freq <- map[,5]
-      }
-
-
-
     }
+    chr.nr <- map[,1]
+    snp.name <- map[,2]
+    if(sum(!is.na(map[,3]))>0){
+      if(length(bp)==0){
+        bp <- numeric(nrow(map))
+      }
+      bp[!is.na(map[,3])] <- map[!is.na(map[,3]),3]
+    }
+    if(sum(!is.na(map[,4]))==nrow(map)){
+      snp.position <- map[,4]
+    } else if(sum(is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
+      if(bpcm.conversion==0){
+        cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion")
+        bpcm.conversion <- 100000000
+      }
+      map[,4] <- as.numeric(bp) /  bpcm.conversion
+    }
+    if(sum(!is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
+      chr.opt <- unique(chr.nr)
+      chromosome.length <- numeric(length(chr.opt))
+      for(index in 1:length(chr.opt)){
+        chromosome.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],4]))
+      }
+    }
+    if(sum(!is.na(map[,5]))==nrow(map)){
+      freq <- map[,5]
+    }
+    if(nsnp!=0 && nsnp!=nrow(map)){
+      cat("Number of SNPs not in concordance with used map!\n")
+
+      cat("Set number of SNPs to")
+      cat(nrow(map))
+      cat("!\n")
+    }
+    nsnp <- nrow(map)
+
   }
   if(length(chromosome.length)==0 || (length(chromosome.length)==1 && chromosome.length==0)){
     if(length(snp.position)>0){
@@ -809,7 +828,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   if(length(chr.opt)==1){
     if(bpcm.conversion>0 && length(snp.position)==0){
-      snp.position <- bp / bpcm.conversion
+      snp.position <- as.numeric(bp) / bpcm.conversion
       chromosome.length <- max(snp.position) - min(snp.position)
     } else if(bpcm.conversion>0 && length(snp.position)>0){
       cat("Do not use bpcm.conversion and snp.position jointly!\n")

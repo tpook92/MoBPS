@@ -206,6 +206,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param offspring.bve.offspring.gen Active generations for import of offspring phenotypes
 #' @param offspring.bve.offspring.database Active groups for import of offspring phenotypes
 #' @param offspring.bve.offspring.cohorts Active cohorts for import of offspring phenotypes
+#' @param sommer.multi.bve Set TRUE to use a mulit-trait model in the R-package sommer for BVE
 #' @export
 
 
@@ -308,6 +309,7 @@ breeding.diploid <- function(population,
             ogc_cAc = NA,
             emmreml.bve = FALSE,
             sommer.bve = FALSE,
+            sommer.multi.bve=FALSE,
             breedR.bve = FALSE,
             breedR.groups = NULL,
             nr.edits = 0,
@@ -1184,6 +1186,7 @@ breeding.diploid <- function(population,
     n.animals <- nrow(loop_elements)
     genotyped <- numeric(n.animals)
 
+    stay.loop.elements <- NULL
     if(remove.non.genotyped && singlestep.active==FALSE && computation.A!="kinship"){
       for(index in 1:n.animals){
 
@@ -1199,13 +1202,18 @@ breeding.diploid <- function(population,
         for(index in 1:n.rep){
           kindex <- loop_elements_copy[index,2]
           k.database <- bve.database[loop_elements_copy[index,3],]
-          genotyped[loop_elements_copy[index,6]] <-  genotyped.copy[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+          if(population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]==1){
+            genotyped[loop_elements_copy[index,6]] <-  genotyped.copy[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+
+          }
         }
         remove.loop.elements <- which(genotyped.copy==0)
+
         if(length(remove.loop.elements)>0){
           loop_elements_list[[3]] <- loop_elements_list[[3]][-remove.loop.elements,]
         }
       }
+      stay.loop.elements <- which(genotyped==1)
       remove.loop.elements <- which(genotyped==0)
       if(length(remove.loop.elements)>0){
         loop_elements_list[[1]] <- loop_elements_list[[1]][-remove.loop.elements,]
@@ -1234,13 +1242,14 @@ breeding.diploid <- function(population,
     grid.position <- numeric(n.animals)
     cindex <- 1
     size <- cumsum(c(0,as.vector(t(population$info$size))))
-
+    y_obs <- matrix(0, nrow=n.animals, ncol=population$info$bv.nr)
     for(index in 1:n.animals){
 
       k.database <- bve.database[loop_elements[index,3],]
       kindex <- loop_elements[index,2]
       y[index,] <- population$breeding[[k.database[[1]]]][[8+k.database[[2]]]][,kindex]
       y_real[index,] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][,kindex]
+      y_obs[index,] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[15]]
       grid.position[index] <- kindex + size[sum(k.database[1:2]*c(2,1))-2] # how many individuals are in earlier generations
       genotyped[index] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
       if(!remove.non.genotyped && singlestep.active==FALSE){
@@ -1256,12 +1265,32 @@ breeding.diploid <- function(population,
         y_parent[index,] <- mean(population$breeding[[father[1]]][[8+father[2]]][[,father[3]]],population$breeding[[mother[1]]][[8+mother[2]]][[,mother[3]]])
       }
     }
+    if(n.rep>0){
+      for(index in 1:n.rep){
+        kindex <- loop_elements_copy[index,2]
+        k.database <- bve.database[loop_elements_copy[index,3],]
+        if(length(stay.loop.elements)>0){
+          non_copy <- which(stay.loop.elements==loop_elements_copy[index,6])
+        } else{
+          non_copy <- loop_elements_copy[index,6]
+        }
+
+        if(length(non_copy)==1 && prod(population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[15]]>= y_obs[non_copy,])==1){
+          y[non_copy,] <- population$breeding[[k.database[[1]]]][[8+k.database[[2]]]][,kindex]
+        }
+      }
+    }
 
     if(nrow(loop_elements_list[[3]])>0){
       for(index in 1:nrow(loop_elements_list[[3]])){
         kindex <- loop_elements_list[[3]][index,2]
         k.database <- bve.database[loop_elements_list[[3]][index,3],]
-        genotyped[loop_elements_list[[3]][index,6]] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+        if(length(stay.loop.elements)>0){
+          non_copy <- which(stay.loop.elements==loop_elements_copy[index,6])
+        } else{
+          non_copy <- loop_elements_copy[index,6]
+        }
+        genotyped[non_copy] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
       }
     }
     genotype.included <- which(genotyped==1)
@@ -1657,7 +1686,7 @@ breeding.diploid <- function(population,
         sigma.g[bven] <- stats::var(y_real[,bven])
       }
       if(estimate.pheno.var){
-        sigma.e.hat[bven] <- max(0, stats::var(y[,bven]) - sigma.g[bven])
+        sigma.e.hat[bven] <- max(0, stats::var(y[,bven], na.rm=TRUE) - sigma.g[bven])
       }
       sigma.a.hat[bven] <- sigma.g[bven]
       if(estimate.add.gen.var){
@@ -1721,14 +1750,63 @@ breeding.diploid <- function(population,
         }
 
       } else if(sommer.bve){
-        Z1 <- diag(length(y[,bven]))
-        ETA <- list( add=list(Z=Z1, K=A) )
-        ans <- sommer::MEMMA(Y=y[,bven], Z=ETA)
-        y_hat[,bven] <- ans$fitted.y
-        if(estimate.u){
-          print("rrBLUP not included in sommer package - will be added later")
+
+        check <- sum(is.na(y[,bven]))
+        if(check == length(y[,bven])){
+          cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
+          cat(paste0("Skip this BVE."))
+          next
+        }
+        if(check>0){
+          cat(paste0("Breeding value estimation with ", check, " NA phenotypes! Sommer does not support this!\n"))
+          cat(paste0("No estimation is performed to NA individuals. \n"))
+          take <- which(!is.na(y[,bven]))
+        } else{
+          take <- 1:length(y[,bven])
         }
 
+        traitnames <- (paste0("name", 1:ncol(y)))
+        traitnames[bven] <- "name"
+        traitnames <- as.factor(traitnames)
+        colnames(y) <- traitnames
+        id <- as.factor(paste0("P", 1:nrow(y)))
+        y_som <- data.frame(y, id)
+        rownames(y_som) <- id
+        colnames(A) <- rownames(A) <- id
+
+        test <- sommer::mmer(name ~1, random=~sommer::vs(id, Gu=A), rcov = ~units, data=y_som)
+        y_hat[take,bven] <- test$fitted + test$residuals
+
+      } else if(sommer.multi.bve){
+
+        if(sum(is.na(y[,bven]))>0){
+          cat("some missing phenotypes in multi-trait sommer. Check if thats ok?!")
+        }
+        if(bven==population$info$bv.nr){
+          cat("Multi variable sommer not implemented so far!")
+          traitnames <- paste0("name", 1:ncol(y))
+          colnames(y) <- as.factor(traitnames)
+          id <- as.factor(paste0("P", 1:nrow(y)))
+          y_som <- data.frame(y, id)
+          rownames(y_som) <- id
+          colnames(A) <- rownames(A) <- id
+          text <- "cbind("
+          for(index in 1:length(traitnames)){
+            if(index==length(traitnames)){
+              text <- paste0(text, traitnames[index], ")")
+            } else{
+              text <- paste0(text, traitnames[index], ",")
+            }
+
+          }
+          text <- paste0("sommer::mmer(",text,"~1, random=~sommer::vs(id, Gu=A, Gtc=sommer::unsm(bven)), rcov = ~sommer::vs(units, Gtc=diag(bven)), data=y_som)")
+          test <- eval(parse(text=text))
+          y_hat <- test$fitted + test$residuals
+
+          if(estimate.u){
+            print("rrBLUP not included in sommer package - will be added later")
+          }
+        }
       } else if(sigma.e[bven]>0){
 
         check <- sum(is.na(y[,bven]))
@@ -2017,8 +2095,20 @@ breeding.diploid <- function(population,
         if(n.rep==0){
           acc <- stats::cor(y_real[bve.insert,], y_hat[bve.insert,])
         } else{
-          acc <- stats::cor(rbind(y_real[bve.insert,], y_real[loop_elements_copy[bve.insert.copy,6],]),
-                            rbind(y_hat[bve.insert,], y_hat[loop_elements_copy[bve.insert.copy,6],]))
+          insert.temp <- numeric(length(bve.insert.copy))
+
+          if(length(stay.loop.elements)>0){
+            for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
+              insert.temp[index] <- which(stay.loop.elements==loop_elements_copy[index,6])
+            }
+          } else{
+            for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
+              insert.temp[index] <- loop_elements_copy[index,6]
+            }
+
+          }
+          acc <- stats::cor(rbind(y_real[bve.insert,,drop=FALSE], y_real[insert.temp,, drop=FALSE]),
+                            rbind(y_hat[bve.insert,,drop=FALSE], y_hat[insert.temp,,drop=FALSE]))
         }
         if(length(acc)==1){
           acc <- matrix(acc,nrow=1)
@@ -2035,7 +2125,15 @@ breeding.diploid <- function(population,
       }
       if(n.rep>0){
         for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
-          population$breeding[[loop_elements_copy[index,4]]][[loop_elements_copy[index,5]+2]][, loop_elements_copy[index,2]] <- y_hat[loop_elements_copy[index,6],]
+          if(length(stay.loop.elements)>0){
+            non_copy <- which(stay.loop.elements==loop_elements_copy[index,6])
+          } else{
+            non_copy <- loop_elements_copy[index,6]
+          }
+          if(length(non_copy)==1){
+            population$breeding[[loop_elements_copy[index,4]]][[loop_elements_copy[index,5]+2]][, loop_elements_copy[index,2]] <- y_hat[non_copy,]
+
+          }
         }
       }
 

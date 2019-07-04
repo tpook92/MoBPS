@@ -138,6 +138,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
     #### MANUEL MODIFICATION:
     {
+
       if(fast.mode){
         cat("Reduce length of genome! Maximum number of Repeat set to 1. I like fast simulations!\n")
         geninfo$'Chromosomes Info'[[1]]$MD <- 10
@@ -165,6 +166,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
     ######################## REALITY - CHECKS ############################
     {
+      for(index in 1:length(edges)){
+        if((edges[[index]]$`Breeding Type`=="Reproduction" || edges[[index]]$`Breeding Type`=="Aging" || edges[[index]]$`Breeding Type`=="Cloning" || edges[[index]]$`Breeding Type`=="Selfing" || edges[[index]]$`Breeding Type`=="DH-Production") && as.numeric(edges[[index]]$`Time Needed`)==0){
+          edges[[index]]$`Time Needed` <- 1
+          cat("Edges to generate new individuals are not supposed to take 0 time. Automatically set to 1 time unit.\n")
+        }
+      }
       for(index in 1:length(nodes)){
         if(nodes[[index]]$Sex=="Both" && (nodes[[index]]$`Proportion of Male`==0 ||nodes[[index]]$`Proportion of Male`==1)){
           nodes[[index]]$`Proportion of Male` <- 0.5
@@ -1151,6 +1158,23 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
         }
+
+        if(length(edges[[index]]$max_offspring)>0){
+          nodes[[to_node]]$max_offspring <- as.numeric(edges[[index]]$max_offspring)
+        } else{
+          if(length(nodes[[to_node]]$max_offspring)==0){
+            nodes[[to_node]]$max_offspring <- Inf
+          }
+        }
+
+        if(length(edges[[index]]$repeat_mating)>0){
+          nodes[[to_node]]$repeat_mating <- as.numeric(edges[[index]]$repeat_mating)
+        } else{
+          if(length(nodes[[to_node]]$repeat_mating)==0){
+            nodes[[to_node]]$repeat_mating <- 1
+          }
+        }
+
       }
 
       phenotype_groups <- numeric(length(nodes))
@@ -1404,8 +1428,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           }
 
           if(bve.breeding.type){
-            activemmreml <- FALSE
-            activbglr <- FALSE
+            activemmreml <-activesommer <- activemultisommer <- activbglr <-FALSE
             singlestep.active <- FALSE
             depth <- 0
             if(length(nodes[[groupnr]]$'Selection Type')==0){
@@ -1433,8 +1456,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               } else{
                 computeA <- "vanRaden"
               }
-              if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP"){
+              if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP" || nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (EMMREML)"){
                 activemmreml <- TRUE
+              } else if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (sommer)") {
+                activesommer <- TRUE
+              } else if(nodes[[groupnr]]$'BVE Method'=="Multi-trait REML-GBLUP (sommer)") {
+                activemultisommer <- TRUE
               } else if(nodes[[groupnr]]$'BVE Method'=="RKHS") {
                 activbglr <- TRUE
               }
@@ -1483,6 +1510,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            offspring.bve.parents.database=offspring.bve.parents.database,
                                            BGLR.bve = activbglr,
                                            emmreml.bve = activemmreml,
+                                           sommer.bve = activesommer,
+                                           sommer.multi.bve = activemultisommer,
                                            selection.size= breeding.size,
                                            copy.individual = TRUE,
                                            added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
@@ -1511,6 +1540,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            store.breeding.totals = TRUE,
                                            reduced.selection.panel.m = reduced.selection.panel.m,
                                            reduced.selection.panel.f = reduced.selection.panel.f,
+                                           bve.cohorts = c(cohorts.m, cohorts.f),
                                            bve.insert.cohorts = c(cohorts.m, cohorts.f),
                                            display.progress=progress.bars,
                                            singlestep.active=singlestep.active,
@@ -1523,6 +1553,11 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
           } else if(nodes[[groupnr]]$'Breeding Type'=="Reproduction"){
 
+            generation.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
+            if(generation.sex==0 || generation.sex==1){
+              same.sex.activ <- TRUE
+              same.sex.sex <- generation.sex
+            }
             population <- breeding.diploid(population, breeding.size=breeding.size,
                                            selection.size= selection.size,
                                            heritability = heritability,
@@ -1537,6 +1572,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            new.class = new_mig[sex],
                                            same.sex.activ = same.sex.activ,
                                            same.sex.sex = same.sex.sex,
+                                           same.sex.selfing = FALSE,
                                            name.cohort = nodes[[groupnr]]$label,
                                            time.point = time.point,
                                            creating.type = 2,
@@ -1547,9 +1583,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            ogc = nodes[[groupnr]]$OGC=="Yes",
                                            ogc_cAc = if(length(nodes[[groupnr]]$ogc_cAc)>0){nodes[[groupnr]]$ogc_cAc} else{NA},
                                            multiple.bve.scale=TRUE,
-                                           multiple.bve.weights = selection_index[max(1,which(selection_index_name==nodes[[to_node]]$OGC_index)),]
+                                           multiple.bve.weights = selection_index[max(1,which(selection_index_name==nodes[[to_node]]$OGC_index)),],
+                                           repeat.mating = nodes[[groupnr]]$repeat_mating,
+                                           max.offspring = nodes[[groupnr]]$max_offspring
             )
-
           } else if(nodes[[groupnr]]$'Breeding Type'=="Selfing"){
 
             selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1573,7 +1610,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            store.breeding.totals = TRUE,
                                            display.progress=progress.bars,
                                            share.genotyped = share.genotyped,
-                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`)
+                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
+                                           repeat.mating = nodes[[groupnr]]$repeat_mating,
+                                           max.offspring = nodes[[groupnr]]$max_offspring)
           } else if(nodes[[groupnr]]$'Breeding Type'=="DH-Production"){
 
             dh.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1599,7 +1638,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            store.breeding.totals = TRUE,
                                            display.progress=progress.bars,
                                            share.genotyped = share.genotyped,
-                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`)
+                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
+                                           repeat.mating = nodes[[groupnr]]$repeat_mating,
+                                           max.offspring = nodes[[groupnr]]$max_offspring)
           } else if(nodes[[groupnr]]$'Breeding Type'=="Recombination"){
 
             population <- breeding.diploid(population, breeding.size=breeding.size,
@@ -1623,7 +1664,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            store.breeding.totals = TRUE,
                                            display.progress=progress.bars,
                                            share.genotyped = share.genotyped,
-                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`)
+                                           added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
+                                           repeat.mating = nodes[[groupnr]]$repeat_mating,
+                                           max.offspring = nodes[[groupnr]]$max_offspring)
           } else if(nodes[[groupnr]]$'Breeding Type'=="Cloning"){
 
             selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -1656,7 +1699,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                            creating.type = 6,
                                            store.breeding.totals = TRUE,
                                            display.progress=progress.bars,
-                                           share.genotyped = share.genotyped)
+                                           share.genotyped = share.genotyped,
+                                           repeat.mating = nodes[[groupnr]]$repeat_mating,
+                                           max.offspring = nodes[[groupnr]]$max_offspring)
 
           } else if(nodes[[groupnr]]$'Breeding Type'=="Combine"){
             selfing.sex <- (as.numeric(selection.size[2])>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))

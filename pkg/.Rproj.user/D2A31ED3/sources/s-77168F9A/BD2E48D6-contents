@@ -39,6 +39,10 @@ share.genotyped=1;
 genotyped.s=NULL;
 map=NULL
 
+map <- map_cattle1
+nindi <- 100
+
+
 dataset = dataset; nindi=length(sex.s);
 sex.s = sex.s; genotyped.s = genotyped.s;
 chromosome.length = chromo.length;
