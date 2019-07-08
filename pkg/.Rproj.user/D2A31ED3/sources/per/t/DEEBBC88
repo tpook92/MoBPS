@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1559991474879.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1372649231",
+    "id" : "DEEBBC88",
+    "lastKnownWriteTime" : 1562582410,
+    "last_content_update" : 1562582410,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/NAMESPACE",
+    "project_path" : "NAMESPACE",
+    "properties" : {
+        "cursorPosition" : "2,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 10,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_namespace"
+}

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1560772863985.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "174741390",
+    "id" : "FBA80EBD",
+    "lastKnownWriteTime" : 1560845144,
+    "last_content_update" : 1560845144462,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/OGC.R",
+    "project_path" : "R/OGC.R",
+    "properties" : {
+        "cursorPosition" : "31,41",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 23,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

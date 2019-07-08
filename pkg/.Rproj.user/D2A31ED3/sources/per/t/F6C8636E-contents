@@ -1,0 +1,65 @@
+size <- 100 # Anzahl Eltern Kombinationen
+schlupfgroeße <- 10 # Schlupfgroeße
+best <- 2 # die wie viel besten Tiere aus jeder Paarung wählen
+rep <- 50 # Anzahl Wiederholungen der Tests
+library(MoBPS)
+
+bve_selection <- NULL
+pheno_selection <- NULL
+random_selection <- NULL
+
+for(wiederholung in 1:rep){
+  print(wiederholung)
+
+  population <- creating.diploid(nindi = size *2, # Erzeuge Elterntiere
+                                 nsnp=10000, # 10'000 SNPs, 1 Chromosom
+                                 miraculix=FALSE, #
+                                 n.additive = 100) # Unterliegende Trait mit 100 additiven QTL
+
+  population <- breeding.diploid(population,
+                                 breeding.size = schlupfgroeße * size, # Anzahl zu Erzeugende Tiere
+                                 breeding.sex = 0, # Alle Nachkommmen sind Männlich
+                                 selection.size = c(size, size), # So viele Tiere werden als Eltern genutzt
+                                 max.offspring = c(schlupfgroeße,schlupfgroeße), # Anzahl nachkommen pro Elterntier
+                                 repeat.mating = schlupfgroeße # Anzahl nachkommen pro Vater-Mutter Kombination
+  )
+
+  population <- breeding.diploid(population,
+                                 heritability = 0.5, # Simuliere Phenotypen für die Küken, Heritabilität 0.5
+                                 sigma.g.gen = 1,
+                                 new.bv.observation.gen = 1:2,
+                                 bve=TRUE,# Durchführung einer Zuchtwertschätzung für Küken
+                                 bve.gen=2)
+
+
+  zuchtwerte <- get.bve(population, gen=2) # Selektiere bestes Küken jeder Elternkombination basierend auf Zuchtwerten
+  select_bve <- NULL
+  for(index in 1:size){
+    select_bve <- c(select_bve, sort(zuchtwerte[1,1:schlupfgroeße + (index-1) * schlupfgroeße], index.return=TRUE, decreasing = TRUE)$ix[1:best] + (index-1) * schlupfgroeße)
+  }
+
+  zuchtwerte <- get.pheno(population, gen=2) # Selektiere bestes Küken jeder Elternkombination basierend auf Phenotypen
+  select_pheno <- NULL
+  for(index in 1:size){
+    select_pheno <- c(select_pheno, sort(zuchtwerte[1,1:schlupfgroeße + (index-1) * schlupfgroeße], index.return=TRUE, decreasing = TRUE)$ix[1:best] + (index-1) * schlupfgroeße)
+  }
+
+  select_random <- NULL
+  for(index in 1:size){
+    select_random <- c(select_random, sample(1:schlupfgroeße, best) + (index-1) * schlupfgroeße)
+  }
+
+  genomischer_wert <- get.bv(population, gen=2)
+
+  prior <- mean(get.bv(population, gen=1))
+  sigma.e <- sd(get.pheno(population, gen=1))
+  # genomische Zuchtwertschaetzung
+  bve_selection <- c(bve_selection, (mean(genomischer_wert[,select_bve]) - prior)/sigma.e)
+  # Phenotypische Selektion
+  pheno_selection <- c(pheno_selection, (mean(genomischer_wert[,select_pheno]) - prior)/sigma.e)
+  # Zufällige Auswahl
+  random_selection <- c(random_selection, (mean(genomischer_wert[,select_random]) - prior)/sigma.e)
+
+}
+
+

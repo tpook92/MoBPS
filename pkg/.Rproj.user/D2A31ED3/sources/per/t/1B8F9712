@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1560342171731.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3088927405",
+    "id" : "1B8F9712",
+    "lastKnownWriteTime" : 1560342368,
+    "last_content_update" : 1560342368797,
+    "path" : "C:/Users/pook/Desktop/Imputing_error_eval_12_6.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "25,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 17,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

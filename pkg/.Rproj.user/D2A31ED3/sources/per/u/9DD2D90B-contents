@@ -1,0 +1,5 @@
+population <- creating.diploid(nindi = 100, map=map_cattle1)
+summary(population)
+
+population1 <- creating.diploid(nsnp=50000, nindi=100, template.chip="cattle")
+summary(population1)

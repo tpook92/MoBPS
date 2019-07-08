@@ -1,0 +1,6 @@
+PHENOTYPE_TEST <- FUNCTION( GENOTYPES_TRAIN, GENOTYPE_TEST, PHENOTYPES_TRAIN)
+
+output <- NULL
+
+output$phenotypes <- c(5,3,10)
+output$relationshipm <- matrix(0,nrow=3,ncol=3)

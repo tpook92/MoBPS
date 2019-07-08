@@ -162,6 +162,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       pheno.sex <- 1:2
       remove.effect.position <- FALSE
+
+      for(index in 1:length(nodes)){
+        if(nchar(nodes[[index]]$Path)>0 && nodes[[index]]$`Genotype generation`!="Upload Genotypes"){
+          nodes[[index]]$Path <- ""
+        }
+      }
     }
 
     ######################## REALITY - CHECKS ############################
@@ -607,7 +613,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           } else if(map_type=="map"){
             cat("Map identified as Ped-map-file - extract map information")
             map_file <- utils::read.table(map_path)
-            map <- cbind(map_file[,c(1,2,4)], NA,NA)
+            map <- cbind(map_file[,c(1,2,4,3)],NA)
+            if(sum(map[,4])==0){
+              map[,4] <- NA
+            }
           } else if(map_type=="ata"){
             map_store <- load(map_path)
             if(length(map_store)>1){
@@ -751,13 +760,15 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         data_path <- path
         if(length(data_path)>0){
           data_type <- substr(data_path, start= nchar(data_path)-2, stop= nchar(data_path))
-          if(data_path=="vcf"){
+          if(data_type=="vcf"|| data_type==".gz"){
             cat("Data input identified as vcf-file - extract genomic information \n")
             if(requireNamespace("vcfR", quietly = TRUE)){
               vcf_file <- vcfR::read.vcfR(data_path)
               haplo1 <- substr(vcf_file@gt[,-1], start=1, stop=1)
               haplo2 <- substr(vcf_file@gt[,-1], start=3, stop=3)
+              storage.mode(haplo1) <- storage.mode(haplo2) <- "integer"
               haplo <- cbind(haplo1, haplo2)
+
               haplo <- haplo[,c(0,ncol(haplo1)) + rep(1:ncol(haplo1), each=2)]
             } else{
               stop("Data-import failed! vcfR-package not available! \n")
@@ -768,7 +779,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             ped_file <- utils::read.table(data_path)
             haplo12 <- t(ped_file[,-(1:6)])
             haplo <- matrix(0, ncol = ncol(haplo12)*2, nrow=nrow(haplo12)/2)
-            for(index1 in 1:(nrow(haplo12)/2)){
+            for(index1 in 1:ncol(haplo12)){
               haplo[,index1*2+c(-1,0)] <- matrix(haplo12[,index1], ncol=2, byrow=TRUE)
             }
           } else if(data_type=="ata"){
@@ -790,8 +801,17 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           take <- c(take, starts[index]:(starts[index+1]-1))
         }
         if(nrow(haplo)!=sum(nsnp)){
-          nsnp <- floor(nsnp*nrow(haplo)/sum(nsnp))
-          nsnp[1] <- nsnp[1] + nrow(haplo)-sum(nsnp)
+          if(data_type=="vcf" || data_type==".gz"){
+            chr.opt <- unique(vcf_file@fix[,1])
+            nsnp <- numeric(length(chr.opt))
+            for(index in 1:length(chr.opt)){
+              nsnp[index] <- sum(vcf_file@fix[,1]==chr.opt[index])
+            }
+          } else{
+            nsnp <- floor(nsnp*nrow(haplo)/sum(nsnp))
+            nsnp[1] <- nsnp[1] + nrow(haplo)-sum(nsnp)
+          }
+
           dataset <- matrix(0L, nrow= sum(nsnp), ncol = sum(position[,4])*2)
           map <- NULL
           for(index in 1:nchromo){

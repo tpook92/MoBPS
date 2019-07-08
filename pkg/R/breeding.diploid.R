@@ -1262,7 +1262,7 @@ breeding.diploid <- function(population,
         if(sum(father[1:3]==c(k.database[1:2], kindex))==3 ||sum(mother[1:3]==c(k.database[1:2], kindex))==3){
           print("Schaetzung der additiv genetischen Varianz extrem problematisch. Kein Elterntier fuer jedes Tier vorhanden!")
         }
-        y_parent[index,] <- mean(population$breeding[[father[1]]][[8+father[2]]][[,father[3]]],population$breeding[[mother[1]]][[8+mother[2]]][[,mother[3]]])
+        y_parent[index,] <- mean(population$breeding[[father[1]]][[8+father[2]]][,father[3]],population$breeding[[mother[1]]][[8+mother[2]]][,mother[3]])
       }
     }
     if(n.rep>0){
@@ -1752,17 +1752,11 @@ breeding.diploid <- function(population,
       } else if(sommer.bve){
 
         check <- sum(is.na(y[,bven]))
+
         if(check == length(y[,bven])){
           cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
-          cat(paste0("Skip this BVE."))
+          cat(paste0("Skip this BVE.\n"))
           next
-        }
-        if(check>0){
-          cat(paste0("Breeding value estimation with ", check, " NA phenotypes! Sommer does not support this!\n"))
-          cat(paste0("No estimation is performed to NA individuals. \n"))
-          take <- which(!is.na(y[,bven]))
-        } else{
-          take <- 1:length(y[,bven])
         }
 
         traitnames <- (paste0("name", 1:ncol(y)))
@@ -1775,15 +1769,22 @@ breeding.diploid <- function(population,
         colnames(A) <- rownames(A) <- id
 
         test <- sommer::mmer(name ~1, random=~sommer::vs(id, Gu=A), rcov = ~units, data=y_som)
-        y_hat[take,bven] <- test$fitted + test$residuals
+
+        y_hat[sort(as.character(id), index.return=TRUE)$ix,bven] <- test$U[[1]][[1]]
 
       } else if(sommer.multi.bve){
 
-        if(sum(is.na(y[,bven]))>0){
-          cat("some missing phenotypes in multi-trait sommer. Check if thats ok?!")
+        check <- sum(is.na(y))
+
+        if(check == length(y)){
+          cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
+          cat(paste0("Skip this BVE.\n"))
+          next
         }
+
+
         if(bven==population$info$bv.nr){
-          cat("Multi variable sommer not implemented so far!")
+
           traitnames <- paste0("name", 1:ncol(y))
           colnames(y) <- as.factor(traitnames)
           id <- as.factor(paste0("P", 1:nrow(y)))
@@ -1801,10 +1802,13 @@ breeding.diploid <- function(population,
           }
           text <- paste0("sommer::mmer(",text,"~1, random=~sommer::vs(id, Gu=A, Gtc=sommer::unsm(bven)), rcov = ~sommer::vs(units, Gtc=diag(bven)), data=y_som)")
           test <- eval(parse(text=text))
-          y_hat <- test$fitted + test$residuals
+          for(bven1 in 1:bven){
+            y_hat[sort(as.character(id), index.return=TRUE)$ix,bven1] <- test$U[[1]][[bven1]]
+          }
+
 
           if(estimate.u){
-            print("rrBLUP not included in sommer package - will be added later")
+            cat("U estimation not available in sommer")
           }
         }
       } else if(sigma.e[bven]>0){
@@ -1818,7 +1822,7 @@ breeding.diploid <- function(population,
 
         if(check == length(y[,bven])){
           cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
-          cat(paste0("Skip this BVE."))
+          cat(paste0("Skip this BVE.\n"))
           next
         }
 

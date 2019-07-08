@@ -1,0 +1,49 @@
+# Error - BEAGLE 4.1
+
+args <- commandArgs(TRUE)
+# args <- c(10,"default","KE")
+chromo <- as.numeric(args[1])
+type <- args[2]
+land <- args[3]
+
+true <- read.table(paste0("BEAGLE_Tests/Full_pedmap/",land,"chromo",chromo,"ped.vcf.vcf"))
+
+obs <- 100
+
+for(nr in 1:obs){
+  print(nr)
+  imputed <- read.table(paste0("BEAGLE_Tests/Imputing_DH/Imputed001_", type, "/", land,"chromo",chromo,"_",nr,".vcf.gz"))
+
+  overlap <- duplicated(c(imputed[,2],true[,2]))[-(1:nrow(imputed))]
+
+
+  true_reduced <- true[overlap,]
+  true_data <- true_reduced[,-(1:9)]
+  imputed_data <- imputed[,-(1:9)]
+
+  switch <- which(as.character(true_reduced[,4])!=as.character(imputed[,4]))
+
+  if(nr==1){
+    error <- matrix(0, nrow=nrow(true), ncol=ncol(imputed_data))
+    error_total <- numeric(obs)
+    np <- nrow(error) * ncol(error)
+  }
+  activ_rows <- which(duplicated(c(true[,2], imputed[,2]))[-(1:nrow(true))])
+
+  for(indi in 1:ncol(imputed_data)){
+    z1 <- as.numeric(substr(imputed_data[,indi], start=1, stop=1))
+    z2 <- as.numeric(substr(imputed_data[,indi], start=3, stop=3))
+    t <- as.numeric(substr(true_data[,indi], start=1, stop=1))
+    t[switch] <- 1 - t[switch]
+
+    error[activ_rows,indi]<- error[activ_rows,indi] + (z1!=t) + (z2!=t)
+    error_total[nr] <- error_total[nr] + sum((z1!=t) + (z2!=t))/np*100
+  }
+
+  name <- paste0("BEAGLE_Tests/Imputing_DH/Imputing_error/errorPosi", land, chromo, type ,".txt")
+  write.table(file=name, error_total, col.names = FALSE, row.names = FALSE)
+
+}
+name <- paste0("BEAGLE_Tests/Imputing_DH/Imputing_error/errorPosi", land, chromo, type ,".RData")
+save(file=name, list=c("error"))
+

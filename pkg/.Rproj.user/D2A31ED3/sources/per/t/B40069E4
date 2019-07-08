@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1560845031523.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1168776801",
+    "id" : "B40069E4",
+    "lastKnownWriteTime" : 1560845050,
+    "last_content_update" : 1560845050665,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/kinship.emp.R",
+    "project_path" : "R/kinship.emp.R",
+    "properties" : {
+        "cursorPosition" : "106,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 32,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
