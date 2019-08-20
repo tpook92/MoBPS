@@ -1,0 +1,221 @@
+{
+  "Nodes": [
+    {
+      "id": "Bulls",
+      "Number of Individuals": "20",
+      "x": -119,
+      "y": -171,
+      "individualsVar": "20",
+      "Founder": "Yes",
+      "Path": "",
+      "Proportion of Male": 1,
+      "BV Plot": "Yes",
+      "Sex": "Male",
+      "Phenotyping Class": "Default PhenoC",
+      "Housing Cost Class": "Default Housing Cost",
+      "Proportion of genotyped individuals": 1,
+      "Genotype generation": "Random-sampling",
+      "Genotype generation subpopulation": "Population 1",
+      "label": "Bulls",
+      "color": "#9acef4",
+      "title": "Bulls: 20 Ind"
+    },
+    {
+      "id": "Cows",
+      "Number of Individuals": "80",
+      "x": 59,
+      "y": -172.20001220703125,
+      "individualsVar": "80",
+      "Founder": "Yes",
+      "Path": "",
+      "Proportion of Male": 0,
+      "BV Plot": "Yes",
+      "Sex": "Female",
+      "Phenotyping Class": "Default PhenoC",
+      "Housing Cost Class": "Default Housing Cost",
+      "Proportion of genotyped individuals": 1,
+      "Genotype generation": "Random-sampling",
+      "Genotype generation subpopulation": "Population 1",
+      "label": "Cows",
+      "color": "#f29595",
+      "title": "Cows: 80 Ind"
+    }
+  ],
+  "Edges": [],
+  "Genomic Info": {
+    "Project Name": "EUmaster",
+    "Species": "Cattle",
+    "Use Ensembl Map": "Yes",
+    "Ensembl Dataset": "Illumina BovineSNP50 BeadChip",
+    "Max Number of SNPs": "10000",
+    "Number of Chromosomes": "",
+    "Chromosomes of Equal Length": "Yes",
+    "Time Unit": "Years",
+    "Use Own Map": "Yes",
+    "Own Map Path": "",
+    "Chromosomes Info": [],
+    "Upload_CorrFile": "No",
+    "multi-mode": "No"
+  },
+  "Trait Info": [
+    {
+      "Trait Name": "Pheno 1",
+      "Trait Unit": "",
+      "Trait Mean": "100",
+      "Trait Std Deviation": "20",
+      "Trait Heritability": "0.49",
+      "Trait Number of Polygenic Loci": "100",
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": 0,
+      "Trait QTL Info": []
+    },
+    {
+      "Trait Name": "Pheno 2",
+      "Trait Unit": "",
+      "Trait Mean": "100",
+      "Trait Std Deviation": "20",
+      "Trait Heritability": "0.81",
+      "Trait Number of Polygenic Loci": "100",
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": 0,
+      "Trait QTL Info": []
+    },
+    {
+      "Trait Name": "Pheno 3",
+      "Trait Unit": "",
+      "Trait Mean": "100",
+      "Trait Std Deviation": "20",
+      "Trait Heritability": "0.04",
+      "Trait Number of Polygenic Loci": "100",
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": 0,
+      "Trait QTL Info": []
+    }
+  ],
+  "Selection Index": [
+    {
+      "Name": "Default Index",
+      "P1": 1,
+      "P2": "0",
+      "P3": "0"
+    },
+    {
+      "Name": "Non",
+      "P1": "0",
+      "P2": "0",
+      "P3": "0"
+    }
+  ],
+  "Selection Index Scaling": [
+    {
+      "Name": "Default Index",
+      "active_scaling": true,
+      "miesenberger": false,
+      "w_scaling": "Per Unit"
+    },
+    {
+      "Name": "Non",
+      "active_scaling": true,
+      "miesenberger": false,
+      "w_scaling": "Per Unit"
+    }
+  ],
+  "Phenotyping Info": [
+    {
+      "Name": "Default PhenoC",
+      "Cost of phenotyping": 0.1,
+      "P1": 1,
+      "P2": 1,
+      "P3": 1
+    },
+    {
+      "Name": "Not phenotyped",
+      "Cost of phenotyping": 0.1,
+      "P1": "0",
+      "P2": "0",
+      "P3": "0"
+    }
+  ],
+  "Economy": {
+    "Fixed Cost": 0,
+    "Interest Rate": 0,
+    "Genotyping Cost": 50,
+    "Animal Housing Costs": [
+      {
+        "Name": "Default Housing Cost",
+        "Cost": 0
+      },
+      {
+        "Name": "Male individuals",
+        "Cost": 2000
+      },
+      {
+        "Name": "Female individuals",
+        "Cost": 3000
+      }
+    ]
+  },
+  "Culling": {
+    "culling_reasons": []
+  },
+  "Subpopulation": {
+    "subpopulation_list": [
+      {
+        "Name": "Population 1",
+        "beta1": 1,
+        "beta2": 1,
+        "share0": 0,
+        "share1": 0,
+        "fixed_freq": 0,
+        "QTL Info": []
+      }
+    ]
+  },
+  "Phenotypic Correlation": [
+    [
+      1
+    ],
+    [
+      "0",
+      1
+    ],
+    [
+      "0",
+      "0",
+      1
+    ]
+  ],
+  "Genetic Correlation": [
+    [
+      1
+    ],
+    [
+      "0.7",
+      1
+    ],
+    [
+      "-0.4",
+      "-0.3",
+      1
+    ]
+  ],
+  "Intern": {
+    "show_matrix_element": [
+      {
+        "show": true
+      },
+      {
+        "show": true
+      },
+      {
+        "show": true
+      }
+    ],
+    "counter_pheno": 3,
+    "counter_qtl": 0,
+    "counter_qtl_sub": 0,
+    "individualsVar_options": [],
+    "genetic_data": "Ens",
+    "runned": false
+  }
+}
