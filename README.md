@@ -18,6 +18,25 @@ If interested in testing the web-based application just contact me (torsten.pook
 # Update
 
 Updates since release:
+
+### Version 1.3.1 (23.08.19)
+New MoBPS Web-based application www.mobps.de
+
+Hotfixes in Single Step
+
+Generation/Database/Cohort based selection module
+
+Selection Index according to Hazel and Lush + Miesenberger
+
+Additions for json.simulation and Web-based application
+
+Culling module
+
+Improved import for progeny phenotypes
+
+Detection of compiler settings for miraculix/RandomFieldsUtils
+
+
 ### Version 1.2.9 (25.06.19)
 Improved import of offspring phenotypes (offspring.bve.XXX)
 
