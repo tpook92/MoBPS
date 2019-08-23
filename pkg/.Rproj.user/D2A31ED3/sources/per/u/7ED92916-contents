@@ -1,9 +1,0 @@
-breeding.size = c(100,100);
-selection.size = c(5,200); bve = TRUE;
-new.bv.observation = "non_obs_f";
-selection.m = "function";
-name.cohort = "Top_Edit";
-best1.from.cohort = "Top_M";
-best2.from.cohort = c("Top_F","Sec_F");
-nr.edits = 20; estimate.u = TRUE;
-use.last.sigma.e = TRUE

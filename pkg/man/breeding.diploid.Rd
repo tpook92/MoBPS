@@ -10,7 +10,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
   new.selection.calculation = TRUE, selection.function.matrix = NULL,
   selection.size = 0, ignore.best = 0, breeding.size = 0,
   breeding.sex = NULL, breeding.sex.random = FALSE,
-  used.generations.m = 1, used.generations.f = NULL,
   relative.selection = FALSE, class.m = 0, class.f = 0,
   add.gen = 0, recom.f.indicator = NULL, recom.f.polynom = NULL,
   duplication.rate = 0, duplication.length = 0.01,
@@ -20,14 +19,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
   delete.individuals = NULL, fixed.breeding = NULL,
   fixed.breeding.best = NULL, max.offspring = Inf,
   store.breeding.totals = FALSE, forecast.sigma.g = TRUE,
-  multiple.bve = "add", multiple.bve.weights = 1,
-  store.bve.data = FALSE, fixed.assignment = FALSE,
-  reduce.group = NULL, reduce.group.selection = "random",
-  selection.critera = c(TRUE, TRUE), selection.criteria.type = c("bve",
-  "bve"), same.sex.activ = FALSE, same.sex.sex = 0.5,
-  same.sex.selfing = TRUE, selfing.mating = FALSE, selfing.sex = 0.5,
-  praeimplantation = NULL, heritability = NULL,
-  multiple.bve.scale = FALSE, use.last.sigma.e = FALSE,
+  multiple.bve = "add", store.bve.data = FALSE,
+  fixed.assignment = FALSE, reduce.group = NULL,
+  reduce.group.selection = "random", selection.critera = c(TRUE, TRUE),
+  selection.criteria.type = c("bve", "bve"), same.sex.activ = FALSE,
+  same.sex.sex = 0.5, same.sex.selfing = TRUE,
+  selfing.mating = FALSE, selfing.sex = 0.5, praeimplantation = NULL,
+  heritability = NULL, use.last.sigma.e = FALSE,
   save.recombination.history = FALSE, martini.selection = FALSE,
   BGLR.bve = FALSE, BGLR.burnin = 500, BGLR.iteration = 5000,
   copy.individual = FALSE, dh.mating = FALSE, dh.sex = 0.5,
@@ -46,9 +44,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   use.effect.markers = FALSE, use.effect.combination = FALSE,
   import.position.calculation = NULL, special.comb.add = FALSE,
   BGLR.save = "RKHS", BGLR.save.random = FALSE, ogc = FALSE,
-  ogc_cAc = NA, emmreml.bve = FALSE, sommer.bve = FALSE,
-  sommer.multi.bve = FALSE, breedR.bve = FALSE, breedR.groups = NULL,
-  nr.edits = 0, gene.editing.offspring = FALSE,
+  ogc_cAc = NA, emmreml.bve = FALSE, rrblup.bve = FALSE,
+  sommer.bve = FALSE, sommer.multi.bve = FALSE, breedR.bve = FALSE,
+  breedR.groups = NULL, nr.edits = 0, gene.editing.offspring = FALSE,
   gene.editing.best = FALSE, gene.editing.offspring.sex = c(TRUE,
   TRUE), gene.editing.best.sex = c(TRUE, TRUE), gwas.u = FALSE,
   approx.residuals = TRUE, sequenceZ = FALSE, maxZ = 5000,
@@ -81,13 +79,24 @@ breeding.diploid(population, mutation.rate = 10^-5,
   copy.individual.keep.bve = TRUE, bve.avoid.duplicates = TRUE,
   report.accuracy = TRUE, share.genotyped = 1,
   singlestep.active = FALSE, remove.non.genotyped = TRUE,
-  added.genotyped = 0, fast.uhat = FALSE,
+  added.genotyped = 0, fast.uhat = TRUE,
   offspring.bve.parents.gen = NULL,
   offspring.bve.parents.database = NULL,
   offspring.bve.parents.cohorts = NULL,
   offspring.bve.offspring.gen = NULL,
   offspring.bve.offspring.database = NULL,
-  offspring.bve.offspring.cohorts = NULL)
+  offspring.bve.offspring.cohorts = NULL, culling.cohort = NULL,
+  culling.time = Inf, culling.name = "Not_named", culling.bv1 = 0,
+  culling.share1 = 0, culling.bv2 = NULL, culling.share2 = NULL,
+  culling.index = 0, calculate.reliability = FALSE,
+  selection.m.gen = NULL, selection.f.gen = NULL,
+  selection.m.database = NULL, selection.f.database = NULL,
+  selection.m.cohorts = NULL, selection.f.cohorts = NULL,
+  selection.m.miesenberger = FALSE, selection.f.miesenberger = NULL,
+  selection.miesenberger.w = "bve_sd",
+  selection.miesenberger.reliability.est = "estimated",
+  multiple.bve.weights.m = 1, multiple.bve.weights.f = NULL,
+  multiple.bve.scale.m = FALSE, multiple.bve.scale.f = NULL)
 }
 \arguments{
 \item{population}{Population list}
@@ -115,10 +124,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{breeding.sex}{Share of female animals (if single value is used for breeding size; default: 0.5)}
 
 \item{breeding.sex.random}{If TRUE randomly chose sex of new individuals (default: FALSE - use expected values)}
-
-\item{used.generations.m}{Share of best male individuals chosen from each generation (default: c(0,...,0,1) - only last generation)}
-
-\item{used.generations.f}{Share of best female individuals chosen from each generation (default: used.generations.m - only last generation)#'}
 
 \item{relative.selection}{Use best.selection.ratio instead!}
 
@@ -166,15 +171,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{multiple.bve}{Way to handle multiple traits in bv/selection (default: "add", alt: "ranking")}
 
-\item{multiple.bve.weights}{Weighting between traits when using "add" (default: 1)}
-
 \item{store.bve.data}{If TRUE store information of bve in $info$bve.data}
 
 \item{fixed.assignment}{Set TRUE for targeted mating of best-best individual till worst-worst (of selected). set to "bestworst" for best-worst mating}
 
-\item{reduce.group}{Groups of animals for reduce to a new size (by changing class to 187)}
+\item{reduce.group}{(OLD! - use culling modules) Groups of animals for reduce to a new size (by changing class to -1)}
 
-\item{reduce.group.selection}{Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")}
+\item{reduce.group.selection}{(OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")}
 
 \item{selection.critera}{If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))}
 
@@ -193,8 +196,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{praeimplantation}{Only use matings the lead to a specific genotype in a specific marker}
 
 \item{heritability}{Use sigma.e to obtain a certain heritability (default: NULL)}
-
-\item{multiple.bve.scale}{If TRUE standardize breeding values for traits according to their standard deviation}
 
 \item{use.last.sigma.e}{If TRUE use the sigma.e used in the previous simulation (default: FALSE)}
 
@@ -242,13 +243,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{estimate.pheno.var}{If TRUE estimate total variance in breeding value estimation}
 
-\item{best1.from.group}{Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
+\item{best1.from.group}{(OLD!- use selection.m.database) Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
 
-\item{best2.from.group}{Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
+\item{best2.from.group}{(OLD!- use selection.f.database) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
 
-\item{best1.from.cohort}{Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
+\item{best1.from.cohort}{(OLD!- use selection.m.cohorts) Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
 
-\item{best2.from.cohort}{Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
+\item{best2.from.cohort}{(OLD! - use selection.f.cohorts) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
 
 \item{add.class.cohorts}{Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)}
 
@@ -283,6 +284,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{ogc_cAc}{Increase of average relationship in ogc. Default: minimize inbreeding rate.}
 
 \item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
+
+\item{rrblup.bve}{If TRUE use REML estimator from R-package rrBLUP in breeding value estimation}
 
 \item{sommer.bve}{If TRUE use REML estimator from R-package sommer in breeding value estimation}
 
@@ -444,7 +447,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{added.genotyped}{Share of individuals that is additionally genotyped (only for copy.individuals)}
 
-\item{fast.uhat}{Set to TRUE to not derive inserve of A in rrBLUP to save computing time}
+\item{fast.uhat}{Set to FALSE to  derive inverse of A in rrBLUP}
 
 \item{offspring.bve.parents.gen}{Generations to consider to derive phenotype from offspring phenotypes}
 
@@ -457,6 +460,52 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{offspring.bve.offspring.database}{Active groups for import of offspring phenotypes}
 
 \item{offspring.bve.offspring.cohorts}{Active cohorts for import of offspring phenotypes}
+
+\item{culling.cohort}{Cohort to consider to culling}
+
+\item{culling.time}{Age of the individuals at culling}
+
+\item{culling.name}{Name of the culling action (user-interface stuff)}
+
+\item{culling.bv1}{Reference Breeding value}
+
+\item{culling.share1}{Probability of death for individuals with bv1}
+
+\item{culling.bv2}{Alternative breeding value (linear extended for other bvs)}
+
+\item{culling.share2}{Probability of death for individuals with bv2}
+
+\item{culling.index}{Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)}
+
+\item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
+
+\item{selection.m.gen}{Generations available for selection of paternal parent}
+
+\item{selection.f.gen}{Generations available for selection of maternal parent}
+
+\item{selection.m.database}{Groups available for selection of paternal parent}
+
+\item{selection.f.database}{Groups available for selection of maternal parent}
+
+\item{selection.m.cohorts}{Cohorts available for selection of paternal parent}
+
+\item{selection.f.cohorts}{Cohorts available for selection of maternal parent}
+
+\item{selection.m.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for paternal selection}
+
+\item{selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for maternal selection}
+
+\item{selection.miesenberger.w}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+
+\item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement}
+
+\item{multiple.bve.weights.m}{Weighting between traits when using "add" (default: 1)}
+
+\item{multiple.bve.weights.f}{Weighting between traits when using "add" (default: same as multiple.bve.weights.m)}
+
+\item{multiple.bve.scale.m}{If TRUE standardize breeding values for traits according to their standard deviation}
+
+\item{multiple.bve.scale.f}{If TRUE standardize breeding values for traits according to their standard deviation}
 }
 \description{
 Function to simulate a step in a breeding scheme

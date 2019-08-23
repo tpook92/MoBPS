@@ -95,6 +95,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   }
 
   kinship <- matrix(0, ncol=n.total, nrow=n.total)
+
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1
   if(length(start.kinship)==0){
     size.firstgen <- sum(group.size[pedigree.database[,1]==pedigree.database[1,1]])
@@ -170,7 +171,20 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
       nr.father <- nr_father[second]
       nr.mother <- nr_mother[second]
       first <- 1:second
-      kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+      if(is.na(nr.father) && is.na(nr.mother)){
+        kinship[second,second] <- 1/2
+        nr.mother <- nr.father <- 1
+      }
+      if(is.na(nr.father)){
+        kinship[first,second] <- kinship[second,first] <-1/2 * (0 + kinship[first, nr.mother])
+        nr.mother <- nr.father <- 1 # Founder-individual
+      } else if(is.na(nr.mother)){
+        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + 0)
+        nr.mother <- nr.father <- 1 # Founder-individual
+      } else{
+        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+      }
+
       if(nr.father==nr.mother && animal_ids[nr.father]==animal_ids[second]){
         kinship[second,second] <- 1/2
         # Individual is founder!

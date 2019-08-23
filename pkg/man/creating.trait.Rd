@@ -13,7 +13,8 @@ creating.trait(population = NULL, real.bv.add = NULL,
   n.quantitative = 0, var.additive.l = NULL, var.dominant.l = NULL,
   var.qualitative.l = NULL, var.quantitative.l = NULL,
   exclude.snps = NULL, randomSeed = NULL, shuffle.traits = NULL,
-  shuffle.cor = NULL, replace.real.bv = FALSE, trait.name = NULL)
+  shuffle.cor = NULL, replace.real.bv = FALSE, trait.name = NULL,
+  remove.invalid.qtl = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -65,6 +66,8 @@ creating.trait(population = NULL, real.bv.add = NULL,
 \item{replace.real.bv}{If TRUE delete the simulated traits added before}
 
 \item{trait.name}{Name of the trait generated}
+
+\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 }
 \description{
 Generation of the trait in a starting population
