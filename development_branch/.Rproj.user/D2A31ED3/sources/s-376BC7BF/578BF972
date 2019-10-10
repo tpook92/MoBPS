@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570199935959.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "578BF972",
+    "lastKnownWriteTime" : 1570199947,
+    "last_content_update" : 1570199947767,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/json.simulation.R",
+    "project_path" : "R/json.simulation.R",
+    "properties" : {
+        "cursorPosition" : "2403,3",
+        "scrollLine" : "0",
+        "tempName" : "Untitled24"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

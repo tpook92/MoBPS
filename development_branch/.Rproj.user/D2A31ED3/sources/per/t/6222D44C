@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1568920163513.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1024567405",
+    "id" : "6222D44C",
+    "lastKnownWriteTime" : 1568922226,
+    "last_content_update" : 1568922226743,
+    "path" : "~/MoBPS/Rmodules/Results_RelbetweenC.r",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "46,22",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 28,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

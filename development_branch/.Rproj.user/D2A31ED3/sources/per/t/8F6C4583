@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1568750132199.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2968990046",
+    "id" : "8F6C4583",
+    "lastKnownWriteTime" : 1568751147,
+    "last_content_update" : 1568751147788,
+    "path" : "~/MoBPS/Rmodules/Results_AccBVE.r",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "47,67",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 25,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

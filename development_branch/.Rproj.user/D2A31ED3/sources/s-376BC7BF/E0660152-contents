@@ -1,0 +1,28 @@
+
+library(MoBPS)
+for(index in 1:25+75){
+  print(index)
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_base.json")
+  save(file=paste0("Hueneke_sim/base", index, ".RData"), list=c("population"))
+}
+
+library(MoBPS)
+for(index in 1:25+75){
+  print(index)
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_horn50.json")
+  save(file=paste0("Hueneke_sim/horn50_", index, ".RData"), list=c("population"))
+}
+
+library(MoBPS)
+for(index in 1:25+75){
+  print(index)
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_student.json")
+  save(file=paste0("Hueneke_sim/student", index, ".RData"), list=c("population"))
+}
+
+library(MoBPS)
+for(index in 101:125){
+  print(index)
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_base1.json")
+  save(file=paste0("Hueneke_sim/base", index, ".RData"), list=c("population"))
+}

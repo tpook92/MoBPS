@@ -1,0 +1,13 @@
+population$info$cohorts
+
+p1 <- c("Vererbergesamt","Vererber", paste0("Vererber_", 1:10))
+p1 <- paste0("Herdbuchkuehe_", 1:10)
+p1 <- paste0("1 LaktationCopy2912_", 1:10)
+bv <- matrix(0, nrow=population$info$bv.nr, ncol=12)
+
+for(index in 1:12){
+  bv[,index] <- rowMeans(get.bv(population, cohorts = p1[index]))
+}
+
+plot(bv[1,], type="l")
+plot(bv[7,]-100, type="l", ylab="share with no horns", xlab="generation", ylim=c(0,1))

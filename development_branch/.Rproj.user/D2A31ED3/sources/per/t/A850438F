@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1560424408456.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "662453941",
+    "id" : "A850438F",
+    "lastKnownWriteTime" : 1570192774,
+    "last_content_update" : 1570192774,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/breeding.diploid.R",
+    "project_path" : "R/breeding.diploid.R",
+    "properties" : {
+        "cursorPosition" : "1131,59",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 13,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

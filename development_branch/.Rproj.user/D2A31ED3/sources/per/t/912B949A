@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569006555715.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "96618004",
+    "id" : "912B949A",
+    "lastKnownWriteTime" : 1565853768,
+    "last_content_update" : 1565853768,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/pedmap.to.phasedbeaglevcf.R",
+    "project_path" : "R/pedmap.to.phasedbeaglevcf.R",
+    "properties" : {
+        "cursorPosition" : "32,192",
+        "scrollLine" : "0",
+        "tempName" : "Untitled63"
+    },
+    "relative_order" : 29,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

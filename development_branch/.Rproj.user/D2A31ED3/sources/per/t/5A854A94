@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570430081005.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "226357305",
+    "id" : "5A854A94",
+    "lastKnownWriteTime" : 1570537714,
+    "last_content_update" : 1570537714877,
+    "path" : "C:/Users/pook/Desktop/MAZE_eval.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "89,0",
+        "scrollLine" : "68",
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 40,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

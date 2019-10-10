@@ -1,0 +1,17 @@
+{
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS",
+    "sortOrder" : [
+        {
+            "ascending" : true,
+            "columnIndex" : 2
+        },
+        {
+            "ascending" : false,
+            "columnIndex" : 4
+        },
+        {
+            "ascending" : false,
+            "columnIndex" : 3
+        }
+    ]
+}

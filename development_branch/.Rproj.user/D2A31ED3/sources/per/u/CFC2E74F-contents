@@ -1,0 +1,49 @@
+library(MoBPS)
+
+pop1 <- pop2 <- pop3 <- list()
+for(index in 1:10){
+  pop1[[index]] <- json.simulation("C:/Users/pook/Downloads/Ziegen_pheno.json", size.scaling = 0.2)
+}
+
+for(index in 1:10){
+  pop2[[index]] <- json.simulation("C:/Users/pook/Downloads/Ziegen_BLUP_v3(1).json", size.scaling = 0.2)
+}
+
+for(index in 1:10){
+  pop3[[index]] <- json.simulation("C:/Users/pook/Downloads/Ziegen_gBLUP_v7 (7).json", size.scaling = 0.2)
+}
+
+cohorts <- c("Jungziegen", paste0("Jungziegen_", 1:10), "Jungböcke",paste0("Jungböcke_", 1:10))
+
+
+bv1 <- bv2 <- bv3 <- matrix(0, nrow=3, ncol=22)
+
+for(rep in 1:10){
+  for(index in 1:22){
+    bv1[,index] <- bv1[,index] + rowMeans(get.bv(pop1[[rep]], cohorts = cohorts[index]))/10
+    bv2[,index] <- bv2[,index] + rowMeans(get.bv(pop2[[rep]], cohorts = cohorts[index]))/10
+    bv3[,index] <- bv3[,index] + rowMeans(get.bv(pop3[[rep]], cohorts = cohorts[index]))/10
+  }
+}
+
+plot(bv1[1,1:11], type="l", ylim=c(690,740), col="blue")
+lines(bv2[1,1:11], col="red")
+lines(bv3[1,1:11], col="green")
+lines(bv1[1,1:11+11], col="blue", lty=2)
+lines(bv2[1,1:11+11], col="red", lty=2)
+lines(bv3[1,1:11+11], col="green", lty=2)
+
+plot(bv1[2,1:11], type="l", ylim=c(190,250), col="blue")
+lines(bv2[2,1:11], col="red")
+lines(bv3[2,1:11], col="green")
+lines(bv1[2,1:11+11], col="blue", lty=2)
+lines(bv2[2,1:11+11], col="red", lty=2)
+lines(bv3[2,1:11+11], col="green", lty=2)
+
+plot(bv1[3,1:11], type="l", ylim=c(6.8,8), col="blue")
+lines(bv2[3,1:11], col="red")
+lines(bv3[3,1:11], col="green")
+lines(bv1[3,1:11+11], col="blue", lty=2)
+lines(bv2[3,1:11+11], col="red", lty=2)
+lines(bv3[3,1:11+11], col="green", lty=2)
+

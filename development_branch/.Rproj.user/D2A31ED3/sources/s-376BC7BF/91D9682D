@@ -1,0 +1,20 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570716826923.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2429413051",
+    "id" : "91D9682D",
+    "lastKnownWriteTime" : 1569200341,
+    "last_content_update" : 1569200341,
+    "path" : "~/GitHub/MoBPS_web/Rmodules/Rsim1.r",
+    "project_path" : null,
+    "properties" : {
+    },
+    "relative_order" : 22,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

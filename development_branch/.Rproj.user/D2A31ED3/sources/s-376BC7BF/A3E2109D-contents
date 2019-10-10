@@ -1,0 +1,2 @@
+take <- 1:500
+y_hat[,bven] <- A[,take] %*% (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take]) + beta_hat[bven]

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1568914380044.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2726903919",
+    "id" : "4160E1A0",
+    "lastKnownWriteTime" : 1568919108,
+    "last_content_update" : 1568919108587,
+    "path" : "~/MoBPS/Rmodules/Results_QTL.r",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "91,32",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 11,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

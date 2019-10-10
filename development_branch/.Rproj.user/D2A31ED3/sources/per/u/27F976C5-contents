@@ -1,0 +1,11 @@
+real.bv.add <- list(matrix(c(1,1,-1,0,1,
+                             200,1,-1,0,1,
+                             500,1,-1,0,1), byrow=TRUE, ncol=5))
+indiv <- 2000
+pop <- creating.diploid(nsnp=10000, nindi=indiv,dataset="random",
+                                                     real.bv.add = real.bv.add, randomSeed=1)
+population <- breeding.diploid(pop, breeding.size = c(200,200),
+                                                            selection.size = c(100,100),
+                                                            selection.m = "random",
+                                                            randomSeed=1, Rprof=TRUE)
+                             

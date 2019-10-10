@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1569015234559.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "337059811",
+    "id" : "6BDA1D97",
+    "lastKnownWriteTime" : 1569015264,
+    "last_content_update" : 1569015264046,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/mutation.intro.R",
+    "project_path" : "R/mutation.intro.R",
+    "properties" : {
+        "cursorPosition" : "28,42",
+        "scrollLine" : "0",
+        "tempName" : "Untitled30"
+    },
+    "relative_order" : 31,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

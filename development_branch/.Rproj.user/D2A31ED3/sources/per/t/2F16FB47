@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570535759863.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1567089745",
+    "id" : "2F16FB47",
+    "lastKnownWriteTime" : 1570536149,
+    "last_content_update" : 1570536149758,
+    "path" : "C:/Users/pook/Desktop/MAZE_ogc.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "98,31",
+        "scrollLine" : "80",
+        "tempName" : "Untitled97"
+    },
+    "relative_order" : 42,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

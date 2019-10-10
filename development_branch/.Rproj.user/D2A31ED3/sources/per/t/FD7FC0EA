@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570535622250.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1076497311",
+    "id" : "FD7FC0EA",
+    "lastKnownWriteTime" : 1570535673,
+    "last_content_update" : 1570535673118,
+    "path" : "C:/Users/pook/Desktop/serverinstall.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "2,37",
+        "scrollLine" : "0",
+        "tempName" : "Untitled97"
+    },
+    "relative_order" : 41,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

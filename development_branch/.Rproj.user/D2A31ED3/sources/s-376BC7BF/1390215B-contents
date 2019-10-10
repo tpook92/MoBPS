@@ -1,0 +1,13 @@
+Package: MoBPS
+Type: Package
+Title: Modular Breeding Program Simulator
+Version: 1.4.0
+Author: Torsten Pook
+Maintainer: Torsten Pook <torsten.pook@uni-goettingen.de>
+Description: Simulation of breeding programs under selection, recombination ect.
+Depends: R (>= 3.0), graphics, stats
+License: GPL ( >= 3)
+LazyData: TRUE
+Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, miraculix, RandomFieldsUtils, MoBPSmaps, foreach, doParallel, sommer, breedR, vcfR, synbreed, jsonlite, rrBLUP, biomaRt
+RoxygenNote: 6.1.1
+Date: 2018-10-10
