@@ -19,6 +19,15 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
+### Version 1.4.2 (14.10.19)
+Variety of additions to json.simulation and user-interface
+
+Added direct-mixed-model BVE for individuals without phenotype (vanRaden 2008)
+
+Added use of Parent/Grandparent mean as breeding values
+
+Further updates for miraculix/RandomFieldsUtils for compiler independent computing
+
 ### Version 1.3.1 (23.08.19)
 New MoBPS Web-based application www.mobps.de
 
