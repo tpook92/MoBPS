@@ -1,0 +1,21 @@
+# Simulation Laura Hueneke
+
+arg <- commandArgs(TRUE)
+nr <- arg[1]
+rep <- arg[2]
+scal <- as.numeric(arg[3])
+
+library(MoBPS)
+
+if(nr==1){
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_base.json", size.scaling = scal)
+} else if(nr==2){
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_student.json", size.scaling = scal)
+} else if(nr==3){
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_horn50.json", size.scaling = scal)
+} else if(nr==4){
+  population <- json.simulation(file="Relativzuchtwerte_v3.1_mit_Hornlos (15).json", size.scaling = scal)
+}
+
+
+save(file=paste0("Hueneke_sim/Type",nr,"Rep", rep, "Scal", scal,".RData"), list=c("population"))

@@ -1,0 +1,108 @@
+---
+title: "HD_Anova: Simulation 2"
+author: Torsten Pook
+date: October 12, 2019
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Generate original dataset
+
+X is upset of the wheat dataset in BGLR with q colums
+Z is a dataset containing 1279 - q colums from a standard normal distribution
+W is (X,Z)
+
+```{r datasets}
+
+source('C:/Users/pook/Desktop/ML_REML.r')
+library(BGLR)
+data(wheat)
+proportion <- 0.7
+p <- ncol(wheat.X)
+q <- round(p * proportion)
+n <- nrow(wheat.X)
+
+X <- wheat.X[,sample(1:p, q)]
+Z <- scale(matrix(nrow=n,ncol=p-q,data=rnorm(n*(p-q))))
+W <- cbind(X,Z)
+W <- scale(W)
+```
+
+
+## Derivation of variance matrix of the random effect
+
+```{r relationship matrix}
+Gx=tcrossprod(scale(X,center=T,scale=F))
+Gx=Gx/mean(diag(Gx))
+
+Gw=tcrossprod(scale(W,center=T,scale=F))
+Gw=Gw/mean(diag(Gw))
+
+EVDw=eigen(Gw)
+EVDx=eigen(Gx)
+```
+
+## Method 1 (X ~ W)
+
+
+```{r pressure}
+
+
+nrep <- 100
+R1a <- numeric(q)
+R1b <- numeric(nrep)
+for(k in 1:ncol(X)){
+  y=X[,k]
+  R1a[k]=fitREML(y=y,EVD=EVDw,nSuccess=1,nFailure=1)[3]
+}
+
+for(k in 1:nrep){
+  a=rnorm(ncol(X))
+  y=X%*%a
+  R1b[k]=fitREML(y=y,EVD=EVDw,nSuccess=1,nFailure=1)[3]
+}
+```
+
+## Plot results from both applications of method 1
+
+```{r plothist, echo = FALSE}
+par(mfrow=c(1,2))
+
+plot(R1a)
+hist(R1a)
+abline(v=mean(R1a),col="red", lwd=2)
+```
+
+```{r plothist2, echo = FALSE}
+par(mfrow=c(1,2))
+
+plot(R1b)
+hist(R1b)
+abline(v=mean(R1b),col="red", lwd=2)
+```
+
+## Method 2 (X ~ W)
+
+```{r method2}
+
+
+nrep <- length(EVDw$values)
+R2 <- numeric(nrep)
+for(k in 1:nrep){
+  y <- EVDx$vectors[,k]
+  R2[k] <- fitREML(y=y,EVD=EVDw,nSuccess=1,nFailure=1)[3]
+}
+sum(R2 * EVDx$values) / sum(EVDx$values)
+```
+
+```{r plothist3, echo = FALSE}
+par(mfrow=c(1,2))
+
+plot(R2)
+lines(EVDx$values/max(EVDx$values), col="red", lwd=2)
+axis(side=4, at=c(0,0.2,0.4,0.6,0.8,1), label=round(c(0,0.2,0.4,0.6,0.8,1)*max(EVDx$values)))
+mtext("eigen value", side=4, line=2.5)
+```

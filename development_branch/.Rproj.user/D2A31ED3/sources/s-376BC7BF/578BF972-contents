@@ -1442,7 +1442,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 }
                 add.effects <- cbind(snp_index, chromo_index, 2* effect_size, effect_size,   0)
 
-                add.effects[direction==TRUE,3:5] <- cbind(0, effect_size, 2*effect_size)
+                add.effects[direction==TRUE,3:5] <- cbind(rep(0, sum(direction)), rep(effect_size, sum(direction)), rep(2*effect_size, sum(direction)))
 
 
                 population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)

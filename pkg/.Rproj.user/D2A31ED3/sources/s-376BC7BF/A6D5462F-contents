@@ -1,0 +1,48 @@
+
+check <- sum(is.na(y[,bven]))
+
+u_hat_possible <- TRUE
+multi <- y[,bven] - X %*% beta_hat[bven]
+
+rrblup.required <- FALSE
+
+if(check == length(y[,bven])){
+  if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
+  if(verbose) cat(paste0("Skip this BVE.\n"))
+  next
+}
+
+if(check>0){
+  if(sum(genotyped==1 & is.na(y[,bven]))==sum(genotyped==1)){
+    if(verbose) cat("No genotyped and phenotyped individuals. Application of rrBLUP not possible!\n")
+    if(verbose) cat("Assume non phenotyped individuals to have average phenotype.\n")
+    if(bve.0isNA && sum(is.na(multi))>0){
+      multi[is.na(multi)] <- 0
+    }
+    take <- 1:length(y[,bven])
+  } else if(sum(genotyped==1 & is.na(y[,bven]))>0){
+    if(verbose) cat("Some genotyped individuals without phenotype.\n")
+    take <- which(!is.na(y[,bven])) # individuals for GBLUP
+    rrblup.required <- TRUE
+    take2 <- which(!is.na(y[,bven]) & genotyped==1) # individuals for rrBLUP
+    bve.insert.full <- bve.insert
+    if(length(bve.insert.copy)>0){
+      
+      bve.insert.full[loop_elements_copy[bve.insert.copy,6]] <- TRUE
+    }
+    take3 <- which(is.na(y[,bven]) & genotyped==1 & bve.insert.full) # individuals to estimate via rrBLUP
+    if(length(take3)>0){
+      if(verbose) cat("Use rrBLUP to estimate breeding value for those individuals!\n")
+    }
+  } else{
+    take <- take2 <- which(!is.na(y[,bven]))
+  }
+} else{
+  take <- take2 <- 1:length(y[,bven])
+}
+
+
+
+if(store.comp.times.bve){
+  before <- as.numeric(Sys.time())
+}

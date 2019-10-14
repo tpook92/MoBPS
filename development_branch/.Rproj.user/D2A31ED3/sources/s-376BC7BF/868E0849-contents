@@ -164,7 +164,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param miraculix.mult If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage
 #' @param miraculix.chol If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
-#' @param store.bve.parameter If TRUE storeA Zm Zmt Z.code Rest in $info$A $info$sigma.e $info$sigma.g $info$multi
 #' @param best.selection.ratio.m Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)
 #' @param best.selection.ratio.f Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)
 #' @param best.selection.criteria.m Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")
@@ -361,7 +360,6 @@ breeding.diploid <- function(population,
             miraculix.mult = NULL,
             fast.compiler = 0,
             miraculix.cores = 1,
-            store.bve.parameter = FALSE,
             miraculix.chol = FALSE,
             best.selection.ratio.m = 1,
             best.selection.ratio.f = NULL,
@@ -1230,10 +1228,12 @@ breeding.diploid <- function(population,
 }
 
 {
-  ## ZUCHTWERTSCHAETZUNG
+  ## Breeding value estimation
   if(store.comp.times){
     comp.times[4] <- as.numeric(Sys.time())
   }
+
+  ## Track computing times
   if(store.comp.times.bve){
     comp.times.bve <- numeric(5)
     z_chol <- 0
@@ -1248,6 +1248,8 @@ breeding.diploid <- function(population,
   u_hat <- NULL
   gwas_hat <- NULL
   u_hat_possible <- FALSE
+
+  ## BVE according to average performance of parents / grandparents
   if(bve.parent.mean || bve.grandparent.mean){
     addpheno <- FALSE
     if(bve.mean.between=="pheno"){
@@ -1313,6 +1315,7 @@ breeding.diploid <- function(population,
 
     }
   } else if(phenotype.bv || bve && sum(sigma.e)==0 && BGLR.bve==FALSE ){
+    ## Use Phenotypes as breeding values // You can also use phenotypes in the selection procedure - so potentially removable at some point.
     if(store.bve.data){
       y <- array(0,dim=c(n.animals,population$info$bv.nr))
       y_parent <- array(0,dim=c(n.animals,population$info$bv.nr))
@@ -1364,6 +1367,8 @@ breeding.diploid <- function(population,
 
     }
   } else if(bve && breedR.bve==TRUE){
+    ## Breeding value estimation using breedR package (as this is just pedigree based all other computational steps are not needed)
+    ## Add accuracy report!
 
     if(verbose) cat("Start pedigree-based BVE.\n")
 
@@ -1395,8 +1400,11 @@ breeding.diploid <- function(population,
     best.selection.ratio.m
 
   } else if(bve){
-###
+    ## Breeding value estimation using a mixed model
+
     if(verbose) cat("Start genomic BVE.\n")
+    ## Derive if individuals are using multiple times in the BVE
+    ## Import Phenotypes from all copies of an individual (potentially use individual entry [[21]] for efficiency?)
     loop_elements_list <- derive.loop.elements(population=population, bve.database=bve.database,
                                           bve.class=bve.class, bve.avoid.duplicates=bve.avoid.duplicates,
                                           store.which.adding = TRUE, list.of.copys = TRUE)
@@ -1411,7 +1419,7 @@ breeding.diploid <- function(population,
     if(length(loop_elements_copy)>0){
       n.rep <- nrow(loop_elements_copy)
     }
-
+    # remove non-genotyped samples in case no pedigree-based estimation // single-step
     if(remove.non.genotyped && singlestep.active==FALSE && computation.A!="kinship"){
       for(index in 1:n.animals){
 
@@ -1453,6 +1461,7 @@ breeding.diploid <- function(population,
       genotyped <- numeric(n.animals)
 
     }
+    # sequenceZ is to not process all SNPs at the same time. Especially relevant for large scale datasets!
     if(sequenceZ){
       if(maxZtotal>0){
         maxZ <- floor(maxZtotal / n.animals)
@@ -1468,6 +1477,7 @@ breeding.diploid <- function(population,
     cindex <- 1
     size <- cumsum(c(0,as.vector(t(population$info$size))))
     y_obs <- matrix(0, nrow=n.animals, ncol=population$info$bv.nr)
+    # Import phenotypes / genomic values
     for(index in 1:n.animals){
 
       k.database <- bve.database[loop_elements[index,3],]
@@ -1506,6 +1516,7 @@ breeding.diploid <- function(population,
       }
     }
 
+    # Check if some copy is genotyped
     if(nrow(loop_elements_list[[3]])>0){
       for(index in 1:nrow(loop_elements_list[[3]])){
         kindex <- loop_elements_list[[3]][index,2]
@@ -1527,6 +1538,7 @@ breeding.diploid <- function(population,
     }
 
 
+    # Import Z
     if(sequenceZ==FALSE){
       if(miraculix){
 
@@ -1644,6 +1656,7 @@ breeding.diploid <- function(population,
       comp.times.bve[2] <- as.numeric(Sys.time())
     }
 
+    # Derive relationship matrix sequenceZ and single-step only for vanRaden based genomic relationship
     if(computation.A=="kinship"){
       z_ped <- z_ped - as.numeric(Sys.time())
       A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree)[loop_elements_list[[2]],loop_elements_list[[2]]] * 2
@@ -1929,7 +1942,7 @@ breeding.diploid <- function(population,
       }
 
     }
-
+    # Breeding value estimation (Solving of the mixed-model) - all single trait models execpt multi-sommer
     for(bven in 1:population$info$bv.nr){
       if(forecast.sigma.g){
         sigma.g[bven] <- stats::var(y_real[,bven])
@@ -1941,7 +1954,6 @@ breeding.diploid <- function(population,
       if(estimate.add.gen.var){
         sigma.a.hat[bven] <- max(min(stats::lm(y[,bven]~y_parent[,bven])$coefficients[2],1),0.001) * sigma.e.hat[bven]
       }
-
       if(BGLR.bve){
 
         Zt <- t(scale(t(Zt), center=TRUE, scale=FALSE))
@@ -2078,11 +2090,24 @@ breeding.diploid <- function(population,
             if(verbose) cat("U estimation not available in sommer")
           }
         }
-      } else if(sigma.e[bven]>0){
-
+      } else if(sigma.e[bven]>0 || sum(is.na(y[,bven]>0))){
+        # sigma.a.hat / sigma.e.hat are modified to avoid h=0, h=1 cases (numeric instability)
+        if(sigma.a.hat[bven]==0){
+          if(sigma.e.hat[bven]>0){
+            sigma.a.hat[bven] <- sigma.e.hat[bven] * 0.001
+          } else{
+            sigma.e.hat[bven] <- 1
+            sigma.a.hat[bven] <- 1000
+          }
+        }
+        if(sigma.e.hat[bven]==0){
+          sigma.e.hat[bven] <- sigma.a.hat[bven] * 0.001
+        }
+        bve.direct.est.now <- bve.direct.est
         check <- sum(is.na(y[,bven]))
 
         u_hat_possible <- TRUE
+        # This will be more complicated in case other fixed-effects are added to the model !
         multi <- y[,bven] - X %*% beta_hat[bven]
 
         rrblup.required <- FALSE
@@ -2093,18 +2118,31 @@ breeding.diploid <- function(population,
           next
         }
 
+        # take Individuals used to trait the mixed model on
+        # take2 individuals for which to enter a breeding value
+        # take3 individuals to used for estimation of allele effects (rrBLUP)
         if(check>0){
           if(sum(genotyped==1 & is.na(y[,bven]))==sum(genotyped==1)){
-            if(verbose) cat("No genotyped and phenotyped individuals. Application of rrBLUP not possible!\n")
-            if(verbose) cat("Assume non phenotyped individuals to have average phenotype.\n")
-            if(bve.0isNA && sum(is.na(multi))>0){
-              multi[is.na(multi)] <- 0
+            if(bve.direct.est.now==FALSE){
+              if(verbose) cat("No genotyped and phenotyped individuals. Application of rrBLUP not possible!\n")
+              if(verbose) cat("Assume non phenotyped individuals to have average phenotype.\n")
+              if(bve.0isNA && sum(is.na(multi))>0){
+                multi[is.na(multi)] <- 0
+              }
+              take <- take2 <- 1:length(y[,bven])
+            } else{
+              take <- which(!is.na(y[,bven]))
+              take2 <- 1:length(y[,bven])
             }
-            take <- take2 <- 1:length(y[,bven])
+
+
           } else if(sum(genotyped==1 & is.na(y[,bven]))>0){
             if(verbose) cat("Some genotyped individuals without phenotype.\n")
             take <- which(!is.na(y[,bven])) # individuals for GBLUP
-            rrblup.required <- TRUE
+            if(!bve.direct.est.now){
+              rrblup.required <- TRUE
+            }
+
             take2 <- which(!is.na(y[,bven]) & genotyped==1) # individuals for rrBLUP
             bve.insert.full <- bve.insert
             if(length(bve.insert.copy)>0){
@@ -2117,23 +2155,25 @@ breeding.diploid <- function(population,
             }
           } else{
             take <- take2 <- which(!is.na(y[,bven]))
+            if(bve.direct.est.now){
+              take2 <- 1:length(y[,bven])
+            }
           }
         } else{
           take <- take2 <- 1:length(y[,bven])
         }
 
         if(length(take)==length(take2)){
-          bve.direct.est <- FALSE
+          bve.direct.est.now <- FALSE
         }
-        if(bve.direct.est){
-          rrblup.required <- FALSE
-        }
+
 
 
         if(store.comp.times.bve){
           before <- as.numeric(Sys.time())
         }
-        # Zuchtwertschaetzung an sich
+        # Solve mixed model which assumed known heritability
+        # This is not 100% accurate but massively reduces computing time and should be ok for large scale breeding programs
         if(estimate.u || rrblup.required){
           if(calculate.reliability){
             if(verbose) cat("Reliabilities are currently only calculated for phenotyped individuals. Extension according to vanRaden 2008 planned.\n")
@@ -2142,7 +2182,7 @@ breeding.diploid <- function(population,
             Rest_term <- GR1 %*% multi[take]
             y_hat[take,bven] <- A[take,take] %*% Rest_term  + beta_hat[bven]
             y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
-          } else if(miraculix && miraculix.chol){
+          } else if(miraculix && miraculix.chol && !bve.direct.est.now){
             if (requireNamespace("miraculix", quietly = TRUE)) {
               temp1 <- miraculix::solveRelMat(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven], multi[take], beta_hat[bven])
             }
@@ -2155,21 +2195,21 @@ breeding.diploid <- function(population,
         } else{
           if(calculate.reliability){
             GR1 <- chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven]))
-            if(bve.direct.est){
+            if(bve.direct.est.now){
               y_hat[take2,bven] <- A[take2,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
               y_reli[take1,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
-              y_reli[take2,bven] <- diag( A[,take] %*% GR1 %*% A[take,])[which(duplicated(c(take,take2))[-(1:length(take))])]
+              y_reli[take2,bven] <- diag( A[,take2] %*% GR1 %*% A[take2,])[which(duplicated(c(take,take2))[-(1:length(take))])]
             } else{
               y_hat[take,bven] <- A[take,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
               y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
             }
 
-          } else if(miraculix && miraculix.chol && bve.direct.est){
+          } else if(miraculix && miraculix.chol && !bve.direct.est.now){
             if (requireNamespace("miraculix", quietly = TRUE)) {
               y_hat[take,bven] <- miraculix::solveRelMat(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven], multi[take],beta_hat[bven])[[2]]
             }
           } else{
-            if(bve.direct.est){
+            if(bve.direct.est.now){
               y_hat[take2,bven] <- A[take2,take] %*% (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take]) + beta_hat[bven]
             } else{
               y_hat[take,bven] <- A[take,take] %*% (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take]) + beta_hat[bven]
@@ -2181,7 +2221,7 @@ breeding.diploid <- function(population,
           z_chol <- after - before
         }
 
-        # Schaetzung von Marker_effekten
+        # Estimation of marker effects via rrBLUP
 
         if(estimate.u || rrblup.required){
 
@@ -2321,26 +2361,6 @@ breeding.diploid <- function(population,
                 after <- as.numeric(Sys.time())
                 z_uhat <- z_uhat + after - before
               }
-
-              ### LOESCHEN WENN FEHLER GEFUNDEN
-              if(store.bve.parameter){
-                population$info$p_i[[length(population$info$p_i)+1]] <- p_i
-
-
-
-                if(miraculix){
-                  if (requireNamespace("miraculix", quietly = TRUE)) {
-                    population$info$Z.code[[length(population$info$Z.code)+1]] <- as.matrix(Z.code) ## this as.matrix is using miraculix!
-                  }
-                } else if(miraculix.mult){
-                  population$info$Zt[[length(population$info$Zt)+1]] <- Zt
-                } else{
-                  population$info$Ztm[[length(population$info$Ztm)+1]] <- Ztm
-                }
-                print("test")
-                population$info$rest[[length(population$info$rest)+1]] <- Rest_term
-              }
-              ##########
 
 
               first <- first + maxZ
@@ -2649,8 +2669,6 @@ breeding.diploid <- function(population,
 
     }
 
-    # Zuchtwertschaetzung eintragen:
-
   }
   if(u_hat_possible && bve && estimate.u && computation.A=="vanRaden"){
     population$info$u_hat[[length(population$info$u_hat)+1]] <- u_hat
@@ -2676,11 +2694,10 @@ breeding.diploid <- function(population,
     comp.times.bve[5] <- as.numeric(Sys.time())
   }
 }
-  # Bestimmung des Zuchtwertes anhand des Mittleren ZW der Kinder
 
   #############################################################################################################
   #############################################################################################################
-  ########################## TEST MARTINI###########################
+  ########################## TEST MARTINI######################################################################
 {
   if(special.comb==TRUE){
     pos_grp <- matrix(c(length(population$breeding),1), nrow=1)

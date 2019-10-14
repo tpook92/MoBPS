@@ -1,0 +1,40 @@
+for nr in 1 2 3; do
+for rep in {1..50}; do
+bsub -q mpi -W 12:00 -n 1 -o ziege4.log -R span[hosts=1] R \< Ziege_sim.R --vanilla --args $nr $rep
+done
+done
+
+bv1 <- bv2 <- bv3 <- matrix(0,nrow=3,ncol=22)
+for(rep in 1:50){
+  load(paste0("C:/Users/pook/Desktop/Ziege/", 1, "_", rep, ".RData"))
+  bv1 <- bv1 + bv/50
+}
+for(rep in 1:50){
+  load(paste0("C:/Users/pook/Desktop/Ziege/", 2, "_", rep, ".RData"))
+  bv2<- bv2 + bv/50
+}
+for(rep in 1:50){
+  load(paste0("C:/Users/pook/Desktop/Ziege/", 3, "_", rep, ".RData"))
+  bv3 <- bv3 + bv/50
+}
+
+plot(bv1[1,1:11], ylim=c(min(c(bv1[1,], bv2[1,], bv3[1,])), max(c(bv1[1,], bv2[1,], bv3[1,]))), type="l", col="green")
+lines(bv2[1,1:11], col="blue")
+lines(bv3[1,1:11], col="red")
+lines(bv1[1,12:22], lty=2, col="green")
+lines(bv2[1,12:22], lty=2, col="blue")
+lines(bv3[1,12:22], lty=2, col="red")
+
+plot(bv1[2,1:11], ylim=c(min(c(bv1[2,], bv2[2,], bv3[2,])), max(c(bv1[2,], bv2[2,], bv3[2,]))), type="l", col="green")
+lines(bv2[2,1:11], col="blue")
+lines(bv3[2,1:11], col="red")
+lines(bv1[2,12:22], lty=2, col="green")
+lines(bv2[2,12:22], lty=2, col="blue")
+lines(bv3[2,12:22], lty=2, col="red")
+
+plot(bv1[3,1:11], ylim=c(min(c(bv1[3,], bv2[3,], bv3[3,])), max(c(bv1[3,], bv2[3,], bv3[3,]))), type="l", col="green")
+lines(bv2[3,1:11], col="blue")
+lines(bv3[3,1:11], col="red")
+lines(bv1[3,12:22], lty=2, col="green")
+lines(bv2[3,12:22], lty=2, col="blue")
+lines(bv3[3,12:22], lty=2, col="red")

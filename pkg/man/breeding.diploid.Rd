@@ -14,39 +14,40 @@ breeding.diploid(population, mutation.rate = 10^-5,
   add.gen = 0, recom.f.indicator = NULL, recom.f.polynom = NULL,
   duplication.rate = 0, duplication.length = 0.01,
   duplication.recombination = 1, new.class = 0L, bve = FALSE,
-  sigma.e = NULL, sigma.g = 100, new.bv.child = "mean",
-  computation.A = "vanRaden", delete.haplotypes = NULL,
-  delete.individuals = NULL, fixed.breeding = NULL,
-  fixed.breeding.best = NULL, max.offspring = Inf,
-  store.breeding.totals = FALSE, forecast.sigma.g = TRUE,
-  multiple.bve = "add", store.bve.data = FALSE,
-  fixed.assignment = FALSE, reduce.group = NULL,
-  reduce.group.selection = "random", selection.critera = c(TRUE, TRUE),
-  selection.criteria.type = c("bve", "bve"), same.sex.activ = FALSE,
-  same.sex.sex = 0.5, same.sex.selfing = TRUE,
-  selfing.mating = FALSE, selfing.sex = 0.5, praeimplantation = NULL,
-  heritability = NULL, use.last.sigma.e = FALSE,
-  save.recombination.history = FALSE, martini.selection = FALSE,
-  BGLR.bve = FALSE, BGLR.burnin = 500, BGLR.iteration = 5000,
-  copy.individual = FALSE, dh.mating = FALSE, dh.sex = 0.5,
-  n.observation = 1, bve.0isNA = TRUE, phenotype.bv = FALSE,
-  standardize.bv = FALSE, standardize.bv.level = 100,
-  standardize.bv.gen = 1, delete.same.origin = FALSE,
-  remove.effect.position = FALSE, estimate.u = FALSE,
-  BGLR.print = FALSE, new.phenotype.correlation = NULL,
-  new.breeding.correlation = NULL, estimate.add.gen.var = FALSE,
-  estimate.pheno.var = FALSE, best1.from.group = NULL,
-  best2.from.group = NULL, best1.from.cohort = NULL,
-  best2.from.cohort = NULL, add.class.cohorts = TRUE,
-  store.comp.times = TRUE, store.comp.times.bve = TRUE,
-  store.comp.times.generation = TRUE, special.comb = FALSE,
-  max.auswahl = Inf, predict.effects = FALSE, SNP.density = 10,
-  use.effect.markers = FALSE, use.effect.combination = FALSE,
-  import.position.calculation = NULL, special.comb.add = FALSE,
-  BGLR.save = "RKHS", BGLR.save.random = FALSE, ogc = FALSE,
-  ogc_cAc = NA, emmreml.bve = FALSE, rrblup.bve = FALSE,
-  sommer.bve = FALSE, sommer.multi.bve = FALSE, breedR.bve = FALSE,
-  breedR.groups = NULL, nr.edits = 0, gene.editing.offspring = FALSE,
+  sigma.e = NULL, sigma.g = 100, new.bv.child = "zero",
+  computation.A = "vanRaden", computation.A.ogc = "kinship",
+  delete.haplotypes = NULL, delete.individuals = NULL,
+  fixed.breeding = NULL, fixed.breeding.best = NULL,
+  max.offspring = Inf, store.breeding.totals = FALSE,
+  forecast.sigma.g = TRUE, multiple.bve = "add",
+  store.bve.data = FALSE, fixed.assignment = FALSE,
+  reduce.group = NULL, reduce.group.selection = "random",
+  selection.critera = c(TRUE, TRUE), selection.criteria.type = c("bve",
+  "bve"), same.sex.activ = FALSE, same.sex.sex = 0.5,
+  same.sex.selfing = TRUE, selfing.mating = FALSE, selfing.sex = 0.5,
+  praeimplantation = NULL, heritability = NULL,
+  use.last.sigma.e = FALSE, save.recombination.history = FALSE,
+  martini.selection = FALSE, BGLR.bve = FALSE, BGLR.burnin = 500,
+  BGLR.iteration = 5000, copy.individual = FALSE, dh.mating = FALSE,
+  dh.sex = 0.5, n.observation = 1, bve.0isNA = TRUE,
+  phenotype.bv = FALSE, standardize.bv = FALSE,
+  standardize.bv.level = 100, standardize.bv.gen = 1,
+  delete.same.origin = FALSE, remove.effect.position = FALSE,
+  estimate.u = FALSE, BGLR.print = FALSE,
+  new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
+  estimate.add.gen.var = FALSE, estimate.pheno.var = FALSE,
+  best1.from.group = NULL, best2.from.group = NULL,
+  best1.from.cohort = NULL, best2.from.cohort = NULL,
+  add.class.cohorts = TRUE, store.comp.times = TRUE,
+  store.comp.times.bve = TRUE, store.comp.times.generation = TRUE,
+  special.comb = FALSE, max.auswahl = Inf, predict.effects = FALSE,
+  SNP.density = 10, use.effect.markers = FALSE,
+  use.effect.combination = FALSE, import.position.calculation = NULL,
+  special.comb.add = FALSE, BGLR.save = "RKHS",
+  BGLR.save.random = FALSE, ogc = FALSE, ogc_cAc = NA,
+  emmreml.bve = FALSE, rrblup.bve = FALSE, sommer.bve = FALSE,
+  sommer.multi.bve = FALSE, breedR.bve = FALSE, breedR.groups = NULL,
+  nr.edits = 0, gene.editing.offspring = FALSE,
   gene.editing.best = FALSE, gene.editing.offspring.sex = c(TRUE,
   TRUE), gene.editing.best.sex = c(TRUE, TRUE), gwas.u = FALSE,
   approx.residuals = TRUE, sequenceZ = FALSE, maxZ = 5000,
@@ -55,11 +56,11 @@ breeding.diploid(population, mutation.rate = 10^-5,
   gen.architecture.f = NULL, add.architecture = NULL, ncore = 1,
   ncore.generation = 1, Z.integer = FALSE, store.effect.freq = FALSE,
   backend = "doParallel", randomSeed = NULL,
-  randomSeed.generation = NULL, Rprof = FALSE, miraculix = FALSE,
+  randomSeed.generation = NULL, Rprof = FALSE, miraculix = TRUE,
   miraculix.mult = NULL, fast.compiler = 0, miraculix.cores = 1,
-  store.bve.parameter = FALSE, miraculix.chol = TRUE,
-  best.selection.ratio.m = 1, best.selection.ratio.f = NULL,
-  best.selection.criteria.m = "bv", best.selection.criteria.f = NULL,
+  miraculix.chol = FALSE, best.selection.ratio.m = 1,
+  best.selection.ratio.f = NULL, best.selection.criteria.m = "bv",
+  best.selection.criteria.f = NULL,
   best.selection.manual.ratio.m = NULL,
   best.selection.manual.ratio.f = NULL, bve.class = NULL,
   parallel.generation = FALSE, name.cohort = NULL,
@@ -75,11 +76,11 @@ breeding.diploid(population, mutation.rate = 10^-5,
   gwas.database = NULL, bve.insert.gen = NULL,
   bve.insert.cohorts = NULL, bve.insert.database = NULL,
   reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
-  breeding.all.combination = FALSE, depth.pedigree = Inf,
-  copy.individual.keep.bve = TRUE, bve.avoid.duplicates = TRUE,
-  report.accuracy = TRUE, share.genotyped = 1,
-  singlestep.active = FALSE, remove.non.genotyped = TRUE,
-  added.genotyped = 0, fast.uhat = TRUE,
+  breeding.all.combination = FALSE, depth.pedigree = 7,
+  depth.pedigree.ogc = 7, copy.individual.keep.bve = TRUE,
+  bve.avoid.duplicates = TRUE, report.accuracy = TRUE,
+  share.genotyped = 1, singlestep.active = FALSE,
+  remove.non.genotyped = TRUE, added.genotyped = 0, fast.uhat = TRUE,
   offspring.bve.parents.gen = NULL,
   offspring.bve.parents.database = NULL,
   offspring.bve.parents.cohorts = NULL,
@@ -93,10 +94,12 @@ breeding.diploid(population, mutation.rate = 10^-5,
   selection.m.database = NULL, selection.f.database = NULL,
   selection.m.cohorts = NULL, selection.f.cohorts = NULL,
   selection.m.miesenberger = FALSE, selection.f.miesenberger = NULL,
-  selection.miesenberger.w = "bve_sd",
   selection.miesenberger.reliability.est = "estimated",
   multiple.bve.weights.m = 1, multiple.bve.weights.f = NULL,
-  multiple.bve.scale.m = FALSE, multiple.bve.scale.f = NULL)
+  multiple.bve.scale.m = "bve_sd", multiple.bve.scale.f = NULL,
+  verbose = TRUE, bve.parent.mean = FALSE,
+  bve.grandparent.mean = FALSE, bve.mean.between = "bvepheno",
+  bve.direct.est = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -154,6 +157,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{new.bv.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
 \item{computation.A}{Method to calculate pedigree matrix (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+
+\item{computation.A.ogc}{Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
 \item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted (only use if storage problem!)}
 
@@ -351,8 +356,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
 
-\item{store.bve.parameter}{If TRUE storeA Zm Zmt Z.code Rest in $info$A $info$sigma.e $info$sigma.g $info$multi}
-
 \item{miraculix.chol}{If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)}
 
 \item{best.selection.ratio.m}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
@@ -431,7 +434,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
 
-\item{depth.pedigree}{Depth of the pedigree in generations}
+\item{depth.pedigree}{Depth of the pedigree in generations (default: 7)}
+
+\item{depth.pedigree.ogc}{Depth of the pedigree in generations (default: 7)}
 
 \item{copy.individual.keep.bve}{Set to FALSE to not keep estimated breeding value in case of use of copy.individuals}
 
@@ -495,17 +500,19 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for maternal selection}
 
-\item{selection.miesenberger.w}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
-
 \item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement}
 
 \item{multiple.bve.weights.m}{Weighting between traits when using "add" (default: 1)}
 
 \item{multiple.bve.weights.f}{Weighting between traits when using "add" (default: same as multiple.bve.weights.m)}
 
-\item{multiple.bve.scale.m}{If TRUE standardize breeding values for traits according to their standard deviation}
+\item{multiple.bve.scale.m}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
 
-\item{multiple.bve.scale.f}{If TRUE standardize breeding values for traits according to their standard deviation}
+\item{multiple.bve.scale.f}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+
+\item{verbose}{Set to FALSE to not display any prints}
+
+\item{bve.direct.est}{If TRUE predict BVEs in direct estimation according to vanRaden 2008 method 2 (default: TRUE)}
 }
 \description{
 Function to simulate a step in a breeding scheme

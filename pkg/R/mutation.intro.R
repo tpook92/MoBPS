@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param individual.nr Individual Nr. of the individual to introduce a mutation in
 #' @param qtl.posi Marker number to mutate
 #' @param haplo.set Select chromosome set (default: 1 , alt: 2)
+#' @export
 
 mutation.intro <- function(population, gen, sex, individual.nr, qtl.posi, haplo.set=1) {
 

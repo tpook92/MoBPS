@@ -58,9 +58,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   backend = "doParallel", randomSeed = NULL,
   randomSeed.generation = NULL, Rprof = FALSE, miraculix = TRUE,
   miraculix.mult = NULL, fast.compiler = 0, miraculix.cores = 1,
-  store.bve.parameter = FALSE, miraculix.chol = FALSE,
-  best.selection.ratio.m = 1, best.selection.ratio.f = NULL,
-  best.selection.criteria.m = "bv", best.selection.criteria.f = NULL,
+  miraculix.chol = FALSE, best.selection.ratio.m = 1,
+  best.selection.ratio.f = NULL, best.selection.criteria.m = "bv",
+  best.selection.criteria.f = NULL,
   best.selection.manual.ratio.m = NULL,
   best.selection.manual.ratio.f = NULL, bve.class = NULL,
   parallel.generation = FALSE, name.cohort = NULL,
@@ -355,8 +355,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{fast.compiler}{Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)}
 
 \item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
-
-\item{store.bve.parameter}{If TRUE storeA Zm Zmt Z.code Rest in $info$A $info$sigma.e $info$sigma.g $info$multi}
 
 \item{miraculix.chol}{If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)}
 
