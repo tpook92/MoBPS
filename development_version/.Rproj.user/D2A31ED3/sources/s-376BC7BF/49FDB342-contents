@@ -1,3 +1,0 @@
-trash <- foreach::foreach(rep=1:10, .packages = "MoBPS") %dopar% {
-print(rep)
-}

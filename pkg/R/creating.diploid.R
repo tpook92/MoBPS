@@ -317,6 +317,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(chr.nr)==1 && chr.nr>1){
     if(length(nsnp)==1  && nsnp > chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nsnp))
+      nsnp <- numeric(length(chr.nr))
+      for(index in 1:length(nsnp)){
+        nsnp[index] <- sum(chr.nr==index)
+      }
     } else if(class(dataset)=="matrix" && nrow(dataset)>chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nrow(dataset)))
     } else if(class(dataset)=="haplomatrix" && attr(dataset[[1]], "information")[2]==1){
@@ -460,10 +464,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       real.bv.dice <- list(real.bv.dice)
     }
     so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-    if(length(trait_sum)){
+    if(length(trait_sum)>0){
       for(index_trait in 1:length(trait_sum)){
         var_additive <- var.additive.l[[index_trait]]
-        var_dominante <- var.dominant.l[[index_trait]]
+        var_dominant <- var.dominant.l[[index_trait]]
         var_qualitative <- var.qualitative.l[[index_trait]]
         var_quantitative <- var.quantitative.l[[index_trait]]
         if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
@@ -473,34 +477,34 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           var_additive <- rep(1, length.out=n.additive[index_trait])
           var.additive.l[[index_trait]] <- var_additive
         }
-        if(n.dominant[index_trait]>0 && length(var_dominante)<n.dominant[index_trait]){
-          if(length(var_dominante)==0){
-            var_dominante <- 1
+        if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
+          if(length(var_dominant)==0){
+            var_dominant <- 1
           }
-          var_dominante <- rep(1, length.out=n.dominant[index_trait])
-          var_dominante.l[[index_trait]] <- var_dominante
+          var_dominant <- rep(1, length.out=n.dominant[index_trait])
+          var.dominant.l[[index_trait]] <- var_dominant
         }
         if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
           if(length(var_qualitative)==0){
             var_qualitative <- 1
           }
           var_qualitative <- rep(1, length.out=n.qualitative[index_trait])
-          var_qualitative.l[[index_trait]] <- var_qualitative
+          var.qualitative.l[[index_trait]] <- var_qualitative
         }
         if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
           if(length(var_quantitative)==0){
             var_quantitative <- 1
           }
           var_quantitative <- rep(1, length.out=n.quantitative[index_trait])
-          var_quantitative.l[[index_trait]] <- var_quantitative
+          var.quantitative.l[[index_trait]] <- var_quantitative
 
         }
 
         if(length(var_additive)!= n.additive[index_trait]){
           n.additive[index_trait] <- length(var_additive)
         }
-        if(length(var_dominante)!= n.dominant[index_trait]){
-          n.dominant[index_trait] <- length(var_dominante)
+        if(length(var_dominant)!= n.dominant[index_trait]){
+          n.dominant[index_trait] <- length(var_dominant)
         }
         if(length(var_qualitative)!= n.qualitative[index_trait]){
           n.qualitative[index_trait] <- length(var_qualitative)
@@ -569,7 +573,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
             dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
           }
-          dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominante)
+          dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominant)
           real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
 
         }

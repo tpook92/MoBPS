@@ -1,0 +1,16 @@
+library(MoBPS)
+pop <- creating.diploid(nsnp=10000, nindi=50,
+                        chr.nr=5, chromosome.length=2,
+                        n.additive = 25, n.dominant = 5,
+                        name.cohort="Founder")
+pop <- breeding.diploid(pop, heritability = 0.5,
+                        new.bv.observation = "all")
+pop <- breeding.diploid(pop, bve=TRUE)
+pop <- breeding.diploid(pop, breeding.size = 50,
+                        selection.size = c(5,10),
+                        selection.m = "function", 
+                        selection.m.cohorts = "Founder_M",
+                        selection.f.cohorts = "Founder_F")
+
+summary(pop)
+

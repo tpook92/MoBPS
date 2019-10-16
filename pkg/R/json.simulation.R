@@ -793,8 +793,14 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             map <- MoBPSmaps::map_human2
           } else if(geninfo$`Ensembl Dataset`== "Illumina_HumanHap550"){
             map <- MoBPSmaps::map_human3
-          } else if(geninfo$`Ensembl Dataset`== "Affymetrix Axiom Maize Array"){
+          } else if(geninfo$`Ensembl Dataset`== "Affymetrix Axiom Maize Genotyping Array"){
             map <- MoBPSmaps::map_maize1
+          } else if(geninfo$`Ensembl Dataset`== "3k_Sorghum_Bekele"){
+            map <- MoBPSmaps::map_sorghum1
+          } else if(geninfo$`Ensembl Dataset`== "12k_Wheat_Bekele"){
+            map <- MoBPSmaps::map_wheat1
+          } else if(geninfo$`Ensembl Dataset`== "29k_Wheat_Wen"){
+            map <- MoBPSmaps::map_wheat2
           } else{
             map <- ensembl.map(dataset = geninfo$'Ensembl Dataset',
                                filter = geninfo$'Ensembl Filter',

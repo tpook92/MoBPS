@@ -179,7 +179,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(trait_sum)){
     for(index_trait in 1:length(trait_sum)){
       var_additive <- var.additive.l[[index_trait]]
-      var_dominante <- var.dominant.l[[index_trait]]
+      var_dominant <- var.dominant.l[[index_trait]]
       var_qualitative <- var.qualitative.l[[index_trait]]
       var_quantitative <- var.quantitative.l[[index_trait]]
       if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
@@ -187,31 +187,35 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
           var_additive <- 1
         }
         var_additive <- rep(1, length.out=n.additive[index_trait])
+        var.additive.l[[index_trait]] <- var_additive
       }
-      if(n.dominant[index_trait]>0 && length(var_dominante)<n.dominant[index_trait]){
-        if(length(var_dominante)==0){
-          var_dominante <- 1
+      if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
+        if(length(var_dominant)==0){
+          var_dominant <- 1
         }
-        var_dominante <- rep(1, length.out=n.dominant[index_trait])
+        var_dominant <- rep(1, length.out=n.dominant[index_trait])
+        var.dominant.l[[index_trait]] <- var_dominant
       }
       if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
         if(length(var_qualitative)==0){
           var_qualitative <- 1
         }
         var_qualitative <- rep(1, length.out=n.qualitative[index_trait])
+        var.qualitative.l[[index_trait]] <- var_qualitative
       }
       if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
         if(length(var_quantitative)==0){
           var_quantitative <- 1
         }
         var_quantitative <- rep(1, length.out=n.quantitative[index_trait])
+        var.quantitative.l[[index_trait]] <- var_quantitative
       }
 
       if(length(var_additive)!= n.additive[index_trait]){
         n.additive[index_trait] <- length(var_additive)
       }
-      if(length(var_dominante)!= n.dominant[index_trait]){
-        n.dominant[index_trait] <- length(var_dominante)
+      if(length(var_dominant)!= n.dominant[index_trait]){
+        n.dominant[index_trait] <- length(var_dominant)
       }
       if(length(var_qualitative)!= n.qualitative[index_trait]){
         n.qualitative[index_trait] <- length(var_qualitative)
@@ -263,7 +267,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
           dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
           dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
         }
-        dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominante)
+        dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominant)
         real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
 
       }

@@ -38,37 +38,58 @@ summary.population <- function(object, ...){
   cat(paste0("and ", nrow(population$info$cohorts), " unique cohorts.\n \n"))
 
   cat("Genome Info:\n")
-  cat(paste0("There are ", population$info$chromosome, " unique chromosomes.\n"))
+  if(population$info$chromosome==1){
+    cat(paste0("There is ", population$info$chromosome, " unique chromosome.\n"))
+  } else{
+    cat(paste0("There are ", population$info$chromosome, " unique chromosomes.\n"))
+  }
+
   cat(paste0("In total there are ", sum(population$info$snp), " SNPs.\n"))
   cat(paste0("The genome has a total length of ", sum(population$info$length), " Morgan.\n"))
-  if(length(population$info$bp)==0){
+  if(length(population$info$bp)==0 || prod(population$info$bp[population$info$cumsnp]==population$info$snp)==1){
     cat(paste0("No physical positions are stored.\n"))
   } else{
     cat(paste0("The genome has a physical size of about: ", round(sum(as.numeric(population$info$bp[population$info$cumsnp]))/1000000000, digits=4), " GB\n"))
   }
 
-  cat("Trait Info:")
-  cat(paste0("There are ", population$info$bv.nr, " modelled traits.\n"))
-  cat(paste0("Of which ", population$info$bv.calc, " have underlying QTL.\n"))
-  if(population$info$bv.nr>0){
-    cat("Trait names are:")
-    cat(population$info$trait.name)
-    cat("\n")
-    temp1 <- abs(population$info$bv.correlation)
-    diag(temp1) <- 0
-    if(sum(temp1)==0){
-      cat("Genetics of traits are uncorrelated.\n")
-    } else{
-      cat(paste0("Highest correlation between genetics of traits is ", max(temp1)))
+  if(population$info$bv.nr>1){
+    cat("\nTrait Info:\n")
+    cat(paste0("There are ", population$info$bv.nr, " modelled traits.\n"))
+    cat(paste0("Of which ", population$info$bv.calc, " have underlying QTL.\n"))
+    if(population$info$bv.nr>0){
+      cat("Trait names are:")
+      cat(population$info$trait.name)
+      cat("\n")
+      temp1 <- abs(population$info$bv.correlation)
+      diag(temp1) <- 0
+      if(sum(temp1)==0){
+        cat("Genetics of traits are uncorrelated. \n")
+      } else{
+        cat(paste0("Highest correlation between genetics of traits is ", max(temp1)))
+      }
+      temp1 <- population$info$pheno.correlation %*% t(population$info$pheno.correlation)
+      diag(temp1) <- 0
+      if(sum(temp1)==0){
+        cat("There are no interactions between enviromental effects.\n")
+      } else{
+        cat(paste0("Highest correlation between enviromental effects is ", max(temp1)))
+      }
+
     }
-    temp1 <- population$info$pheno.correlation %*% t(population$info$pheno.correlation)
-    diag(temp1) <- 0
-    if(sum(temp1)==0){
-      cat("There are no interactions between enviromental effects.\n")
-    } else{
-      cat(paste0("Highest correlation between enviromental effects is ", max(temp1)))
+  } else{
+    cat("\nTrait Info:\n")
+    cat(paste0("There is ", population$info$bv.nr, " modelled trait.\n"))
+    if(population$info$bv.calc>0){
+      cat(paste0("The trait has underlying QTL\n"))
     }
 
+    if(population$info$bv.nr>0){
+      cat("The trait is named: ")
+      cat(population$info$trait.name)
+      cat("\n")
+
+    }
   }
+
 
 }
