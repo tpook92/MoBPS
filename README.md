@@ -19,6 +19,13 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
+### Version 1.4.3 (16.10.19)
+MoBPSmaps 0.1.6 (Including maps for Wheat and Sorghum)
+
+Removed typos in summary.population()
+
+Updates to creating.diploid for trait generation via n.additive/dominant etc.
+
 ### Version 1.4.2 (14.10.19)
 Variety of additions to json.simulation and user-interface
 
