@@ -2,6 +2,7 @@
 
 S3method(summary,population)
 export(OGC)
+export(add.diag)
 export(alpha_to_beta)
 export(analyze.bv)
 export(analyze.population)

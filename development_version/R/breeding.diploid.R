@@ -1472,7 +1472,7 @@ breeding.diploid <- function(population,
     }
     y <- y_real <- y_hat <- y_reli <- array(0,dim=c(n.animals,population$info$bv.nr))
     X <- matrix(1, nrow=n.animals,ncol=1)
-    R <- diag(1L, nrow=n.animals)
+
     grid.position <- numeric(n.animals)
     cindex <- 1
     size <- cumsum(c(0,as.vector(t(population$info$size))))
@@ -1818,9 +1818,11 @@ breeding.diploid <- function(population,
         }
         if(singlestep.active){
           if(verbose) cat("Start derive Single-step relationship matrix \n")
+          if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
           z_ped <- z_ped - as.numeric(Sys.time())
           A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree)[loop_elements_list[[2]],loop_elements_list[[2]]] * 2
           z_ped <- z_ped + as.numeric(Sys.time())
+          if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
           if(miraculix){
             if (requireNamespace("miraculix", quietly = TRUE)) {
               Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
@@ -1840,19 +1842,26 @@ breeding.diploid <- function(population,
           }
 
           z_h <- z_h - as.numeric(Sys.time())
-          A_geno_ped <- A_pedigree[genotype.included, genotype.included]
-          A_nongeno <- A_pedigree[-genotype.included, -genotype.included]
-          A_overlap <- A_pedigree[-genotype.included, genotype.included]
 
           reorder <- c((1:n.animals)[-genotype.included], genotype.included)
-          H_order <- H <- ssGBLUP(A11= A_nongeno, A12 = A_overlap, A22 = A_geno_ped, G = A_geno)
-          H[genotype.included, genotype.included] <- H_order[(ncol(A_nongeno)+1):ncol(H_order), (ncol(A_nongeno)+1):ncol(H_order)]
-          H[-genotype.included, -genotype.included] <- H_order[1:(ncol(A_nongeno)), 1:(ncol(A_nongeno))]
-          H[-genotype.included, genotype.included] <- H_order[1:(ncol(A_nongeno)), (ncol(A_nongeno)+1):ncol(H_order)]
-          H[genotype.included, -genotype.included] <- H_order[(ncol(A_nongeno)+1):ncol(H_order), 1:(ncol(A_nongeno))]
+          if(verbose) cat("Start deriving of H matrix for", length(genotype.included), "genotyped and", nrow(A_pedigree)-length(genotype.included), "non-genotyped individuals.\n")
+          H_order <- H <- ssGBLUP(A11= A_pedigree[-genotype.included, -genotype.included],
+                                  A12 = A_pedigree[-genotype.included, genotype.included],
+                                  A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
 
+          H[genotype.included, genotype.included] <- H_order[(ncol(H_order)-length(genotype.included)+1):ncol(H_order), (ncol(H_order)-length(genotype.included)+1):ncol(H_order)]
+          H[-genotype.included, -genotype.included] <- H_order[1:(ncol(H_order)-length(genotype.included)), 1:(ncol(H_order)-length(genotype.included))]
+          H[-genotype.included, genotype.included] <- H_order[1:(ncol(H_order)-length(genotype.included)), (ncol(H_order)-length(genotype.included)+1):ncol(H_order)]
+          H[genotype.included, -genotype.included] <- H_order[(ncol(H_order)-length(genotype.included)+1):ncol(H_order), 1:(ncol(H_order)-length(genotype.included))]
+
+          rm(A_geno)
+          rm(H_order)
           A <- H
+          rm(H)
+          rm(A_pedigree)
+
           z_h <- z_h + as.numeric(Sys.time())
+          if(verbose) cat(paste0("Derived H matrix in  ", round(z_h, digits=2), " seconds.\n"))
 
         } else if(computation.A=="vanRaden"){
           if(miraculix){
@@ -2055,6 +2064,7 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y))
 
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
         if(check == length(y)){
           if(verbose) cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2112,6 +2122,7 @@ breeding.diploid <- function(population,
 
         rrblup.required <- FALSE
 
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
         if(check == length(y[,bven])){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2141,16 +2152,19 @@ breeding.diploid <- function(population,
             take <- which(!is.na(y[,bven])) # individuals for GBLUP
             if(!bve.direct.est.now){
               rrblup.required <- TRUE
+              take2 <- which(!is.na(y[,bven]) & genotyped==1) # individuals for rrBLUP
+            } else{
+              take2 <- 1:length(y[,bven])
             }
 
-            take2 <- which(!is.na(y[,bven]) & genotyped==1) # individuals for rrBLUP
+
             bve.insert.full <- bve.insert
             if(length(bve.insert.copy)>0){
 
               bve.insert.full[loop_elements_copy[bve.insert.copy,6]] <- TRUE
             }
             take3 <- which(is.na(y[,bven]) & genotyped==1 & bve.insert.full) # individuals to estimate via rrBLUP
-            if(length(take3)>0){
+            if(length(take3)>0 && !bve.direct.est.now){
               if(verbose) cat("Use rrBLUP to estimate breeding value for those individuals!\n")
             }
           } else{
@@ -2174,11 +2188,13 @@ breeding.diploid <- function(population,
         }
         # Solve mixed model which assumed known heritability
         # This is not 100% accurate but massively reduces computing time and should be ok for large scale breeding programs
+        t1 <- as.numeric(Sys.time())
+
         if(estimate.u || rrblup.required){
           if(calculate.reliability){
             if(verbose) cat("Reliabilities are currently only calculated for phenotyped individuals. Extension according to vanRaden 2008 planned.\n")
             if(verbose) cat("Use of Z2 Z instead of ZZ (C instead of G). \n")
-            GR1 <- chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven]))
+            GR1 <- chol2inv(chol(add.diag(A[take,take],sigma.e.hat[bven] / sigma.a.hat[bven])))
             Rest_term <- GR1 %*% multi[take]
             y_hat[take,bven] <- A[take,take] %*% Rest_term  + beta_hat[bven]
             y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
@@ -2189,12 +2205,12 @@ breeding.diploid <- function(population,
             Rest_term <- temp1[[1]]
             y_hat[take,bven] <- temp1[[2]]
           } else{
-            Rest_term <- (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take])
+            Rest_term <- (chol2inv(chol(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven]))) %*% multi[take])
             y_hat[take,bven] <- A[take,take] %*% Rest_term  + beta_hat[bven]
           }
         } else{
           if(calculate.reliability){
-            GR1 <- chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven]))
+            GR1 <- chol2inv(chol(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven])))
             if(bve.direct.est.now){
               y_hat[take2,bven] <- A[take2,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
               y_reli[take1,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
@@ -2210,12 +2226,16 @@ breeding.diploid <- function(population,
             }
           } else{
             if(bve.direct.est.now){
-              y_hat[take2,bven] <- A[take2,take] %*% (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take]) + beta_hat[bven]
+              y_hat[take2,bven] <- A[take2,take] %*% (chol2inv(chol(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven]))) %*% multi[take]) + beta_hat[bven]
             } else{
-              y_hat[take,bven] <- A[take,take] %*% (chol2inv(chol(A[take,take] + R[take,take] *sigma.e.hat[bven] / sigma.a.hat[bven])) %*% multi[take]) + beta_hat[bven]
+              y_hat[take,bven] <- A[take,take] %*% (chol2inv(chol(add.diag(A[take,take],sigma.e.hat[bven] / sigma.a.hat[bven]))) %*% multi[take]) + beta_hat[bven]
             }
           }
         }
+
+        t2 <- as.numeric(Sys.time())
+        if(verbose) cat(paste0(round(t2-t1, digits=2), " seconds for BVE.\n"))
+
         if(store.comp.times.bve){
           after <- as.numeric(Sys.time())
           z_chol <- after - before
@@ -3787,6 +3807,11 @@ breeding.diploid <- function(population,
     bv_stuff <- 0
   }
   if(parallel.generation && breeding.size.total>0){
+    if (requireNamespace("foreach", quietly = TRUE)) {
+    } else{
+      stop("Usage of foreach without being installed!")
+    }
+
     if(length(name.cohort)>0){
       if(verbose) cat(paste0("Start generation of new individuals (cohort: ", name.cohort,").\n"))
     } else{
@@ -3911,10 +3936,7 @@ breeding.diploid <- function(population,
         tick <- as.numeric(Sys.time())
       }
 
-      if (requireNamespace("foreach", quietly = TRUE)) {
-      } else{
-        stop("Usage of foreach without being installed!")
-      }
+
       new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
                             .packages="MoBPS") %dopar% {
 

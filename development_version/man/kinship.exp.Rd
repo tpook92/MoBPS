@@ -5,7 +5,7 @@
 \title{Derive expected kinship}
 \usage{
 kinship.exp(population, gen = NULL, database = NULL, cohorts = NULL,
-  depth.pedigree = Inf, start.kinship = NULL)
+  depth.pedigree = 7, start.kinship = NULL)
 }
 \arguments{
 \item{population}{Population list}
