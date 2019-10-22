@@ -19,6 +19,16 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
+### Version 1.4.10 (22.10.19) // only development version
+
+Mostly improvments to reduce memory requirement
+
+New function: add.diag(). R is not required anymore
+
+Clean-up of memory in ssGBLUP
+
+Better handling of duplicated individuals (generated via copy.indiduals)
+
 ### Version 1.4.3 (16.10.19)
 MoBPSmaps 0.1.6 (Including maps for Wheat and Sorghum)
 
