@@ -23,7 +23,7 @@ Updates since release:
 
 Mostly improvments to reduce memory requirement
 
-New function: add.diag(). R is not required anymore
+New function: add.diag(). R-matrix is not required anymore
 
 Clean-up of memory in ssGBLUP
 
