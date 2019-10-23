@@ -2,7 +2,7 @@
 % Please edit documentation in R/add.diag.R
 \name{add.diag}
 \alias{add.diag}
-\title{Clean-up recombination points}
+\title{Add something to the diagonal}
 \usage{
 add.diag(M, d)
 }
@@ -12,5 +12,5 @@ add.diag(M, d)
 \item{d}{Vector to add to the diagonal of the matrix}
 }
 \description{
-Function to remove recombination points + origins with no influence on markers
+Function to add numeric to the diagonal of a matrix
 }

@@ -61,9 +61,11 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     real.bv.adds <- population$info$real.bv.add[[bven]]
     # Additive Effekte -Vektorielle loesung
     if(length(real.bv.adds)>0){
+
+
       position <- population$info$effect.p.add[[bven]]
       neff <- nrow(real.bv.adds)
-      take <- (geno[position] +2 ) * neff + 1:neff
+      take <- (geno[position] + 2L ) * neff + 1:neff
       ## ^ seems to be extremely inefficient!
       if(population$info$bve.poly.factor[bven]==1){
         bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))
@@ -79,7 +81,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     if(length(real.bv.mults)>0){
       position1 <- population$info$effect.p.mult1[[bven]]
       position2 <- population$info$effect.p.mult2[[bven]]
-      bv <- bv + sum(real.bv.mults[cbind(1:nrow(real.bv.mults), 5 + geno[position1]*3 + geno[position2])])
+      bv <- bv + sum(real.bv.mults[cbind(1:nrow(real.bv.mults), 5L + geno[position1]*3L + geno[position2])])
     }
 
     # Wuerfel Effekte - Nicht vektorielle da Listenzugriffe (verbesserbar wenn viele solche Effekte betrachtet werden)
@@ -88,11 +90,11 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
       for(index in 1:length(real.bv.dices[[1]])){
         posis <- numeric(nrow(real.bv.dices[[1]][[index]]))
         for(index2 in 1:length(posis)){
-          posis[index2] <- snp.before[real.bv.dices[[1]][[index]][index2,2]] + real.bv.dices[[1]][[index]][index2,1]
+          posis[index2] <- snp.before[real.bv.dices[[1]][[index]][index2,2]] + real.bv.dices[[1]][[index]][index2,1L]
         }
-        activ_p <- 1
+        activ_p <- 1L
         for(index2 in 1:length(posis)){
-          activ_p <- activ_p + geno[posis[index2]] * (3^(length(posis)-index2))
+          activ_p <- activ_p + geno[posis[index2]] * (3L^(length(posis)-index2))
         }
         bv <- bv + real.bv.dices[[2]][[index]][activ_p]
       }

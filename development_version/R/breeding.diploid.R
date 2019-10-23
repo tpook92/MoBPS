@@ -584,6 +584,11 @@ breeding.diploid <- function(population,
       selection.f.database <- c(selection.f.database,best2.from.group)
     }
   }
+
+  if(length(  population$info$bv.random.activ)==0){
+    population$info$bv.random.activ <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
+  }
+
   if(length(selection.m.gen)==0 && length(selection.m.database)==0 && length(selection.m.cohorts)==0 && selection.size[1]>0){
     if(verbose) cat("No individuals for selection provided (male side). Use last available.\n")
     selection.m.database <- cbind(max(which(population$info$size[,1]>0)),1)
@@ -900,7 +905,7 @@ breeding.diploid <- function(population,
         nanimals <- length(population$breeding[[index]][[sex]])
         if(nanimals >0){
           for(nr.animal in 1:nanimals){
-            activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
+            activ_bv <- population$info$bv.random.activ
             if(length(activ_bv)>0){
               temp_out <- calculate.bv(population, index, sex, nr.animal,
                                        activ_bv, import.position.calculation=import.position.calculation,
@@ -3608,7 +3613,7 @@ breeding.diploid <- function(population,
             population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[17]] <- population$breeding[[activ[1]]][[6+activ[2]]][,activ[3]]
           }
           population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[15]] <- rep(0, population$info$bv.nr)
-          activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
+          activ_bv <- population$info$bv.random.activ
           if(length(activ_bv)>0){
             temp_out <- calculate.bv(population, activ[1], activ[2], activ[3], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
             population$breeding[[activ[1]]][[6+activ[2]]][activ_bv,activ[3]] <- temp_out[[1]]
@@ -3684,8 +3689,15 @@ breeding.diploid <- function(population,
       } else{
         sample_prob[[sex]] <- best.selection.manual.ratio[[sex]]
       }
+
+      if(length(unique(sample_prob[[sex]]))==1){
+        sample_prob[[sex]] <- NULL
+      }
     }
   }
+  sample_prob[[3]] <- "placeholder"
+
+
 
   if(length(fixed.breeding.best)>0){
     fixed.breeding <- matrix(0, nrow=nrow(fixed.breeding.best), ncol=7)
@@ -3807,494 +3819,336 @@ breeding.diploid <- function(population,
     bv_stuff <- 0
   }
   if(parallel.generation && breeding.size.total>0){
-    if (requireNamespace("foreach", quietly = TRUE)) {
-    } else{
-      stop("Usage of foreach without being installed!")
-    }
 
-    if(length(name.cohort)>0){
-      if(verbose) cat(paste0("Start generation of new individuals (cohort: ", name.cohort,").\n"))
-    } else{
-      if(verbose) cat("Start generation of new individuals.\n")
-    }
+    if(requireNamespace("doParallel", quietly = TRUE)) {
 
-
-    if(store.comp.times.generation){
-      tick <- as.numeric(Sys.time())
-    }
-    info_father_list <- info_mother_list <- matrix(0, nrow=breeding.size.total, ncol=5)
-
-
-    runs <- repeat.mating
-    for(animal.nr in 1:breeding.size.total){
-
-      sex <- sex.animal[animal.nr]
-      if(length(fixed.breeding)>0){
-        info.father <- fixed.breeding[animal.nr,1:3]
-        info.mother <- fixed.breeding[animal.nr,4:6]
+      if(length(name.cohort)>0){
+        if(verbose) cat(paste0("Start generation of new individuals (cohort: ", name.cohort,").\n"))
       } else{
-        if(runs!=repeat.mating && runs>0){
-          runs <- runs - 1
-        } else{
-          runs <- repeat.mating - 1
-          if(selfing.mating==FALSE){
-            sex1 <- 1
-            sex2 <- 2
-            if(same.sex.activ==FALSE && relative.selection==FALSE){
-              number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-              number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
-              info.father <- best[[sex1]][number1,]
-              info.mother <- best[[sex2]][number2,]
-            } else if(same.sex.activ==FALSE && relative.selection){
-              info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
-              info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
-            } else{
-              sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhöht
-
-              sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
-              number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-              number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
-              test <- 1
-              while(same.sex.selfing==FALSE && number1==number2 && test < 100){
-                number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
-                test <- test+1
-                if(test==100 && number1==number2){
-                  print("Selbstung durchgefuehrt da nur ein Tier in Selektionsgruppe")
-                }
-              }
-
-              if(relative.selection==FALSE){
-                info.father <- best[[sex1]][number1,]
-                # waehle fuers bveite Tier ein Tier aus der Gruppe der Nicht-besten Tiere
-                if(martini.selection){
-                  options <- (1:population$info$size[best[[sex2]][1,1],sex2])[-best[[sex2]][,3]]
-                  number2 <- sample(options,1)
-                  info.mother <- c(best[[sex2]][1,1:2], number2)
-                } else{
-                  info.mother <- best[[sex2]][number2,]
-                }
-              } else{
-                info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,cum.sum[[sex1]])) +1 ,1:3]
-                info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,cum.sum[[sex2]])) +1 ,1:3]
-              }
-
-            }
-          } else{
-            sex1 <- sex2 <- stats::rbinom(1,1,selfing.sex)+1
-            if(length(availables[[sex1]])==0){
-              sex1 <- sex2 <- 3 - sex1
-            }
-            number1 <- number2 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-            info.father <- best[[sex1]][number1,]
-            info.mother <- best[[sex2]][number2,]
-
-          }
-          if(martini.selection==FALSE){
-            selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating
-            selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating
-
-            if(selection.rate[[sex1]][number1] >= max.offspring[sex1]){
-              activ.selection.size[sex1] <-  activ.selection.size[sex1] - 1
-              availables[[sex1]] <- availables[[sex1]][availables[[sex1]]!=number1]
-            }
-            if(selection.rate[[sex2]][number2] >= max.offspring[sex2]){
-              if(sex1!= sex2 || number1 != number2){
-                activ.selection.size[sex2] <-  activ.selection.size[sex2] -1
-              }
-              availables[[sex2]] <- availables[[sex2]][availables[[sex2]]!=number2]
-            }
-          }
-        }
-
-
+        if(verbose) cat("Start generation of new individuals.\n")
       }
-      info_father_list[animal.nr,] <- info.father
-      info_mother_list[animal.nr,] <- info.mother
-    }
 
-    if(store.comp.times.generation){
-      tock <- as.numeric(Sys.time())
-      pre_stuff <- tock-tick
-    }
-
-
-    if(backend=="doParallel"){
-      doParallel::registerDoParallel(cores=ncore.generation)
-      print("True breeding value calculation does not work under parallelisation in windows!")
-      if(length(randomSeed.generation)>0){
-        if (requireNamespace("doRNG", quietly = TRUE)) {
-          doRNG::registerDoRNG(seed=randomSeed.generation)
-        } else{
-          stop("Usage of doRNG without being installed!")
-        }
-      }
-    }
-
-    for(sex_running in 1:2){
 
       if(store.comp.times.generation){
         tick <- as.numeric(Sys.time())
       }
+      info_father_list <- info_mother_list <- matrix(0, nrow=breeding.size.total, ncol=5)
 
 
-      new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
-                            .packages="MoBPS") %dopar% {
+      runs <- repeat.mating
+      for(animal.nr in 1:breeding.size.total){
 
-                              info.father <- info_father_list[indexb,]
-                              info.mother <- info_mother_list[indexb,]
-                              father <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]]
-                              mother <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]]
-                              if(copy.individual){
-                                info.mother <- info.father
-                                child1 <- list(father[[1]], father[[3]], father[[5]], father[[7]], father[[11]], 0, if(length(father)>19){father[[19]]} else{0})
-                                child2 <- list(father[[2]], father[[4]], father[[6]], father[[8]], father[[12]], 0, if(length(father)>19){father[[20]]} else{0})
-                              } else{
-                                child1 <- breeding.intern(info.father, father, population,
-                                                          mutation.rate, remutation.rate, recombination.rate,
-                                                          recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
-                                                          duplication.recombination, delete.same.origin=delete.same.origin,
-                                                          gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
-                                                          gen.architecture=gen.architecture.m,
-                                                          decodeOriginsU=decodeOriginsU)
-
-                                child2 <- breeding.intern(info.mother, mother, population,
-                                                          mutation.rate, remutation.rate, recombination.rate,
-                                                          recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
-                                                          duplication.recombination, delete.same.origin=delete.same.origin,
-                                                          gene.editing=(gene.editing.offspring * gene.editing.offspring.sex[1]) , nr.edits= nr.edits,
-                                                          gen.architecture=gen.architecture.f,
-                                                          decodeOriginsU=decodeOriginsU)
-                              }
-                              if(dh.mating){
-                                if(stats::rbinom(1,1,dh.sex)==0){
-                                  child2 <- child1
-                                } else{
-                                  child1 <- child2
-                                }
-                              }
-
-                              # Fuer Praeimplantationsdiagnostik muesste hier die relevanten SNPs berechnet werden.
-
-                              if(length(praeimplantation)>0){
-                                # sex1/sex2 und number1/number2 werden von Selektion uebernommen und nicht bestimmt!
-                                # Praeimplantationsdiagnostik 1. Chromosom
-                                counter <- 1
-                                good1 <- 0
-                                n.snps <- sum(population$info$snp)
-                                while(good1==0){
-                                  hap1 <- rep(0,n.snps)
-                                  temp1 <- 0
-                                  current.animal <- child1
-                                  for(index2 in 1:(length(current.animal[[1]])-1)){
-                                    relevant.snp <- (population$info$snp.position < current.animal[[1]][index2+1])*(population$info$snp.position >= current.animal[[1]][index2])*(1:n.snps)
-                                    ursprung <- decodeOriginsU(current.animal[[3]],index2)
-                                    ursprung[1] <- population$info$origin.gen[ursprung[1]]
-                                    hap1[relevant.snp] <-population$breeding[[ursprung[1]]][[ursprung[2]]][[ursprung[3]]][[ursprung[4]+8]][relevant.snp]
-                                  }
-                                  if(length(current.animal[[2]])>0){
-                                    for(index2 in 1:length(current.animal[[2]])){
-                                      position <- which(population$info$snp.position==current.animal[[2]][index2])
-                                      hap1[position] <- 1-population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[9+temp1]][position]
-                                    }
-                                  }
-                                  if(hap1[pos] == praeimplantation.max[[sex1]][[number1]] || counter==25){
-                                    good1 <- 1
-                                    if(counter==25){print("Praeimplantation gescheitert!")}
-                                  } else{
-                                    child1 <- breeding.intern(info.father, father, population,
-                                                              mutation.rate, remutation.rate, recombination.rate,
-                                                              recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
-                                                              duplication.recombination, delete.same.origin=delete.same.origin,
-                                                              gene.editing=gene.editing, nr.edits= nr.edits,gen.architecture=gen.architecture.m,
-                                                              decodeOriginsU=decodeOriginsU)
-                                    counter <- counter +1
-                                  }
-                                }
-
-                                # Praeimplantationsdiagnostik 2. Chromosom
-
-                                good1 <- 0
-                                n.snps <- sum(population$info$snp)
-                                while(good1==0){
-                                  hap1 <- rep(0,n.snps)
-                                  temp1 <- 0
-                                  current.animal <- child2
-                                  for(index2 in 1:(length(current.animal[[1]])-1)){
-                                    relevant.snp <- (population$info$snp.position < current.animal[[1]][index2+1])*(population$info$snp.position >= current.animal[[1]][index2])*(1:n.snps)
-                                    ursprung <-  decodeOriginsU(current.animal[[3]],index2)
-                                    ursprung[1] <- population$info$origin.gen[ursprung[1]]
-                                    hap1[relevant.snp] <-population$breeding[[ursprung[1]]][[ursprung[2]]][[ursprung[3]]][[ursprung[4]+8]][relevant.snp]
-                                  }
-                                  if(length(current.animal[[2]])>0){
-                                    for(index2 in 1:length(current.animal[[2]])){
-                                      position <- which(population$info$snp.position==current.animal[[2]][index2])
-                                      hap1[position] <- 1-population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[9+temp1]][position]
-                                    }
-                                  }
-                                  if(hap1[pos] == praeimplantation.max[[sex2]][[number2]] || counter==25){
-                                    good1 <- 1
-                                    if(counter==25){print("Praeimplantation gescheitert!")}
-                                  } else{
-                                    child2 <- breeding.intern(info.mother, mother, population,
-                                                              mutation.rate, remutation.rate, recombination.rate,
-                                                              recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
-                                                              duplication.recombination, delete.same.origin=delete.same.origin,
-                                                              gene.editing=gene.editing, nr.edits= nr.edits,
-                                                              gen.architecture=gen.architecture.f, decodeOriginsU=decodeOriginsU)
-                                    counter <- counter +1
-                                  }
-                                }
-                              }
-
-                              child <- list()
-                              child[[1]] <- child1[[1]]
-                              child[[2]] <- child2[[1]]
-                              child[[3]] <- child1[[2]]
-                              child[[4]] <- child2[[2]]
-                              child[[5]] <- child1[[3]]
-                              child[[6]] <- child2[[3]]
-                              child[[7]] <- child1[[4]]
-                              child[[8]] <- child2[[4]]
-
-                              population$info$size[current.gen+1 ,sex] <- population$info$size[current.gen+1,sex] + 1
-
-                              if(is.vector(child1[[5]])){
-                                child[[11]] <- t(as.matrix(child1[[5]]))
-                              } else{
-                                child[[11]] <- child1[[5]]
-                              }
-                              if(is.vector(child2[[5]])){
-                                child[[12]] <- t(as.matrix(child2[[5]]))
-                              } else{
-                                child[[12]] <- child2[[5]]
-                              }
-                              if(save.recombination.history && current.gen==1){
-                                if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
-                                  child[[13]] <- cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))])
-                                } else{
-                                  child[[13]] <- cbind(0,0)
-                                }
-                                if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
-                                  child[[14]] <- cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))])
-                                } else{
-                                  child[[14]] <- cbind(0,0)
-                                }
-
-                              } else if(save.recombination.history && current.gen>1){
-                                if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
-                                  child[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))]))
-                                } else{
-                                  child[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]])
-
-                                }
-                                if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
-                                  child[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))]))
-                                } else{
-                                  child[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]])
-
-                                }
-
-                              } else{
-                                #child[[13]] <- "test"
-                              }
-
-                              if(new.bv.child=="obs"){
-                                child[[15]] <- n.observation
-                              } else if(new.bv.child=="addobs"){
-                                population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- n.observation +
-                                  population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[15]]/2   +
-                                  population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]/2
-                              } else{
-                                child[[15]] <- rep(0, population$info$bv.nr)
-                              }
-                              if(copy.individual){
-                                child[[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
-                                if(added.genotyped>0 && child[[16]]==0){
-                                  child[[16]] <- stats::rbinom(1,1,added.genotyped)
-                                }
-                              } else{
-                                child[[16]] <- stats::rbinom(1,1,share.genotyped)
-                              }
-
-                              child[[19]] <- child1[[7]]
-                              child[[20]] <- child2[[7]]
-
-                              if(copy.individual){
-                                child[[21]] <-  matrix(info.father[1:3], nrow=1)
-                              }
-
-
-                              child
-
-                            }
-
-      prev_ani <- length(population$breeding[[current.gen+1]][[sex_running]])
-      present_before <- population$info$size[current.gen+1,sex_running]
-      population$breeding[[current.gen+1]][[sex_running]] <-  c(population$breeding[[current.gen+1]][[sex_running]], new_animal)
-      population$info$size[current.gen+1,sex_running] <- length(population$breeding[[current.gen+1]][[sex_running]])
-
-      if(length(new_animal)>0){
-        for(index6 in 1:length(new_animal) + prev_ani){
-          if(copy.individual){
-            first_copy <- population$breeding[[current.gen+1]][[sex_running]][[index6]][[21]]
-            new_copy <- rbind(population$breeding[[first_copy[1,1]]][[first_copy[1,2]]][[first_copy[1,3]]][[21]],
-                              c(current.gen+1, sex_running, index6))
-            for(index7 in 1:nrow(new_copy)){
-              population$breeding[[new_copy[index7,1]]][[new_copy[index7,2]]][[new_copy[index7,3]]][[21]] <- new_copy
-            }
-
+        sex <- sex.animal[animal.nr]
+        if(length(fixed.breeding)>0){
+          info.father <- fixed.breeding[animal.nr,1:3]
+          info.mother <- fixed.breeding[animal.nr,4:6]
+        } else{
+          if(runs!=repeat.mating && runs>0){
+            runs <- runs - 1
           } else{
-            population$breeding[[current.gen+1]][[sex_running]][[index6]][[21]] <- cbind(current.gen+1, sex_running, index6)
+            runs <- repeat.mating - 1
+            if(selfing.mating==FALSE){
+              sex1 <- 1
+              sex2 <- 2
+              if(same.sex.activ==FALSE && relative.selection==FALSE){
+
+                number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
+                number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+
+                info.father <- best[[sex1]][number1,]
+                info.mother <- best[[sex2]][number2,]
+              } else if(same.sex.activ==FALSE && relative.selection){
+                info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
+                info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
+              } else{
+                sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhöht
+
+                sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
+
+                number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
+                number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+                test <- 1
+                while(same.sex.selfing==FALSE && number1==number2 && test < 100){
+                  number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+                  test <- test+1
+                  if(test==100 && number1==number2){
+                    print("Selbstung durchgefuehrt da nur ein Tier in Selektionsgruppe")
+                  }
+                }
+
+                if(relative.selection==FALSE){
+                  info.father <- best[[sex1]][number1,]
+                  # waehle fuers bveite Tier ein Tier aus der Gruppe der Nicht-besten Tiere
+                  if(martini.selection){
+                    options <- (1:population$info$size[best[[sex2]][1,1],sex2])[-best[[sex2]][,3]]
+                    number2 <- sample(options,1)
+                    info.mother <- c(best[[sex2]][1,1:2], number2)
+                  } else{
+                    info.mother <- best[[sex2]][number2,]
+                  }
+                } else{
+                  info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,cum.sum[[sex1]])) +1 ,1:3]
+                  info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,cum.sum[[sex2]])) +1 ,1:3]
+                }
+
+              }
+            } else{
+              sex1 <- sex2 <- stats::rbinom(1,1,selfing.sex)+1
+              if(length(availables[[sex1]])==0){
+                sex1 <- sex2 <- 3 - sex1
+              }
+              number1 <- number2 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
+              info.father <- best[[sex1]][number1,]
+              info.mother <- best[[sex2]][number2,]
+
+            }
+            if(martini.selection==FALSE){
+              selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating
+              selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating
+
+              if(selection.rate[[sex1]][number1] >= max.offspring[sex1]){
+                activ.selection.size[sex1] <-  activ.selection.size[sex1] - 1
+                availables[[sex1]] <- availables[[sex1]][availables[[sex1]]!=number1]
+              }
+              if(selection.rate[[sex2]][number2] >= max.offspring[sex2]){
+                if(sex1!= sex2 || number1 != number2){
+                  activ.selection.size[sex2] <-  activ.selection.size[sex2] -1
+                }
+                availables[[sex2]] <- availables[[sex2]][availables[[sex2]]!=number2]
+              }
+            }
           }
+
+
         }
-      }
-
-      if(store.comp.times.generation){
-        tack <- as.numeric(Sys.time())
-        generation_stuff <- tack-tick + generation_stuff
-      }
-      if(store.effect.freq){
-        store.effect.freq <- FALSE
-        print("Effect-Freq not available in parallel computing")
-      }
-
-      if (requireNamespace("foreach", quietly = TRUE)) {
-      } else{
-        stop("Usage of foreach without being installed!")
-      }
-      index_loop <- NULL
-      if(length(new_animal)>0) index_loop <- 1:length(new_animal)
-      new.bv.list <- foreach::foreach(indexb=index_loop,
-                            .packages=c("MoBPS", "miraculix")) %dopar% {
-
-                            info.father <- info_father_list[indexb,]
-                            info.mother <- info_mother_list[indexb,]
-                            new.bv <- new.bv_approx <-  new.bve <- numeric(population$info$bv.nr)
-                            activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
-
-                            if(length(activ_bv)>0){
-                              temp_out <- calculate.bv(population, current.gen+1, sex_running, indexb + present_before, activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
-                              new.bv[activ_bv] <- temp_out[[1]]
-                              if(store.effect.freq){
-                                if(length(population$info$store.effect.freq) < (current.gen+1) || length(population$info$store.effect.freq[[current.gen+1]])==0){
-                                  population$info$store.effect.freq[[current.gen+1]] <- temp_out[[2]]
-                                } else{
-                                  population$info$store.effect.freq[[current.gen+1]] <- population$info$store.effect.freq[[current.gen+1]] + temp_out[[2]]
-                                }
-                              }
-                            }
-
-                            if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc]){
-                              means <- 0.5*(population$breeding[[info.father[1]]][[6+info.father[2]]][[population$info$bv.calc:population$info$bv.nr,info.father[3]]] + population$breeding[[info.mother[1]]][[6+info.mother[2]]][[population$info$bv.calc:population$info$bv.nr,info.mother[3]]])
-                              varp <- kinship.emp(list(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]]))
-                              varp <- (2 - (2* (varp[1,1]-0.5) + 2 * (varp[2,2]- 0.5)))/4
-
-                              if(FALSE){
-                                new.bv[population$info$bv.calc:population$info$bv.nr] <- stats::rnorm(1, mean=means, sd= sqrt(var*population$info$bv.random.variance[bven]))
-                              } else{
-                                if(population$info$bv.calc==1){
-                                  population$info$current.bv.random.variance <- varp * population$info$bv.random.variance
-                                  bv.var <- diag(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag(sqrt(population$info$current.bv.random.variance))
-                                  single.mean <- means
-                                } else{
-                                  population$info$current.bv.random.variance <- c(population$info$bv.random.variance[1:(population$info$bv.calc-1)],varp * population$info$bv.random.variance[population$info$bv.calc:population$info$bv.nr])
-                                  AA <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
-                                  BB <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
-                                  CC <- diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
-                                  if (requireNamespace("MASS", quietly = TRUE)) {
-                                    bv.var <- CC - t(BB) %*% MASS::ginv(AA) %*% BB
-                                    single.mean <- means + t(BB) %*% MASS::ginv(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
-                                  } else{
-                                    bv.var <- CC - t(BB) %*% solve(AA) %*% BB
-                                    single.mean <- means + t(BB) %*% solve(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
-                                  }
-                                }
-
-                                bv.var_chol <- t(chol(bv.var))
-                                population$info$bv.correlation_col <- bv.var_chol
-
-                                random_part <- bv.var_chol %*% stats::rnorm(population$info$bv.nr - population$info$bv.calc +1, 0,1 )
-                                means_part <- single.mean
-                                new.bv[population$info$bv.calc:population$info$bv.nr] <-random_part + means_part
-                              }
-
-                            }
-
-                            if(new.bv.child=="mean" || new.bv.child=="addobs"){
-                              activ_father <- population$breeding[[current.gen+1]][[sex_running]][[indexb + present_before]][[7]]
-                              activ_mother <- population$breeding[[current.gen+1]][[sex_running]][[indexb + present_before]][[8]]
-                              if(copy.individual){
-                                new.bv_approx <- population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]]
-                              } else{
-                                for(bven in 1:population$info$bv.nr){
-                                  new.bv_approx[bven] <- mean(c(population$breeding[[activ_father[1]]][[8+activ_father[2]]][bven,activ_father[3]],population$breeding[[activ_mother[1]]][[8+activ_mother[2]]][bven,activ_mother[3]]))
-                                }
-                              }
-
-                            }
-                            if(new.bv.child=="obs" || new.bv.child=="addobs"){
-                              if(sum(n.observation)>0){
-                                if(new.bv.child=="addobs"){
-                                  prior_obs <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]
-                                  total_obs <- prior_obs + n.observation
-                                  new.bv_approx <- (new.bv_approx - population$breeding[[info.father[1]]][[info.father[2]+6]][,info.father[3]]) *  prior_obs / total_obs
-                                } else{
-                                  total_obs <- n.observation
-                                }
-                                observation_reps <- sort(unique(c(0,n.observation)))
-                                for(observation_rep in 2:length(observation_reps)){
-                                  new.obs <- observation_reps[observation_rep] - observation_reps[observation_rep-1]
-                                  temp_random <- matrix(stats::rnorm(population$info$bv.nr*new.obs,0,1), ncol=new.obs)
-                                  active.traits <- (n.observation >=observation_reps[observation_rep])
-                                  active.traits <- active.traits*(1:length(active.traits))
-                                  for(bven in (1:population$info$bv.nr)[active.traits]){
-                                    new.bv_approx[bven] <-  new.bv_approx[bven] + new.obs/(total_obs[bven]) * rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven])
-                                  }
-
-                                }
-                                new.bv_approx <- new.bv + new.bv_approx
-                                new.bv_approx[n.observation==0] <- 0
-                              }
-
-                            }
-
-                            new.bve <- population$breeding[[info.father[1]]][[2+info.father[2]]][,info.father[3]]
-                            new.reli <- population$breeding[[info.father[1]]][[18+info.father[2]]][,info.father[3]]
-
-                            temp1 <- c(new.bv, new.bv_approx, new.bve, new.reli)
-                            temp1
-                            }
-
-
-      if(length(index_loop)>0){
-        new.bv.list <- matrix(unlist(new.bv.list), ncol=length(new_animal))
-        n_bv <- nrow(new.bv.list) / 4
-        population$breeding[[current.gen+1]][[sex_running+6]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv,,drop=FALSE]
-        population$breeding[[current.gen+1]][[sex_running+8]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+n_bv,,drop=FALSE]
-        if(copy.individual && copy.individual.keep.bve){
-          population$breeding[[current.gen+1]][[sex_running+2]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+2*n_bv,,drop=FALSE]
-          population$breeding[[current.gen+1]][[sex_running+18]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+3*n_bv,,drop=FALSE]
-        }
+        info_father_list[animal.nr,] <- info.father
+        info_mother_list[animal.nr,] <- info.mother
       }
 
       if(store.comp.times.generation){
         tock <- as.numeric(Sys.time())
-        bv_stuff <- tock - tack + bv_stuff
+        pre_stuff <- tock-tick
       }
-    }
 
-    if(backend=="doParallel"){
-      doParallel::stopImplicitCluster()
-    }
-
-    if(copy.individual){
-      activ_prior <- length(population$breeding[[current.gen+1]][[sex_running]]) - length(new_animal) +1
-      for(index in 1:nrow(info_father_list)){
-        info.father <- info_father_list[index,]
-        population$breeding[[current.gen+1]][[14+sex_running]][activ_prior] <- population$breeding[[info.father[1]]][[info.father[2]+14]][[info.father[3]]]
+      if(Sys.info()[['sysname']]=="Windows"){
+        doParallel::registerDoParallel(cores=ncore.generation)
+        if(length(randomSeed.generation)>0){
+          if (requireNamespace("doRNG", quietly = TRUE)) {
+            doRNG::registerDoRNG(seed=randomSeed.generation)
+          } else{
+            stop("Usage of doRNG without being installed!")
+          }
+        }
       }
-    }
 
+
+      for(sex_running in 1:2){
+
+        if(store.comp.times.generation){
+          tick <- as.numeric(Sys.time())
+        }
+
+        if(Sys.info()[['sysname']]=="Windows"){
+          new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
+                                         .packages="MoBPS") %dopar% {
+
+                                           child <- MoBPS::generation.individual(indexb,
+                                                                          population, info_father_list, info_mother_list,
+                                                                          copy.individual, mutation.rate, remutation.rate, recombination.rate,
+                                                                          recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                          duplication.recombination, delete.same.origin,
+                                                                          (gene.editing.offspring * gene.editing.offspring.sex[1]), nr.edits,
+                                                                          gen.architecture.m, gen.architecture.f, decodeOriginsU,
+                                                                          current.gen, save.recombination.history, new.bv.child,
+                                                                          dh.mating, share.genotyped, added.genotyped)
+                                           child
+
+          }
+        } else {
+          activ_stuff <- (1:breeding.size.total)[sex.animal==sex_running]
+          new_animal <- parallel::mclapply(activ_stuff, function(x) MoBPS::generation.individual(x,
+                                                                                population, info_father_list, info_mother_list,
+                                                                                copy.individual, mutation.rate, remutation.rate, recombination.rate,
+                                                                                recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                                duplication.recombination, delete.same.origin,
+                                                                                (gene.editing.offspring * gene.editing.offspring.sex[1]), nr.edits,
+                                                                                gen.architecture.m, gen.architecture.f, decodeOriginsU,
+                                                                                current.gen, save.recombination.history, new.bv.child,
+                                                                                dh.mating, share.genotyped, added.genotyped),
+                                 mc.cores=ncore.generation)
+        }
+
+
+        prev_ani <- length(population$breeding[[current.gen+1]][[sex_running]])
+        present_before <- population$info$size[current.gen+1,sex_running]
+        population$breeding[[current.gen+1]][[sex_running]] <-  c(population$breeding[[current.gen+1]][[sex_running]], new_animal)
+        population$info$size[current.gen+1,sex_running] <- length(population$breeding[[current.gen+1]][[sex_running]])
+
+        if(length(new_animal)>0){
+          for(index6 in 1:length(new_animal) + prev_ani){
+            if(copy.individual){
+              first_copy <- population$breeding[[current.gen+1]][[sex_running]][[index6]][[21]]
+              new_copy <- rbind(population$breeding[[first_copy[1,1]]][[first_copy[1,2]]][[first_copy[1,3]]][[21]],
+                                c(current.gen+1, sex_running, index6))
+              for(index7 in 1:nrow(new_copy)){
+                population$breeding[[new_copy[index7,1]]][[new_copy[index7,2]]][[new_copy[index7,3]]][[21]] <- new_copy
+              }
+
+            } else{
+              population$breeding[[current.gen+1]][[sex_running]][[index6]][[21]] <- cbind(current.gen+1, sex_running, index6)
+            }
+          }
+        }
+
+        if(store.comp.times.generation){
+          tack <- as.numeric(Sys.time())
+          generation_stuff <- tack-tick + generation_stuff
+        }
+        if(store.effect.freq){
+          store.effect.freq <- FALSE
+          cat("Effect-Freq not available in parallel computing.\n")
+        }
+
+        index_loop <- NULL
+        if(length(new_animal)>0) index_loop <- 1:length(new_animal)
+
+        if(Sys.info()[['sysname']]!="Windows"){
+          doParallel::registerDoParallel(cores=ncore.generation)
+        }
+
+        new.bv.list <- foreach::foreach(indexb=index_loop,
+                              .packages=c("MoBPS", "miraculix")) %dopar% {
+
+                              info.father <- info_father_list[indexb,]
+                              info.mother <- info_mother_list[indexb,]
+                              new.bv <- new.bv_approx <-  new.bve <- numeric(population$info$bv.nr)
+                              activ_bv <- population$info$bv.random.activ
+
+                              if(length(activ_bv)>0){
+                                temp_out <- calculate.bv(population, current.gen+1, sex_running, indexb + present_before, activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+                                new.bv[activ_bv] <- temp_out[[1]]
+                                if(store.effect.freq){
+                                  if(length(population$info$store.effect.freq) < (current.gen+1) || length(population$info$store.effect.freq[[current.gen+1]])==0){
+                                    population$info$store.effect.freq[[current.gen+1]] <- temp_out[[2]]
+                                  } else{
+                                    population$info$store.effect.freq[[current.gen+1]] <- population$info$store.effect.freq[[current.gen+1]] + temp_out[[2]]
+                                  }
+                                }
+                              }
+
+                              if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc]){
+                                means <- 0.5*(population$breeding[[info.father[1]]][[6+info.father[2]]][[population$info$bv.calc:population$info$bv.nr,info.father[3]]] + population$breeding[[info.mother[1]]][[6+info.mother[2]]][[population$info$bv.calc:population$info$bv.nr,info.mother[3]]])
+                                varp <- kinship.emp(list(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]]))
+                                varp <- (2 - (2* (varp[1,1]-0.5) + 2 * (varp[2,2]- 0.5)))/4
+
+                                if(FALSE){
+                                  new.bv[population$info$bv.calc:population$info$bv.nr] <- stats::rnorm(1, mean=means, sd= sqrt(var*population$info$bv.random.variance[bven]))
+                                } else{
+                                  if(population$info$bv.calc==1){
+                                    population$info$current.bv.random.variance <- varp * population$info$bv.random.variance
+                                    bv.var <- diag(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag(sqrt(population$info$current.bv.random.variance))
+                                    single.mean <- means
+                                  } else{
+                                    population$info$current.bv.random.variance <- c(population$info$bv.random.variance[1:(population$info$bv.calc-1)],varp * population$info$bv.random.variance[population$info$bv.calc:population$info$bv.nr])
+                                    AA <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
+                                    BB <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+                                    CC <- diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+                                    if (requireNamespace("MASS", quietly = TRUE)) {
+                                      bv.var <- CC - t(BB) %*% MASS::ginv(AA) %*% BB
+                                      single.mean <- means + t(BB) %*% MASS::ginv(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
+                                    } else{
+                                      bv.var <- CC - t(BB) %*% solve(AA) %*% BB
+                                      single.mean <- means + t(BB) %*% solve(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
+                                    }
+                                  }
+
+                                  bv.var_chol <- t(chol(bv.var))
+                                  population$info$bv.correlation_col <- bv.var_chol
+
+                                  random_part <- bv.var_chol %*% stats::rnorm(population$info$bv.nr - population$info$bv.calc +1, 0,1 )
+                                  means_part <- single.mean
+                                  new.bv[population$info$bv.calc:population$info$bv.nr] <-random_part + means_part
+                                }
+
+                              }
+
+                              if(new.bv.child=="mean" || new.bv.child=="addobs"){
+                                activ_father <- population$breeding[[current.gen+1]][[sex_running]][[indexb + present_before]][[7]]
+                                activ_mother <- population$breeding[[current.gen+1]][[sex_running]][[indexb + present_before]][[8]]
+                                if(copy.individual){
+                                  new.bv_approx <- population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]]
+                                } else{
+                                  for(bven in 1:population$info$bv.nr){
+                                    new.bv_approx[bven] <- mean(c(population$breeding[[activ_father[1]]][[8+activ_father[2]]][bven,activ_father[3]],population$breeding[[activ_mother[1]]][[8+activ_mother[2]]][bven,activ_mother[3]]))
+                                  }
+                                }
+
+                              }
+                              if(new.bv.child=="obs" || new.bv.child=="addobs"){
+                                if(sum(n.observation)>0){
+                                  if(new.bv.child=="addobs"){
+                                    prior_obs <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]
+                                    total_obs <- prior_obs + n.observation
+                                    new.bv_approx <- (new.bv_approx - population$breeding[[info.father[1]]][[info.father[2]+6]][,info.father[3]]) *  prior_obs / total_obs
+                                  } else{
+                                    total_obs <- n.observation
+                                  }
+                                  observation_reps <- sort(unique(c(0,n.observation)))
+                                  for(observation_rep in 2:length(observation_reps)){
+                                    new.obs <- observation_reps[observation_rep] - observation_reps[observation_rep-1]
+                                    temp_random <- matrix(stats::rnorm(population$info$bv.nr*new.obs,0,1), ncol=new.obs)
+                                    active.traits <- (n.observation >=observation_reps[observation_rep])
+                                    active.traits <- active.traits*(1:length(active.traits))
+                                    for(bven in (1:population$info$bv.nr)[active.traits]){
+                                      new.bv_approx[bven] <-  new.bv_approx[bven] + new.obs/(total_obs[bven]) * rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven])
+                                    }
+
+                                  }
+                                  new.bv_approx <- new.bv + new.bv_approx
+                                  new.bv_approx[n.observation==0] <- 0
+                                }
+
+                              }
+
+                              new.bve <- population$breeding[[info.father[1]]][[2+info.father[2]]][,info.father[3]]
+                              new.reli <- population$breeding[[info.father[1]]][[18+info.father[2]]][,info.father[3]]
+
+                              temp1 <- c(new.bv, new.bv_approx, new.bve, new.reli)
+                              temp1
+                              }
+
+
+        if(length(index_loop)>0){
+          new.bv.list <- matrix(unlist(new.bv.list), ncol=length(new_animal))
+          n_bv <- nrow(new.bv.list) / 4
+          population$breeding[[current.gen+1]][[sex_running+6]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv,,drop=FALSE]
+          population$breeding[[current.gen+1]][[sex_running+8]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+n_bv,,drop=FALSE]
+          if(copy.individual && copy.individual.keep.bve){
+            population$breeding[[current.gen+1]][[sex_running+2]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+2*n_bv,,drop=FALSE]
+            population$breeding[[current.gen+1]][[sex_running+18]][,(present_before+1):(present_before+length(new_animal))] <- new.bv.list[1:n_bv+3*n_bv,,drop=FALSE]
+          }
+        }
+
+        if(store.comp.times.generation){
+          tock <- as.numeric(Sys.time())
+          bv_stuff <- tock - tack + bv_stuff
+        }
+      }
+
+      if(Sys.info()[['sysname']]=="Windows" || TRUE){
+        doParallel::stopImplicitCluster()
+      }
+
+      if(copy.individual){
+        activ_prior <- length(population$breeding[[current.gen+1]][[sex_running]]) - length(new_animal) +1
+        for(index in 1:nrow(info_father_list)){
+          info.father <- info_father_list[index,]
+          population$breeding[[current.gen+1]][[14+sex_running]][activ_prior] <- population$breeding[[info.father[1]]][[info.father[2]+14]][[info.father[3]]]
+        }
+      }
+    } else{
+      stop("Usage of doParallel without being installed!")
+    }
 
   } else if(breeding.size.total>0){
     if(length(name.cohort)>0){
@@ -4597,7 +4451,7 @@ breeding.diploid <- function(population,
         generation_stuff <- generation_stuff + tock -tack
       }
       if(population$info$bve){
-        activ_bv <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
+        activ_bv <- population$info$bv.random.activ
         if(length(activ_bv)>0){
           temp_out <- calculate.bv(population, current.gen+1, sex, current.size[sex], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
           new.bv[activ_bv] <- temp_out[[1]]
@@ -4670,9 +4524,7 @@ breeding.diploid <- function(population,
           if(copy.individual){
             new.bv_approx <- population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]]
           } else{
-            for(bven in 1:population$info$bv.nr){
-              new.bv_approx[bven] <- mean(c(population$breeding[[info.father[1]]][[8+info.father[2]]][bven,info.father[3]],population$breeding[[info.mother[1]]][[8+info.mother[2]]][bven,info.mother[3]]))
-            }
+            new.bv_approx <- 0.5 * (population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]] + population$breeding[[info.mother[1]]][[8+info.mother[2]]][,info.mother[3]])
           }
 
         }

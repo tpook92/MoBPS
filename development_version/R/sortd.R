@@ -19,14 +19,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Add something to the diagonal
+#' Apply sort and unique
 #'
-#' Function to add numeric to the diagonal of a matrix
-#' @param M Matrix Population list
-#' @param d Vector to add to the diagonal of the matrix
+#' Efficient function to perform sort(unique(v))
+#' @param v Vector
 #' @export
 
-add.diag <- function(M, d){
-  diag(M) <- diag(M) + d
-  return(M)
+sortd <- function(v){
+  v <- sort(v)
+  v <- v[!duplicated(v)]
+  return(v)
 }
+
