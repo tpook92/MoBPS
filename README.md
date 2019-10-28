@@ -19,7 +19,19 @@ If interested in testing the web-based application just contact me (torsten.pook
 
 Updates since release:
 
-### Version 1.4.10 (22.10.19) // only development version
+### Version 1.4.15 (28.10.19)
+
+Solve issues with running MoBPS without miraculix
+
+Added BayesA,B,C, BL, BRR to BGLR options for BVE
+
+New function: get.genotyped() to export which individuals are genotyped
+
+Renamed ogc_cAc to ogc.cAc for general uniformity
+
+Updated documentation (especially for web-based application)
+
+### Version 1.4.10 (22.10.19)
 
 Mostly improvments to reduce memory requirement
 
