@@ -27,13 +27,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
   same.sex.selfing = TRUE, selfing.mating = FALSE, selfing.sex = 0.5,
   praeimplantation = NULL, heritability = NULL,
   use.last.sigma.e = FALSE, save.recombination.history = FALSE,
-  martini.selection = FALSE, BGLR.bve = FALSE, BGLR.burnin = 500,
-  BGLR.iteration = 5000, copy.individual = FALSE, dh.mating = FALSE,
-  dh.sex = 0.5, n.observation = 1, bve.0isNA = TRUE,
-  phenotype.bv = FALSE, standardize.bv = FALSE,
-  standardize.bv.level = 100, standardize.bv.gen = 1,
-  delete.same.origin = FALSE, remove.effect.position = FALSE,
-  estimate.u = FALSE, BGLR.print = FALSE,
+  martini.selection = FALSE, BGLR.bve = FALSE, BGLR.model = "RKHS",
+  BGLR.burnin = 500, BGLR.iteration = 5000, BGLR.print = FALSE,
+  copy.individual = FALSE, dh.mating = FALSE, dh.sex = 0.5,
+  n.observation = 1, bve.0isNA = TRUE, phenotype.bv = FALSE,
+  standardize.bv = FALSE, standardize.bv.level = 100,
+  standardize.bv.gen = 1, delete.same.origin = FALSE,
+  remove.effect.position = FALSE, estimate.u = FALSE,
   new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
   estimate.add.gen.var = FALSE, estimate.pheno.var = FALSE,
   best1.from.group = NULL, best2.from.group = NULL,
@@ -44,7 +44,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   SNP.density = 10, use.effect.markers = FALSE,
   use.effect.combination = FALSE, import.position.calculation = NULL,
   special.comb.add = FALSE, BGLR.save = "RKHS",
-  BGLR.save.random = FALSE, ogc = FALSE, ogc_cAc = NA,
+  BGLR.save.random = FALSE, ogc = FALSE, ogc.cAc = NA,
   emmreml.bve = FALSE, rrblup.bve = FALSE, sommer.bve = FALSE,
   sommer.multi.bve = FALSE, breedR.bve = FALSE, breedR.groups = NULL,
   nr.edits = 0, gene.editing.offspring = FALSE,
@@ -56,9 +56,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   gen.architecture.f = NULL, add.architecture = NULL, ncore = 1,
   ncore.generation = 1, Z.integer = FALSE, store.effect.freq = FALSE,
   backend = "doParallel", randomSeed = NULL,
-  randomSeed.generation = NULL, Rprof = FALSE, miraculix = TRUE,
-  miraculix.mult = NULL, fast.compiler = 0, miraculix.cores = 1,
-  miraculix.chol = FALSE, best.selection.ratio.m = 1,
+  randomSeed.generation = NULL, Rprof = FALSE, miraculix = NULL,
+  miraculix.cores = 1, miraculix.mult = NULL, miraculix.chol = FALSE,
+  fast.compiler = 0, best.selection.ratio.m = 1,
   best.selection.ratio.f = NULL, best.selection.criteria.m = "bv",
   best.selection.criteria.f = NULL,
   best.selection.manual.ratio.m = NULL,
@@ -210,9 +210,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{BGLR.bve}{If TRUE use BGLR to perform breeding value estimation}
 
+\item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
+
 \item{BGLR.burnin}{Number of burn-in steps in BGLR (default: 1000)}
 
 \item{BGLR.iteration}{Number of iterations in BGLR (default: 5000)}
+
+\item{BGLR.print}{If TRUE set verbose to TRUE in BGLR}
 
 \item{copy.individual}{If TRUE copy the selected father for a mating}
 
@@ -237,8 +241,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
 
 \item{estimate.u}{If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)}
-
-\item{BGLR.print}{If TRUE set verbose to TRUE in BGLR}
 
 \item{new.phenotype.correlation}{Correlation of the simulated enviromental variance}
 
@@ -286,7 +288,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{ogc}{If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)}
 
-\item{ogc_cAc}{Increase of average relationship in ogc. Default: minimize inbreeding rate.}
+\item{ogc.cAc}{Increase of average relationship in ogc. Default: minimize inbreeding rate.}
 
 \item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
 
@@ -350,13 +352,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{miraculix}{If TRUE use miraculix to perform computations (ideally already generate population in creating.diploid with this; default: automatic detection from population list)}
 
-\item{miraculix.mult}{If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage}
-
-\item{fast.compiler}{Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)}
-
 \item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
 
+\item{miraculix.mult}{If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage}
+
 \item{miraculix.chol}{If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)}
+
+\item{fast.compiler}{Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)}
 
 \item{best.selection.ratio.m}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
 
@@ -506,11 +508,17 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{multiple.bve.weights.f}{Weighting between traits when using "add" (default: same as multiple.bve.weights.m)}
 
-\item{multiple.bve.scale.m}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+\item{multiple.bve.scale.m}{Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
 
-\item{multiple.bve.scale.f}{Set to "pheno_sd" you when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+\item{multiple.bve.scale.f}{Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{bve.parent.mean}{Set to TRUE to use the average parental performance as the breeding value estimate}
+
+\item{bve.grandparent.mean}{Set to TRUE to use the average grandparental performance as the breeding value estimate}
+
+\item{bve.mean.between}{Select if you want to use the "bve", "bv", "pheno" or "bvepheno" to form the mean (default: "bvepheno" - if available bve, else pheno)}
 
 \item{bve.direct.est}{If TRUE predict BVEs in direct estimation according to vanRaden 2008 method 2 (default: TRUE)}
 }

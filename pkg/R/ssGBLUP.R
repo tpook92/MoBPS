@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 ssGBLUP <- function(A11, A12, A22, G){
-  A21 <- t(A12)
+
 
 #  A <- cbind(rbind(A11,A21), rbind(A12,A22))
 #  I <- diag(nrow(A22))
@@ -39,9 +39,17 @@ ssGBLUP <- function(A11, A12, A22, G){
 #  H <- A + Front %*% (G - A22) %*% Back # EXTREMELY INEFFICIENT + you should avoid MASS::ginv()
 
   # Legarra 2014 Single Step, A general Approach For Genomic Selection
+  # A21 <- t(A12)
+  # H11 <- A11 - A12 %*% A22inv %*% A21 + A12 %*% A22inv %*% G %*% A22inv %*% A21
+  # H12 <- A12 %*% A22inv %*% G
+  # H22 <- G
+  # H1 <- rbind(cbind(H11,H12), cbind(t(H12), H22))
+
   A22inv <- solve(A22)
-  H11 <- A11 - A12 %*% A22inv %*% A21 + A12 %*% A22inv %*% G %*% A22inv %*% A21
-  H12 <- A12 %*% A22inv %*% G
+  A21 <- t(A12)
+  A12A22inv <- A12 %*% A22inv
+  H12 <- A12A22inv %*% G
+  H11 <- A11 -  A12A22inv %*% A21 + H12 %*% t(A12A22inv)
   H22 <- G
 
   H <- rbind(cbind(H11,H12), cbind(t(H12), H22))

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571846070808.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "DA0B7977",
+    "lastKnownWriteTime" : 1571846874,
+    "last_content_update" : 1571846874053,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/calculate.bv.R",
+    "project_path" : "R/calculate.bv.R",
+    "properties" : {
+        "cursorPosition" : "96,56",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 37,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

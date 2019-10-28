@@ -1,0 +1,31 @@
+test <- 0
+
+for(index in 1:100){
+  child1 <- breeding.intern2(info.father, father, population,
+                            mutation.rate, remutation.rate, recombination.rate,
+                            recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                            duplication.recombination, delete.same.origin=delete.same.origin,
+                            gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
+                            gen.architecture=gen.architecture.m,
+                            decodeOriginsU=decodeOriginsU)
+  test <- test + sum(child1[[2]]==qtl_posi)
+}
+
+set.seed(3)
+child1 <- breeding.intern(info.father, father, population,
+                           mutation.rate, remutation.rate, recombination.rate,
+                           recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                           duplication.recombination, delete.same.origin=delete.same.origin,
+                           gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
+                           gen.architecture=gen.architecture.m,
+                           decodeOriginsU=decodeOriginsU)
+sum(child1[[2]]==qtl_posi)
+set.seed(3)
+child2 <- breeding.intern2(info.father, father, population,
+                           mutation.rate, remutation.rate, recombination.rate,
+                           recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                           duplication.recombination, delete.same.origin=delete.same.origin,
+                           gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
+                           gen.architecture=gen.architecture.m,
+                           decodeOriginsU=decodeOriginsU)
+sum(child2[[2]]==qtl_posi)

@@ -62,5 +62,23 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
   keep <- database[,3]<=database[,4]
   database <- database[keep,,drop=FALSE]
 
+  if(length(database)>0 && nrow(database)>1){
+    order <- sort(database[,1]*1e10 + database[,2]*1e5 + database[,3], index.return=TRUE)$ix
+    database <- database[order,,drop=FALSE]
+    for(index in 2:nrow(database)){
+      checks <- (which(database[1:(index-1),1]==database[index,1] & database[1:(index-1),2] == database[index,2]))
+      for(index2 in checks){
+        if(database[index,3] < (database[index2,4]+1)){
+          database[index2,4] <- max(database[index2,4], database[index,4])
+          database[index,] <- 0
+        }
+
+      }
+    }
+    database <- database[database[,1]!=0,,drop=FALSE]
+  }
+
+  database <- unique(database)
+
   return(database)
 }

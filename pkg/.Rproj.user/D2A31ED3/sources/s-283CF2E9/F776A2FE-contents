@@ -1,0 +1,82 @@
+args <- commandArgs(TRUE)
+run <- as.numeric(args[1])
+nRep1 <- as.numeric(args[2])
+nRep2 <- as.numeric(args[3])
+
+source('ML_REML.r')
+library(BGLR)
+data(wheat)
+X=wheat.X
+n=nrow(X)
+p=ncol(X)
+
+## Monte Carlo Study IID features ##############################################
+prop=seq(0.1,1,by=.1)
+
+R2a=list() # Original inputs
+R2b=list() # Monte Carlo
+R2c=list() # Eigen
+
+for(i in 1:length(prop)){
+  q=round(prop[i]*ncol(wheat.X))
+
+  R2a[[i]]=matrix(nrow=q,ncol=nRep1)
+  R2b[[i]]=matrix(nrow=nRep2,ncol=nRep1)
+  R2c[[i]]=rep(NA,nRep1)
+
+
+  for(j in 1:nRep1){
+    W=matrix(nrow=n,ncol=p,data=rnorm(n*p))
+    cols=sample(1:p,size=q)
+    W[,cols]=wheat.X[,cols]
+    W=scale(W)
+    X=scale(wheat.X[,cols])
+    Gx=tcrossprod(scale(X,center=T,scale=F));Gx=Gx/mean(diag(Gx))
+    Gw=tcrossprod(scale(W,center=T,scale=F));Gw=Gw/mean(diag(Gw))
+
+    EVDw=eigen(Gw)
+    EVDx=eigen(Gx)
+
+    # original inputs
+    for(k in 1:ncol(X)){
+      y=W[,k]
+      R2a[[i]][k,j]=fitREML(y=y,EVD=EVDx,nSuccess=1,nFailure=1)[3]
+    }
+
+    # Monte Carlo Method
+    for(k in 1:nRep2){
+      a=rnorm(ncol(W))
+      y=W%*%a
+      R2b[[i]][k,j]=fitREML(y=y,EVD=EVDx,nSuccess=1,nFailure=1)[3]
+    }
+
+    # Eigenvectors
+    nV=length(EVDw$values)
+    tmp=rep(NA,nV)
+    for(k in 1:nV){
+      y=EVDw$vectors[,k]
+      tmp[k]=fitREML(y=y,EVD=EVDx,nSuccess=1,nFailure=1)[3]
+    }
+    R2c[[i]][j]=sum(tmp*EVDw$values)/sum(EVDw$values)
+    print(c(i,j))
+  }
+}
+
+R2a=matrix(nrow=nRep1,data=unlist(lapply(X=R2a,FUN=colMeans)))
+R2b=matrix(nrow=nRep1,data=unlist(lapply(X=R2b,FUN=colMeans)))
+R2c=matrix(nrow=nRep1,data=unlist(R2c))
+
+OUT <- OUT.SD <- matrix(ncol=3,nrow=length(prop))
+rownames(OUT)=prop
+colnames(OUT)=c('REML-Inputs','MC-method','Eigen')
+OUT[,1]=colMeans(R2a)
+OUT[,2]=colMeans(R2b)
+OUT[,3]=colMeans(R2c)
+
+
+OUT.SD[,1]=apply(FUN=sd,X=R2a,MARGIN=2)
+OUT.SD[,2]=apply(FUN=sd,X=R2b,MARGIN=2)
+OUT.SD[,3]=apply(FUN=sd,X=R2c,MARGIN=2)
+
+name1 <- paste0("WonX_",run,".RData")
+save(file=name1, list=c("OUT", "OUT.SD", "R2a", "R2b", "R2c"))

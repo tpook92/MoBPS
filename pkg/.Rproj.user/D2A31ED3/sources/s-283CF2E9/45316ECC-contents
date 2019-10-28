@@ -1,0 +1,4 @@
+pop <- creating.diploid(nsnp=10000,nindi=1000, n.additive = 1000)
+pop <- breeding.diploid(pop, heritability =0.2, new.bv.observation = "all")
+
+cor(get.bv(pop,gen=1)[1,], get.pheno(pop, gen=1)[1,])

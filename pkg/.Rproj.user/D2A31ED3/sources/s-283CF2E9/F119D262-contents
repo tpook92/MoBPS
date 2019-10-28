@@ -1,0 +1,11 @@
+ gen <- current.gen+1;
+ sex;
+ nr <- current.size[sex]
+ activ_bv
+ import.position.calculation=import.position.calculation;
+ decodeOriginsU=decodeOriginsU; 
+ store.effect.freq=store.effect.freq; 
+ bit.storing=bit.storing;
+ nbits=nbits;
+ output_compressed=FALSE;
+

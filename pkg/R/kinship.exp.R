@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param start.kinship Relationship matrix of the individuals in the first considered generation
 #' @export
 
-kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=Inf,
+kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                         start.kinship=NULL){
 
 #                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
@@ -73,8 +73,8 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
       remaining.depth <- remaining.depth - 1
       pedigree.database <- rbind(new.pedigree.database, pedigree.database)
     }
-    pedigree.database <- unique(pedigree.database)
-    pedigree.database <- pedigree.database[sort(pedigree.database[,1], index.return=TRUE)$ix,]
+
+    pedigree.database <- get.database(population, database = pedigree.database)
   }
   n.animals <- sum(diff(t(database[,3:4, drop=FALSE]))+1)
   n.total <- sum(diff(t(pedigree.database[,3:4, drop=FALSE]))+1)
@@ -108,15 +108,29 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   total <- sum(group.size)
   total.nr <- c(0,cumsum(group.size))+1
 
+  ## Potential export individual id in the pedigree - more efficient for high number of copies!
   animal.nr <- get.id(population, database=pedigree.database)
   info.indi <- get.pedigree(population, database=pedigree.database)
   info.indi[info.indi=="0"] <- "M1_1" # Placeholder
   # necessary when using copy.individuals
   replaces <- which(duplicated(animal.nr))
-  for(replace in replaces){
-    new <- which(animal.nr==animal.nr[replace])[1]
-    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
+#  for(replace in replaces){
+#    new <- which(animal.nr==animal.nr[replace])[1]
+#    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
+#  }
+
+  if(length(replaces)>0){
+    animal.nr.temp <- animal.nr[1:min(replaces)]
+    for(replace in replaces){
+      new <- which(animal.nr.temp==animal.nr[replace])[1]
+      if(length(new)==0){
+        animal.nr.temp <- animal.nr[1:replace]
+        new <- which(animal.nr.temp==animal.nr[replace])[1]
+      }
+      info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
+    }
   }
+
   sex.indi <- as.numeric(substr(info.indi[,1], start=1, stop=1)=="F") +1
   temp1 <- as.numeric(unlist(strsplit(substr(info.indi[,1], start=2, stop=nchar(info.indi[,1])), "\\_")))
   gen.indi <- temp1[1:(length(temp1)/2) *2]

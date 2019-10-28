@@ -1,0 +1,177 @@
+args <- commandArgs(TRUE)
+
+# 4 - generation
+# 19 - miraculix cores (10)
+# 21 - miraculix col (1)
+# 22 - generation cores (1)
+# args <- c(25,100,2500,5,0.3,0,1001,0,50000,1000,0,0,50000,1,"doParallel",0,1,0,10,1,1,5)
+# args <- c(25,100,500,5,0.3,1,2,0,25000,1000,0,0,50000,1,"doParallel",0,0,0,10,0)
+# args <- c(25,100,500,5,0.3,1,3,0,25000,1000,0,0,50000,1,"doParallel",0,1,0,10,1)
+# args <- c(25,100,500,5,0.3,1,4,0,25000,1000,0,0,50000,1,"doParallel",0,0,0,10,0)
+# args <- c(25,500,500,5,0.3,1,1,0,25000,40,400,4000,50000,1,"doParallel",0,0,0,10,0)
+
+#install.packages("miraculix_0.9.6.tar.gz")
+#install.packages("RandomFieldsUtils_0.5.9.tar.gz")
+
+set.seed(1)
+print(args)
+selection_male <- as.numeric(args[1])
+better_male <- better_female <- as.numeric(args[2])
+female <- as.numeric(args[3])
+generationen <- as.numeric(args[4])
+heri <- as.numeric(args[5])
+gen_editing <- as.numeric(args[6])
+sim <- as.numeric(args[7])
+gwas_u <- as.numeric(args[8])
+maxz <- as.numeric(args[9])
+effects <- as.numeric(args[10:12])
+snps <- nrsnp <- as.numeric(args[13])
+ncore <- as.numeric(args[14])
+backend <- args[15]
+bit.storing <- as.logical(as.numeric(args[16]))
+miraculix_mult <- as.logical(as.numeric(args[17]))
+fast_compiler <- as.numeric(args[18])
+miraculix_cores <- as.numeric(args[19])
+miraculix <- as.numeric(args[20])
+chol_miraculix <- as.numeric(args[21])
+ncore_gen <- as.numeric(args[22])
+use_matrix <- as.numeric(args[23])==1
+parallel_gen <- ncore_gen>1
+
+
+if(nrsnp==50000){
+  snps <- c(39079, 10921)
+  chromo_l <- c(3,1)
+}
+if(nrsnp==100000){
+  snps <- c(39079, 33744, 27177 )
+  chromo_l <- c(3,3,2)
+}
+if(nrsnp==200000){
+  snps <- c(39079, 33744, 30432, 29640, 29074, 29680, 8351)
+  chromo_l <- c(3,3,2,2,2,2,1)
+  nrsnp <- sum(snps)
+}
+if(nrsnp>=270000){
+  snps <- c(39079, 33744, 30432, 29640, 29074, 29680, 27565, 24140, 26217)
+  chromo_l <- c(3,3,2,2,2,2,2,2,2)
+  nrsnp <- sum(snps)
+}
+csnps <- cumsum(c(0,snps))
+
+
+
+add_eff <- sample(1:sum(snps), sum(effects))
+chromo <- numeric(sum(effects))
+for(index in 1:sum(effects)){
+  chromo[index] <- sum(add_eff[index]>csnps)
+}
+snp <- add_eff - csnps[chromo]
+effect_size <- c(rnorm(effects[1], 0, 1), rnorm(effects[2], 0, 0.1), rnorm(effects[3], 0,0.01))
+real_add <- cbind(snp, chromo, effect_size,0,-effect_size, deparse.level = 0)
+
+
+library(MoBPS)
+
+load("Datensatz_Rind/RindChromoPhased1.RData")
+population <- creating.diploid(dataset=a, real.bv.add = list(real_add), chromosome.length = chromo_l[1], bit.storing = bit.storing,
+                               miraculix=miraculix)
+
+if(length(snps)>1){
+  for(index in 2:length(snps)){
+    name12 <- paste0("Datensatz_Rind/RindChromoPhased",index,".RData")
+    load(name12)
+    population <- creating.diploid(a[1:(csnps[index+1]-csnps[index]),], chromosome.length=chromo_l[index], population=population, add.chromosome = TRUE)
+  }
+}
+
+rm(a)
+# Zuchtprozess
+
+# Zuchtgeneration
+adding <- FALSE
+adding2 <- FALSE
+y_gwas_hat <- "pheno"
+gwas_group_standard <- FALSE
+if(gwas_u==1){
+  gwas_u <- TRUE
+  estimate_u <- FALSE
+  test <- "U_GWAS"
+} else if(gwas_u==2){
+  adding <- TRUE
+  gwas_u <- TRUE
+  estimate_u <- FALSE
+  test <- "U_GWAS2"
+} else if(gwas_u==3){
+  gwas_u <- FALSE
+  estimate_u <- TRUE
+  test <- "U_GBLUP2"
+  adding2 <- TRUE
+}else if(gwas_u==4){
+  gwas_u <- TRUE
+  estimate_u <- FALSE
+  test <- "U_GWAS_hat"
+  y_gwas_hat <- "hat"
+} else if(gwas_u==5){
+  gwas_u <- TRUE
+  estimate_u <- FALSE
+  test <- "U_GWAS_real"
+  y_gwas_hat <- "real"
+} else if(gwas_u==6){
+  adding <- TRUE
+  gwas_u <- TRUE
+  estimate_u <- FALSE
+  test <- "U_GWAS2_Stand"
+  gwas_group_standard <- TRUE
+} else{
+  gwas_u <- FALSE
+  estimate_u <- TRUE
+  test <- "U_GBLUP"
+}
+
+
+population <- breeding.diploid(population, breeding.size=c(better_male, female), selection.size = population$info$size[1,])
+
+for(index in 1:generationen){
+  print(index)
+  zws_database <- sigma_e_database <- cbind(length(population$breeding), c(1,2))
+  if(index==1){
+    population <- breeding.diploid(population, breeding.size=c(better_male, better_female), selection.size=c(selection_male, better_female),
+                                   bve=TRUE, bve.database = zws_database, sigma.e.database =  sigma_e_database,
+                                   heritability = heri,
+                                   new.bv.observation.database = cbind(nrow(population$info$size), 2),
+                                   selection.m ="function", store.breeding.totals = TRUE,
+                                   new.bv.child = "zero",
+                                   bve.0isNA = TRUE, ncore=ncore,
+                                   store.effect.freq = TRUE, backend=backend,
+                                   miraculix.mult = miraculix_mult,
+                                   miraculix.cores=miraculix_cores,
+                                   miraculix.chol = chol_miraculix)
+  } else{
+    population <- breeding.diploid(population, breeding.size=c(better_male, better_female), selection.size=c(selection_male, better_female),
+                                   bve=TRUE, bve.database =  zws_database,
+                                   new.bv.observation.database = cbind(nrow(population$info$size), 2),
+                                   selection.m ="function", store.breeding.totals = TRUE,
+                                   new.bv.child="zero",
+                                   bve.0isNA=TRUE, use.last.sigma.e=TRUE, ncore=ncore,
+                                   store.effect.freq = TRUE, backend=backend,
+                                   miraculix.mult = miraculix_mult,
+                                   miraculix.cores=miraculix_cores,
+                                   miraculix.chol = chol_miraculix)
+  }
+  population <- breeding.diploid(population, breeding.size=c(0, female - better_female), selection.size=c(selection_male, female-better_female),
+                                 selection.m.database = cbind(nrow(population$info$size)-1,1),
+                                 selection.f.database = cbind(nrow(population$info$size)-1,2),
+                                 bve=FALSE, selection.m="function", store.breeding.totals = TRUE, selection.critera=c(TRUE,FALSE),
+                                 add.gen=(length(population$breeding)), max.offspring = c(Inf,1), new.bv.child="zero",
+                                 use.last.sigma.e=TRUE, ncore=ncore,
+                                 store.effect.freq = TRUE, backend=backend,
+                                 miraculix.mult = miraculix_mult,
+                                 miraculix.cores=miraculix_cores,
+                                 miraculix.chol = chol_miraculix,
+                                 ncore.generation = ncore_gen,
+                                 parallel.generation = parallel_gen)
+  name1 <- paste("Gen_editing_22_10_19/PopBetter",better_male, "Total", female, "Heri", heri, "Sim", sim, test,"QTL", sum(effects), "SNP", nrsnp ,"_Start.RData", sep="")
+  save(file=name1, list=c("population"))
+}
+
