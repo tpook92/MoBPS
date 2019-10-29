@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1572253415309.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8BD15C1F",
+    "lastKnownWriteTime" : 1572253712,
+    "last_content_update" : 1572253712421,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/get.genotyped.R",
+    "project_path" : "R/get.genotyped.R",
+    "properties" : {
+        "cursorPosition" : "49,11",
+        "scrollLine" : "0",
+        "tempName" : "Untitled120"
+    },
+    "relative_order" : 53,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

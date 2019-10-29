@@ -1,0 +1,11 @@
+doParallel::registerDoParallel(cores=ncore.generation)
+
+system.time({
+new.bv.list <- foreach::foreach(indexb=1:1000,
+                                .packages=c("MoBPS", "miraculix")) %dopar% {
+population$info$current.bv.random.variance <- 5
+out <- population$info$current.bv.random.variance + 1
+out
+                                }
+})
+doParallel::stopImplicitCluster()

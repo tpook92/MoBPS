@@ -1,0 +1,133 @@
+gain1f <- NULL
+hetero1f <- NULL
+hetero2f <- NULL
+acc1f <- NULL
+acc2f <- NULL
+acc3f <- NULL
+table1f <- NULL
+table2f <- NULL
+
+for(index in 1:50){
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/base_results",index,".RData"))
+  gain1f <- cbind(gain1f, gain1)
+  hetero1f <- cbind(hetero1f, hetero1)
+  hetero2f <- cbind(hetero2f, hetero2)
+  acc1f <- cbind(acc1f, acc1)
+  acc2f <- cbind(acc2f, acc2)
+  acc3f <- cbind(acc3f, acc3)
+  table1f <- cbind(table1f, c(table1, rep(0,10-length(table1))))
+  table2f <- cbind(table2f, c(table2, rep(0,10-length(table2))))
+
+}
+
+rowMeans(gain1f)
+rowMeans(hetero1f)
+rowMeans(hetero2f)
+rowMeans(acc1f)
+rowMeans(acc2f)
+rowMeans(acc3f)
+mean(colSums(table1f>0))
+table(colSums(table1f>0))
+mean((colSums(table2f>0)))
+table(colSums(table2f>0))
+
+
+gain1f_2 <- NULL
+hetero1f_2 <- NULL
+hetero2f_2 <- NULL
+acc1f_2 <- NULL
+acc2f_2 <- NULL
+acc3f_2 <- NULL
+table1f_2 <- NULL
+table2f_2 <- NULL
+
+for(index in 1:50){
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/max7_results",index,".RData"))
+  gain1f_2 <- cbind(gain1f_2, gain1)
+  hetero1f_2 <- cbind(hetero1f_2, hetero1)
+  hetero2f_2 <- cbind(hetero2f_2, hetero2)
+  acc1f_2 <- cbind(acc1f_2, acc1)
+  acc2f_2 <- cbind(acc2f_2, acc2)
+  acc3f_2 <- cbind(acc3f_2, acc3)
+  table1f_2 <- cbind(table1f_2, c(table1, rep(0,10-length(table1))))
+  table2f_2 <- cbind(table2f_2, c(table2, rep(0,10-length(table2))))
+
+}
+
+rowMeans(gain1f_2)
+rowMeans(hetero1f_2)
+rowMeans(hetero2f_2)
+rowMeans(acc1f_2)
+rowMeans(acc2f_2)
+rowMeans(acc3f_2)
+mean(colSums(table1f_2>0))
+table(colSums(table1f_2>0))
+mean((colSums(table2f_2>0)))
+table(colSums(table2f_2>0))
+
+gain1f_3 <- NULL
+hetero1f_3 <- NULL
+hetero2f_3 <- NULL
+acc1f_3 <- NULL
+acc2f_3 <- NULL
+acc3f_3 <- NULL
+table1f_3 <- NULL
+table2f_3 <- NULL
+
+for(index in 1:50){
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/ogc27_results",index,".RData"))
+  gain1f_3 <- cbind(gain1f_3, gain1)
+  hetero1f_3 <- cbind(hetero1f_3, hetero1)
+  hetero2f_3 <- cbind(hetero2f_3, hetero2)
+  acc1f_3 <- cbind(acc1f_3, acc1)
+  acc2f_3 <- cbind(acc2f_3, acc2)
+  acc3f_3 <- cbind(acc3f_3, acc3)
+  table1f_3 <- cbind(table1f_3, c(table1, rep(0,10-length(table1))))
+  table2f_3 <- cbind(table2f_3, c(table2, rep(0,10-length(table2))))
+
+}
+
+rowMeans(gain1f_3)
+rowMeans(hetero1f_3)
+rowMeans(hetero2f_3)
+rowMeans(acc1f_3)
+rowMeans(acc2f_3)
+rowMeans(acc3f_3)
+mean(colSums(table1f_3>0))
+table(colSums(table1f_3>0))
+mean((colSums(table2f_3>0)))
+table(colSums(table2f_3>0))
+
+
+rowMeans(gain1f)
+rowMeans(hetero1f)
+rowMeans(hetero2f)
+rowMeans(acc1f)
+rowMeans(acc2f)
+rowMeans(acc3f)
+mean(colSums(table1f>0))
+table(colSums(table1f>0))
+mean((colSums(table2f>0)))
+table(colSums(table2f>0))
+
+
+test1 <- NULL
+test2 <- NULL
+test3 <- NULL
+for(index in 1:50){
+  print(index)
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/base_sim",index,".RData"))
+  test1 <- rbind(test1, kinship.emp.fast(population=population, gen=5, ibd.obs = 250))
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/max7_sim",index,".RData"))
+  test2 <- rbind(test2, kinship.emp.fast(population=population, gen=5, ibd.obs = 250))
+  load(paste0("C:/Users/pook/Desktop/MazeCycle/ogc27_sim",index,".RData"))
+  test3 <- rbind(test3, kinship.emp.fast(population=population, gen=6, ibd.obs = 250))
+}
+
+colMeans(test1)
+colMeans(test2)
+colMeans(test3)
+
+rowMeans(gain1f)
+rowMeans(gain1f_2)
+rowMeans(gain1f_3)

@@ -1,0 +1,36 @@
+library(MoBPS)
+population <- creating.diploid(nsnp=10000, n.additive = 100, nindi=5000)
+population <- breeding.diploid(population, new.bv.observation.database = cbind(1,1), heritability = 0.5)
+
+system.time(
+  pop1 <- breeding.diploid(population, bve=TRUE, rrblup.bve = TRUE, bve.gen = 1)
+)
+system.time(
+  pop1 <- breeding.diploid(population, bve=TRUE, sommer.bve = TRUE, bve.gen = 1)
+)
+
+population <- creating.diploid(nsnp=10000, n.additive = 100, nindi=5000)
+population <- breeding.diploid(population, new.bv.observation.database = cbind(1,1), heritability = 0.5)
+system.time(
+  pop1 <- breeding.diploid(population, bve=TRUE, bve.gen = 1)
+)
+
+system.time(
+  pop1 <- breeding.diploid(population, bve=TRUE, bve.direct.est = FALSE, bve.gen = 1)
+)
+
+
+pop1 <- breeding.diploid(population, bve=TRUE, rrblup.bve = TRUE, bve.gen = 1)
+
+analyze.bv(pop1, database = cbind(1,1))
+analyze.bv(pop1, database = cbind(1,2))
+
+pop1 <- breeding.diploid(population, bve=TRUE, sommer.bve = TRUE, bve.gen = 1)
+
+analyze.bv(pop1, database = cbind(1,1))
+analyze.bv(pop1, database = cbind(1,2))
+
+pop1 <- breeding.diploid(population, bve=TRUE, bve.direct.est = TRUE, bve.gen = 1)
+
+analyze.bv(pop1, database = cbind(1,1))
+analyze.bv(pop1, database = cbind(1,2))

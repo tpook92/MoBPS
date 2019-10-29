@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571746409332.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "7C6A6B83",
+    "lastKnownWriteTime" : 1559911509,
+    "last_content_update" : 1559911509,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/clean.up.R",
+    "project_path" : "R/clean.up.R",
+    "properties" : {
+        "cursorPosition" : "107,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 47,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

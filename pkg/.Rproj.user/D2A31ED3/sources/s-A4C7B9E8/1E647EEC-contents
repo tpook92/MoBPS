@@ -1,0 +1,61 @@
+R2at <- R2bt <- R2ct <- NULL
+for(index in 1:100){
+  print(index)
+  load(paste0("WonX_", index,".RData"))
+  R2at <- rbind(R2at, R2a)
+  R2bt <- rbind(R2bt, R2b)
+  R2ct <- rbind(R2ct, R2c)
+}
+
+exp <- cbind(seq(0.1,1,by=0.1), colMeans(R2at), colMeans(R2bt), colMeans(R2ct), sqrt(diag(var(R2at))), sqrt(diag(var(R2bt))),sqrt(diag(var(R2bt))))
+
+colnames(exp) <- c("p/q", "Method1a_u", "Method1b_u", "Method2_u", "Method1a_sd", "Method1b_sd", "Method2_sd")
+exp <- round(exp, digits = 5)
+write.csv(file="WonX_sim2.csv", exp, row.names = FALSE)
+
+R2at <- R2bt <- R2ct <- NULL
+for(index in 1:100){
+  print(index)
+  load(paste0("XonW_", index,".RData"))
+  R2at <- rbind(R2at, R2a)
+  R2bt <- rbind(R2bt, R2b)
+  R2ct <- rbind(R2ct, R2c)
+}
+
+exp <- cbind(seq(0.1,1,by=0.1), colMeans(R2at), colMeans(R2bt), colMeans(R2ct), sqrt(diag(var(R2at))), sqrt(diag(var(R2bt))),sqrt(diag(var(R2bt))))
+
+colnames(exp) <- c("p/q", "Method1a_u", "Method1b_u", "Method2_u", "Method1a_sd", "Method1b_sd", "Method2_sd")
+exp <- round(exp, digits = 5)
+write.csv(file="XonW_sim2.csv", exp, row.names = FALSE)
+
+
+R2at <- R2bt <- R2ct <- NULL
+for(index in 1:100){
+  print(index)
+  load(paste0("WonX_", index,"_3.RData"))
+  R2at <- rbind(R2at, R2a)
+  R2bt <- rbind(R2bt, R2b)
+  R2ct <- rbind(R2ct, R2c)
+}
+
+exp <- cbind(seq(0.1,1,by=0.1), colMeans(R2at), colMeans(R2bt), colMeans(R2ct), sqrt(diag(var(R2at))), sqrt(diag(var(R2bt))),sqrt(diag(var(R2bt))))
+
+colnames(exp) <- c("p/q", "Method1a_u", "Method1b_u", "Method2_u", "Method1a_sd", "Method1b_sd", "Method2_sd")
+exp <- round(exp, digits = 5)
+write.csv(file="WonX_sim3.csv", exp, row.names = FALSE)
+
+
+R2at <- R2bt <- R2ct <- NULL
+for(index in 1:100){
+  print(index)
+  load(paste0("XonW_", index,"_3.RData"))
+  R2at <- rbind(R2at, R2a)
+  R2bt <- rbind(R2bt, R2b)
+  R2ct <- rbind(R2ct, R2c)
+}
+
+exp <- cbind(seq(0.1,1,by=0.1), colMeans(R2at), colMeans(R2bt), colMeans(R2ct), sqrt(diag(var(R2at))), sqrt(diag(var(R2bt))),sqrt(diag(var(R2bt))))
+
+colnames(exp) <- c("p/q", "Method1a_u", "Method1b_u", "Method2_u", "Method1a_sd", "Method1b_sd", "Method2_sd")
+exp <- round(exp, digits = 5)
+write.csv(file="XonW_sim3.csv", exp, row.names = FALSE)

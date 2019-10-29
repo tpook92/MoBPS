@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571746413869.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "64F05CE3",
+    "lastKnownWriteTime" : 1571755599,
+    "last_content_update" : 1571755599788,
+    "path" : "C:/Users/pook/Desktop/R-Stuff/MoBPS/R/add.diag.R",
+    "project_path" : "R/add.diag.R",
+    "properties" : {
+        "cursorPosition" : "23,54",
+        "scrollLine" : "0",
+        "tempName" : "Untitled103"
+    },
+    "relative_order" : 48,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

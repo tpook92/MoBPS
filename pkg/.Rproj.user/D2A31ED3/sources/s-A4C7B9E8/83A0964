@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1570002530203.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "83A0964",
+    "lastKnownWriteTime" : 1571300465,
+    "last_content_update" : 1571300465080,
+    "path" : "C:/Users/pook/Desktop/MAZE_baseline.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "10,16",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

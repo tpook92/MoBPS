@@ -1,0 +1,241 @@
+system.time({
+  ncore <- 4
+  doParallel::registerDoParallel(ncore)
+  indexes <- splitIndices(sum(sex.animal==sex_running), ncore)
+  activ_stuff <- (1:breeding.size.total)[sex.animal==sex_running]
+  for(index5 in 1:ncore){
+    indexes[[index5]] <- activ_stuff[indexes[[index5]]]
+  }
+})
+system.time({
+  new_animal <- lapply(activ_stuff, function(x) generation.individual(x,
+                                                          population, info_father_list, info_mother_list,
+                                                          copy.individual, mutation.rate, remutation.rate, recombination.rate,
+                                                          recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                          duplication.recombination, delete.same.origin,
+                                                          gene.editing, nr.edits, gen.architecture.m, decodeOriginsU,
+                                                          current.gen, save.recombination.history, new.bv.child))
+})
+system.time({
+  new_animal <- mclapply(activ_stuff, function(x) generation.individual(x,
+                                                                      population, info_father_list, info_mother_list,
+                                                                      copy.individual, mutation.rate, remutation.rate, recombination.rate,
+                                                                      recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                      duplication.recombination, delete.same.origin,
+                                                                      gene.editing, nr.edits, gen.architecture.m, decodeOriginsU,
+                                                                      current.gen, save.recombination.history, new.bv.child),
+                         mc.cores=2)
+})
+system.time({
+  new_animal <- mclapply.hack(activ_stuff, function(x) generation.individual(x,
+                                                                        population, info_father_list, info_mother_list,
+                                                                        copy.individual, mutation.rate, remutation.rate, recombination.rate,
+                                                                        recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                        duplication.recombination, delete.same.origin,
+                                                                        gene.editing, nr.edits, gen.architecture.m, decodeOriginsU,
+                                                                        current.gen, save.recombination.history, new.bv.child),
+                         mc.cores=2)
+})
+  
+  
+  foreach::foreach(indexc=1:ncore,
+                                 .packages="MoBPS",
+                                 .combine = "c") %dopar% {
+                                   
+                                   animal_list <- list()
+                                   
+                                   for(indexb in indexes[[indexc]]){
+                                     info.father <- info_father_list[indexb,]
+                                     info.mother <- info_mother_list[indexb,]
+                                     father <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]]
+                                     mother <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]]
+                                     if(copy.individual){
+                                       info.mother <- info.father
+                                       child1 <- list(father[[1]], father[[3]], father[[5]], father[[7]], father[[11]], 0, if(length(father)>19){father[[19]]} else{0})
+                                       child2 <- list(father[[2]], father[[4]], father[[6]], father[[8]], father[[12]], 0, if(length(father)>19){father[[20]]} else{0})
+                                     } else{
+                                       child1 <- breeding.intern(info.father, father, population,
+                                                                 mutation.rate, remutation.rate, recombination.rate,
+                                                                 recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                 duplication.recombination, delete.same.origin=delete.same.origin,
+                                                                 gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
+                                                                 gen.architecture=gen.architecture.m,
+                                                                 decodeOriginsU=decodeOriginsU)
+                                       
+                                       child2 <- breeding.intern(info.mother, mother, population,
+                                                                 mutation.rate, remutation.rate, recombination.rate,
+                                                                 recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                 duplication.recombination, delete.same.origin=delete.same.origin,
+                                                                 gene.editing=(gene.editing.offspring * gene.editing.offspring.sex[1]) , nr.edits= nr.edits,
+                                                                 gen.architecture=gen.architecture.f,
+                                                                 decodeOriginsU=decodeOriginsU)
+                                     }
+                                     if(dh.mating){
+                                       if(stats::rbinom(1,1,dh.sex)==0){
+                                         child2 <- child1
+                                       } else{
+                                         child1 <- child2
+                                       }
+                                     }
+                                     
+                                     # Fuer Praeimplantationsdiagnostik muesste hier die relevanten SNPs berechnet werden.
+                                     
+                                     if(length(praeimplantation)>0){
+                                       # sex1/sex2 und number1/number2 werden von Selektion uebernommen und nicht bestimmt!
+                                       # Praeimplantationsdiagnostik 1. Chromosom
+                                       counter <- 1
+                                       good1 <- 0
+                                       n.snps <- sum(population$info$snp)
+                                       while(good1==0){
+                                         hap1 <- rep(0,n.snps)
+                                         temp1 <- 0
+                                         current.animal <- child1
+                                         for(index2 in 1:(length(current.animal[[1]])-1)){
+                                           relevant.snp <- (population$info$snp.position < current.animal[[1]][index2+1])*(population$info$snp.position >= current.animal[[1]][index2])*(1:n.snps)
+                                           ursprung <- decodeOriginsU(current.animal[[3]],index2)
+                                           ursprung[1] <- population$info$origin.gen[ursprung[1]]
+                                           hap1[relevant.snp] <-population$breeding[[ursprung[1]]][[ursprung[2]]][[ursprung[3]]][[ursprung[4]+8]][relevant.snp]
+                                         }
+                                         if(length(current.animal[[2]])>0){
+                                           for(index2 in 1:length(current.animal[[2]])){
+                                             position <- which(population$info$snp.position==current.animal[[2]][index2])
+                                             hap1[position] <- 1-population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[9+temp1]][position]
+                                           }
+                                         }
+                                         if(hap1[pos] == praeimplantation.max[[sex1]][[number1]] || counter==25){
+                                           good1 <- 1
+                                           if(counter==25){print("Praeimplantation gescheitert!")}
+                                         } else{
+                                           child1 <- breeding.intern(info.father, father, population,
+                                                                     mutation.rate, remutation.rate, recombination.rate,
+                                                                     recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                     duplication.recombination, delete.same.origin=delete.same.origin,
+                                                                     gene.editing=gene.editing, nr.edits= nr.edits,gen.architecture=gen.architecture.m,
+                                                                     decodeOriginsU=decodeOriginsU)
+                                           counter <- counter +1
+                                         }
+                                       }
+                                       
+                                       # Praeimplantationsdiagnostik 2. Chromosom
+                                       
+                                       good1 <- 0
+                                       n.snps <- sum(population$info$snp)
+                                       while(good1==0){
+                                         hap1 <- rep(0,n.snps)
+                                         temp1 <- 0
+                                         current.animal <- child2
+                                         for(index2 in 1:(length(current.animal[[1]])-1)){
+                                           relevant.snp <- (population$info$snp.position < current.animal[[1]][index2+1])*(population$info$snp.position >= current.animal[[1]][index2])*(1:n.snps)
+                                           ursprung <-  decodeOriginsU(current.animal[[3]],index2)
+                                           ursprung[1] <- population$info$origin.gen[ursprung[1]]
+                                           hap1[relevant.snp] <-population$breeding[[ursprung[1]]][[ursprung[2]]][[ursprung[3]]][[ursprung[4]+8]][relevant.snp]
+                                         }
+                                         if(length(current.animal[[2]])>0){
+                                           for(index2 in 1:length(current.animal[[2]])){
+                                             position <- which(population$info$snp.position==current.animal[[2]][index2])
+                                             hap1[position] <- 1-population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[9+temp1]][position]
+                                           }
+                                         }
+                                         if(hap1[pos] == praeimplantation.max[[sex2]][[number2]] || counter==25){
+                                           good1 <- 1
+                                           if(counter==25){print("Praeimplantation gescheitert!")}
+                                         } else{
+                                           child2 <- breeding.intern(info.mother, mother, population,
+                                                                     mutation.rate, remutation.rate, recombination.rate,
+                                                                     recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                     duplication.recombination, delete.same.origin=delete.same.origin,
+                                                                     gene.editing=gene.editing, nr.edits= nr.edits,
+                                                                     gen.architecture=gen.architecture.f, decodeOriginsU=decodeOriginsU)
+                                           counter <- counter +1
+                                         }
+                                       }
+                                     }
+                                     
+                                     child <- list()
+                                     child[[1]] <- child1[[1]]
+                                     child[[2]] <- child2[[1]]
+                                     child[[3]] <- child1[[2]]
+                                     child[[4]] <- child2[[2]]
+                                     child[[5]] <- child1[[3]]
+                                     child[[6]] <- child2[[3]]
+                                     child[[7]] <- child1[[4]]
+                                     child[[8]] <- child2[[4]]
+                                     
+                                     population$info$size[current.gen+1 ,sex] <- population$info$size[current.gen+1,sex] + 1
+                                     
+                                     if(is.vector(child1[[5]])){
+                                       child[[11]] <- t(as.matrix(child1[[5]]))
+                                     } else{
+                                       child[[11]] <- child1[[5]]
+                                     }
+                                     if(is.vector(child2[[5]])){
+                                       child[[12]] <- t(as.matrix(child2[[5]]))
+                                     } else{
+                                       child[[12]] <- child2[[5]]
+                                     }
+                                     if(save.recombination.history && current.gen==1){
+                                       if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
+                                         child[[13]] <- cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))])
+                                       } else{
+                                         child[[13]] <- cbind(0,0)
+                                       }
+                                       if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
+                                         child[[14]] <- cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))])
+                                       } else{
+                                         child[[14]] <- cbind(0,0)
+                                       }
+                                       
+                                     } else if(save.recombination.history && current.gen>1){
+                                       if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
+                                         child[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))]))
+                                       } else{
+                                         child[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]])
+                                         
+                                       }
+                                       if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
+                                         child[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))]))
+                                       } else{
+                                         child[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]])
+                                         
+                                       }
+                                       
+                                     } else{
+                                       #child[[13]] <- "test"
+                                     }
+                                     
+                                     if(new.bv.child=="obs"){
+                                       child[[15]] <- n.observation
+                                     } else if(new.bv.child=="addobs"){
+                                       child[[15]] <- n.observation +
+                                         population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[15]]/2   +
+                                         population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]/2
+                                     } else{
+                                       child[[15]] <- rep(0, population$info$bv.nr)
+                                     }
+                                     if(copy.individual){
+                                       child[[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
+                                       if(added.genotyped>0 && child[[16]]==0){
+                                         child[[16]] <- stats::rbinom(1,1,added.genotyped)
+                                       }
+                                     } else{
+                                       child[[16]] <- stats::rbinom(1,1,share.genotyped)
+                                     }
+                                     
+                                     child[[19]] <- child1[[7]]
+                                     child[[20]] <- child2[[7]]
+                                     
+                                     if(copy.individual){
+                                       child[[21]] <-  matrix(info.father[1:3], nrow=1)
+                                     }
+                                     
+                                     
+                                     animal_list[[length(animal_list)+1]] <-child
+                                     
+                                   }
+                                   
+                                   animal_list
+                                 }
+})
+system.time({
+  stopImplicitCluster()
+})
