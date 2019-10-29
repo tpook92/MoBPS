@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1571215555714.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3555464353",
+    "id" : "110B3868",
+    "lastKnownWriteTime" : 1572265454,
+    "last_content_update" : 1572265454406,
+    "path" : "C:/Users/pook/Desktop/mobpsmap_manuel.R",
+    "project_path" : null,
+    "properties" : {
+        "cursorPosition" : "64,0",
+        "scrollLine" : "32",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
