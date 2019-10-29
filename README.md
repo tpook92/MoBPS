@@ -1,5 +1,5 @@
 # MoBPS
-This repository contains our R-package MoBPS and its dependencies (miraculix/RandomFieldsUtils).
+This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
  
 The package is designed in a way to allow for a maximum of flexibility and possible extensions in basically any step of the simulation. In case you feel like a specific functionally or option is missing in the program just contact me (torsten.pook@uni-goettingen.de). 
 I would highly appreciate detailled explanation of the genetics/breeding you are trying to model to make it easier for me to add in the options needed in an efficient manner. 
@@ -8,18 +8,20 @@ Same goes for questions regarding the tool or how to set up your simulation. We 
 
 Hopefully our extensive User Manual containing some exemplary simulation should answer most questions but it can definitly be still improved. Slide from presentations / working paper are available on request.
 
-
-Note that the currently available version is still an OPEN-BETA version and all results obtained should be viewed with caution and we do not take any liability for errors nor guaranty warranty. We are always thankful for advice, for additional things to implement, feedback and/or reports of errors.
+We are always thankful for advice, for additional things to implement, feedback and/or reports of errors.
 
 # Web-based interface
-We are now able to perform simulations based on a json-file generated in our web-based application. You can find some of the code to transfer the json-file into usage R-code for the tool. Development issues currently are mostly setting up a user/login structure and server to perform smaller simulations internally.
-If interested in testing the web-based application just contact me (torsten.pook@uni-goettingen.de)
+The web-based interface is finally online at www.mobps.de (http://134.76.18.242/).
+
+For testing we are providing a test user (EAAPguest, password: eaap2019 ). This user is not allowed to use our backend server simulations, but can at least try to set up his simulations and download resulting json-files that can than be simulated via json.simulation() in the MoBPS R-package.
+
+Note that this web-interface is still under active development with the final structure of data storage not 100% set. Additional providing feedback on "False" input for the tool is still a major concern to guide the user in inputing resonable / expected things. This web-based interface is expilicitly NOT part of our recently submitted paper // biorvix manuscript. A seperate publication on this will follow, but do not expect this to be ready soon. Until offer close collaboration and assistants in setting up your  simulation study (contact: torsten.pook@uni-goettingen.de for that). We are interested in collaborations with partners from both industry and academia.
 
 # Update
 
 Updates since release:
 
-### Version 1.4.15 (28.10.19)
+### Version 1.4.15 (29.10.19)
 
 Solve issues with running MoBPS without miraculix
 
@@ -30,6 +32,10 @@ New function: get.genotyped() to export which individuals are genotyped
 Renamed ogc_cAc to ogc.cAc for general uniformity
 
 Updated documentation (especially for web-based application)
+
+Minor update for miraculix (v0.9.7) - not MoBPS related
+
+Added frozen version of the current that (Submission-version)
 
 ### Version 1.4.10 (22.10.19)
 
