@@ -47,6 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dh.mating internal test
 #' @param share.genotyped internal test
 #' @param added.genotyped internal test
+#' @param dh.sex internal test
+#' @param n.observation internal test
 
 
 generation.individual <- function(indexb, population, info_father_list, info_mother_list,
@@ -55,7 +57,8 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
                                   duplication.recombination, delete.same.origin,
                                   gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
                                   decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
-                                  dh.mating, share.genotyped, added.genotyped){
+                                  dh.mating, share.genotyped, added.genotyped,
+                                  dh.sex, n.observation){
 
   info.father <- info_father_list[indexb,]
   info.mother <- info_mother_list[indexb,]

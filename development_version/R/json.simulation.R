@@ -148,9 +148,25 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
 
       if(n_traits>0){
-        trait_matrix <- matrix(0, nrow=n_traits, ncol=8)
+        trait_matrix <- matrix(0, nrow=n_traits, ncol=11)
         for(index in 1:n_traits){
-          trait_matrix[index,] <- unlist(traitinfo[[index]])[1:8]
+          trait_matrix[index,1] <- traitinfo[[index]]$`Trait Name`
+          trait_matrix[index,2] <- traitinfo[[index]]$`Trait Unit`
+          trait_matrix[index,3] <- traitinfo[[index]]$`Trait Mean`
+          trait_matrix[index,4] <- traitinfo[[index]]$`Trait Std Deviation`
+          trait_matrix[index,5] <- traitinfo[[index]]$`Trait Heritability`
+          trait_matrix[index,6] <- traitinfo[[index]]$`Trait Number of Polygenic Loci`
+          trait_matrix[index,7] <- traitinfo[[index]]$`Trait Major QTL`
+          trait_matrix[index,8] <- traitinfo[[index]]$`Trait Value per Unit`
+          if(length(traitinfo[[index]]$`dominant_qtl`)==1){
+            trait_matrix[index,9] <- traitinfo[[index]]$`dominant_qtl`
+          }
+          if(length(traitinfo[[index]]$`qualitative_qtl`)==1){
+            trait_matrix[index,10] <- traitinfo[[index]]$`qualitative_qtl`
+          }
+          if(length(traitinfo[[index]]$`quantitative_qtl`)==1){
+            trait_matrix[index,11] <- traitinfo[[index]]$`quantitative_qtl`
+          }
         }
         # derive genetic variance based on total variance
         pheno_var <- as.numeric(trait_matrix[,4])
@@ -971,12 +987,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       if(length(subpopulations)>1 & miraculix.dataset){
         miraculix.dataset <- FALSE
-        if(verbose) cat("miraculix dataset generation only for single subpopulation")
+        if(verbose) cat("miraculix dataset generation only for single subpopulation.\n")
       }
 
       if(length(unique(c("",path_list)))>1 && miraculix.dataset){
         miraculix.dataset <- FALSE
-        if(verbose) cat("Detected data-path for founders. Deactive miraculix.dataset")
+        if(verbose) cat("Detected data-path for founders. Deactive miraculix.dataset.\n")
       }
       if(!miraculix.dataset){
         dataset <- matrix(0L, nrow= sum(nsnp), ncol = sum(position[,4])*2)
@@ -1126,7 +1142,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 } else{
                   if(is.na(to_enter[sample_index,2])){
                     to_enter[sample_index,2] <- 1
-                    if(verbose) cat("Illegal Chromosom-name. Simulate major SNP-effect on chromosome 1")
+                    if(verbose) cat("Illegal Chromosom-name. Simulate major SNP-effect on chromosome 1.\n")
                   }
                   if(!is.na(as.numeric(to_enter_name[sample_index,2]))){
                     diff_to <- - abs(as.numeric(map[,3]) - as.numeric(to_enter_name[sample_index,2]))
@@ -1324,6 +1340,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       if(n_traits>0){
         population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),
+                                     n.dominant = as.numeric(trait_matrix[,9]),
+                                     n.qualitative = as.numeric(trait_matrix[,10]),
+                                     n.quantitative = as.numeric(trait_matrix[,11]),
                                      shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
                                      shuffle.traits=1:n_traits,
                                      trait.name = trait_matrix[,1])
@@ -1361,11 +1380,16 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           active_sub <- subpopulation_info[1,1]
           standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
           var_test <- stats::var(get.bv(population, cohorts= standard_cohort)[index,])
+          test1 <- TRUE
           if(length(population$info$real.bv.add[[index]])>0){
             population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
-          } else{
-            if(verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
+            test1 <- FALSE
           }
+          if(length(population$info$real.bv.mult[[index]])>0){
+            population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
+            test1 <- FALSE
+          }
+          if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
 
         }
         population$info$bv.calculated <- FALSE
@@ -1475,10 +1499,18 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         nodes[[to_node]]$'Breeding Type' <- edges[[index]]$'Breeding Type'
         if(nodes[[to_node]]$'Breeding Type'=="Selection" || nodes[[to_node]]$'Breeding Type'=="Split" || nodes[[to_node]]$'Breeding Type'=="Aging"  ){
           nodes[[to_node]]$'Selection Type' <- edges[[index]]$'Selection Type'
+          if(length(nodes[[to_node]]$'Selection Type')>0 && nodes[[to_node]]$'Selection Type'=="Pseudo-BVE"){
+            pseudo <- NULL
+            for(t in as.character(1:population$info$bv.nr-1)){
+              pseudo <- c(pseudo, edges[[index]][[t]])
+            }
+            nodes[[to_node]]$'PseudoAcc' <- as.numeric(pseudo)
+          }
           #      nodes[[to_node]]$proportion <- edges[[index]]$proportion # not needed?
           nodes[[to_node]]$origin <- edges[[index]]$from
           nodes[[to_node]]$'Relationship Matrix' <- edges[[index]]$'Relationship Matrix'
           nodes[[to_node]]$'BVE Method' <- edges[[index]]$'BVE Method'
+          nodes[[to_node]]$'MAS_marker' <- edges[[index]]$'MAS_marker'
           nodes[[to_node]]$'Use Offspring for BVE' <- edges[[index]]$'Use Offspring for BVE'
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
@@ -1875,6 +1907,111 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       }
     }
 
+    ############## Attach json-infos ########################
+    housing <- list(housing_index, housing_index_name)
+    phenotyping <- list(pheno_index_costs, pheno_index_name, pheno_index)
+
+    ###### Write List of Cohorts + costs #####################
+    if(TRUE){
+
+      costdata <-  NULL
+
+      # Name of Cohort , Time-point, total money spent, cost of genotyping, cost of phenotyping, cost of housing
+
+      for(index in founder){
+
+        group_name <- ids[index]
+        groupnr <- which(ids==group_name)
+        group_time <- time.point.list[groupnr]
+        group_size <- nodes[[groupnr]]$`Number of Individuals`
+
+        share_geno <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
+        if(length(share_geno)==0) share_geno <- 1
+        cost_geno <- nodes[[groupnr]]$`Number of Individuals` * genotyping_costs * as.numeric(share_geno)
+
+        pheno_class <- which(nodes[[groupnr]]$`Phenotyping Class`==phenotyping[[2]])
+        cost_pheno <- nodes[[groupnr]]$`Number of Individuals` * phenotyping[[1]][pheno_class]
+
+        housing_class <- which(nodes[[groupnr]]$`Housing Cost Class`==housing[[2]])
+        cost_housing <- nodes[[groupnr]]$`Number of Individuals` * housing[[1]][housing_class]
+
+        costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+
+
+      }
+
+      for(index in 1:length(generation_group)){
+        if(length(generation_group[[index]])){
+          for(index2 in 1:length(generation_group[[index]])){
+            group_name <- generation_group[[index]][[index2]]
+            groupnr <- which(ids==group_name)
+            group_time <- time.point.list[groupnr]
+            group_size <- nodes[[groupnr]]$`Number of Individuals`
+
+            share_geno <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
+            if(length(share_geno)==0) share_geno <- 1
+            cost_geno <- nodes[[groupnr]]$`Number of Individuals` * genotyping_costs * share_geno
+
+            pheno_class <- which(nodes[[groupnr]]$`Phenotyping Class`==phenotyping[[2]])
+            cost_pheno <- nodes[[groupnr]]$`Number of Individuals` * phenotyping[[1]][pheno_class]
+
+            housing_class <- which(nodes[[groupnr]]$`Housing Cost Class`==housing[[2]])
+            cost_housing <- nodes[[groupnr]]$`Number of Individuals` * housing[[1]][housing_class]
+
+            ### Subtract costs from earlier
+            if(nodes[[groupnr]]$`Breeding Type`=="Selection" || nodes[[groupnr]]$`Breeding Type`=="Aging" || nodes[[groupnr]]$`Breeding Type`=="Split"){
+
+              prior_node <- which(ids==nodes[[groupnr]]$`origin`)
+              share_geno <- as.numeric(nodes[[prior_node]]$`Proportion of genotyped individuals`)
+              cost_geno <- cost_geno - nodes[[groupnr]]$`Number of Individuals` * genotyping_costs * share_geno
+              if(length(share_geno)==0) share_geno <- 1
+              if(cost_geno<0) cost_geno <- 0
+
+              pheno_class_old <- which(nodes[[prior_node]]$`Phenotyping Class`==phenotyping[[2]])
+              if(pheno_class_old==pheno_class){
+                cost_pheno <- 0
+              }
+            }
+
+            costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+          }
+        }
+
+      }
+      colnames(costdata) <- c("Cohort name", "Nr. of individuals", "Time-point", "Total costs", "Cost genotyping", "Cost phenotyping", "Cost housing")
+
+      if(FALSE){
+        as.data.frame(costdata)
+        time_point_plot <- unique(sort(time.point.list))
+        cost_plot <- numeric(length(time_point_plot))
+        for(index in 1:length(time_point_plot)){
+          cost_plot[index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],4]))
+        }
+        plot(time_point_plot, cost_plot, main="Cost - overview", ylab="cost in Euro", xlab="time point", ylim=c(0, max(cost_plot)))
+        barplot(cost_plot, names=time_point_plot, ylab="cost in Euro", xlab="time point")
+
+        cost_plot_sex <- matrix(0, ncol=length(time_point_plot), nrow=2)
+        for(index in 1:length(time.point.list)){
+          index2 <- which(costdata[index,1]==ids)
+          sex <- as.numeric(nodes[[index2]]$'Sex'=="Female") + 1
+          index3 <- which(time_point_plot==costdata[index,3])
+          cost_plot_sex[sex,index3] <-  cost_plot_sex[sex,index3] + as.numeric(costdata[index,4])
+        }
+        barplot(cost_plot_sex, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue"))
+
+        cost_plot_type <- matrix(0, ncol=length(time_point_plot), nrow=3)
+        for(index in 1:length(time_point_plot)){
+          cost_plot_type[1,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],5]))
+          cost_plot_type[2,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],6]))
+          cost_plot_type[3,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],7]))
+        }
+        barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35))
+        legend("topleft", c("Genotyping", "Phenotyping", "Housing"), lty=c(1,1,1), col=c("red", "blue", "green"))
+
+        write.csv(file="C:/Users/pook/Desktop/Cost_overview.csv", costdata, row.names = FALSE, quote=FALSE)
+      }
+    }
+
     ############## Actual simulations ########################
     {
       # Derive Founders that are alive
@@ -1919,7 +2056,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
             bve.breeding.type <- nodes[[groupnr]]$`Breeding Type`=="Selection" || nodes[[groupnr]]$`Breeding Type`=="Aging" || nodes[[groupnr]]$`Breeding Type`=="Split"
             if(length(nodes[[groupnr]]$'Cohorts used in BVE') || bve.breeding.type){
-              if(length(nodes[[groupnr]]$'Cohorts used in BVE')==0){
+              if(length(nodes[[groupnr]]$'Cohorts used in BVE')==0 || nodes[[groupnr]]$'Cohorts used in BVE'=="Only this cohort" || nodes[[groupnr]]$`Selection Type`=="Pseudo-BVE"){
                 bve.database <- involved_groups[,1:2, drop=FALSE]
               } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Last 2 Generations"){
                 bve.database <- get.database(population, gen=max(1,generation-2):(generation-1))
@@ -1950,7 +2087,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
               } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="All"){
                 bve.database <- get.database(population, gen=1:(generation-1))
-              } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Manual select") {
+              } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Manual select"){
                 bve.database <- get.database(population, cohorts=unique(nodes[[groupnr]]$'Manuel selected cohorts'))
                 bve.database <- bve.database[!is.na(bve.database[,1]),, drop=FALSE]
                 bv_cohort_index <- which(bv_cohort==group)
@@ -1962,8 +2099,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                   class_executed[bv_cohort_class_index] <- TRUE
                 }
 
-              } else if(nodes[[groupnr]]$'Cohorts used in BVE'=="Only this cohort"){
-                bve.database <- involved_groups[,1:2, drop=FALSE]
               }
             }
 
@@ -1975,7 +2110,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               grandparent_average <- FALSE
               mean_between <- NULL
               phenotype.bv <- FALSE
+              pseudo_bve <- FALSE
               computeA <- "vanRaden"
+              pseudo_acc <- NULL
+              bglrmodel <- "RKHS"
+              bvemas <- FALSE
+              masmarker <- 0
               if(length(nodes[[groupnr]]$'Selection Type')==0){
                 if(verbose) cat("No selection type selected in some edges. Assume selection type 'Random'")
                 bve <- FALSE
@@ -2010,6 +2150,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 bve <- FALSE
                 selection <- "function"
                 phenotype.bv <- TRUE
+              } else if(nodes[[groupnr]]$'Selection Type' == "Pseudo-BVE"){
+                bve <- pseudo_bve <- TRUE
+                pseudo_acc <- nodes[[groupnr]]$'PseudoAcc'
               } else if(nodes[[groupnr]]$'Selection Type'=="BVE"){
                 bve <- TRUE
                 selection <- "function"
@@ -2026,10 +2169,34 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                   activesommer <- TRUE
                 } else if(nodes[[groupnr]]$'BVE Method'=="Multi-trait REML-GBLUP (sommer)") {
                   activemultisommer <- TRUE
-                } else if(nodes[[groupnr]]$'BVE Method'=="BayesA" || nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (rrBLUP)"){
+                } else if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (rrBLUP)"){
                   activerrblup <- TRUE
-                } else if(nodes[[groupnr]]$'BVE Method'=="RKHS") {
+                } else if(nodes[[groupnr]]$'BVE Method'=="BayesA (BGLR)"){
                   activbglr <- TRUE
+                  bglrmodel <- "BayesA"
+                } else if(nodes[[groupnr]]$'BVE Method'=="BayesB (BGLR)"){
+                  activbglr <- TRUE
+                  bglrmodel <- "BayesB"
+                } else if(nodes[[groupnr]]$'BVE Method'=="BayesC (BGLR)"){
+                  activbglr <- TRUE
+                  bglrmodel <- "BayesC"
+                } else if(nodes[[groupnr]]$'BVE Method'=="RKHS (BGLR)"){
+                  activbglr <- TRUE
+                  bglrmodel <- "RKHS"
+                } else if(nodes[[groupnr]]$'BVE Method'=="BL (BGLR)"){
+                  activbglr <- TRUE
+                  bglrmodel <- "BL"
+                } else if(nodes[[groupnr]]$'BVE Method'=="BRR (BGLR)"){
+                  activbglr <- TRUE
+                  bglrmodel <- "BRR"
+                } else if(nodes[[groupnr]]$'BVE Method'=="Marker assisted selection (lm)"){
+                  bvemas <-TRUE
+                  if(length(nodes[[groupnr]]$'MAS_marker')==1){
+                    masmarker <- as.numeric(nodes[[groupnr]]$'MAS_marker')
+                  } else{
+                    masmarker <- 10
+                  }
+
                 }
               } else if(nodes[[groupnr]]$'Selection Type'=="Random"){
                 bve <- FALSE
@@ -2070,12 +2237,17 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
               population <- breeding.diploid(population, breeding.size=breeding.size,
                                              bve=(bve&bve_exe), computation.A = computeA,
+                                             bve.pseudo = pseudo_bve,
+                                             bve.pseudo.accuracy = pseudo_acc,
                                              offspring.bve.parents.database=offspring.bve.parents.database,
                                              BGLR.bve = activbglr,
+                                             BGLR.model = bglrmodel,
                                              emmreml.bve = activemmreml,
                                              rrblup.bve = activerrblup,
                                              sommer.bve = activesommer,
                                              sommer.multi.bve = activemultisommer,
+                                             mas.bve = bvemas,
+                                             mas.number = masmarker,
                                              selection.size= breeding.size,
                                              copy.individual = TRUE,
                                              added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
@@ -2153,7 +2325,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              share.genotyped = share.genotyped,
                                              added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
                                              ogc = nodes[[groupnr]]$OGC,
-                                             ogc_cAc = if(length(nodes[[groupnr]]$ogc_cAc)>0){nodes[[groupnr]]$ogc_cAc} else{NA},
+                                             ogc.cAc = if(length(nodes[[groupnr]]$ogc_cAc)>0){nodes[[groupnr]]$ogc_cAc} else{NA},
                                              repeat.mating = nodes[[groupnr]]$repeat_mating,
                                              max.offspring = nodes[[groupnr]]$max_offspring,
                                              best.selection.ratio.m = nodes[[groupnr]]$selection_ratio[1],
@@ -2331,7 +2503,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         }
 
         if(generation != (length(generation_group)+2)){
-          if(verbose) cat("Generated groups:")
+          if(verbose) cat("Generated groups: \n")
           if(verbose) cat(generation_group[[generation-1]])
           if(verbose) cat("\n")
           alive_cohorts <- c(alive_cohorts, generation_group[[generation-1]])
@@ -2357,6 +2529,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           age_start <- from - as.numeric(population$info$cohorts[cohort_index,8])
           age_end <- to - as.numeric(population$info$cohorts[cohort_index,8])
           sex <- if(population$info$cohorts[cohort_index,4]=="0"){"Male"} else{"Female"}
+          sex1 <- as.numeric(sex=="Female") + 1
           # Time - period, sex
           active_culling <- as.numeric(culling_reason[,2]) > age_start & as.numeric(culling_reason[,2]) <= age_end & (culling_reason[,3] == sex | culling_reason[,3]=="Both")
 
@@ -2402,9 +2575,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
 
 
-    ############## Attach json-infos ########################
-    housing <- list(housing_index, housing_index_name)
-    phenotyping <- list(pheno_index_costs, pheno_index_name, pheno_index)
+
 
     population$info$json <- list(nodes, edges, geninfo, traitinfo, major, housing, phenotyping, ids)
   }

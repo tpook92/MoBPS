@@ -220,7 +220,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
     if(length(store_mut[[activ]])==0){
       activ.mut <- logical(0)
     } else{
-      activ.mut <- (store_mut[[activ]]<porc[index+1]) & (store_mut[[activ]]<porc[index+1])
+      activ.mut <- (store_mut[[activ]]<porc[index+1]) & (store_mut[[activ]]>porc[index])
     }
 
     if(length(dup[[activ]])>0){

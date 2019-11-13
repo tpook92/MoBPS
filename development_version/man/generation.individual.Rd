@@ -10,7 +10,7 @@ generation.individual(indexb, population, info_father_list,
   duplication.length, duplication.recombination, delete.same.origin,
   gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
   decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
-  dh.mating, share.genotyped, added.genotyped)
+  dh.mating, share.genotyped, added.genotyped, dh.sex, n.observation)
 }
 \arguments{
 \item{indexb}{internal test}
@@ -62,6 +62,10 @@ generation.individual(indexb, population, info_father_list,
 \item{share.genotyped}{internal test}
 
 \item{added.genotyped}{internal test}
+
+\item{dh.sex}{internal test}
+
+\item{n.observation}{internal test}
 }
 \description{
 Function to generate a new individual

@@ -37,8 +37,8 @@ ensembl.map <- function(host="www.ensembl.org", dataset="btaurus_snp", export.fi
                         filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip",
                         nchromo=NULL){
   if(export.datasets){
-    if(host!=www.ensembl.org){
-      mart <- useMart(listMarts(host=host)[1,1],host=host)
+    if(host!="www.ensembl.org"){
+      mart <- biomaRt::useMart(biomaRt::listMarts(host=host)[1,1],host=host)
     } else{
       mart = biomaRt::useEnsembl('ENSEMBL_MART_SNP')
     }

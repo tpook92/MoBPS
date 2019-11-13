@@ -199,6 +199,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   } else{
     codeOriginsU <- codeOriginsR
     decodeOriginsU <- decodeOriginsR
+    miraculix <- FALSE
+    miraculix.dataset <- FALSE
   }
 
   if(length(template.chip)==1){
@@ -309,6 +311,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   }
   if(length(dataset)>0 && class(dataset)=="haplomatrix"){
     dataset <- list(dataset)
+  }
+  if(length(dataset)>0 && class(dataset)=="data.frame"){
+    dataset <- as.matrix(dataset)
   }
   if(length(dataset)>0 && class(dataset)=="matrix"){
     miraculix.dataset <- FALSE
@@ -668,11 +673,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     if(length(dataset)==0 || (length(dataset)==1 && !is.list(dataset) && dataset=="random")){
       if(miraculix && length(chr.nr)==0 && miraculix.dataset){
-        dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp))
+        suppressWarnings(dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp)))
       } else if(miraculix && miraculix.dataset){
         dataset <- list()
         for(chr_index in 1:length(chr.opt)){
-          dataset[[chr_index]] <- miraculix::rhaplo(freq[which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index])
+          suppressWarnings(dataset[[chr_index]] <- miraculix::rhaplo(freq[which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index]))
         }
       } else{
         dataset <- matrix((c(stats::rbinom(nindi*2*sum(nsnp),1,freq))),ncol=nindi*2, nrow=sum(nsnp))
@@ -681,11 +686,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
     if(length(dataset)==1 && !is.list(dataset) && dataset=="all0"){
       if(miraculix && length(chr.nr)==0 && miraculix.dataset){
-        dataset <- list(miraculix::rhaplo(0, indiv = nindi, loci = nsnp))
+        suppressWarnings(dataset <- list(miraculix::rhaplo(0, indiv = nindi, loci = nsnp)))
       } else if(miraculix && miraculix.dataset){
         dataset <- list()
         for(chr_index in 1:length(chr.opt)){
-          dataset[[chr_index]] <- miraculix::rhaplo(0, indiv = nindi, loci = nsnp[chr_index])
+          suppressWarnings(dataset[[chr_index]] <- miraculix::rhaplo(0, indiv = nindi, loci = nsnp[chr_index]))
         }
       } else{
         dataset <- matrix((c(rep(0,nindi*2*sum(nsnp)))),ncol=nindi*2, nrow=sum(nsnp))
@@ -694,11 +699,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     if(length(dataset)==1 && !is.list(dataset) && dataset=="homorandom"){
       if(miraculix && miraculix.dataset && length(chr.nr)==0){
-        dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp, freq2="IRGENDWAS"))
+        suppressWarnings(dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp, freq2="IRGENDWAS")))
       } else if(miraculix && miraculix.dataset){
         dataset <- list()
         for(chr_index in 1:length(chr.opt)){
-          dataset[[chr_index]] <- miraculix::rhaplo(freq[which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index], freq2="IRGENDWAS")
+          suppressWarnings(dataset[[chr_index]] <- miraculix::rhaplo(freq[which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index], freq2="IRGENDWAS"))
         }
       } else{
         dataset <- matrix((c(stats::rbinom(nindi*sum(nsnp),1,freq))),ncol=nindi, nrow=sum(nsnp))
@@ -707,11 +712,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     if(length(dataset)==1 && !is.list(dataset) && dataset=="allhetero"){
       if(miraculix && miraculix.dataset && length(chr.nr)==0){
-        dataset <- list(miraculix::rhaplo(0, indiv = nindi, loci = nsnp,1))
+        suppressWarnings(dataset <- list(miraculix::rhaplo(0, indiv = nindi, loci = nsnp,1)))
       } else if(miraculix && miraculix.dataset){
         dataset <- list()
         for(chr_index in 1:length(chr.opt)){
-          dataset[[chr_index]] <- miraculix::rhaplo(0, indiv = nindi, loci = nsnp[chr_index],1)
+          suppressWarnings(dataset[[chr_index]] <- miraculix::rhaplo(0, indiv = nindi, loci = nsnp[chr_index],1))
         }
       } else{
         dataset <- matrix((c(rep(0,nindi*2*sum(nsnp)))),ncol=nindi*2, nrow=sum(nsnp))

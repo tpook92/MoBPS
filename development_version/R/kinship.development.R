@@ -47,7 +47,7 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
   if(json){
     ids <- to_plot <- numeric(length(population$info$json[[1]]))
     for(index in 1:length(ids)){
-      ids[index] <- population$info$json[[1]][[index]]$label
+      ids[index] <- population$info$json[[1]][[index]]$id
       if(length(population$info$json[[1]][[index]]$'BV Plot')>0){
         to_plot[index] <- population$info$json[[1]][[index]]$'BV Plot'
       }
