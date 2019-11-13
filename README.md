@@ -26,15 +26,9 @@ Updates since release:
 
 Function bv.standardization for standardization of trait mean and variance
 
-Function get.genotyped to extract which individuals were genotyped
-
 Marker Assisted Selection via mas.bve
 
 Updates to json.simulation for web-based application 
-
-Added BGLR estimators (BL, BRR, BayesA, BayesB, BayesC) 
-
-Renamed ogc_cAc to ogc.cAc in breeding.diploid()
 
 
 ### Version 1.4.15 (29.10.19)
