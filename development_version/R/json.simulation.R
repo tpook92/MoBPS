@@ -2073,7 +2073,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             if(selection.size[1]>selection.size.max[1]){
               cat(paste0("Less individuals available than designed for cohort: ", group,".\n"))
               cat(paste0(selection.size.max[1], " male individuals & ", selection.size.max[2], " female individuals."))
-              selection.size[selection.size<selection.size.max] <- selection.size.max[selection.size<selection.size.max]
+              selection.size[selection.size>selection.size.max] <- selection.size.max[selection.size>selection.size.max]
 
 
             }
