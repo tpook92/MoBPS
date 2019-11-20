@@ -124,11 +124,18 @@ kinship.emp.fast <- function(animals=NULL, population=NULL, gen=NULL, database=N
     return(c(0,0))
   }
 
-  kinship <- matrix(0, nrow=n, ncol=n)
   chrom.length <- max(animals[[1]][[1]])
 
-  i1 <- sample(1:n, ibd.obs+ hbd.obs, replace=if((ibd.obs+hbd.obs)>n){TRUE} else{FALSE})
-  j1 <- sample(1:n, ibd.obs+ hbd.obs, replace=if((ibd.obs+hbd.obs)>n){TRUE} else{FALSE})
+  if(n^2 <= (ibd.obs + hbd.obs)){
+    i1 <- c(rep(1:n, n)[-(1:n + (1:n) * n - n )], 1:n)
+    j1 <- c(sort(rep(1:n, n))[-(1:n + (1:n) * n - n )], 1:n)
+    ibd.obs <- n * (n-1)
+    hbd.obs <- n
+  } else{
+    i1 <- sample(1:n, ibd.obs+ hbd.obs, replace=if((ibd.obs+hbd.obs)>n){TRUE} else{FALSE})
+    j1 <- sample(1:n, ibd.obs+ hbd.obs, replace=if((ibd.obs+hbd.obs)>n){TRUE} else{FALSE})
+  }
+
   if(ibd.obs>0){
     while(sum(i1==j1)>0){
       j1[which(i1==j1)] <- sample(1:n, length(which(i1==j1)), replace=if((ibd.obs)>n){TRUE} else{FALSE})

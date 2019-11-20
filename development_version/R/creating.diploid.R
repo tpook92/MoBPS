@@ -1096,7 +1096,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
         population$breeding[[generation]][[22]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-
+        population$breeding[[generation]][[23]] <- rep(time.point,counter[1]-1) # Age time point
+        population$breeding[[generation]][[24]] <- rep(time.point,counter[2]-1)
         # calculate Real-ZW
       } else{
         population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -1122,7 +1123,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[20]] <- cbind(population$breeding[[generation]][[20]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
         population$breeding[[generation]][[21]] <- cbind(population$breeding[[generation]][[21]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Last applied selection index
         population$breeding[[generation]][[22]] <- cbind(population$breeding[[generation]][[22]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
-
+        population$breeding[[generation]][[23]] <- c(population$breeding[[generation]][[11]], rep(time.point ,counter[1]-counter.start[1])) # Age Time point
+        population$breeding[[generation]][[24]] <- c(population$breeding[[generation]][[12]], rep(time.point ,counter[2]-counter.start[2]))
 
       }
 

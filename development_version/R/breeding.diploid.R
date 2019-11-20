@@ -232,6 +232,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param culling.bv2 Alternative breeding value (linear extended for other bvs)
 #' @param culling.share2 Probability of death for individuals with bv2
 #' @param culling.index Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)
+#' @param culling.single Set to FALSE to not apply the culling module on all individuals of the cohort
 #' @param verbose Set to FALSE to not display any prints
 #' @param bve.parent.mean Set to TRUE to use the average parental performance as the breeding value estimate
 #' @param bve.grandparent.mean Set to TRUE to use the average grandparental performance as the breeding value estimate
@@ -434,6 +435,7 @@ breeding.diploid <- function(population,
             culling.bv2 = NULL,
             culling.share2 = NULL,
             culling.index = 0,
+            culling.single = TRUE,
             calculate.reliability=FALSE,
             selection.m.gen = NULL,
             selection.f.gen = NULL,
@@ -1234,6 +1236,10 @@ breeding.diploid <- function(population,
       culling.prob[culling.prob>1] <- 1
       culling.prob[culling.prob<0] <- 0
     }
+    if(length(culling.prob)>length(culling.single)){
+      culling.single <- rep(culling.single, length.out=length(culling.prob))
+    }
+    culling.prob <- culling.prob * culling.single
     culling.action <- stats::rbinom(n_animals,1,culling.prob)==1
 
     culling.database <- get.database(population, cohorts=culling.cohort)
@@ -1428,7 +1434,7 @@ breeding.diploid <- function(population,
       k.database <- bve.insert.database[index,]
       if(diff(k.database[3:4])>=0){
         # t() not needed just to be safe when using multiple individuals at once later
-        population$breeding[[k.database[[1]]]][[2+k.database[[2]]]][,k.database[3]:k.database[4]] <- t(y_real[cindex:(cindex+k.database[4]-k.database[3]),])
+        population$breeding[[k.database[[1]]]][[2+k.database[[2]]]][,k.database[3]:k.database[4]] <- t(y_hat[cindex:(cindex+k.database[4]-k.database[3]),])
         cindex <- cindex + k.database[4] - k.database[3] +1
       }
     }
@@ -3876,7 +3882,6 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[8+sex]] <- matrix(0, nrow=population$info$bv.nr, ncol=breeding.size[sex])
         population$breeding[[current.gen+1]][[10+sex]] <- rep(time.point, breeding.size[sex])
         population$breeding[[current.gen+1]][[12+sex]] <- rep(creating.type, breeding.size[sex])
-
         if(copy.individual){
           population$breeding[[current.gen+1]][[14+sex]] <- rep(0, breeding.size[sex])
         } else{
@@ -3886,6 +3891,13 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[16+sex]] <- rep(NA, breeding.size[sex])
         population$breeding[[current.gen+1]][[18+sex]] <- matrix(0, nrow=population$info$bv.nr, ncol=breeding.size[sex])
         population$breeding[[current.gen+1]][[20+sex]] <- matrix(0, nrow=population$info$bv.nr, ncol=breeding.size[sex])
+        if(copy.individual){
+          #placeholder
+          population$breeding[[current.gen+1]][[22+sex]] <- rep(-1, breeding.size[sex])
+        } else{
+          population$breeding[[current.gen+1]][[22+sex]] <- rep(time.point, breeding.size[sex])
+        }
+
 
         #    } else if(length(population$breeding[[current.gen+1]][[sex+2]])==0){
         #      population$breeding[[current.gen+1]][[2+sex]] <- rep(0, breeding.size[sex])
@@ -3900,6 +3912,7 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[8+sex]] <- cbind(population$breeding[[current.gen+1]][[8+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
         population$breeding[[current.gen+1]][[10+sex]] <- c(population$breeding[[current.gen+1]][[sex+10]], rep(time.point, breeding.size[sex]))
         population$breeding[[current.gen+1]][[12+sex]] <- c(population$breeding[[current.gen+1]][[sex+12]], rep(creating.type, breeding.size[sex]))
+
         if(copy.individual){
           population$breeding[[current.gen+1]][[14+sex]] <- c(population$breeding[[current.gen+1]][[14+sex]], rep(0,breeding.size[sex]))
         } else{
@@ -3909,7 +3922,14 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[16+sex]] <- c(population$breeding[[current.gen+1]][[sex+16]], rep(NA, breeding.size[sex]))
         population$breeding[[current.gen+1]][[18+sex]] <- cbind(population$breeding[[current.gen+1]][[18+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
         population$breeding[[current.gen+1]][[20+sex]] <- cbind(population$breeding[[current.gen+1]][[20+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
+        if(copy.individual){
+          #placeholder
+          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+10]], rep(-1, breeding.size[sex]))
 
+        } else{
+          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+10]], rep(time.point, breeding.size[sex]))
+
+        }
       }
       if(length(population$breeding[[current.gen+1]][[sex]])==0){
         population$breeding[[current.gen+1]][[sex]] <- list()
@@ -4118,6 +4138,7 @@ breeding.diploid <- function(population,
               for(index7 in 1:nrow(new_copy)){
                 population$breeding[[new_copy[index7,1]]][[new_copy[index7,2]]][[new_copy[index7,3]]][[21]] <- new_copy
               }
+              population$breeding[[current.gen+1]][[sex_running+22]][index6] <- population$breeding[[first_copy[1,1]]][[first_copy[1,2]+22]][first_copy[1,3]]
 
             } else{
               population$breeding[[current.gen+1]][[sex_running]][[index6]][[21]] <- cbind(current.gen+1, sex_running, index6)
@@ -4494,6 +4515,9 @@ breeding.diploid <- function(population,
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[7]] <- child1[[4]]
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[8]] <- child2[[4]]
 
+      if(copy.individual){
+        population$breeding[[current.gen+1]][[sex+22]][current.size[sex]] <- population$breeding[[info.father[1]]][[info.father[2]+22]][info.father[3]]
+      }
       population$info$size[current.gen+1 ,sex] <- population$info$size[current.gen+1,sex] + 1
 
       if(is.vector(child1[[5]])){
@@ -4575,6 +4599,9 @@ breeding.diploid <- function(population,
         tock <- as.numeric(Sys.time())
         generation_stuff <- generation_stuff + tock -tack
       }
+      if(copy.individual){
+        individual.id <- population$breeding[[info.father[1]]][[14+info.father[2]]][info.father[3]]
+      }
       if(population$info$bve){
         activ_bv <- population$info$bv.random.activ
         if(length(activ_bv)>0){
@@ -4642,9 +4669,7 @@ breeding.diploid <- function(population,
           new.bve <- population$breeding[[info.father[1]]][[2+info.father[2]]][,info.father[3]]
           new.reli <- population$breeding[[info.father[1]]][[18+info.father[2]]][,info.father[3]]
         }
-        if(copy.individual){
-          individual.id <- population$breeding[[info.father[1]]][[14+info.father[2]]][info.father[3]]
-        }
+
         if(new.bv.child=="mean" || new.bv.child=="addobs"){
           if(copy.individual){
             new.bv_approx <- population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]]

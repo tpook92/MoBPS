@@ -1,0 +1,511 @@
+{
+  "Nodes": [
+    {
+      "id": "Bull",
+      "Number of Individuals": "250",
+      "x": -205,
+      "y": -226,
+      "individualsVar": "250",
+      "Founder": "Yes",
+      "Path": "",
+      "Proportion of Male": 1,
+      "BV Plot": "Yes",
+      "Sex": "Male",
+      "Phenotyping Class": "Male individuals",
+      "Housing Cost Class": "Male individuals",
+      "Proportion of genotyped individuals": 1,
+      "label": "Bull (250)",
+      "color": "#9acef4",
+      "title": "Bull: 250 Ind",
+      "Genotype generation": "Random-sampling",
+      "Genotype generation subpopulation": "Population 1"
+    },
+    {
+      "id": "Cows",
+      "Number of Individuals": "250",
+      "x": 103,
+      "y": -228,
+      "individualsVar": "250",
+      "Founder": "Yes",
+      "Path": "",
+      "Proportion of Male": 0,
+      "BV Plot": "Yes",
+      "Sex": "Female",
+      "Phenotyping Class": "Male individuals",
+      "Housing Cost Class": "Male individuals",
+      "Proportion of genotyped individuals": 1,
+      "label": "Cows (250)",
+      "color": "#f29595",
+      "title": "Cows: 250 Ind",
+      "Genotype generation": "Random-sampling",
+      "Genotype generation subpopulation": "Population 1"
+    },
+    {
+      "id": "SelectedBulls",
+      "Number of Individuals": "10",
+      "x": -110,
+      "y": -128,
+      "individualsVar": "10",
+      "Founder": "No",
+      "Path": "",
+      "Proportion of Male": 1,
+      "BV Plot": "Yes",
+      "Sex": "Male",
+      "Phenotyping Class": "Male individuals",
+      "Housing Cost Class": "Male + waiting station",
+      "Proportion of genotyped individuals": 1,
+      "label": "SelectedBulls (10)",
+      "color": "#9acef4",
+      "title": "SelectedBulls: 10 Ind"
+    },
+    {
+      "id": "NewBulls",
+      "Number of Individuals": "250",
+      "x": -149,
+      "y": 9,
+      "individualsVar": "250",
+      "Founder": "No",
+      "Path": "",
+      "Proportion of Male": 1,
+      "BV Plot": "Yes",
+      "Sex": "Male",
+      "Phenotyping Class": "Male individuals",
+      "Housing Cost Class": "Male individuals",
+      "Proportion of genotyped individuals": 1,
+      "label": "NewBulls (250)",
+      "color": "#9acef4",
+      "title": "NewBulls: 250 Ind"
+    },
+    {
+      "id": "CowsSecondYear",
+      "Number of Individuals": "250",
+      "x": 52,
+      "y": -131,
+      "individualsVar": "250",
+      "Founder": "No",
+      "Path": "",
+      "Proportion of Male": 0,
+      "BV Plot": "Yes",
+      "Sex": "Female",
+      "Phenotyping Class": "Default PhenoC",
+      "Housing Cost Class": "Female individuals",
+      "Proportion of genotyped individuals": 1,
+      "label": "CowsSecondYear (250)",
+      "color": "#f29595",
+      "title": "CowsSecondYear: 250 Ind",
+      "Genotype generation": "Random-sampling"
+    },
+    {
+      "id": "NewCows",
+      "Number of Individuals": "250",
+      "x": 33,
+      "y": 9,
+      "individualsVar": "250",
+      "Founder": "No",
+      "Path": "",
+      "Proportion of Male": 0,
+      "BV Plot": "Yes",
+      "Sex": "Female",
+      "Phenotyping Class": "Male individuals",
+      "Housing Cost Class": "Male individuals",
+      "Proportion of genotyped individuals": 1,
+      "label": "NewCows (250)",
+      "color": "#f29595",
+      "title": "NewCows: 250 Ind"
+    }
+  ],
+  "Edges": [
+    {
+      "from": "CowsSecondYear",
+      "to": "NewCows",
+      "Breeding Type": "Reproduction",
+      "Selection Type": "",
+      "Number of Repeat": "",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Cows_New_cows",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#f5a623",
+        "highlight": "#f5a623",
+        "hover": "#f5a623"
+      },
+      "title": "Reproduction"
+    },
+    {
+      "from": "SelectedBulls",
+      "to": "NewCows",
+      "Breeding Type": "Reproduction",
+      "Selection Type": "",
+      "Number of Repeat": "",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Selected_Bulls_New_cows",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#f5a623",
+        "highlight": "#f5a623",
+        "hover": "#f5a623"
+      },
+      "title": "Reproduction"
+    },
+    {
+      "from": "SelectedBulls",
+      "to": "NewBulls",
+      "Breeding Type": "Reproduction",
+      "Selection Type": "",
+      "Number of Repeat": "",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Selected_Bulls_New_bulls",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#f5a623",
+        "highlight": "#f5a623",
+        "hover": "#f5a623"
+      },
+      "title": "Reproduction"
+    },
+    {
+      "from": "CowsSecondYear",
+      "to": "NewBulls",
+      "Breeding Type": "Reproduction",
+      "Selection Type": "",
+      "Number of Repeat": "",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Cows_New_bulls",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#f5a623",
+        "highlight": "#f5a623",
+        "hover": "#f5a623"
+      },
+      "title": "Reproduction"
+    },
+    {
+      "0": "0.7",
+      "1": "0.7",
+      "2": "0.5",
+      "from": "Bull",
+      "to": "SelectedBulls",
+      "Breeding Type": "Selection",
+      "Selection Type": "BVE",
+      "Number of Repeat": "",
+      "Relationship Matrix": "VanRaden",
+      "BVE Method": "Direct Mixed-Model",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Bull_Selected_Bulls",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "Manual select",
+      "Manuel selected cohorts": [
+        "CowsSecondYear:0"
+      ],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#7bbb44",
+        "highlight": "#7bbb44",
+        "hover": "#7bbb44"
+      },
+      "title": "Selection Type: BVE"
+    },
+    {
+      "from": "NewBulls",
+      "to": "Bull",
+      "Breeding Type": "Repeat",
+      "Selection Type": "",
+      "Number of Repeat": "10",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": 0,
+      "id": "New_bulls_Bull",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "color": {
+        "color": "#f14235",
+        "highlight": "#f14235",
+        "hover": "#f14235"
+      },
+      "title": "Repeat: 10 times "
+    },
+    {
+      "from": "Cows",
+      "to": "CowsSecondYear",
+      "Breeding Type": "Aging",
+      "Selection Type": "Random",
+      "Number of Repeat": "",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": "1",
+      "id": "Cows_Cows_secondYear",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "Max Offspring": "Inf",
+      "color": {
+        "color": "#dba59a",
+        "highlight": "#dba59a",
+        "hover": "#dba59a"
+      },
+      "title": "Aging"
+    },
+    {
+      "from": "NewCows",
+      "to": "Cows",
+      "Breeding Type": "Repeat",
+      "Selection Type": "Random",
+      "Number of Repeat": "10",
+      "Relationship Matrix": "",
+      "BVE Method": "",
+      "Use Offspring for BVE": "",
+      "Time Needed": 0,
+      "id": "New_cows_Cows",
+      "useVar": [],
+      "Selection Index": "Default Index",
+      "Cohorts used in BVE": "",
+      "Manuel selected cohorts": [],
+      "OGC": "No",
+      "Depth of Pedigree": "",
+      "Max Offspring": "Inf",
+      "color": {
+        "color": "#f14235",
+        "highlight": "#f14235",
+        "hover": "#f14235"
+      },
+      "title": "Repeat: 10 times "
+    }
+  ],
+  "Genomic Info": {
+    "Project Name": "Simple_Cattle",
+    "Species": "Cattle",
+    "Use Ensembl Map": "No",
+    "Ensembl Dataset": "",
+    "Number of Chromosomes": "3",
+    "Chromosomes of Equal Length": "Yes",
+    "Time Unit": "Years",
+    "Use Own Map": "No",
+    "Own Map Path": "",
+    "Chromosomes Info": [
+      {
+        "Length": 100,
+        "MD": "10",
+        "Recombination": 1
+      }
+    ],
+    "Max Number of SNPs": "1000",
+    "advanced": true,
+    "advanced_test": true,
+    "advanced_culling": true,
+    "advanced_sub": true,
+    "advanced_eco": true,
+    "advanced_advanced": true,
+    "advanced_trait": true,
+    "advanced_user": true
+  },
+  "Trait Info": [
+    {
+      "Trait Name": "Milk",
+      "Trait Unit": "liters",
+      "Trait Mean": 9300,
+      "Trait Std Deviation": 900,
+      "Trait Heritability": 0.35,
+      "Trait Number of Polygenic Loci": 1000,
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": "0.30",
+      "Trait QTL Info": []
+    },
+    {
+      "Trait Name": "Fat",
+      "Trait Unit": "%",
+      "Trait Mean": 3.9,
+      "Trait Std Deviation": 0.4,
+      "Trait Heritability": 0.4,
+      "Trait Number of Polygenic Loci": 1000,
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": "100",
+      "Trait QTL Info": []
+    },
+    {
+      "Trait Name": "Protein",
+      "Trait Unit": "%",
+      "Trait Mean": 3.4,
+      "Trait Std Deviation": 0.3,
+      "Trait Heritability": 0.38,
+      "Trait Number of Polygenic Loci": 100,
+      "Trait Major QTL": 0,
+      "Trait Value per Unit": "100",
+      "Trait QTL Info": ""
+    }
+  ],
+  "Selection Index": [
+    {
+      "Name": "Default Index",
+      "P1": 1,
+      "P2": 1,
+      "P3": 1
+    },
+    {
+      "Name": "Milk increase",
+      "P1": "5",
+      "P2": "1",
+      "P3": 1
+    }
+  ],
+  "Selection Index Scaling": [
+    {
+      "Name": "Default Index",
+      "active_scaling": false,
+      "miesenberger": false,
+      "w_scaling": "Per Breeding Value SD"
+    },
+    {
+      "Name": "Milk increase",
+      "active_scaling": false,
+      "miesenberger": false,
+      "w_scaling": "Per Breeding Value SD"
+    }
+  ],
+  "Phenotyping Info": [
+    {
+      "Name": "Default PhenoC",
+      "Cost of phenotyping": "80",
+      "P1": 1,
+      "P2": 1,
+      "P3": 1
+    },
+    {
+      "Name": "Male individuals",
+      "Cost of phenotyping": 0,
+      "P1": "0",
+      "P2": "0",
+      "P3": "0"
+    }
+  ],
+  "Economy": {
+    "Fixed Cost": "50000",
+    "Interest Rate": "1",
+    "Genotyping Cost": 50,
+    "Animal Housing Costs": [
+      {
+        "Name": "Default Housing Cost",
+        "Cost": 0
+      },
+      {
+        "Name": "Male individuals",
+        "Cost": "2920"
+      },
+      {
+        "Name": "Female individuals",
+        "Cost": "4380"
+      },
+      {
+        "Name": "Male + waiting station",
+        "Cost": "2920"
+      }
+    ]
+  },
+  "Culling": {
+    "culling_reasons": []
+  },
+  "Subpopulation": {
+    "subpopulation_list": [
+      {
+        "Name": "Population 1",
+        "beta1": 1,
+        "beta2": 1,
+        "share0": 0,
+        "share1": 0,
+        "fixed_freq": 0,
+        "QTL Info": []
+      }
+    ]
+  },
+  "Phenotypic Correlation": [
+    [
+      1
+    ],
+    [
+      0.1,
+      1
+    ],
+    [
+      0.3,
+      -0.2,
+      1
+    ]
+  ],
+  "PhenotypicResidual": false,
+  "Genetic Correlation": [
+    [
+      1
+    ],
+    [
+      0.3,
+      1
+    ],
+    [
+      0.4,
+      0.1,
+      1
+    ]
+  ],
+  "Intern": {
+    "show_matrix_element": [
+      {
+        "show": true
+      },
+      {
+        "show": true
+      },
+      {
+        "show": true
+      }
+    ],
+    "counter_pheno": 3,
+    "counter_qtl": 0,
+    "individualsVar_options": [],
+    "genetic_data": "Cus",
+    "runned": true
+  },
+  "Class": "4"
+}

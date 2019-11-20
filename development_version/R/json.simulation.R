@@ -106,10 +106,16 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           }
 
         }
+        if(sum(is.na(selection_index))>0){
+          selection_index[is.na(selection_index)] <- 0
+        }
+      } else{
+        selection_index <- NULL
+        selection_index_miesenberger_wscaling <- NULL
+        selection_index_name <- NULL
+        selection_index_name <- NULL
       }
-      if(sum(is.na(selection_index))>0){
-        selection_index[is.na(selection_index)] <- 0
-      }
+
 
       pheno_index_raw <- total$`Phenotyping Info`
 
@@ -1435,52 +1441,55 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             }
             if(length(subpopulations[[subpop]])>7){
               for(indexmod in 8:length(subpopulations[[subpop]])){
-                active_trait <- as.numeric(substr(names(subpopulations[[subpop]])[[indexmod]], start=2, stop=nchar(names(subpopulations[[subpop]])[[indexmod]])))
-                valid_markers0 <- valid_markers1 <- which(p_i[[subpop]]>0 & p_i[[subpop]]<1)
-                for(reduction in (1:length(subpopulations))[-subpop]){
-                  valid_markers0 <- intersect(valid_markers0, which(p_i[[reduction]]==0))
-                }
-                for(reduction in (1:length(subpopulations))[-subpop]){
-                  valid_markers1 <- intersect(valid_markers1, which(p_i[[reduction]]==1))
-                }
-                valid_markers <- c(valid_markers0, valid_markers1)
-                subpop_name <- subpopulation_info[subpop,1]
-                sub_cohort <- population$info$cohorts[which(founder_pop==subpop_name),1]
-                mean_ref <- mean(get.bv(population, cohorts= standard_cohort )[active_trait,])
-                mean_sub <- mean(get.bv(population, cohorts= sub_cohort )[active_trait,])
+                if(subpopulations[[subpop]][[indexmod]]!=""){
+                  active_trait <- as.numeric(substr(names(subpopulations[[subpop]])[[indexmod]], start=2, stop=nchar(names(subpopulations[[subpop]])[[indexmod]])))
+                  valid_markers0 <- valid_markers1 <- which(p_i[[subpop]]>0 & p_i[[subpop]]<1)
+                  for(reduction in (1:length(subpopulations))[-subpop]){
+                    valid_markers0 <- intersect(valid_markers0, which(p_i[[reduction]]==0))
+                  }
+                  for(reduction in (1:length(subpopulations))[-subpop]){
+                    valid_markers1 <- intersect(valid_markers1, which(p_i[[reduction]]==1))
+                  }
+                  valid_markers <- c(valid_markers0, valid_markers1)
+                  subpop_name <- subpopulation_info[subpop,1]
+                  sub_cohort <- population$info$cohorts[which(founder_pop==subpop_name),1]
+                  mean_ref <- mean(get.bv(population, cohorts= standard_cohort )[active_trait,])
+                  mean_sub <- mean(get.bv(population, cohorts= sub_cohort )[active_trait,])
 
-                current_diff <- mean_sub - mean_ref
-                target_diff <- as.numeric(subpopulations[[subpop]][[indexmod]])
+                  current_diff <- mean_sub - mean_ref
+                  target_diff <- as.numeric(subpopulations[[subpop]][[indexmod]])
 
-                if(subpop==1){
-                  change <- target_diff
-                } else{
-                  change <- target_diff - current_diff
-                }
+                  if(subpop==1){
+                    change <- target_diff
+                  } else{
+                    change <- target_diff - current_diff
+                  }
 
-                diff_freq <- c(p_i[[subpop]][valid_markers0], - p_i[[subpop]][valid_markers1])
-
-
-                effect_size <- change / sum(abs(diff_freq)) / 2
-                direction <- diff_freq > 0
-
-                snp_index <- chromo_index <- numeric(length(valid_markers))
-
-                for(index2 in 1:length(valid_markers)){
-                  chromo_index[index2] <- max(which(c(0,population$info$cumsnp)<=valid_markers[index2]))
-                  snp_index[index2] <- valid_markers[index2] - c(0,population$info$cumsnp)[chromo_index[index2]]
-                }
-                add.effects <- cbind(snp_index, chromo_index, 2* effect_size, effect_size,   0)
-
-                add.effects[direction==TRUE,3:5] <- cbind(rep(0, sum(direction)), rep(effect_size, sum(direction)), rep(2*effect_size, sum(direction)))
+                  diff_freq <- c(p_i[[subpop]][valid_markers0], - p_i[[subpop]][valid_markers1])
 
 
-                population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)
-                population$info$bv.calculated <- FALSE
-                if(subpop==1){
-                  population <- breeding.diploid(population, verbose=verbose)
+                  effect_size <- change / sum(abs(diff_freq)) / 2
+                  direction <- diff_freq > 0
+
+                  snp_index <- chromo_index <- numeric(length(valid_markers))
+
+                  for(index2 in 1:length(valid_markers)){
+                    chromo_index[index2] <- max(which(c(0,population$info$cumsnp)<=valid_markers[index2]))
+                    snp_index[index2] <- valid_markers[index2] - c(0,population$info$cumsnp)[chromo_index[index2]]
+                  }
+                  add.effects <- cbind(snp_index, chromo_index, 2* effect_size, effect_size,   0)
+
+                  add.effects[direction==TRUE,3:5] <- cbind(rep(0, sum(direction)), rep(effect_size, sum(direction)), rep(2*effect_size, sum(direction)))
+
+
+                  population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)
                   population$info$bv.calculated <- FALSE
+                  if(subpop==1){
+                    population <- breeding.diploid(population, verbose=verbose)
+                    population$info$bv.calculated <- FALSE
+                  }
                 }
+
               }
             }
           }
@@ -1586,7 +1595,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             nodes[[to_node]]$selection_ratio <- c(1,1)
           }
           if(length(nodes[[to_node]]$selection_ratio_index)==0){
-            nodes[[to_node]]$selection_ratio_index <- c(selection_index_name[1], selection_index_name[1])
+            if(n_traits>0){
+              nodes[[to_node]]$selection_ratio_index <- c(selection_index_name[1], selection_index_name[1])
+            }
+
           }
           if(length(edges[[index]]$'selection_ratio')>0){
             sex <- as.numeric(nodes[[which(ids==edges[[index]]$from)]]$Sex=="Female") + 1
@@ -1935,7 +1947,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         housing_class <- which(nodes[[groupnr]]$`Housing Cost Class`==housing[[2]])
         cost_housing <- nodes[[groupnr]]$`Number of Individuals` * housing[[1]][housing_class]
 
-        costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+        if(n_traits==0){
+          costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing, cost_geno, cost_housing))
+        } else{
+          costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+        }
+
 
 
       }
@@ -1973,12 +1990,23 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               }
             }
 
-            costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+            if(n_traits==0){
+              costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing, cost_geno, cost_housing))
+            } else{
+              costdata <- rbind(costdata, c(group_name, group_size, group_time, cost_geno+cost_housing+cost_pheno, cost_geno, cost_pheno, cost_housing))
+
+            }
           }
         }
 
       }
-      colnames(costdata) <- c("Cohort name", "Nr. of individuals", "Time-point", "Total costs", "Cost genotyping", "Cost phenotyping", "Cost housing")
+      if(n_traits==0){
+        colnames(costdata) <- c("Cohort name", "Nr. of individuals", "Time-point", "Total costs", "Cost genotyping", "Cost housing")
+
+      } else{
+        colnames(costdata) <- c("Cohort name", "Nr. of individuals", "Time-point", "Total costs", "Cost genotyping", "Cost phenotyping", "Cost housing")
+
+      }
 
       if(FALSE){
         as.data.frame(costdata)
@@ -1997,7 +2025,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           index3 <- which(time_point_plot==costdata[index,3])
           cost_plot_sex[sex,index3] <-  cost_plot_sex[sex,index3] + as.numeric(costdata[index,4])
         }
-        barplot(cost_plot_sex, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue"))
+        barplot(cost_plot_sex, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("blue", "red"))
 
         cost_plot_type <- matrix(0, ncol=length(time_point_plot), nrow=3)
         for(index in 1:length(time_point_plot)){
@@ -2033,8 +2061,22 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             involved_cohorts <- nodes[[groupnr]]$origin
             cohort_data <- population$info$cohorts[involved_cohorts,,drop=FALSE]
             sex_cohorts <- (as.numeric(cohort_data[,3])==0) +1
-            selection.size <- c(sum(as.numeric(cohort_data[,3])), sum(as.numeric(cohort_data[,4])))
+            selection.size <- selection.size.max <- c(sum(as.numeric(cohort_data[,3])), sum(as.numeric(cohort_data[,4])))
+            if(selection.size[1]>0){
+              selection.size.max[1] <- sum(get.class(population, cohorts=cohort_data[as.numeric(cohort_data[,3])>0,1])!=(-1))
+            }
+            if(selection.size[2]>0){
+              selection.size.max[2] <-sum(get.class(population, cohorts=cohort_data[as.numeric(cohort_data[,4])>0,1])!=(-1))
+            }
 
+
+            if(selection.size[1]>selection.size.max[1]){
+              cat(paste0("Less individuals available than designed for cohort: ", group,".\n"))
+              cat(paste0(selection.size.max[1], " male individuals & ", selection.size.max[2], " female individuals."))
+              selection.size[selection.size<selection.size.max] <- selection.size.max[selection.size<selection.size.max]
+
+
+            }
             share.genotyped <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
             cohorts.m <- involved_cohorts[sex_cohorts==1]
             cohorts.f <- involved_cohorts[sex_cohorts==2]
@@ -2043,11 +2085,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             # Derive time.point
             time.point <- 0
             origins <- nodes[[which(ids==group)]]$origin
-            time_needed <- as.numeric(nodes[[which(ids==group)]]$'Time Needed')
-            for(temp1 in 1:length(origins)){
-              time.point <- as.numeric(population$info$cohorts[population$info$cohorts[,1]==origins[temp1],8]) + time_needed[temp1]
-            }
-            time.point <- max(nodes[[which(ids==group)]]$earliest_time, time.point)
+
+            time.point <- generation_times[generation-1]
 
             bve.database <- NULL
             bve_exe <- TRUE
@@ -2153,6 +2192,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               } else if(nodes[[groupnr]]$'Selection Type' == "Pseudo-BVE"){
                 bve <- pseudo_bve <- TRUE
                 pseudo_acc <- nodes[[groupnr]]$'PseudoAcc'
+                selection <- "function"
               } else if(nodes[[groupnr]]$'Selection Type'=="BVE"){
                 bve <- TRUE
                 selection <- "function"
@@ -2338,6 +2378,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              multiple.bve.scale.f = selection_index_miesenberger_wscaling[max(1,which(selection_index_name==nodes[[groupnr]]$selection_ratio_index[2]))],
                                              verbose=verbose
               )
+
             } else if(nodes[[groupnr]]$'Breeding Type'=="Selfing"){
 
               selfing.sex <- as.numeric(selection.size[2]>0)- 0.5 * as.numeric((selection.size[1]>0)*(selection.size[2]>0))
@@ -2522,41 +2563,52 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           to <- Inf
         }
 
-        if(verbose) cat(paste0("Start culling modul for time span ", from ," to ", to,".\n"))
+        if(verbose & nrow(culling_reason)>0) cat(paste0("Start culling modul for time span ", from ," to ", to,".\n"))
 
 
         for(cohort_index in alive_cohorts[alive_numbers>0]){
-          age_start <- from - as.numeric(population$info$cohorts[cohort_index,8])
-          age_end <- to - as.numeric(population$info$cohorts[cohort_index,8])
+          individual_time <- get.age.point(population, cohorts = cohort_index)
+          age_start <- min(from - individual_time) ## min()
+          age_end <- max(to - individual_time) ## max()
           sex <- if(population$info$cohorts[cohort_index,4]=="0"){"Male"} else{"Female"}
           sex1 <- as.numeric(sex=="Female") + 1
           # Time - period, sex
           active_culling <- as.numeric(culling_reason[,2]) > age_start & as.numeric(culling_reason[,2]) <= age_end & (culling_reason[,3] == sex | culling_reason[,3]=="Both")
 
           active_cohort <- which(population$info$cohorts[,1]==cohort_index)
+
+
           for(culling_index in which(active_culling)){
-            population <- breeding.diploid(population,
-                                           culling.cohort = cohort_index,
-                                           culling.time = as.numeric(culling_reason[culling_index,2]),
-                                           culling.name = culling_reason[culling_index,1],
-                                           culling.bv1 = as.numeric(culling_reason[culling_index,6]),
-                                           culling.bv2 = as.numeric(culling_reason[culling_index,8]),
-                                           culling.share1 = as.numeric(culling_reason[culling_index,5]),
-                                           culling.share2 = as.numeric(culling_reason[culling_index,7]),
-                                           culling.index = selection_index[which(selection_index_name==culling_reason[culling_index,4]),],
-                                           verbose=verbose
-            )
-            if(length(population$info$culling.stats)>=active_cohort){
-              new_death <- as.numeric(population$info$culling.stats[[active_cohort]][population$info$culling.stats[[active_cohort]][,1]==culling_reason[culling_index,1],2])
+            age_start_single <- from - individual_time
+            age_end_single <- to - individual_time
+            active_single <- as.numeric(culling_reason[culling_index,2]) > age_start_single & as.numeric(culling_reason[culling_index,2]) <= age_end_single & rep(culling_reason[culling_index,3] == sex | culling_reason[culling_index,3]=="Both", length(age_end_single))
 
-            } else{
-              new_death <- 0
+            if(sum(active_single)>0){
+              population <- breeding.diploid(population,
+                                             culling.cohort = cohort_index,
+                                             culling.time = as.numeric(culling_reason[culling_index,2]),
+                                             culling.name = culling_reason[culling_index,1],
+                                             culling.bv1 = as.numeric(culling_reason[culling_index,6]),
+                                             culling.bv2 = as.numeric(culling_reason[culling_index,8]),
+                                             culling.share1 = as.numeric(culling_reason[culling_index,5]),
+                                             culling.share2 = as.numeric(culling_reason[culling_index,7]),
+                                             culling.index = selection_index[which(selection_index_name==culling_reason[culling_index,4]),],
+                                             culling.single = active_single,
+                                             verbose=verbose
+              )
+              if(length(population$info$culling.stats)>=active_cohort){
+                new_death <- as.numeric(population$info$culling.stats[[active_cohort]][population$info$culling.stats[[active_cohort]][,1]==culling_reason[culling_index,1],2])
+
+              } else{
+                new_death <- 0
+
+              }
+              if(length(new_death)>0){
+                alive_numbers[active_cohort] <- alive_numbers[active_cohort] - new_death
+              }
+
 
             }
-            if(length(new_death)>0){
-              alive_numbers[active_cohort] <- alive_numbers[active_cohort] - new_death
-            }
-
 
           }
           if(alive_numbers[active_cohort]==0){

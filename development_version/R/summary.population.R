@@ -65,7 +65,7 @@ summary.population <- function(object, ...){
       if(sum(temp1)==0){
         cat("Genetics of traits are uncorrelated. \n")
       } else{
-        cat(paste0("Highest correlation between genetics of traits is ", max(temp1)))
+        cat(paste0("Highest correlation between genetics of traits is ", max(temp1),".\n"))
       }
       temp1 <- population$info$pheno.correlation %*% t(population$info$pheno.correlation)
       diag(temp1) <- 0

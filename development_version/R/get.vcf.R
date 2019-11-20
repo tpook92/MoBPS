@@ -47,10 +47,20 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
       start <- start + population$info$snp[index]
     }
   }
-  map <- data.frame(chr=chr.nr, pos=population$info$bp )
-  rownames(map) <- rownames(haplo)
+  map <- data.frame(chr=chr.nr, pos=as.numeric(population$info$bp ))
+
+
   geno <- haplo[,(1:(ncol(haplo)/2)*2)] + haplo[,(1:(ncol(haplo)/2)*2)-1]
   geno[geno==1] <- haplo[,(1:(ncol(haplo)/2)*2)][geno==1]*2-1
+
+  if(length(unique(rownames(haplo)))!=nrow(haplo)){
+    chr.nr <- NULL
+    for(index in 1:population$info$chromosome){
+      chr.nr <- c(chr.nr, rep(index, population$info$snp[index]))
+    }
+    rownames(map) <- paste0("Chr",chr.nr,rownames(haplo))
+    rownames(geno)<- paste0("Chr",chr.nr,rownames(haplo))
+  }
 
   if (requireNamespace("synbreed", quietly = TRUE)) {
     gp <- synbreed::create.gpData(geno=t(geno), map=map)

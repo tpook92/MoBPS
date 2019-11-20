@@ -89,11 +89,12 @@ breeding.diploid(population, mutation.rate = 10^-5,
   offspring.bve.offspring.cohorts = NULL, culling.cohort = NULL,
   culling.time = Inf, culling.name = "Not_named", culling.bv1 = 0,
   culling.share1 = 0, culling.bv2 = NULL, culling.share2 = NULL,
-  culling.index = 0, calculate.reliability = FALSE,
-  selection.m.gen = NULL, selection.f.gen = NULL,
-  selection.m.database = NULL, selection.f.database = NULL,
-  selection.m.cohorts = NULL, selection.f.cohorts = NULL,
-  selection.m.miesenberger = FALSE, selection.f.miesenberger = NULL,
+  culling.index = 0, culling.single = TRUE,
+  calculate.reliability = FALSE, selection.m.gen = NULL,
+  selection.f.gen = NULL, selection.m.database = NULL,
+  selection.f.database = NULL, selection.m.cohorts = NULL,
+  selection.f.cohorts = NULL, selection.m.miesenberger = FALSE,
+  selection.f.miesenberger = NULL,
   selection.miesenberger.reliability.est = "estimated",
   multiple.bve.weights.m = 1, multiple.bve.weights.f = NULL,
   multiple.bve.scale.m = "bve_sd", multiple.bve.scale.f = NULL,
@@ -485,6 +486,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{culling.share2}{Probability of death for individuals with bv2}
 
 \item{culling.index}{Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)}
+
+\item{culling.single}{Set to FALSE to not apply the culling module on all individuals of the cohort}
 
 \item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
 
