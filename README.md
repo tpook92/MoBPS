@@ -1,5 +1,6 @@
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
+A manuscript for the package is finally available in preprint (https://www.biorxiv.org/content/10.1101/829333v1)
  
 The package is designed in a way to allow for a maximum of flexibility and possible extensions in basically any step of the simulation. In case you feel like a specific functionally or option is missing in the program just contact me (torsten.pook@uni-goettingen.de). 
 I would highly appreciate detailled explanation of the genetics/breeding you are trying to model to make it easier for me to add in the options needed in an efficient manner. 
@@ -20,6 +21,15 @@ Note that this web-interface is still under active development with the final st
 # Update
 
 Updates since release:
+
+### Version 1.4.19 (13.11.19) - Only Development branch
+
+Function bv.standardization for standardization of trait mean and variance
+
+Marker Assisted Selection via mas.bve
+
+Updates to json.simulation for web-based application 
+
 
 ### Version 1.4.15 (29.10.19)
 
