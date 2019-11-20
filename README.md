@@ -22,6 +22,16 @@ Note that this web-interface is still under active development with the final st
 
 Updates since release:
 
+### Version 1.4.22 (20.11.19) - Only Development branch
+
+Updates to json.simulation
+
+Added Folder for IMAGE workshop
+
+now taking of age + time the cohort is there (only different when copy.individual is used)
+
+Culling now uses age - not time the cohort is there
+
 ### Version 1.4.19 (13.11.19) - Only Development branch
 
 Function bv.standardization for standardization of trait mean and variance
