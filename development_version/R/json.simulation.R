@@ -50,6 +50,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
   {
     {
+
+
       if(requireNamespace("RandomFieldsUtils", quietly = TRUE)){
         RandomFieldsUtils::RFoptions(helpinfo=FALSE)
       }
@@ -65,6 +67,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       map <- NULL
       bp <- NULL
 
+      if(length(geninfo$'advanced_miraculix')>0 && geninfo$'advanced_miraculix'==FALSE){
+        cat("Miraculix has been manually disabled!\n")
+        miraculix.dataset <- FALSE
+        miraculix <- FALSE
+        miraculix.chol <- FALSE
+      }
 
       if(length(geninfo$`speed-mode`)>0 && geninfo$`speed-mode`=="Yes"){
         fast.mode <- TRUE
@@ -1025,19 +1033,53 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               haplo_temp <- cbind(haplo1, haplo2)
               haplo_temp <- haplo_temp[,c(0,ncol(haplo1)) + rep(1:ncol(haplo1), each=2)]
 
-              order <- numeric(nrow(map))
-              prev <- 0
-              it <- nrow(vcf_file@fix)
-              for(index in 1:it){
+              order <- numeric(nrow(vcf_file@fix))
+              prev <-  0
+              max_print1 <- TRUE
+              max_print2 <- TRUE
+              it <- nrow(map)
+              skips <- numeric(nrow(vcf_file@fix))
+              for(index in 1:nrow(vcf_file@fix)){
                 if(prev < it && map[prev+1,2]==vcf_file@fix[index,3]){
                   prev <- prev +1
                 } else{
                   prev <- which(map[,2]==vcf_file@fix[index,3])
                 }
-                order[index] <- prev
+                if(length(prev)==1){
+                  order[index] <- prev
+                } else if(length(prev)>1){
+                  skips[index] <- index
+                  if(max_print1){
+                    cat("Marker names in vcf are not unique!")
+                    max_print1 <- FALSE
+                  }
+
+                } else if(length(prev)==0 ){
+                  skips[index] <- index
+                  if(max_print2){
+                    cat("Marker in VCF that do not appear in the map!\n")
+                    max_print2 <- FALSE
+                  }
+
+                }
+
+                if(length(prev)!=1){
+                  prev <- 0
+                }
+
               }
               haplo <- matrix(0,nrow=nrow(map), ncol=ncol(haplo_temp))
-              haplo[order,] <- haplo_temp
+              if(sum(skips)>0){
+                haplo[order,] <- haplo_temp[-skips,]
+              } else{
+                haplo[order,] <- haplo_temp
+              }
+              if(sum(is.na(haplo))>0){
+                cat("YOUR DATASET CONTAINS MISSING ELEMENTS. \nEverything missing is set to 0. Consider Phasing!\n")
+                cat(paste0(sum(is.na(haplo)), " missing entries in haplotype data!\n"))
+                haplo[is.na(haplo)] <- 0
+              }
+
             } else{
               stop("Data-import failed! vcfR-package not available! \n")
             }
@@ -1298,7 +1340,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               dataset[,take] <- 1L
             } else if(input_type=="All-A-Allele "){
               dataset[,take] <- 0L
-            } else{
+            } else if(input_type!="Upload Genotypes"){
               stop("Invalid input type for founder node!")
             }
           }
@@ -2070,13 +2112,49 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             }
 
 
-            if(selection.size[1]>selection.size.max[1]){
+            if(selection.size[1]>selection.size.max[1] || selection.size[2]>selection.size.max[2] ){
               cat(paste0("Less individuals available than designed for cohort: ", group,".\n"))
               cat(paste0(selection.size.max[1], " male individuals & ", selection.size.max[2], " female individuals."))
               selection.size[selection.size>selection.size.max] <- selection.size.max[selection.size>selection.size.max]
 
+            }
+
+            if(nodes[[groupnr]]$'Breeding Type'=="Selection" ||
+               nodes[[groupnr]]$'Breeding Type'=="Aging" ||
+               nodes[[groupnr]]$'Breeding Type'=="Split" ||
+               nodes[[groupnr]]$'Breeding Type'=="Combine"){
+
+              if(breeding.size[1]>selection.size[1]){
+                breeding.size[1] <- selection.size[1]
+                cat(paste0("Reduce size of cohort ", group," to ", breeding.size[1],".\n"))
+              }
+              if(breeding.size[2]>selection.size[2]){
+                breeding.size[2] <- selection.size[2]
+                cat(paste0("Reduce size of cohort ", group," to ", breeding.size[2],".\n"))
+              }
 
             }
+
+            #
+            if(nodes[[groupnr]]$'Breeding Type'=="Reproduction" ||
+               nodes[[groupnr]]$'Breeding Type'=="Selfing" ||
+               nodes[[groupnr]]$'Breeding Type'=="DH-Production" ||
+               nodes[[groupnr]]$'Breeding Type'=="Cloning"
+            ){
+
+              if(length(nodes[[groupnr]]$max_offspring)>0 && sum(breeding.size)>(selection.size[1] *nodes[[groupnr]]$max_offspring[1])){
+                breeding.size[breeding.size>0] <- selection.size[1] * nodes[[groupnr]]$max_offspring[1]
+                cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
+              }
+              if(length(nodes[[groupnr]]$max_offspring)>0 && sum(breeding.size)>(selection.size[2] *nodes[[groupnr]]$max_offspring[2])){
+                breeding.size[breeding.size>0] <- selection.size[2] * nodes[[groupnr]]$max_offspring[2]
+                cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
+              }
+
+            }
+            nodes[[groupnr]]$max_offspring
+
+
             share.genotyped <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
             cohorts.m <- involved_cohorts[sex_cohorts==1]
             cohorts.f <- involved_cohorts[sex_cohorts==2]
@@ -2254,6 +2332,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                   pheno_index[which(pheno_index_name==nodes[[which(ids==involved_cohorts[1])]]$'Phenotyping Class'),]
                 add.observation[add.observation<0] <- 0
               }
+
 
               reduced.selection.panel.m <- NULL
               reduced.selection.panel.f <- NULL
@@ -2597,8 +2676,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              verbose=verbose
               )
               if(length(population$info$culling.stats)>=active_cohort){
-                new_death <- as.numeric(population$info$culling.stats[[active_cohort]][population$info$culling.stats[[active_cohort]][,1]==culling_reason[culling_index,1],2])
-
+                opt1 <- as.numeric(population$info$culling.stats[[active_cohort]][population$info$culling.stats[[active_cohort]][,1]==culling_reason[culling_index,1],2])
+                new_death <- opt1[length(opt1)]
               } else{
                 new_death <- 0
 

@@ -123,13 +123,17 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
     animal.nr.temp <- animal.nr[1:min(replaces)]
     for(replace in replaces){
       new <- which(animal.nr.temp==animal.nr[replace])[1]
-      if(length(new)==0){
+      if(is.na(new)){
         animal.nr.temp <- animal.nr[1:replace]
         new <- which(animal.nr.temp==animal.nr[replace])[1]
       }
       info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
     }
   }
+
+
+
+
 
   sex.indi <- as.numeric(substr(info.indi[,1], start=1, stop=1)=="F") +1
   temp1 <- as.numeric(unlist(strsplit(substr(info.indi[,1], start=2, stop=nchar(info.indi[,1])), "\\_")))

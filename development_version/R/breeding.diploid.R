@@ -1245,17 +1245,20 @@ breeding.diploid <- function(population,
     culling.database <- get.database(population, cohorts=culling.cohort)
     store <- population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]]
     population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]][culling.action] <- (-1)
+    population$breeding[[culling.database[1]]][[culling.database[2]+24]][culling.database[3]:culling.database[4]][culling.action] <-
+      population$breeding[[culling.database[1]]][[culling.database[2]+22]][culling.database[3]:culling.database[4]][culling.action] + culling.time
     new_death <- population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]] != store
     n_death <- sum(new_death)
 
     if(n_death>0){
-      population$breeding[[culling.database[1]]][[culling.database[2]+16]][culling.database[3]:culling.database[4]][which(new_death)] <- population$breeding[[culling.database[1]]][[culling.database[2]+10]][culling.database[3]:culling.database[4]][which(new_death)] + culling.time
+      population$breeding[[culling.database[1]]][[culling.database[2]+16]][culling.database[3]:culling.database[4]][which(new_death)] <- population$breeding[[culling.database[1]]][[culling.database[2]+10]][culling.database[3]:culling.database[4]][which(new_death)]
       active_cohort <- which(population$info$cohorts[,1]==culling.cohort)
       if(length(population$info$culling.stats)<active_cohort){
         population$info$culling.stats[[active_cohort]] <- cbind(culling.name, n_death)
       } else{
         population$info$culling.stats[[active_cohort]] <- rbind(population$info$culling.stats[[active_cohort]],
                                                                 c(culling.name, n_death))
+
       }
 
     }
@@ -3897,7 +3900,7 @@ breeding.diploid <- function(population,
         } else{
           population$breeding[[current.gen+1]][[22+sex]] <- rep(time.point, breeding.size[sex])
         }
-
+        population$breeding[[current.gen+1]][[24+sex]] <- rep(NA, breeding.size[sex])
 
         #    } else if(length(population$breeding[[current.gen+1]][[sex+2]])==0){
         #      population$breeding[[current.gen+1]][[2+sex]] <- rep(0, breeding.size[sex])
@@ -3924,12 +3927,13 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[20+sex]] <- cbind(population$breeding[[current.gen+1]][[20+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
         if(copy.individual){
           #placeholder
-          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+10]], rep(-1, breeding.size[sex]))
+          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+22]], rep(-1, breeding.size[sex]))
 
         } else{
-          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+10]], rep(time.point, breeding.size[sex]))
+          population$breeding[[current.gen+1]][[22+sex]] <- c(population$breeding[[current.gen+1]][[sex+22]], rep(time.point, breeding.size[sex]))
 
-        }
+        }#
+        population$breeding[[current.gen+1]][[24+sex]] <- c(population$breeding[[current.gen+1]][[sex+24]], rep(NA, breeding.size[sex]))
       }
       if(length(population$breeding[[current.gen+1]][[sex]])==0){
         population$breeding[[current.gen+1]][[sex]] <- list()
