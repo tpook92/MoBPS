@@ -20,7 +20,20 @@ Note that this web-interface is still under active development with the final st
 
 # Update
 
-Updates since release:
+Updates since initial release:
+
+### Version 1.4.28 (04.12.19) - Only Development branch
+
+Fixed bug when deriving pedigree matrix in a population with individuals that are generated via copy.individual
+
+New implementation of get.vcf that is not requiring the R-package synbreed anymore
+
+get.pedmap now as reasonal input of family (based on cohort if available), sex, paternal IDs
+
+Better tracking of individual ages (e.g. added time of death for each individual)
+
+Automatically reduce cohort sizes in json.simulation when individual exit system via aging
+
 
 ### Version 1.4.22 (20.11.19) - Only Development branch
 
