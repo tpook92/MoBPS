@@ -835,7 +835,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     bp <- numeric(sum(nsnp))
     start1 <- 1
     for(index in 1:length(nsnp)){
-      bp[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
+      if(length(chromosome.length)>=index){
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[index] * 100000000 / nsnp[index])
+      } else{
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[1] * 100000000 / nsnp[index])
+      }
+
       start1 <- start1 + nsnp[index]
     }
   }

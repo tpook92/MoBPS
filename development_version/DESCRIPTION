@@ -8,6 +8,6 @@ Description: Simulation of breeding programs under selection, recombination ect.
 Depends: R (>= 3.0), graphics, stats
 License: GPL ( >= 3)
 LazyData: TRUE
-Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, miraculix, RandomFieldsUtils, MoBPSmaps, foreach, doParallel, sommer, breedR, vcfR, synbreed, jsonlite, rrBLUP, biomaRt, Matrix
+Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, miraculix, RandomFieldsUtils, MoBPSmaps, foreach, doParallel, sommer, breedR, vcfR, jsonlite, rrBLUP, biomaRt, Matrix
 RoxygenNote: 6.1.1
 Date: 2018-10-10

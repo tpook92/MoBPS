@@ -920,7 +920,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       }
       if(length(map)==0){
         for(index in 1:nchromo){
-          map <- rbind(map, cbind(index, paste0("SNP", 1:nsnp[index]), NA, NA, NA))
+          map <- rbind(map, cbind(index, paste0("Chr", index,"SNP", 1:nsnp[index]), NA, NA, NA))
         }
         if(length(bp)>0){
           map[,3] <- bp
@@ -1349,6 +1349,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
 
     }
+
 
     ############### Generate Base-Population
     {
@@ -2152,7 +2153,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               }
 
             }
-            nodes[[groupnr]]$max_offspring
 
 
             share.genotyped <- as.numeric(nodes[[groupnr]]$`Proportion of genotyped individuals`)
