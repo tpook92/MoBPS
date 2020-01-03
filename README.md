@@ -26,13 +26,13 @@ Updates since initial release:
 
 Fixed bug when deriving pedigree matrix in a population with individuals that are generated via copy.individual
 
-New implementation of get.vcf that is not requiring the R-package synbreed anymore
+New implementation of get.vcf() that is not requiring the R-package synbreed anymore
 
-get.pedmap now as reasonal input of family (based on cohort if available), sex, paternal IDs
+get.pedmap() now as reasonal input of family (based on cohort if available), sex, paternal IDs
 
 Better tracking of individual ages (e.g. added time of death for each individual)
 
-Automatically reduce cohort sizes in json.simulation when individual exit system via aging
+Automatically reduce cohort sizes in json.simulation() when individual exit system via culling
 
 
 ### Version 1.4.22 (20.11.19) - Only Development branch
