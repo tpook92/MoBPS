@@ -22,6 +22,20 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.43 (03.01.20) - Only Development branch
+
+Added selection according to a threshold (instead of fixed number of individuals) threshold.selection in breeding diploid()
+
+Generate PCA for selected cohorts (get.pca)
+
+Memory efficient implementation of pedigree-matrix
+
+Commutational more efficent bv.standardization()
+
+Removed typo in get.vcf()
+
+Transformation function for phenotypes
+
 ### Version 1.4.28 (04.12.19) - Only Development branch
 
 Fixed bug when deriving pedigree matrix in a population with individuals that are generated via copy.individual
