@@ -24,10 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to remove recombination points + origins with no influence on markers
 #' @param population Population list
 #' @param gen Generations to clean up (default: "current")
-#' @param remove.no.snp.segments If TRUE remove segments which do not contain SNPs
 #' @export
 
-clean.up <- function(population, gen="current", remove.no.snp.segments=FALSE){
+clean.up <- function(population, gen="all"){
   #remove.no.snp.segments nur auf die Schnelle und super ineffizient!
   generations <- gen
   if(gen=="current"){
@@ -37,71 +36,22 @@ clean.up <- function(population, gen="current", remove.no.snp.segments=FALSE){
     generations <- 1:length(population$breeding)
   }
 
-  for(current.gen in generations){
-  for(sex in 1:2){
-    n <- length(population$breeding[[current.gen]][[sex]])
-    if(n>0){
-      for(index in 1:n){
-        for(row in 1:2){
-          if(length(population$breeding[[current.gen]][[sex]][[index]][[4+row]])>7){
-            remove.list <- rep(0,(nrow(population$breeding[[current.gen]][[sex]][[index]][[4+row]])-1))
-            for(abc in 1:(nrow(population$breeding[[current.gen]][[sex]][[index]][[4+row]])-1)){
+  for(index in generations){
+    print(index)
+    for(index2 in 1:2){
+      if(length(population$breeding[[index]][[index2]])>0){
+        for(index3 in 1:length(population$breeding[[index]][[index2]])){
+          for(index4 in 1:2){
+            removes <- which(diff(population$breeding[[index]][[index2]][[index3]][[index4+4]])==0)+1
+            population$breeding[[index]][[index2]][[index3]][[index4+4]] <- population$breeding[[index]][[index2]][[index3]][[index4+4]][-removes]
+            population$breeding[[index]][[index2]][[index3]][[index4]] <- population$breeding[[index]][[index2]][[index3]][[index4]][-removes]
 
-              if(prod(population$breeding[[current.gen]][[sex]][[index]][[4+row]][abc,]==population$breeding[[current.gen]][[sex]][[index]][[4+row]][abc+1,])){
-                remove.list[abc] <- 1
-               }
-            }
-            if(sum(remove.list)>0){
-              remove.list <- remove.list * 1:(length(remove.list))
-              population$breeding[[current.gen]][[sex]][[index]][[4+row]] <- population$breeding[[current.gen]][[sex]][[index]][[4+row]][-remove.list,]
-              population$breeding[[current.gen]][[sex]][[index]][[row]] <- population$breeding[[current.gen]][[sex]][[index]][[row]][-(remove.list+1*(remove.list!=0))]
-
-            }
-
-          }
-
-        }
-      }
-    }
-  }
-  }
-  # SUPER INEFFZIENT!
-  # ES MUESSTEN DEUTLICHER WENIGER VERGLEICHE DURCHGEFUEHRT WERDEN!
-  if(remove.no.snp.segments==TRUE){
-    snp.p <- population$info$snp.position
-    for(current.gen in generations){
-      for(sex in 1:2){
-        n <- length(population$breeding[[current.gen]][[sex]])
-        if(n>0){
-          for(index in 1:n){
-            for(row in 1:2){
-              recom <- population$breeding[[current.gen]][[sex]][[index]][[row]]
-              nr <- length(recom)-1
-              rm <- numeric(nr)
-              rm1 <- numeric(nr)
-              for(index2 in 1:nr){
-                prev1 <- recom[index2]
-                next1 <- recom[index2+1]
-                if(sum(prev1<snp.p)== sum(next1<snp.p)){
-                  rm[index2] <- index2
-                  rm1[index2] <- index2 +1
-                }
-              }
-              if(rm[nr]>0){
-                rm[nr] <- rm[nr] - 1
-                rm1[nr] <- rm1[nr] -1
-              }
-              if(sum(rm)>0){
-                population$breeding[[current.gen]][[sex]][[index]][[row]] <- population$breeding[[current.gen]][[sex]][[index]][[row]][-rm1]
-                population$breeding[[current.gen]][[sex]][[index]][[row+4]] <- population$breeding[[current.gen]][[sex]][[index]][[row+4]][-rm,]
-              }
-
-
-            }
           }
         }
       }
+
     }
   }
+
   return(population)
 }

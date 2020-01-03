@@ -5,7 +5,8 @@
 \title{BV standardization}
 \usage{
 bv.standardization(population, mean.target = 100, var.target = 10,
-  gen = NULL, database = NULL, cohorts = NULL)
+  gen = NULL, database = NULL, cohorts = NULL, adapt.bve = FALSE,
+  adapt.pheno = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -19,6 +20,10 @@ bv.standardization(population, mean.target = 100, var.target = 10,
 \item{database}{Groups of individuals to consider for the export}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{adapt.bve}{Modify previous breeding value estimations by scaling (default: FALSE)}
+
+\item{adpat.pheno}{Modify previous phenotypes by scaling (default: FALSE)}
 }
 \description{
 Function to get mean and genetic variance of a trait to a fixed value

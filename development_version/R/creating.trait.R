@@ -353,6 +353,8 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   population$info$bv.random <- bv.random
   population$info$bv.random.variance <- bv.random.variance
 
+  population$info$phenotypic.transform <- rep(FALSE, bv.total)
+  population$info$phenotypic.transform.function <- list()
 
   if(length(bve.mult.factor)==0){
     population$info$bve.mult.factor <- rep(1L, bv.total)

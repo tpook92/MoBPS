@@ -28,12 +28,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param adapt.bve Modify previous breeding value estimations by scaling (default: FALSE)
+#' @param adpat.pheno Modify previous phenotypes by scaling (default: FALSE)
 #' @export
 
 
-bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL){
+bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL,
+                               adapt.bve=FALSE, adapt.pheno=FALSE){
 
   n_traits <- population$info$bv.nr
+
+  modi1 <- rep(1, n_traits)
+  modi2 <- population$info$base.bv
+
   if(length(mean.target)<n_traits) mean.target <- rep(mean.target, length.out = n_traits)
   if(length(var.target)<n_traits) var.target <- rep(var.target, length.out = n_traits)
   if(length(gen)==0 && length(database)==0 && length(cohorts)==0){
@@ -58,10 +65,19 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
       population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
       test1 <- FALSE
     }
+    modi1[index] <- sqrt(new_var / var_test)
+
     if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
 
   }
-  population$info$bv.calculated <- FALSE
+
+  for(gen in 1:length(population$breeding)){
+    for(sex in 1:2){
+      if(length(population$breeding[[gen]][[sex+6]])>0){
+        population$breeding[[gen]][[sex+6]] <- (((population$breeding[[gen]][[sex+6]] - modi2) * modi1) + modi2)
+      }
+    }
+  }
 
   ## Mean Standardization
   for(index in 1:n_traits){
@@ -72,11 +88,38 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
 
     mean_test <- mean(get.bv(population, database = database)[index,])
 
-
     population$info$base.bv[index] <- mean.target[index] + population$info$base.bv[index] - mean_test
 
   }
-  population$info$bv.calculated <- FALSE
 
+  for(gen in 1:length(population$breeding)){
+    for(sex in 1:2){
+      if(length(population$breeding[[gen]][[sex+6]])>0){
+        population$breeding[[gen]][[sex+6]] <- population$breeding[[gen]][[sex+6]] - modi2 + population$info$base.bv
+      }
+    }
+  }
+
+
+  if(adapt.bve){
+    for(gen in 1:length(population$breeding)){
+      for(sex in 1:2){
+        activ <- (population$breeding[[gen]][[sex+2]]!= 0)
+        if(sum(activ)>0){
+          population$breeding[[gen]][[sex+2]][activ] <- (((population$breeding[[gen]][[sex+2]] - modi2) * modi1) + population$info$base.bv)[activ]
+        }
+      }
+    }
+  }
+  if(adapt.pheno){
+    for(gen in 1:length(population$breeding)){
+      for(sex in 1:2){
+        activ <- (population$breeding[[gen]][[sex+8]]!= 0) & (!population$info$phenotypic.transform)
+        if(sum(activ)>0){
+          population$breeding[[gen]][[sex+8]][activ] <- (((population$breeding[[gen]][[sex+8]] - modi2) * modi1) + population$info$base.bv)[activ]
+        }
+      }
+    }
+  }
   return(population)
 }

@@ -4,14 +4,12 @@
 \alias{clean.up}
 \title{Clean-up recombination points}
 \usage{
-clean.up(population, gen = "current", remove.no.snp.segments = FALSE)
+clean.up(population, gen = "all")
 }
 \arguments{
 \item{population}{Population list}
 
 \item{gen}{Generations to clean up (default: "current")}
-
-\item{remove.no.snp.segments}{If TRUE remove segments which do not contain SNPs}
 }
 \description{
 Function to remove recombination points + origins with no influence on markers

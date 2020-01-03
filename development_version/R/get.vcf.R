@@ -64,9 +64,9 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
 
   headerfile <- rbind(
     "##fileformat=VCFv4.2",
-    paste0("##filedate=",  Sys.time()),
+    gsub("-", "", paste0("##filedate=",  Sys.Date())),
     paste0("##source='MoBPS_", packageVersion("MoBPS"),"'"),
-    "##FORMAT=<ID=GT,NumbER=1,Type=String,Description='Genotype'"
+    "##FORMAT=<ID=GT,Number=1,Type=String,Description='Genotype'>"
   )
 
   write.table(headerfile, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE)

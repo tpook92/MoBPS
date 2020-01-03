@@ -102,7 +102,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   bve.grandparent.mean = FALSE, bve.mean.between = "bvepheno",
   bve.direct.est = TRUE, bve.pseudo = FALSE, bve.pseudo.accuracy = 1,
   miraculix.destroyA = TRUE, mas.bve = FALSE, mas.markers = NULL,
-  mas.number = 5, mas.effects = NULL)
+  mas.number = 5, mas.effects = NULL, threshold.selection = NULL,
+  threshold.sign = ">")
 }
 \arguments{
 \item{population}{Population list}
@@ -540,6 +541,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{mas.number}{If no markers are provided this nr of markers is selected (if single marker QTL are present highest effect markers are prioritized)}
 
 \item{mas.effects}{Effects assigned to the MAS markers (Default: estimated via lm())}
+
+\item{threshold.selection}{Minimum value in the selection index selected individuals have to have}
+
+\item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
 }
 \description{
 Function to simulate a step in a breeding scheme

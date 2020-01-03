@@ -29,14 +29,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param start.kinship Relationship matrix of the individuals in the first considered generation
 #' @export
+#'
 
-kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                         start.kinship=NULL,
                         elements = NULL,
                         mult = NULL){
 
-#                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
+  #                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
 
+  int_mult <- as.integer(2^29)
+  int_mult2 <- as.integer(2^28)
   database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
 
   n.animals <- sum(diff(t(database[,3:4, drop=FALSE]))+1)
@@ -59,7 +62,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
     }
 
     elements <- elements_new
-    database <- database[which(activ_database),]
+    database <- database[which(activ_database),,drop=FALSE]
 
 
   }
@@ -123,12 +126,12 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   }
 
   cat("Derive pedigree-matrix based for ", n.animals, " individuals based on ", n.total, " individuals.\n")
-  kinship <- matrix(0, ncol=n.total, nrow=n.total)
+  kinship <- matrix(0L, ncol=n.total, nrow=n.total)
 
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1
   if(length(start.kinship)==0){
     size.firstgen <- sum(group.size[pedigree.database[,1]==pedigree.database[1,1]])
-    kinship[1:size.firstgen, 1:size.firstgen] <- diag(1/2,size.firstgen)
+    kinship[1:size.firstgen, 1:size.firstgen] <- diag(as.integer(1/2 * int_mult),size.firstgen)
   } else{
     kinship[1:nrow(start.kinship), 1:nrow(start.kinship)] <- start.kinship
     # Add reality check to validate size of start.kinship
@@ -143,10 +146,10 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   info.indi[info.indi=="0"] <- "M1_1" # Placeholder
   # necessary when using copy.individuals
   replaces <- which(duplicated(animal.nr))
-#  for(replace in replaces){
-#    new <- which(animal.nr==animal.nr[replace])[1]
-#    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
-#  }
+  #  for(replace in replaces){
+  #    new <- which(animal.nr==animal.nr[replace])[1]
+  #    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
+  #  }
 
   if(length(replaces)>0){
     animal.nr.temp <- animal.nr[1:min(replaces)]
@@ -194,21 +197,21 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
   }
 
-#  if((total.nr[first_new]) <= total){
-#    for(second in (total.nr[first_new]):total){
-#      for(first in 1:second){
-#        nr.father <- nr_father[second]
-#        nr.mother <- nr_mother[second]
-#        if(first!=second){
-#          kinship[first,second] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-#          kinship[second,first] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-#        } else{
-#         kinship[first,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-#          kinship[second,first] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-#        }
-#      }
-#    }
-#  }
+  #  if((total.nr[first_new]) <= total){
+  #    for(second in (total.nr[first_new]):total){
+  #      for(first in 1:second){
+  #        nr.father <- nr_father[second]
+  #        nr.mother <- nr_mother[second]
+  #        if(first!=second){
+  #          kinship[first,second] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+  #          kinship[second,first] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+  #        } else{
+  #         kinship[first,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+  #          kinship[second,first] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+  #        }
+  #      }
+  #    }
+  #  }
 
 
 
@@ -219,40 +222,42 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
       nr.mother <- nr_mother[second]
       first <- 1:second
       if(is.na(nr.father) && is.na(nr.mother)){
-        kinship[second,second] <- 1/2
+        kinship[second,second] <- int_mult2
         nr.mother <- nr.father <- 1
       }
       if(is.na(nr.father)){
-        kinship[first,second] <- kinship[second,first] <-1/2 * (0 + kinship[first, nr.mother])
+        kinship[first,second] <- kinship[second,first] <- as.integer( (0L + kinship[first, nr.mother]))
         nr.mother <- nr.father <- 1 # Founder-individual
       } else if(is.na(nr.mother)){
-        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + 0)
+        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + 0L))
         nr.mother <- nr.father <- 1 # Founder-individual
       } else{
-        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + kinship[first, nr.mother]))
       }
 
       if(nr.father==nr.mother && animal_ids[nr.father]==animal_ids[second]){
-        kinship[second,second] <- 1/2
+        kinship[second,second] <- int_mult2
         # Individual is founder!
       } else{
-        kinship[second,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+        kinship[second,second] <- int_mult2 + as.integer(0.5 * kinship[nr.father, nr.mother])
       }
 
     }
   }
 
-#  for(replace in intersect(replaces, position.pedigree)){
-#    new <- which(animal.nr==animal.nr[replace])[1]
-#    kinship[replace,] <- kinship[new,]
-#    kinship[,replace] <- kinship[,new]
-#  }
+  #  for(replace in intersect(replaces, position.pedigree)){
+  #    new <- which(animal.nr==animal.nr[replace])[1]
+  #    kinship[replace,] <- kinship[new,]
+  #    kinship[,replace] <- kinship[,new]
+  #  }
+
   if(length(mult)>0){
-    kinship.relevant <- kinship[position.pedigree,position.pedigree] * mult
+    kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult /mult)
   } else{
-    kinship.relevant <- kinship[position.pedigree,position.pedigree]
+    kinship.relevant <- kinship[position.pedigree,position.pedigree] / int_mult
   }
 
+  kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult / mult)
 
   return(kinship.relevant)
 
