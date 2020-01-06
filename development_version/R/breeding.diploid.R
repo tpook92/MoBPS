@@ -1213,24 +1213,31 @@ breeding.diploid <- function(population,
               }
             }
             if(parent1[1]==activ.parents[1] && parent1[2]==activ.parents[2] && parent1[3]>= activ.parents[3] && parent1[3]<= activ.parents[4]){
-              new.bv[,parent1[3] - activ.parents[3]+1] <- new.bv[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3] * population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]
-              counter[,parent1[3]- activ.parents[3]+1] <- counter[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]
+              activ.take <- population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0
+              new.bv[activ.take,parent1[3] - activ.parents[3]+1] <- (new.bv[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3] * population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
+              counter[activ.take,parent1[3]- activ.parents[3]+1] <- (counter[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
             }
             if(parent2[1]==activ.parents[1] && parent2[2]==activ.parents[2] && parent2[3]>= activ.parents[3] && parent2[3]<= activ.parents[4]){
-              new.bv[,parent2[3]- activ.parents[3]+1] <- new.bv[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3]
-              counter[,parent2[3]- activ.parents[3]+1] <- counter[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]
+              activ.take <-  population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0
+              new.bv[activ.take,parent2[3]- activ.parents[3]+1] <- (new.bv[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3] * population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
+              counter[activ.take,parent2[3]- activ.parents[3]+1] <- (counter[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
             }
           }
         }
         next_indi <- next_indi + n.animals
+
 
       }
       population$breeding[[activ.parents[1]]][[activ.parents[2]+2]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
       population$breeding[[activ.parents[1]]][[activ.parents[2]+8]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
       if(sum(counter==0)>0){
         if(verbose) cat(paste0(sum(counter==0), " phenotype entries without valid offspring for phenotype import from offspring! Set phenotype to 0."))
-        population$breeding[[activ.parents[1]]][[activ.parents[2]+2]][counter==0] <- 0
-        population$breeding[[activ.parents[1]]][[activ.parents[2]+8]][counter==0] <- 0
+        population$breeding[[activ.parents[1]]][[activ.parents[2]+2]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
+        population$breeding[[activ.parents[1]]][[activ.parents[2]+8]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
+      }
+
+      if(sum(is.na(population$breeding[[activ.parents[1]]][[activ.parents[2]+8]]))>0){
+        stop("Houston")
       }
     }
 
@@ -2153,7 +2160,7 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
-        if(check == length(y[,bven])){
+        if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
           next
@@ -2169,7 +2176,7 @@ breeding.diploid <- function(population,
       } else if(emmreml.bve){
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
-        if(check == length(y[,bven])){
+        if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE."))
           next
@@ -2205,7 +2212,7 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
-        if(check == length(y[,bven])){
+        if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
           next
@@ -2229,7 +2236,7 @@ breeding.diploid <- function(population,
         check <- sum(is.na(y))
 
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
-        if(check == length(y)){
+        if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
           next
@@ -2287,7 +2294,7 @@ breeding.diploid <- function(population,
         rrblup.required <- FALSE
 
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
-        if(check == length(y[,bven])){
+        if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
           next

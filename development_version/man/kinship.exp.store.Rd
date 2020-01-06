@@ -6,7 +6,7 @@
 \usage{
 kinship.exp.store(population, gen = NULL, database = NULL,
   cohorts = NULL, depth.pedigree = 7, start.kinship = NULL,
-  elements = NULL, mult = NULL)
+  elements = NULL, mult = NULL, storage_save = 3)
 }
 \arguments{
 \item{population}{Population list}

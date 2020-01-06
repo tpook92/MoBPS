@@ -398,9 +398,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         if(length(edges[[index]]$`Time Needed`)>0){
           edges[[index]]$`Time Needed` <- as.numeric(gsub(",", ".", edges[[index]]$`Time Needed`))
         }
-        if((edges[[index]]$`Breeding Type`=="Reproduction" || edges[[index]]$`Breeding Type`=="Aging" || edges[[index]]$`Breeding Type`=="Cloning" || edges[[index]]$`Breeding Type`=="Selfing" || edges[[index]]$`Breeding Type`=="DH-Production") && (is.na(as.numeric(edges[[index]]$`Time Needed`)) || as.numeric(edges[[index]]$`Time Needed`)==0 )){
-          edges[[index]]$`Time Needed` <- 1
-          if(verbose) cat("Edges to generate new individuals are not supposed to take 0 time. Automatically set to 1 time unit.\n")
+        if((edges[[index]]$`Breeding Type`=="Reproduction" || edges[[index]]$`Breeding Type`=="Cloning" || edges[[index]]$`Breeding Type`=="Selfing" || edges[[index]]$`Breeding Type`=="DH-Production") && (is.na(as.numeric(edges[[index]]$`Time Needed`)) || as.numeric(edges[[index]]$`Time Needed`)==0 )){
+          edges[[index]]$`Time Needed` <- 0.001
+          if(verbose) cat("Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.\n")
         }
       }
       for(index in 1:length(nodes)){
@@ -1856,10 +1856,20 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         }
       }
       ids_type <- ids
+      ids_rep <- numeric(length(ids))
       temp1 <- strsplit(ids_type, split="_")
       for(index in 1:length(ids_type)){
         ids_type[index] <- paste0(temp1[[index]][1:(length(temp1[[index]])-1)])
+        if(length(temp1[[index]])==1){
+          ids_rep[index] <- 0
+        } else{
+          ids_rep[index] <- temp1[[index]][length(temp1[[index]])]
+        }
+
       }
+
+      ids_rep <- as.numeric(ids_rep)
+
       {
         simulated <- founder
         left <- (1:groups)[-simulated]
@@ -1868,10 +1878,30 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         for(index in founder){
           time.point.list[index] <- nodes[[index]]$earliest_time
         }
-
+        possible <- NULL
         while(length(left)>0){
           generation <- generation + 1
-          possible <- ids[left]
+
+          if(TRUE || length(possible)==0){
+            possible <- ids[left]
+          } else{
+            suppressWarnings(test <- as.numeric(unlist(strsplit(possible, split="_"))))
+            min_rep <- min(test, na.rm=TRUE)
+            max_rep <- max(test, na.rm=TRUE)
+            if(min_rep==Inf){
+              min_rep <- 0
+            }
+            if(max_rep==(-Inf)){
+              max_rep <- Inf
+            }
+
+            possible <- ids[left]
+            rep_nr <- ids_rep[left]
+            keep <- rep_nr < 10 | (rep_nr > (min_rep-15) & rep_nr < (max_rep+15))
+            possible <- possible[keep]
+          }
+
+
           stock <- ids[-left]
           for(index in (1:length(edges))[!last_avail]){
             there <- which(edges[[index]]$to==possible)
@@ -2233,7 +2263,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       for(generation in 1:(length(generation_group)+1) +1){
 
-        if(verbose) cat(paste0("Start simulation of generation:", generation," (time point: ", generation_times[generation-1], ")\n"))
+        if(verbose) cat(paste0("Start simulation of generation: ", generation," (time point: ", c(generation_times, Inf)[generation-1], ")\n"))
 
         if(generation != (length(generation_group)+2)){
 
@@ -2837,8 +2867,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           for(culling_index in which(active_culling)){
             age_start_single <- from - individual_time
             age_end_single <- to - individual_time
-            active_single <- as.numeric(culling_reason[culling_index,2]) > age_start_single & as.numeric(culling_reason[culling_index,2]) <= age_end_single & rep(culling_reason[culling_index,3] == sex | culling_reason[culling_index,3]=="Both", length(age_end_single))
-
+            active_single <- (as.numeric(culling_reason[culling_index,2]) > age_start_single) & (as.numeric(culling_reason[culling_index,2]) <= age_end_single) & rep(culling_reason[culling_index,3] == sex | culling_reason[culling_index,3]=="Both", length(age_end_single))
+            death_counter <- get.class(population, cohorts=cohort_index)
+            active_single <- active_single & (death_counter != (-1))
             if(sum(active_single)>0){
               population <- breeding.diploid(population,
                                              culling.cohort = cohort_index,
@@ -2853,8 +2884,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              verbose=verbose
               )
               if(length(population$info$culling.stats)>=active_cohort){
-                opt1 <- as.numeric(population$info$culling.stats[[active_cohort]][population$info$culling.stats[[active_cohort]][,1]==culling_reason[culling_index,1],2])
-                new_death <- opt1[length(opt1)]
+                new_death <- sum(death_counter != get.class(population, cohorts=cohort_index))
               } else{
                 new_death <- 0
 
@@ -2877,6 +2907,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           }
 
         }
+        if(sum(alive_numbers<0)>0){ stop("Some multi-death?!")}
       }
 
 

@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
+
 bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL,
                                adapt.bve=FALSE, adapt.pheno=FALSE){
 
@@ -114,7 +115,8 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
   if(adapt.pheno){
     for(gen in 1:length(population$breeding)){
       for(sex in 1:2){
-        activ <- (population$breeding[[gen]][[sex+8]]!= 0) & (!population$info$phenotypic.transform)
+        activ <- !is.na(population$breeding[[gen]][[sex+8]]) & (population$breeding[[gen]][[sex+8]]!= 0) & (!population$info$phenotypic.transform)
+
         if(sum(activ)>0){
           population$breeding[[gen]][[sex+8]][activ] <- (((population$breeding[[gen]][[sex+8]] - modi2) * modi1) + population$info$base.bv)[activ]
         }

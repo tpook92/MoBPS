@@ -32,9 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 
 kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
-                        start.kinship=NULL,
-                        elements = NULL,
-                        mult = NULL){
+                              start.kinship=NULL,
+                              elements = NULL,
+                              mult = NULL,
+                              storage_save=3){
+
+  #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
   #                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
 
@@ -78,19 +81,40 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
       if(nrow(m_parents)>0){
         m_gen <- unique(m_parents[,1])
         m_data <- cbind(m_gen, 1, 0,0)
+        nincluded <- numeric(length(m_gen))
         for(index in 1:length(m_gen)){
           m_data[index,3] <- min(m_parents[m_parents[,1]==m_gen[index],3])
           m_data[index,4] <- max(m_parents[m_parents[,1]==m_gen[index],3])
+          nincluded[index] <- length(unique(m_parents[m_parents[,1]==m_gen[index],3]))
         }
+
+        for(index in length(m_gen):1){
+          if(nincluded[index] < (m_data[index,4]-m_data[index,3]+1)/storage_save){
+            m_data <- m_data[-index,]
+            activ_p <- unique(m_parents[m_parents[,1]==m_gen[index],3])
+            m_data <- rbind(m_data, cbind(m_gen[index], 2, activ_p, activ_p))
+          }
+        }
+
       } else{
         m_data <- NULL
       }
       if(nrow(f_parents)>0){
         f_gen <- unique(f_parents[,1])
         f_data <- cbind(f_gen, 2, 0,0)
+        nincluded <- numeric(length(f_gen))
         for(index in 1:length(f_gen)){
           f_data[index,3] <- min(f_parents[f_parents[,1]==f_gen[index],3])
           f_data[index,4] <- max(f_parents[f_parents[,1]==f_gen[index],3])
+          nincluded[index] <- length(unique(f_parents[f_parents[,1]==f_gen[index],3]))
+        }
+
+        for(index in length(f_gen):1){
+          if(nincluded[index] < (f_data[index,4]-f_data[index,3]+1)/storage_save){
+            f_data <- f_data[-index,]
+            activ_p <- unique(f_parents[f_parents[,1]==f_gen[index],3])
+            f_data <- rbind(f_data, cbind(f_gen[index], 2, activ_p, activ_p))
+          }
         }
 
       } else{

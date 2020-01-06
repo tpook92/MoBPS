@@ -959,6 +959,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$phenotypic.transform <- rep(FALSE, bv.total)
       population$info$phenotypic.transform.function <- list()
       population$info$culling.stats <- list()
+      population$info$version_MoBPS <- sessionInfo()$otherPkgs$MoBPS
+      population$info$version_miraculix <- sessionInfo()$otherPkgs$miraculix
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
