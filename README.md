@@ -22,6 +22,14 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.49 (06.01.20) - Only Development branch
+
+Exclude non-required indivividual in pedigree calculation
+
+Fixed bug in "Use-offspring" when parent had no phenotyped offspring
+
+Minor updates in json.simulation
+
 ### Version 1.4.43 (03.01.20) - Only Development branch
 
 Added selection according to a threshold (instead of fixed number of individuals) threshold.selection in breeding diploid()
