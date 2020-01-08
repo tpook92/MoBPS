@@ -243,6 +243,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mas.effects Effects assigned to the MAS markers (Default: estimated via lm())
 #' @param threshold.selection Minimum value in the selection index selected individuals have to have
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
+#' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @export
 
 
@@ -465,7 +466,8 @@ breeding.diploid <- function(population,
             mas.number=5,
             mas.effects=NULL,
             threshold.selection=NULL,
-            threshold.sign=">"
+            threshold.sign=">",
+            input.phenotype="own"
             ){
 
 
@@ -1136,7 +1138,7 @@ breeding.diploid <- function(population,
   if(length(offspring.bve.offspring.gen)>0 || length(offspring.bve.offspring.database)>0 || length(offspring.bve.offspring.cohorts)>0){
     offspring.bve.offspring.database <- get.database(population, offspring.bve.offspring.gen, offspring.bve.offspring.database, offspring.bve.offspring.cohorts)
   } else if(offspring.bve){
-    if(verbose) cat("No potential offspring for phenotype import given. Consider all potential individuals")
+    if(verbose) cat("No potential offspring for phenotype import given. Consider all potential individuals.\n")
     first_gen <- min(offspring.bve.parents.database[,1])
     list_of_copy <- list()
     for(gen_check in 1:nrow(offspring.bve.parents.database)){
@@ -1150,18 +1152,26 @@ breeding.diploid <- function(population,
     list_of_copy <- list_of_copy[!(list_of_copy[,1]==list_of_copy[,4] & list_of_copy[,2]==list_of_copy[,5] & list_of_copy[,3]==list_of_copy[,6]),]
     ped_off <- get.pedigree(population, gen = first_gen:nrow(population$info$size), raw=TRUE)
     candidates <- rep(TRUE,nrow(ped_off))
+
+    # Remove Individuals themselves
     for(index in 1:nrow(offspring.bve.parents.database)){
       act <- offspring.bve.parents.database[index,]
       candidates[ped_off[,1]==act[1] & ped_off[,2] == act[2] & ped_off[,3]>= act[3] & ped_off[,6]<=act[4]] <- FALSE
     }
+
+    # Remove founder
+    candidates[ped_off[,1]==ped_off[,4] & ped_off[,1]==ped_off[,7] &
+                 ped_off[,2]==ped_off[,5] & ped_off[,2]==ped_off[,8] &
+                 ped_off[,3]==ped_off[,6] & ped_off[,3]==ped_off[,9]] <- FALSE
+
     ped_off <- ped_off[candidates,]
 
-    candidates <- rep(FALSE,nrow(ped_off))
-    for(index in 1:nrow(offspring.bve.parents.database)){
-      act <- offspring.bve.parents.database[index,]
-      candidates[ped_off[,4]==act[1] & ped_off[,5] == act[2] & ped_off[,6]>= act[3] & ped_off[,6]<=act[4]] <- TRUE
-      candidates[ped_off[,7]==act[1] & ped_off[,8] == act[2] & ped_off[,9]>= act[3] & ped_off[,9]<=act[4]] <- TRUE
-    }
+    #candidates <- rep(FALSE,nrow(ped_off))
+    #for(index in 1:nrow(offspring.bve.parents.database)){
+    #  act <- offspring.bve.parents.database[index,]
+    #  candidates[ped_off[,4]==act[1] & ped_off[,5] == act[2] & ped_off[,6]>= act[3] & ped_off[,6]<=act[4]] <- TRUE
+    #  candidates[ped_off[,7]==act[1] & ped_off[,8] == act[2] & ped_off[,9]>= act[3] & ped_off[,9]<=act[4]] <- TRUE
+    #}
     candidates <- TRUE
     male_candidates <- (ped_off[candidates & ped_off[,2]==1 ,])
     female_candidates <- (ped_off[candidates & ped_off[,2]==2 ,])
@@ -1205,12 +1215,24 @@ breeding.diploid <- function(population,
             if(length(list_of_copy)>0){
               replace1 <- which(parent1[1]==list_of_copy[,4] & parent1[2]==list_of_copy[,5] & parent1[3]==list_of_copy[,6])
               replace2 <- which(parent2[1]==list_of_copy[,4] & parent2[2]==list_of_copy[,5] & parent2[3]==list_of_copy[,6])
-              if(length(replace1)==1){
-                parent1 <- list_of_copy[replace1,1:3]
+              if(length(replace1)>=1){
+                parent1 <- list_of_copy[replace1[1],1:3]
               }
-              if(length(replace2)==1){
-                parent2 <- list_of_copy[replace2,1:3]
+              if(length(replace2)>=1){
+                parent2 <- list_of_copy[replace2[1],1:3]
               }
+            }
+            if((nrow(population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[index3]][[21]]) ==
+               nrow(population$breeding[[parent1[1]]][[parent1[2]]][[parent1[3]]][[21]])) &&
+               (prod(population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[index3]][[21]] ==
+               population$breeding[[parent1[1]]][[parent1[2]]][[parent1[3]]][[21]])==1)){
+              parent1 <- c(-1,-1,-1)
+            }
+            if((nrow(population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[index3]][[21]]) ==
+                nrow(population$breeding[[parent2[1]]][[parent2[2]]][[parent2[3]]][[21]])) &&
+               (prod(population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[index3]][[21]] ==
+                     population$breeding[[parent2[1]]][[parent2[2]]][[parent2[3]]][[21]])==1)){
+              parent2 <- c(-1,-1,-1)
             }
             if(parent1[1]==activ.parents[1] && parent1[2]==activ.parents[2] && parent1[3]>= activ.parents[3] && parent1[3]<= activ.parents[4]){
               activ.take <- population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0
@@ -1228,19 +1250,21 @@ breeding.diploid <- function(population,
 
 
       }
-      population$breeding[[activ.parents[1]]][[activ.parents[2]+2]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
-      population$breeding[[activ.parents[1]]][[activ.parents[2]+8]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
+      population$breeding[[activ.parents[1]]][[activ.parents[2]+26]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
+      population$breeding[[activ.parents[1]]][[activ.parents[2]+28]][,activ.parents[3]:activ.parents[4]] <- counter
       if(sum(counter==0)>0){
-        if(verbose) cat(paste0(sum(counter==0), " phenotype entries without valid offspring for phenotype import from offspring! Set phenotype to 0."))
-        population$breeding[[activ.parents[1]]][[activ.parents[2]+2]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
-        population$breeding[[activ.parents[1]]][[activ.parents[2]+8]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
+        if(verbose) cat(paste0(sum(counter==0), " phenotype entries without valid offspring for phenotype import from offspring! Set offspring phenotype to 0 (NA)."))
+        population$breeding[[activ.parents[1]]][[activ.parents[2]+26]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
       }
 
-      if(sum(is.na(population$breeding[[activ.parents[1]]][[activ.parents[2]+8]]))>0){
-        stop("Houston")
-      }
     }
 
+    if(sum(counter)==0){
+      if(input.phenotype!="own"){
+        input.phenotype <- "own"
+        cat("No phenotypes to import. Automatically set input.phenotype to own")
+      }
+    }
   }
 }
 {
@@ -1655,7 +1679,34 @@ breeding.diploid <- function(population,
       batche[[index]] <- (batch*(index-1)+1):min(batch*index, nrow(loop_elements))
     }
 
+    if(input.phenotype!="own"){
+      for(index2 in 1:nrow(offspring.bve.parents.database)){
+        activ.database <- offspring.bve.parents.database[index2,]
+        for(index in 1:nrow(loop_elements)){
+          kindex <- loop_elements[index,2]
+          k.database <- bve.database[loop_elements[index,3],]
+          activ.indi <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[21]]
+          import <- activ.indi[,1]==activ.database[1] & activ.indi[,2]==activ.database[2] & activ.indi[,3]>=activ.database[3] & activ.indi[,3] <= activ.database[4]
+          if(sum(import)>0){
+            own_pheno <- y[index,]
+            n_obs <- y_obs[index,]
+            off_pheno <- population$breeding[[activ.database[1]]][[activ.database[2]+26]][,kindex]
+            n_off <- population$breeding[[activ.database[1]]][[activ.database[2]+28]][,kindex]
+            if(input.phenotype=="off"){
+              y[index,] <- off_pheno
+              y_obs[index,] <- n_off
+            } else if(input.phenotype=="mean"){
+              y[index,] <- (own_pheno + off_pheno)/((own_pheno!=0) + (off_pheno!=0))
+              y_obs[index,] <- n_obs + n_off
+            } else if(input.phenotype=="weighted"){
+              y[index,] <- (own_pheno*n_obs*2 + off_pheno*n_off)/(n_obs*2 + n_off)
+              y[index, is.na(y[index,])] <- 0
+            }
+          }
+        }
+      }
 
+    }
     # Import Z
     if(sequenceZ==FALSE){
       if(miraculix){
@@ -3979,7 +4030,8 @@ breeding.diploid <- function(population,
           population$breeding[[current.gen+1]][[22+sex]] <- rep(time.point, breeding.size[sex])
         }
         population$breeding[[current.gen+1]][[24+sex]] <- rep(NA, breeding.size[sex])
-
+        population$breeding[[current.gen+1]][[26+sex]] <- matrix(0, nrow=population$info$bv.nr, ncol=breeding.size[sex])
+        population$breeding[[current.gen+1]][[28+sex]] <- matrix(0, nrow=population$info$bv.nr, ncol=breeding.size[sex])
         #    } else if(length(population$breeding[[current.gen+1]][[sex+2]])==0){
         #      population$breeding[[current.gen+1]][[2+sex]] <- rep(0, breeding.size[sex])
         #      population$breeding[[current.gen+1]][[4+sex]] <- rep(new.class, breeding.size[sex])
@@ -4012,6 +4064,9 @@ breeding.diploid <- function(population,
 
         }#
         population$breeding[[current.gen+1]][[24+sex]] <- c(population$breeding[[current.gen+1]][[sex+24]], rep(NA, breeding.size[sex]))
+        population$breeding[[current.gen+1]][[26+sex]] <- cbind(population$breeding[[current.gen+1]][[26+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
+        population$breeding[[current.gen+1]][[28+sex]] <- cbind(population$breeding[[current.gen+1]][[28+sex]], matrix(0, nrow= population$info$bv.nr, ncol=breeding.size[sex]))
+
       }
       if(length(population$breeding[[current.gen+1]][[sex]])==0){
         population$breeding[[current.gen+1]][[sex]] <- list()

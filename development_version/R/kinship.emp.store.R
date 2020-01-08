@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param start.kinship Relationship matrix of the individuals in the first considered generation
 #' @export
 #'
+#A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
 kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                               start.kinship=NULL,
@@ -282,6 +283,8 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
   }
 
   kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult / mult)
+
+  kinship.relevant <- kinship.relevant[elements,elements]
 
   return(kinship.relevant)
 

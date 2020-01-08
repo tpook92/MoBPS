@@ -1089,7 +1089,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[6]] <- rep(class,counter[2]-1)
         population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
         population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-        population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # geschaetzer ZW
+        population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Phenotype
         population$breeding[[generation]][[10]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[11]] <- rep(time.point,counter[1]-1) # Time point
         population$breeding[[generation]][[12]] <- rep(time.point,counter[2]-1)
@@ -1109,6 +1109,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[24]] <- rep(time.point,counter[2]-1)
         population$breeding[[generation]][[25]] <- rep(NA,counter[1]-1) # Death time point
         population$breeding[[generation]][[26]] <- rep(NA,counter[2]-1)
+        population$breeding[[generation]][[27]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
+        population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+        population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
+        population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         # calculate Real-ZW
       } else{
         population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -1138,6 +1142,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[24]] <- c(population$breeding[[generation]][[24]], rep(time.point ,counter[2]-counter.start[2]))
         population$breeding[[generation]][[25]] <- c(population$breeding[[generation]][[25]], rep(NA ,counter[1]-counter.start[1])) # Death Time point
         population$breeding[[generation]][[26]] <- c(population$breeding[[generation]][[26]], rep(NA ,counter[2]-counter.start[2]))
+        population$breeding[[generation]][[27]] <- cbind(population$breeding[[generation]][[27]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # offspring phenotype
+        population$breeding[[generation]][[28]] <-cbind(population$breeding[[generation]][[28]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+        population$breeding[[generation]][[29]] <- cbind(population$breeding[[generation]][[29]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # number of offspring used
+        population$breeding[[generation]][[30]] <-cbind(population$breeding[[generation]][[30]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+
       }
 
       population$info$sex <- c(population$info$sex, sex.s)

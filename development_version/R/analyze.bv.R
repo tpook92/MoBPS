@@ -27,10 +27,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param bvrow Which traits to display (for multiple traits separte plots (par(mfrow)))
+#' @param advanced Set to TRUE to also look at offspring pheno
 #' @export
 #'
 
-analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow="all"){
+analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow="all", advanced=FALSE){
 
   if(length(bvrow)==1 && bvrow=="all"){
     bvrow <- 1:population$info$bv.nr
@@ -38,20 +39,42 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
   bv <- get.bv(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
   bve <- get.bve(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
   pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
-
-
-  cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))
-  var_vector <- numeric(length(bvrow))
-  for(index in 1:length(bvrow)){
-    cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,])
-    cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,])
-    cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,])
-    var_vector[index] <- stats::var(bv[index,])
+  if(advanced){
+    offpheno <- get.pheno.off(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
   }
-  names(var_vector) <- population$info$trait.name
-  colnames(cor_matrix) <- population$info$trait.name
-  rownames(cor_matrix) <- c("BV / BVE", "BV / Pheno", "BVE / Pheno")
-  return(list(cor_matrix, var_vector))
+
+
+  if(advanced){
+    cor_matrix <- matrix(0, nrow=6, ncol=length(bvrow))
+    var_vector <- numeric(length(bvrow))
+    for(index in 1:length(bvrow)){
+      cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,])
+      cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,])
+      cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,])
+      cor_matrix[4,index] <- stats::cor(bv[index,], offpheno[index,])
+      cor_matrix[5,index] <- stats::cor(bve[index,], offpheno[index,])
+      cor_matrix[6,index] <- stats::cor(pheno[index,], offpheno[index,])
+      var_vector[index] <- stats::var(bv[index,])
+    }
+    names(var_vector) <- population$info$trait.name
+    colnames(cor_matrix) <- population$info$trait.name
+    rownames(cor_matrix) <- c("BV / BVE", "BV / Pheno", "BVE / Pheno", "BV / Offpheno", "BVE / Offpheno", "Pheno / Offpheno")
+    return(list(cor_matrix, var_vector))
+  } else{
+    cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))
+    var_vector <- numeric(length(bvrow))
+    for(index in 1:length(bvrow)){
+      cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,])
+      cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,])
+      cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,])
+      var_vector[index] <- stats::var(bv[index,])
+    }
+    names(var_vector) <- population$info$trait.name
+    colnames(cor_matrix) <- population$info$trait.name
+    rownames(cor_matrix) <- c("BV / BVE", "BV / Pheno", "BVE / Pheno")
+    return(list(cor_matrix, var_vector))
+  }
+
 
 }
 

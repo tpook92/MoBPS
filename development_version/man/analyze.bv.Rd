@@ -5,7 +5,7 @@
 \title{Analyze genomic values}
 \usage{
 analyze.bv(population, gen = NULL, database = NULL, cohorts = NULL,
-  bvrow = "all")
+  bvrow = "all", advanced = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -17,6 +17,8 @@ analyze.bv(population, gen = NULL, database = NULL, cohorts = NULL,
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{bvrow}{Which traits to display (for multiple traits separte plots (par(mfrow)))}
+
+\item{advanced}{Set to TRUE to also look at offspring pheno}
 }
 \description{
 Function to analyze correlation between bv/bve/pheno

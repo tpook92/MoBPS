@@ -47,7 +47,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
   } else if(length(total)==0){
     cat("No dataset provided in file or total \n")
   }
-
   {
     {
 
@@ -311,6 +310,20 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
     #### MANUEL MODIFICATION:
     {
 
+      for(index in 1:length(edges)){
+        if(length(edges[[index]]$phenotype_used)==0){
+          if(length(edges[[index]]$`Use Offspring for BVE`)>0 && edges[[index]]$`Use Offspring for BVE`=="Yes"){
+            edges[[index]]$phenotype_used <- "Avg. offspring phenotype"
+          } else{
+            edges[[index]]$phenotype_used <- "Own phenotype"
+          }
+        }
+        if(edges[[index]]$phenotype_used == "Own phenotype"){
+          edges[[index]]$`Use Offspring for BVE` <- "No"
+        } else{
+          edges[[index]]$`Use Offspring for BVE` <- "Yes"
+        }
+      }
       if(fast.mode){
         if(verbose) cat("Reduce length of genome! Maximum number of Repeat set to ", rep.max, ". I like fast simulations!\n")
         geninfo$`Use Ensembl Map` <- "No"
@@ -1630,6 +1643,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           nodes[[to_node]]$'BVE Method' <- edges[[index]]$'BVE Method'
           nodes[[to_node]]$'MAS_marker' <- edges[[index]]$'MAS_marker'
           nodes[[to_node]]$'Use Offspring for BVE' <- edges[[index]]$'Use Offspring for BVE'
+          nodes[[to_node]]$phenotype_used <- edges[[index]]$phenotype_used
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
           nodes[[to_node]]$'Selection Index' <- edges[[index]]$'Selection Index'
@@ -2425,6 +2439,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 phenotype.bv <- FALSE
                 pseudo_bve <- FALSE
                 computeA <- "vanRaden"
+                input_phenotype <- "own"
                 pseudo_acc <- NULL
                 bglrmodel <- "RKHS"
                 bvemas <- FALSE
@@ -2553,6 +2568,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
                 if(nodes[[groupnr]]$'Use Offspring for BVE'=="Yes"){
                   offspring.bve.parents.database <- get.database(population, cohorts=c(cohorts.m, cohorts.f))
+                  if(nodes[[groupnr]]$phenotype_used=="Avg. offspring phenotye"){
+                    input_phenotype <- "off"
+                  } else if(nodes[[groupnr]]$phenotype_used=="Mean own/offspring phenotype"){
+                    input_phenotype <- "mean"
+                  } else if(nodes[[groupnr]]$phenotype_used=="Weighted own/offspring phenotype"){
+                    input_phenotype <- "weighted"
+                  }
                 } else{
                   offspring.bve.parents.database <- NULL
                 }
@@ -2609,7 +2631,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                                bve.grandparent.mean=grandparent_average,
                                                bve.mean.between=mean_between,
                                                threshold.selection = threshold,
-                                               threshold.sign = threshold_sign
+                                               threshold.sign = threshold_sign,
+                                               input.phenotype = input_phenotype
                 )
 
                 if(nodes[[groupnr]]$'Breeding Type'=="Split"){
