@@ -22,6 +22,18 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.56 (10.01.20) - Only Development branch
+
+Minor updates in json.simulation()
+
+Removed bug when generating traits in n.additive etc.
+
+Computational improvements when working with high number of QTL 
+
+### Version 1.4.51 (08.01.20) - Only Development branch
+
+Added separate storage for ownspring phenotypes and own phenotypes
+
 ### Version 1.4.49 (06.01.20) - Only Development branch
 
 Exclude non-required indivividual in pedigree calculation
