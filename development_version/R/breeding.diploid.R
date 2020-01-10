@@ -439,6 +439,7 @@ breeding.diploid <- function(population,
             culling.share2 = NULL,
             culling.index = 0,
             culling.single = TRUE,
+            culling.all.copy = TRUE,
             calculate.reliability=FALSE,
             selection.m.gen = NULL,
             selection.f.gen = NULL,
@@ -1299,6 +1300,23 @@ breeding.diploid <- function(population,
     population$breeding[[culling.database[1]]][[culling.database[2]+24]][culling.database[3]:culling.database[4]][culling.action] <-
       population$breeding[[culling.database[1]]][[culling.database[2]+22]][culling.database[3]:culling.database[4]][culling.action] + culling.time
     new_death <- population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]] != store
+
+    if(culling.all.copy){
+      for(kindex in (culling.database[3]:culling.database[4])[new_death]){
+        active_indi <- c(culling.database[1:2], kindex)
+        if(nrow(population$breeding[[active_indi[1]]][[active_indi[2]]][[kindex]][[21]])){
+          for(switch in 1:nrow(population$breeding[[active_indi[1]]][[active_indi[2]]][[kindex]][[21]])){
+            active_copy <- population$breeding[[active_indi[1]]][[active_indi[2]]][[kindex]][[21]][switch,]
+
+            population$breeding[[active_copy[1]]][[active_copy[2]+4]][active_copy[3]] <-
+              population$breeding[[active_indi[1]]][[active_indi[2]+4]][active_indi[3]]
+            population$breeding[[active_copy[1]]][[active_copy[2]+24]][active_copy[3]] <-
+              population$breeding[[active_indi[1]]][[active_indi[2]+24]][active_indi[3]]
+
+          }
+        }
+      }
+    }
     n_death <- sum(new_death)
 
     if(n_death>0){
@@ -3320,6 +3338,9 @@ breeding.diploid <- function(population,
     }
     if(length(selection.f.database)>0 & selection.size[2]==0){
       selection.size[2] <- sum(selection.f.database[,4] - selection.f.database[,3] + 1)
+    }
+    if(threshold.sign=="<"){
+      selection.critera <- c(FALSE, FALSE)
     }
   }
 

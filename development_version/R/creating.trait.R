@@ -50,6 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
 #' @export
 
+
 creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL,
                            bv.total=0, polygenic.variance=100,
                            bve.mult.factor=NULL, bve.poly.factor=NULL, base.bv=NULL,
@@ -258,7 +259,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
           add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
           add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
         }
-        add_effect <- stats::rnorm(n.additive[index_trait], 1, var_additive)
+        add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
         real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect)
       }
       if(n.dominant[index_trait]>0){
@@ -267,7 +268,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
           dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
           dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
         }
-        dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominant)
+        dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
         real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
 
       }
@@ -281,8 +282,8 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
         effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
         for(index in 1:n.quantitative[index_trait]){
-          d1 <- sort(abs(stats::rnorm(3, 1, var_quantitative[index])))
-          d2 <- sort(abs(stats::rnorm(3, 1, var_quantitative[index])))
+          d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+          d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
           effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
         }
         real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
@@ -300,7 +301,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
         effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
         for(index in 1:n.qualitative[index_trait]){
 
-          d1 <- -abs(stats::rnorm(9, 1, var_qualitative[index]))
+          d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
           d1[c(3,7)] <- -d1[c(3,7)]
           effect_matrix[index,] <- d1
         }
@@ -476,12 +477,15 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
             new.mult <- new.add[zeros>0,,drop=FALSE]
           }
           if(length(store.dice[[index2]])>0){
-            before <- length(new.dice2)
-            new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
-            new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
-            for(index3 in (before+1):length(new.dice2)){
-              new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
+            if(length(store.dice[[index2]][[1]])>0){
+              before <- length(new.dice2)
+              new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
+              new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
+              for(index3 in (before+1):length(new.dice2)){
+                new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
+              }
             }
+
           }
           row <- row +1
         }
@@ -513,6 +517,26 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
       population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
       population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
     }
+
+
+
+    for(index in 1:population$info$bv.nr){
+      if(length(population$info$real.bv.add[[index]])>0){
+        t <- population$info$real.bv.add[[index]]
+        take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
+        t <- t[take$ix,,drop=FALSE]
+        take <- sort(t[,1]+ t[,2] * 10^10)
+        keep <- c(0,which(diff(take)!=0), length(take))
+        if(length(keep) <= nrow(t)){
+          for(index2 in 2:(length(keep))){
+            t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
+          }
+          population$info$real.bv.add[[index]] <- t[keep,]
+        }
+      }
+    }
+
+
   }
 
   if(bv.total){

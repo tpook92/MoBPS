@@ -36,7 +36,7 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
                               start.kinship=NULL,
                               elements = NULL,
                               mult = NULL,
-                              storage_save=3){
+                              storage_save=2){
 
   #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 

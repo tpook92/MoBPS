@@ -412,7 +412,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           edges[[index]]$`Time Needed` <- as.numeric(gsub(",", ".", edges[[index]]$`Time Needed`))
         }
         if((edges[[index]]$`Breeding Type`=="Reproduction" || edges[[index]]$`Breeding Type`=="Cloning" || edges[[index]]$`Breeding Type`=="Selfing" || edges[[index]]$`Breeding Type`=="DH-Production") && (is.na(as.numeric(edges[[index]]$`Time Needed`)) || as.numeric(edges[[index]]$`Time Needed`)==0 )){
-          edges[[index]]$`Time Needed` <- 0.001
+          edges[[index]]$`Time Needed` <- 0.0000001
           if(verbose) cat("Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.\n")
         }
       }
@@ -1639,6 +1639,17 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           #      nodes[[to_node]]$proportion <- edges[[index]]$proportion # not needed?
           nodes[[to_node]]$origin <- edges[[index]]$from
           nodes[[to_node]]$last_available <- edges[[index]]$last_available
+          if(edges[[index]]$last_available){
+            temp1 <- unlist(strsplit(edges[[index]]$from, split="_"))
+            temp1 <- temp1[1:max(1,length(temp1)-1)]
+            temp1 <- temp2 <- paste0(temp1)
+            if(sum(repeat_links[,1]==temp1)>0){
+              temp1 <- repeat_links[which(repeat_links[,1]==temp1),2]
+            }
+            if(sum(founder == which(ids==temp1))==0){
+              nodes[[to_node]]$require <- c(nodes[[to_node]]$require, temp2)
+            }
+          }
           nodes[[to_node]]$'Relationship Matrix' <- edges[[index]]$'Relationship Matrix'
           nodes[[to_node]]$'BVE Method' <- edges[[index]]$'BVE Method'
           nodes[[to_node]]$'MAS_marker' <- edges[[index]]$'MAS_marker'
@@ -1706,6 +1717,18 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         if(nodes[[to_node]]$'Breeding Type'=="Reproduction" || nodes[[to_node]]$'Breeding Type'=="Selfing" || nodes[[to_node]]$'Breeding Type'=="DH-Production" || nodes[[to_node]]$'Breeding Type'=="Cloning"){
           nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
           nodes[[to_node]]$last_available <- c(nodes[[to_node]]$last_available, edges[[index]]$last_available)
+          if(edges[[index]]$last_available){
+            temp1 <- unlist(strsplit(edges[[index]]$from, split="_"))
+            temp1 <- temp1[1:max(1,length(temp1)-1)]
+            temp1 <- temp2 <- paste0(temp1)
+            if(sum(repeat_links[,1]==temp1)>0){
+              temp1 <- repeat_links[which(repeat_links[,1]==temp1),2]
+            }
+            if(sum(founder == which(ids==temp1))==0){
+              nodes[[to_node]]$require <- c(nodes[[to_node]]$require, temp2)
+            }
+          }
+
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
           if(length(edges[[index]]$OGC)>0 && edges[[index]]$OGC=="Yes"){
@@ -1765,6 +1788,17 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         if(nodes[[to_node]]$'Breeding Type'=="Combine"){
           nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
           nodes[[to_node]]$last_available <- c(nodes[[to_node]]$last_available, edges[[index]]$last_available)
+          if(edges[[index]]$last_available){
+            temp1 <- unlist(strsplit(edges[[index]]$from, split="_"))
+            temp1 <- temp1[1:max(1,length(temp1)-1)]
+            temp1 <- temp2 <- paste0(temp1)
+            if(sum(repeat_links[,1]==temp1)>0){
+              temp1 <- repeat_links[which(repeat_links[,1]==temp1),2]
+            }
+            if(sum(founder == which(ids==temp1))==0){
+              nodes[[to_node]]$require <- c(nodes[[to_node]]$require, temp2)
+            }
+          }
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
         }
@@ -1892,12 +1926,16 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         for(index in founder){
           time.point.list[index] <- nodes[[index]]$earliest_time
         }
+
+
+
         possible <- NULL
         while(length(left)>0){
           generation <- generation + 1
 
           if(TRUE || length(possible)==0){
             possible <- ids[left]
+            left1 <- left
           } else{
             suppressWarnings(test <- as.numeric(unlist(strsplit(possible, split="_"))))
             min_rep <- min(test, na.rm=TRUE)
@@ -1912,11 +1950,31 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             possible <- ids[left]
             rep_nr <- ids_rep[left]
             keep <- rep_nr < 10 | (rep_nr > (min_rep-15) & rep_nr < (max_rep+15))
-            possible <- possible[keep]
+            left1 <- left[keep]
+            possible <- possible[left1]
           }
 
-
           stock <- ids[-left]
+
+          # require-check
+          require_remove <- rep(TRUE, length(left1))
+          for(index in 1:length(left1)){
+            if(length(nodes[[left1[index]]]$require)>0){
+              for(check_coh in nodes[[left1[index]]]$require){
+                if(sum(stock==check_coh)==0){
+                  require_remove[index] <- FALSE
+                }
+              }
+
+            }
+          }
+          possible <- possible[require_remove]
+
+
+
+
+
+
           for(index in (1:length(edges))[!last_avail]){
             there <- which(edges[[index]]$to==possible)
             if(length(there)>0){
@@ -1938,6 +1996,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
             }
           }
+
           if(length(intersect(possible, priority_breeding))>0){
             possible <- intersect(possible, priority_breeding)
           } else{
@@ -1969,6 +2028,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             for(temp1 in (1:length(origins))[!nodes[[groupnr]]$last_available]){
               time.point <- max(time.point.list[simulated][which(origins[temp1]==ids[simulated])] + time_needed[temp1],time.point)
             }
+
+            if(length(nodes[[groupnr]]$require)>0){
+              for(coh in nodes[[groupnr]]$require){
+                time.point <- max(time.point, time.point.list[simulated][which(coh==ids[simulated])]+0.0000001)
+              }
+            }
+
             for(temp1 in nodes[[groupnr]]$'Manuel selected cohorts'){
               groupnr2 <- which(ids==temp1)
               time.point <- max(time.point.list[groupnr2],time.point)
@@ -2274,6 +2340,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       alive_numbers <- as.numeric(population$info$cohorts[,3])
       alive_numbers[alive_numbers==0] <- as.numeric(population$info$cohorts[alive_numbers==0,4])
       death_to <- matrix(0, ncol=nrow(culling_reason), nrow=length(alive_cohorts))
+
+      generation_times <- round(generation_times, digits = 4)
 
       for(generation in 1:(length(generation_group)+1) +1){
 
@@ -2861,6 +2929,23 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           new_cohorts <- population$info$cohorts[(nrow(population$info$cohorts)-length(generation_group[[generation-1]])+1):nrow(population$info$cohorts),,drop=FALSE]
           new_numbers <- as.numeric(new_cohorts[,3])
           new_numbers[new_numbers==0] <- as.numeric(new_cohorts[new_numbers==0,4])
+
+
+          # Creating-types:
+          # 0 - Founder
+          # 1 - Selection
+          # 2 - Reproduction
+          # 3 - Recombination
+          # 4 - Selfing
+          # 5 - DH-Production
+          # 6 - Cloning
+          # 7 - Combine
+          # 8 - Aging
+          # 9 - Split
+
+          non_copy <- new_cohorts[,9] == 0 | new_cohorts[,9] == 2 | new_cohorts[,9] == 3 | new_cohorts[,9] == 4 | new_cohorts[,9] == 5 | new_cohorts[,9] == 6
+
+          new_numbers[!non_copy] <- 0
           alive_numbers <- c(alive_numbers, new_numbers)
         }
         #      death_to <- rbind(death_to, matrix(0, nrow=length(generation_group[[generation-1]]), ncol=nrow(culling_reason)))
@@ -2904,6 +2989,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              culling.share2 = as.numeric(culling_reason[culling_index,7]),
                                              culling.index = selection_index[which(selection_index_name==culling_reason[culling_index,4]),],
                                              culling.single = active_single,
+                                             culling.all.copy=TRUE,
                                              verbose=verbose
               )
               if(length(population$info$culling.stats)>=active_cohort){
