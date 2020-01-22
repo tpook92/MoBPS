@@ -22,6 +22,13 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.62 (22.01.20) - Only Development branch
+
+Improvements to storage / memory usage (use integers / remove attributes)
+
+Implemented stability of A/G in Single-Step via Vitezica 2011
+
+
 ### Version 1.4.56 (10.01.20) - Only Development branch
 
 Minor updates in json.simulation()
