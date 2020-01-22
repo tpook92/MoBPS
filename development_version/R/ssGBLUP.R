@@ -45,6 +45,7 @@ ssGBLUP <- function(A11, A12, A22, G){
   # H22 <- G
   # H1 <- rbind(cbind(H11,H12), cbind(t(H12), H22))
 
+  A22 <- add.diag(A22, 0.001) # numeric stability
   A22inv <- solve(A22)
   A21 <- t(A12)
   A12A22inv <- A12 %*% A22inv

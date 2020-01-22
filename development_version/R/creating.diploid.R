@@ -1075,9 +1075,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[11]] <- NULL
         population$breeding[[generation]][[sex]][[counter[sex]]][[12]] <- NULL
         #      population$breeding[[generation]][[sex]][[counter[sex]]][[13]] <- "test"
-        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0, population$info$bv.nr)
+        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0L, population$info$bv.nr)
         population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- genotyped
-        population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex])
+        population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex], deparse.level = 0)
+        storage.mode(population$breeding[[generation]][[sex]][[counter[sex]]][[21]]) <- "integer"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }

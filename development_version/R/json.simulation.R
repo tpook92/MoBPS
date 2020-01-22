@@ -1427,7 +1427,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       population <- creating.diploid(dataset = dataset, nindi=length(sex.s),
                                      sex.s = sex.s, genotyped.s = genotyped.s,
                                      chromosome.length = chromo.length,
-                                     snps.equidistant = if(is.na(map[1,4])) {TRUE} else {FALSE}, miraculix = miraculix,
+                                     #snps.equidistant = if(is.na(map[1,4])) {TRUE} else {FALSE},
+                                     snps.equidistant = TRUE,
+                                     miraculix = miraculix,
                                      miraculix.dataset = miraculix.dataset,
                                      chr.nr = map[,1], bp=map[,3], snp.name = map[,2],
                                      freq = map[,5], snp.position = if(is.na(map[1,4])) {NULL} else {map[,4]})
@@ -2333,6 +2335,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       }
     }
 
+
+    # Clean up everything we do not need anymore
+    if(TRUE){
+      rm(dataset)
+      rm(map)
+    }
     ############## Actual simulations ########################
     {
       # Derive Founders that are alive
@@ -2346,6 +2354,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       for(generation in 1:(length(generation_group)+1) +1){
 
         if(verbose) cat(paste0("Start simulation of generation: ", generation," (time point: ", c(generation_times, Inf)[generation-1], ")\n"))
+
+        t1 <- as.numeric(Sys.time())
 
         if(generation != (length(generation_group)+2)){
 
@@ -2364,6 +2374,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           for(group in generation_group[[generation-1]]){
             {
               if(sum((as.numeric(population$info$cohorts[,3]) + as.numeric(population$info$cohorts[,4]))==0)>0){stop("SF")}
+
+
               groupnr <- which(ids==group)
               sex <- as.numeric(nodes[[groupnr]]$'Sex'=="Female") + 1
 
@@ -2921,15 +2933,11 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                             delete.previous.gen = delete.previous.gen)
         }
         if(generation != (length(generation_group)+2)){
-          if(verbose) cat("Generated groups: \n")
-          if(verbose) cat(generation_group[[generation-1]])
-          if(verbose) cat("\n")
           alive_cohorts <- c(alive_cohorts, generation_group[[generation-1]])
 
           new_cohorts <- population$info$cohorts[(nrow(population$info$cohorts)-length(generation_group[[generation-1]])+1):nrow(population$info$cohorts),,drop=FALSE]
           new_numbers <- as.numeric(new_cohorts[,3])
           new_numbers[new_numbers==0] <- as.numeric(new_cohorts[new_numbers==0,4])
-
 
           # Creating-types:
           # 0 - Founder
@@ -2949,6 +2957,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           alive_numbers <- c(alive_numbers, new_numbers)
         }
         #      death_to <- rbind(death_to, matrix(0, nrow=length(generation_group[[generation-1]]), ncol=nrow(culling_reason)))
+
+        t2 <- as.numeric(Sys.time())
 
         from <- if(generation==2){0} else{generation_times[generation-2]}
         if(generation != (length(generation_group)+2)){
@@ -3016,18 +3026,56 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           }
 
         }
+
+        t3 <- as.numeric(Sys.time())
+
+        if(generation != (length(generation_group)+2)){
+          if(verbose) cat("Generated groups: \n")
+          if(verbose) cat(generation_group[[generation-1]])
+          if(verbose) cat("\n")
+          if(verbose) cat("Time spend: ")
+          if(verbose) cat(round(t3-t1, digits=2))
+          if(verbose) cat(" seconds.\n")
+          if(verbose) cat("For generation: ")
+          if(verbose) cat(round(t2-t1, digits=2))
+          if(verbose) cat(" seconds.\n")
+          if(verbose) cat("For culling: ")
+          if(verbose) cat(round(t3-t2, digits=2))
+          if(verbose) cat(" seconds.\n")
+        }
+
+        if(TRUE){
+          temp1 <- length(population$breeding)
+          pop1 <- population
+
+          population <- clean.up(population, gen = temp1)
+
+          for(index2 in 3:30){
+            test <- population$breeding[[temp1]][[index2]]==as.integer(population$breeding[[temp1]][[index2]])
+            test[is.na(test)] <- 0
+            test[is.na(population$breeding[[temp1]][[index2]])] <- 1
+
+            if(prod(test)==1){
+              storage.mode(population$breeding[[temp1]][[index2]]) <- "integer"
+            }
+          }
+
+        }
+
+
         if(sum(alive_numbers<0)>0){ stop("Some multi-death?!")}
       }
 
 
     }
 
-
-
-
-
     population$info$json <- list(nodes, edges, geninfo, traitinfo, major, housing, phenotyping, ids)
     population$info$cost.data <- as.data.frame(costdata)
+
+
+
+
+
   }
 
   return(population)

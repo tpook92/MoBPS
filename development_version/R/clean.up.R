@@ -37,14 +37,16 @@ clean.up <- function(population, gen="all"){
   }
 
   for(index in generations){
-    print(index)
     for(index2 in 1:2){
       if(length(population$breeding[[index]][[index2]])>0){
         for(index3 in 1:length(population$breeding[[index]][[index2]])){
           for(index4 in 1:2){
+
             removes <- which(diff(population$breeding[[index]][[index2]][[index3]][[index4+4]])==0)+1
-            population$breeding[[index]][[index2]][[index3]][[index4+4]] <- population$breeding[[index]][[index2]][[index3]][[index4+4]][-removes]
-            population$breeding[[index]][[index2]][[index3]][[index4]] <- population$breeding[[index]][[index2]][[index3]][[index4]][-removes]
+            if(length(removes)>0){
+              population$breeding[[index]][[index2]][[index3]][[index4+4]] <- population$breeding[[index]][[index2]][[index3]][[index4+4]][-removes]
+              population$breeding[[index]][[index2]][[index3]][[index4]] <- population$breeding[[index]][[index2]][[index3]][[index4]][-removes]
+            }
 
           }
         }

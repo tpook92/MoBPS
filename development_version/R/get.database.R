@@ -63,17 +63,33 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
   database <- database[keep,,drop=FALSE]
 
   if(length(database)>0 && nrow(database)>1){
-    order <- sort(database[,1]*1e10 + database[,2]*1e5 + database[,3], index.return=TRUE)$ix
+    order <- sort(database[,1]*1e14 + database[,2]*1e8 + database[,3], index.return=TRUE)$ix
     database <- database[order,,drop=FALSE]
+    first_same <- 1
+    first_index <- 1
     for(index in 2:nrow(database)){
-      checks <- (which(database[1:(index-1),1]==database[index,1] & database[1:(index-1),2] == database[index,2]))
-      for(index2 in checks){
-        if(database[index,3] < (database[index2,4]+1)){
-          database[index2,4] <- max(database[index2,4], database[index,4])
-          database[index,] <- 0
+      if(database[first_index,1]!=database[index,1]){
+        first_index <- which(database[index,1]==database[,1])[1]
+        first_same <- database[first_index,1]
+      } else{
+        if(database[(index-1),1]!=0){
+          if(database[index-1,1]==database[index,1] & database[index-1,2] == database[index,2]){
+            checks <- (index-1)
+          } else{
+            checks <- NULL
+          }
+        } else{
+          checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
         }
+        for(index2 in checks){
+          if(database[index,3] <= (database[index2,4]+1)){
+            database[index2,4] <- max(database[index2,4], database[index,4])
+            database[index,] <- 0
+          }
 
+        }
       }
+
     }
     database <- database[database[,1]!=0,,drop=FALSE]
   }

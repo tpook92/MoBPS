@@ -35,8 +35,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                               start.kinship=NULL,
                               elements = NULL,
-                              mult = NULL,
-                              storage_save=2){
+                              mult = 2,
+                              storage_save=1.5){
 
   #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
@@ -93,7 +93,7 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
           if(nincluded[index] < (m_data[index,4]-m_data[index,3]+1)/storage_save){
             m_data <- m_data[-index,]
             activ_p <- unique(m_parents[m_parents[,1]==m_gen[index],3])
-            m_data <- rbind(m_data, cbind(m_gen[index], 2, activ_p, activ_p))
+            m_data <- rbind(m_data, cbind(m_gen[index], 1, activ_p, activ_p))
           }
         }
 
@@ -282,65 +282,8 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
     kinship.relevant <- kinship[position.pedigree,position.pedigree] / int_mult
   }
 
-  kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult / mult)
-
   kinship.relevant <- kinship.relevant[elements,elements]
 
   return(kinship.relevant)
-
-  if(FALSE){
-    groups <- calculate.averages
-    if(groups=="generations"){
-      groups <- total.nr
-    }
-    if(groups[1]=="generationsex"){
-      groups <- sort(c(1, generation.size[,1]+total.nr[-length(total.nr)], generation.size[,3]+total.nr[-length(total.nr)]))
-    }
-    if(groups[1]=="generationsexmig"){
-      groups <- 1
-      for(index in 1:length(population$breeding)){
-        for(sex in 1:2){
-          migs <- unique(population$breeding[[index]][[4+sex]])
-          for(index2 in migs){
-            groups <- c(groups, groups[length(groups)] + sum(population$breeding[[index]][[4+sex]]==index2))
-          }
-        }
-      }
-    }
-    n.groups <- (length(groups)-1)
-    kinship.matrix <- matrix(0, nrow=n.groups, ncol = n.groups)
-    hbd <- numeric(n.groups)
-
-    for(i in 1:n.groups){
-      for(j in 1:i){
-        if((groups[i] <= (groups[i+1]-1) ) && groups[j] <= (groups[j+1]-1))
-          kinship.matrix[i,j] <- mean(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)])
-        kinship.matrix[j,i] <- kinship.matrix[i,j]
-        if(ignore.diag==TRUE && i==j && (groups[i+1]-groups[i])>0){
-          tot.diag <- sum( kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)]) - sum(diag(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)]))
-          kinship.matrix[i,j] <- tot.diag/ ((groups[i+1]-groups[i])) / ((groups[i+1]-1-groups[i]))
-          if(length(groups[i]:(groups[i+1]-1))==1){
-            hbd[i] <- -1 + 2*kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)] / ((groups[i+1]-groups[i]))
-
-          } else{
-            hbd[i] <- -1 + 2*sum(diag(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)])) / ((groups[i+1]-groups[i]))
-
-          }
-        }
-
-
-      }
-    }
-
-    if(length(mult)>0){
-      kinship.matrix <- kinship.matrix * 2
-    }
-
-    if(plot_grp){
-      graphics::plot(diag(kinship.matrix), xlab="Generation", ylab="Kinship", main="Entwicklung der mittleren Kinship")
-    }
-
-    return(list(kinship.matrix, hbd))
-  }
 
 }
