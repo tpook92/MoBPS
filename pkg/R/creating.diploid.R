@@ -312,6 +312,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(dataset)>0 && class(dataset)=="haplomatrix"){
     dataset <- list(dataset)
   }
+  if(length(dataset)>0 && class(dataset)=="data.frame"){
+    dataset <- as.matrix(dataset)
+  }
   if(length(dataset)>0 && class(dataset)=="matrix"){
     miraculix.dataset <- FALSE
   }
@@ -566,7 +569,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
             add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
           }
-          add_effect <- stats::rnorm(n.additive[index_trait], 1, var_additive)
+          add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
           real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect)
         }
         if(n.dominant[index_trait]>0){
@@ -575,7 +578,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
             dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
           }
-          dom_effect <- stats::rnorm(n.dominant[index_trait], 1, var_dominant)
+          dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
           real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
 
         }
@@ -589,8 +592,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
           effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
           for(index in 1:n.quantitative[index_trait]){
-            d1 <- sort(abs(stats::rnorm(3, 1, var_quantitative[index])))
-            d2 <- sort(abs(stats::rnorm(3, 1, var_quantitative[index])))
+            d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+            d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
             effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
           }
           real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
@@ -608,7 +611,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
           for(index in 1:n.qualitative[index_trait]){
 
-            d1 <- -abs(stats::rnorm(9, 1, var_qualitative[index]))
+            d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
             d1[c(3,7)] <- -d1[c(3,7)]
             effect_matrix[index,] <- d1
           }
@@ -832,7 +835,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     bp <- numeric(sum(nsnp))
     start1 <- 1
     for(index in 1:length(nsnp)){
-      bp[start1:(start1+nsnp[index]-1)] <- 1:nsnp[index]
+      if(length(chromosome.length)>=index){
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[index] * 100000000 / nsnp[index])
+      } else{
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[1] * 100000000 / nsnp[index])
+      }
+
       start1 <- start1 + nsnp[index]
     }
   }
@@ -948,7 +956,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$bp <- bp
       population$info$snp.name <- snp.name
       population$info$next.animal <- 1
+      population$info$phenotypic.transform <- rep(FALSE, bv.total)
+      population$info$phenotypic.transform.function <- list()
       population$info$culling.stats <- list()
+      population$info$version_MoBPS <- sessionInfo()$otherPkgs$MoBPS
+      population$info$version_miraculix <- sessionInfo()$otherPkgs$miraculix
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
@@ -1063,9 +1075,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[11]] <- NULL
         population$breeding[[generation]][[sex]][[counter[sex]]][[12]] <- NULL
         #      population$breeding[[generation]][[sex]][[counter[sex]]][[13]] <- "test"
-        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0, population$info$bv.nr)
+        population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0L, population$info$bv.nr)
         population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- genotyped
-        population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex])
+        population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex], deparse.level = 0)
+        storage.mode(population$breeding[[generation]][[sex]][[counter[sex]]][[21]]) <- "integer"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -1077,7 +1090,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[6]] <- rep(class,counter[2]-1)
         population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
         population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-        population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # geschaetzer ZW
+        population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Phenotype
         population$breeding[[generation]][[10]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[11]] <- rep(time.point,counter[1]-1) # Time point
         population$breeding[[generation]][[12]] <- rep(time.point,counter[2]-1)
@@ -1093,7 +1106,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
         population$breeding[[generation]][[22]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-
+        population$breeding[[generation]][[23]] <- rep(time.point,counter[1]-1) # Age time point
+        population$breeding[[generation]][[24]] <- rep(time.point,counter[2]-1)
+        population$breeding[[generation]][[25]] <- rep(NA,counter[1]-1) # Death time point
+        population$breeding[[generation]][[26]] <- rep(NA,counter[2]-1)
+        population$breeding[[generation]][[27]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
+        population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+        population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
+        population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         # calculate Real-ZW
       } else{
         population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -1119,7 +1139,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[20]] <- cbind(population$breeding[[generation]][[20]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
         population$breeding[[generation]][[21]] <- cbind(population$breeding[[generation]][[21]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Last applied selection index
         population$breeding[[generation]][[22]] <- cbind(population$breeding[[generation]][[22]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
-
+        population$breeding[[generation]][[23]] <- c(population$breeding[[generation]][[23]], rep(time.point ,counter[1]-counter.start[1])) # Age Time point
+        population$breeding[[generation]][[24]] <- c(population$breeding[[generation]][[24]], rep(time.point ,counter[2]-counter.start[2]))
+        population$breeding[[generation]][[25]] <- c(population$breeding[[generation]][[25]], rep(NA ,counter[1]-counter.start[1])) # Death Time point
+        population$breeding[[generation]][[26]] <- c(population$breeding[[generation]][[26]], rep(NA ,counter[2]-counter.start[2]))
+        population$breeding[[generation]][[27]] <- cbind(population$breeding[[generation]][[27]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # offspring phenotype
+        population$breeding[[generation]][[28]] <-cbind(population$breeding[[generation]][[28]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+        population$breeding[[generation]][[29]] <- cbind(population$breeding[[generation]][[29]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # number of offspring used
+        population$breeding[[generation]][[30]] <-cbind(population$breeding[[generation]][[30]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
 
       }
 
@@ -1296,6 +1323,22 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$real.bv.length[1] <- max(population$info$real.bv.length[1], if(length(population$info$real.bv.add[[index]])>0){index} else{0})
           population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
           population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
+        }
+
+        for(index in 1:population$info$bv.nr){
+          if(length(population$info$real.bv.add[[index]])>0){
+            t <- population$info$real.bv.add[[index]]
+            take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
+            t <- t[take$ix,,drop=FALSE]
+            take <- sort(t[,1]+ t[,2] * 10^10)
+            keep <- c(0,which(diff(take)!=0), length(take))
+            if(length(keep) <= nrow(t)){
+              for(index2 in 2:(length(keep))){
+                t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
+              }
+              population$info$real.bv.add[[index]] <- t[keep,]
+            }
+          }
         }
       }
 

@@ -1,4 +1,0 @@
-breeding.size = 200,
-selection.size = c(100,100),
-best.selection.ratio.m = 5,
-best.selection.ratio.f = 5

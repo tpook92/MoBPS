@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all"){
 
+
   haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosomen=chromosomen, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
   if(length(path)==0){
@@ -54,7 +55,21 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
   ped <- ped[,c(0,ncol(haplo1))+ rep(1:ncol(haplo1), each=2)]
   ped[ped==0] <- "A"
   ped[ped==1] <- "C"
-  pedfile <- cbind(1, 1:nrow(ped),0,0,0,0,ped)
+
+  family.base <- get.database(population, gen=gen, database=database, cohorts=cohorts)
+  n.animals <- sum(family.base[,4]-family.base[,3]+1)
+  family <- sex.s <- numeric(n.animals)
+  tillnow <- 1
+  for(index in 1:nrow(family.base)){
+    if(diff(family.base[index,3:4])>=0){
+      family[tillnow:(tillnow+diff(family.base[index,3:4]))] <- index
+      sex.s[tillnow:(tillnow+diff(family.base[index,3:4]))] <- family.base[index,2]
+      tillnow <- tillnow + diff(family.base[index,3:4]) +1
+    }
+  }
+  pedi <- get.pedigree(population, database = family.base)
+  pedfile <- cbind(family, pedi[,1],pedi[,2],pedi[,3],sex.s,0,ped)
+
 
   pedname <- paste0(path,".ped")
   utils::write.table(file=pedname, pedfile, col.names = FALSE, row.names = FALSE, quote=FALSE)

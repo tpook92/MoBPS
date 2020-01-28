@@ -28,11 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
 #' @param delete.bve.data Deleta all previous bve data (default: FALSE)
 #' @param add.chromosome.ends Add chromosome ends as recombination points
-#' @param miraculix If TRUE use miraculix package for data storage and computation time relevant computations
 #' @export
 
 new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=FALSE, delete.breeding.totals=FALSE,
-                                delete.bve.data=FALSE, add.chromosome.ends=TRUE, miraculix=FALSE){
+                                delete.bve.data=FALSE, add.chromosome.ends=TRUE){
 
   if (requireNamespace("miraculix", quietly = TRUE)) {
     codeOriginsU <- miraculix::codeOrigins
@@ -43,6 +42,12 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
   }
   if(length(population$info$miraculix)>0 && population$info$miraculix){
     miraculix <- TRUE
+  } else{
+    miraculix <- FALSE
+  }
+
+  if(length(base.gen)==0){
+    base.gen <- length(population$breeding)
   }
 
   take <- which(population$info$origin.gen==base.gen)
@@ -62,9 +67,7 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
   }
 
 
-  if(length(base.gen)==0){
-    base.gen <- length(population$breeding)
-  }
+
   for(gen in base.gen){
     for(sex in 1:2){
       if(length(population$breeding[[gen]][[sex]])>0){

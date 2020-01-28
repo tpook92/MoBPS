@@ -243,7 +243,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
       new.dup <- NULL
     }
 
-    save1 <- max(new.poc,-2)!=porc[index+1]
+    save1 <- max(new.poc[length(new.poc)],-2)!=porc[index+1]
 
     if(save1){
       new.poc <- c(new.poc, parent[[activ]][activ.porc], porc[index+1])

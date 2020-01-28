@@ -1909,11 +1909,32 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       ids_rep <- numeric(length(ids))
       temp1 <- strsplit(ids_type, split="_")
       for(index in 1:length(ids_type)){
-        ids_type[index] <- paste0(temp1[[index]][1:(length(temp1[[index]])-1)])
+
         if(length(temp1[[index]])==1){
           ids_rep[index] <- 0
-        } else{
-          ids_rep[index] <- temp1[[index]][length(temp1[[index]])]
+          ids_type[index] <- (temp1[[index]][1])
+        } else if(suppressWarnings(is.na(as.numeric(temp1[[index]][length(temp1[[index]])])))){
+          ids_rep[index] <- 0
+          text1 <- NULL
+          for(merge in 1:length(temp1[[index]])){
+            if(merge==length(temp1[[index]])){
+              text1 <- paste0(text1, temp1[[index]][merge])
+            } else{
+              text1 <- paste0(text1 ,temp1[[index]][merge], "_")
+            }
+          }
+          ids_type[index] <- text1
+        } else {
+          ids_rep[index] <- as.numeric(temp1[[index]][length(temp1[[index]])])
+          text1 <- NULL
+          for(merge in 1:(length(temp1[[index]])-1)){
+            if(merge==(length(temp1[[index]])-1)){
+              text1 <- paste0(text1, temp1[[index]][merge])
+            } else{
+              text1 <- paste0(text1 ,temp1[[index]][merge], "_")
+            }
+          }
+          ids_type[index] <- text1
         }
 
       }
@@ -3046,7 +3067,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
         if(TRUE){
           temp1 <- length(population$breeding)
-          pop1 <- population
 
           population <- clean.up(population, gen = temp1)
 

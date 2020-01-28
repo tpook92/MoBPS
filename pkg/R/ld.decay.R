@@ -45,7 +45,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, step=5, m
   for(index in 1:length(calc)){
     lds <- numeric(population$info$snp[chromosomen]-calc[index])
     for(index2 in 1:(population$info$snp[chromosomen]-calc[index])){
-      lds[index2] <- stats::cor(dataset[,index2], dataset[,index2+calc[index]])
+      suppressWarnings(lds[index2] <- stats::cor(dataset[,index2], dataset[,index2+calc[index]]))
     }
     ld[index] <- mean(lds^2, na.rm=TRUE)
   }

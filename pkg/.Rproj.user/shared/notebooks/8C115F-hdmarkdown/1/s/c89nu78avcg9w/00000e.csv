@@ -1,4 +1,0 @@
-"0","Z <- scale(matrix(nrow=n,ncol=p-q,data=rnorm(n*(p-q))))
-"
-"2","Error in rnorm(n * (p - q)) : object 'n' not found
-"

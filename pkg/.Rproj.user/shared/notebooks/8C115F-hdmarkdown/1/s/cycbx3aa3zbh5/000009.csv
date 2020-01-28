@@ -1,5 +1,0 @@
-"0","axis(side=4, at=c(0,0.2,0.4,0.6,0.8,1), label=round(c(0,0.2,0.4,0.6,0.8,1)*max(EVDx$values)), ylab=""eigen value"")
-"
-"2","Error in axis(side = 4, at = c(0, 0.2, 0.4, 0.6, 0.8, 1), label = round(c(0,  : 
-  plot.new has not been called yet
-"

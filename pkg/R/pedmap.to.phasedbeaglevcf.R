@@ -48,7 +48,7 @@ pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NUL
     map <- map[-remove_dup,]
   }
   if(length(remove_dup)>0){
-    cat(paste0("Removed ",changes, " markers from the set to avoid markers with the same name (duplicates?!).\n"))
+    cat(paste0("Removed ",length(remove_dup), " markers from the set to avoid markers with the same name (duplicates?!).\n"))
   }
 
 

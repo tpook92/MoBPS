@@ -908,7 +908,7 @@ breeding.diploid <- function(population,
     if(population$info$real.bv.length[1]>0){
       for(index in 1:population$info$real.bv.length[1]){
         if(length(population$info$real.bv.add[[index]])>0 && nrow(population$info$real.bv.add[[index]])>0){
-          population$info$effect.p.add[[index]] <- population$info$real.bv.add[[index]][,1]+ snp.before[population$info$real.bv.add[[index]][,2]]
+          population$info$effect.p.add[[index]] <- as.integer(population$info$real.bv.add[[index]][,1]+ snp.before[population$info$real.bv.add[[index]][,2]])
           excludes <- unique(c(excludes, population$info$effect.p.add))
 
         }
@@ -920,8 +920,8 @@ breeding.diploid <- function(population,
       population$info$effect.p.mult2 <- list()
       for(index in 1:population$info$real.bv.length[2]){
         if(length(population$info$real.bv.mult[[index]])>0 &&nrow(population$info$real.bv.mult[[index]])>0){
-          population$info$effect.p.mult1[[index]] <- population$info$real.bv.mult[[index]][,1]+ snp.before[population$info$real.bv.mult[[index]][,2]]
-          population$info$effect.p.mult2[[index]] <- population$info$real.bv.mult[[index]][,3]+ snp.before[population$info$real.bv.mult[[index]][,4]]
+          population$info$effect.p.mult1[[index]] <- as.integer(population$info$real.bv.mult[[index]][,1]+ snp.before[population$info$real.bv.mult[[index]][,2]])
+          population$info$effect.p.mult2[[index]] <- as.integer(population$info$real.bv.mult[[index]][,3]+ snp.before[population$info$real.bv.mult[[index]][,4]])
           excludes <- unique(c(excludes, population$info$effect.p.mult1,population$info$effect.p.mult2))
         }
       }
@@ -931,13 +931,13 @@ breeding.diploid <- function(population,
       for(index in 1:population$info$real.bv.length[3]){
         if(length(population$info$real.bv.dice[[index]])>0){
           for(index2 in 1:length(population$info$real.bv.dice[[index]][[1]])){
-            population$info$effect.p.dice <- c(population$info$effect.p.dice, population$info$real.bv.dice[[index]][[1]][[index2]][,1]+ snp.before[population$info$real.bv.dice[[index]][[1]][[index2]][,2]])
+            population$info$effect.p.dice <- as.integer(c(population$info$effect.p.dice, population$info$real.bv.dice[[index]][[1]][[index2]][,1]+ snp.before[population$info$real.bv.dice[[index]][[1]][[index2]][,2]]))
           }
           excludes <- unique(c(excludes, population$info$effect.p.dice))
         }
       }
     }
-    population$info$effect.p <- unlist(excludes)
+    population$info$effect.p <- as.integer(unlist(excludes))
 
   }
 
@@ -4820,15 +4820,24 @@ breeding.diploid <- function(population,
       if(population$info$bve){
         activ_bv <- population$info$bv.random.activ
         if(length(activ_bv)>0){
-          temp_out <- calculate.bv(population, current.gen+1, sex, current.size[sex], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
-          new.bv[activ_bv] <- temp_out[[1]]
-          if(store.effect.freq){
-            if(length(population$info$store.effect.freq) < (current.gen+1) || length(population$info$store.effect.freq[[current.gen+1]])==0){
-              population$info$store.effect.freq[[current.gen+1]] <- temp_out[[2]]
-            } else{
-              population$info$store.effect.freq[[current.gen+1]] <- population$info$store.effect.freq[[current.gen+1]] + temp_out[[2]]
+          if(!copy.individual || store.effect.freq){
+            temp_out <- calculate.bv(population, current.gen+1, sex, current.size[sex], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+            new.bv[activ_bv] <- temp_out[[1]]
+
+            if(store.effect.freq){
+              if(length(population$info$store.effect.freq) < (current.gen+1) || length(population$info$store.effect.freq[[current.gen+1]])==0){
+                population$info$store.effect.freq[[current.gen+1]] <- temp_out[[2]]
+              } else{
+                population$info$store.effect.freq[[current.gen+1]] <- population$info$store.effect.freq[[current.gen+1]] + temp_out[[2]]
+              }
             }
+
+          } else{
+            activ_indi <- population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[21]][1,]
+            new.bv[activ_bv] <- population$breeding[[activ_indi[1]]][[activ_indi[2]+6]][activ_bv, activ_indi[3]]
           }
+
+
         }
 
         if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc]){

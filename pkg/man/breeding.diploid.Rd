@@ -30,7 +30,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   martini.selection = FALSE, BGLR.bve = FALSE, BGLR.model = "RKHS",
   BGLR.burnin = 500, BGLR.iteration = 5000, BGLR.print = FALSE,
   copy.individual = FALSE, dh.mating = FALSE, dh.sex = 0.5,
-  n.observation = 1, bve.0isNA = TRUE, phenotype.bv = FALSE,
+  n.observation = 1L, bve.0isNA = TRUE, phenotype.bv = FALSE,
   standardize.bv = FALSE, standardize.bv.level = 100,
   standardize.bv.gen = 1, delete.same.origin = FALSE,
   remove.effect.position = FALSE, estimate.u = FALSE,
@@ -89,17 +89,21 @@ breeding.diploid(population, mutation.rate = 10^-5,
   offspring.bve.offspring.cohorts = NULL, culling.cohort = NULL,
   culling.time = Inf, culling.name = "Not_named", culling.bv1 = 0,
   culling.share1 = 0, culling.bv2 = NULL, culling.share2 = NULL,
-  culling.index = 0, calculate.reliability = FALSE,
-  selection.m.gen = NULL, selection.f.gen = NULL,
-  selection.m.database = NULL, selection.f.database = NULL,
-  selection.m.cohorts = NULL, selection.f.cohorts = NULL,
-  selection.m.miesenberger = FALSE, selection.f.miesenberger = NULL,
+  culling.index = 0, culling.single = TRUE, culling.all.copy = TRUE,
+  calculate.reliability = FALSE, selection.m.gen = NULL,
+  selection.f.gen = NULL, selection.m.database = NULL,
+  selection.f.database = NULL, selection.m.cohorts = NULL,
+  selection.f.cohorts = NULL, selection.m.miesenberger = FALSE,
+  selection.f.miesenberger = NULL,
   selection.miesenberger.reliability.est = "estimated",
   multiple.bve.weights.m = 1, multiple.bve.weights.f = NULL,
   multiple.bve.scale.m = "bve_sd", multiple.bve.scale.f = NULL,
   verbose = TRUE, bve.parent.mean = FALSE,
   bve.grandparent.mean = FALSE, bve.mean.between = "bvepheno",
-  bve.direct.est = TRUE)
+  bve.direct.est = TRUE, bve.pseudo = FALSE, bve.pseudo.accuracy = 1,
+  miraculix.destroyA = TRUE, mas.bve = FALSE, mas.markers = NULL,
+  mas.number = 5, mas.effects = NULL, threshold.selection = NULL,
+  threshold.sign = ">", input.phenotype = "own")
 }
 \arguments{
 \item{population}{Population list}
@@ -484,6 +488,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{culling.index}{Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)}
 
+\item{culling.single}{Set to FALSE to not apply the culling module on all individuals of the cohort}
+
 \item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
 
 \item{selection.m.gen}{Generations available for selection of paternal parent}
@@ -521,6 +527,26 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{bve.mean.between}{Select if you want to use the "bve", "bv", "pheno" or "bvepheno" to form the mean (default: "bvepheno" - if available bve, else pheno)}
 
 \item{bve.direct.est}{If TRUE predict BVEs in direct estimation according to vanRaden 2008 method 2 (default: TRUE)}
+
+\item{bve.pseudo}{If set to TRUE the breeding value estimation will be simulated with resulting accuracy bve.pseudo.accuracy (default: 1)}
+
+\item{bve.pseudo.accuracy}{The accuracy to be obtained in the "pseudo" - breeding value estimation}
+
+\item{miraculix.destroyA}{If FALSE A will not be destroyed in the process of inversion (less computing / more memory)}
+
+\item{mas.bve}{If TRUE use marker assisted selection in the breeding value estimation}
+
+\item{mas.markers}{Vector containing markers to be used in marker assisted selection}
+
+\item{mas.number}{If no markers are provided this nr of markers is selected (if single marker QTL are present highest effect markers are prioritized)}
+
+\item{mas.effects}{Effects assigned to the MAS markers (Default: estimated via lm())}
+
+\item{threshold.selection}{Minimum value in the selection index selected individuals have to have}
+
+\item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
+
+\item{input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
 }
 \description{
 Function to simulate a step in a breeding scheme

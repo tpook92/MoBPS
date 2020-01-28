@@ -6,8 +6,7 @@
 \usage{
 new.base.generation(population, base.gen = NULL,
   delete.previous.gen = FALSE, delete.breeding.totals = FALSE,
-  delete.bve.data = FALSE, add.chromosome.ends = TRUE,
-  miraculix = FALSE)
+  delete.bve.data = FALSE, add.chromosome.ends = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -21,8 +20,6 @@ new.base.generation(population, base.gen = NULL,
 \item{delete.bve.data}{Deleta all previous bve data (default: FALSE)}
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
-
-\item{miraculix}{If TRUE use miraculix package for data storage and computation time relevant computations}
 }
 \description{
 Function to set a new base generation for the population
