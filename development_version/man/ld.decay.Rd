@@ -25,6 +25,13 @@ ld.decay(population, genotype.dataset = NULL, chromosomen = 1,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+LD-decay plot for in gen/database/cohorts selected individuals
+}
 \description{
 Generate LD pot
+}
+\examples{
+# data(ex_pop)
+# ld.decay(population=ex_pop, gen=2)
 }

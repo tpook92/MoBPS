@@ -30,6 +30,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Only consider a specific chromosome in calculations (default: 1)
+#' @examples
+#' # data(ex_pop)
+#' # ld.decay(population=ex_pop, gen=2)
+#' @return LD-decay plot for in gen/database/cohorts selected individuals
 #' @export
 
 ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, step=5, max=500,database=NULL, gen=NULL, cohorts= NULL){

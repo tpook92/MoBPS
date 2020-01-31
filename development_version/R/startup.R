@@ -18,20 +18,14 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
-#' par function for plots
-#'
-#' par function for plots
-#' @param population Population list
-#' @param gen generation to consider
 
-parent.haeufig <- function(population, gen){
-  nanimals <- length(population$breeding[[gen]][[1]])
-  previous <- numeric(population$info$size[(gen-1),1])
-  for(index in 1:nanimals){
-    father <- population$breeding[[gen]][[1]][[index]][[7]][3]
-    mother <- population$breeding[[gen]][[1]][[index]][[8]][3]
-    previous[father] <- previous[father]+1
-    previous[mother] <- previous[mother]+1
-  }
-  return(previous)
+.onAttach <- function(libname, pkgname) {
+  packageStartupMessage(
+"#############################################################
+############ Modular Breeding Program Simulator #############
+#############################################################
+################### Version: 1.4.65 (31-01-2020) ############
+######## To update to the most recent stable version: #######
+## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##
+#############################################################")
 }

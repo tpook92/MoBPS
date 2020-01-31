@@ -15,6 +15,13 @@ get.bve(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Estimated breeding value of in gen/database/cohorts selected individuals
+}
 \description{
 Function to export estimated breeding values
+}
+\examples{
+data(ex_pop)
+get.bve(ex_pop, gen=2)
 }

@@ -87,6 +87,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+#' @examples
+#' population <- creating.diploid(nsnp=1000, nindi=100)
+#' @return Population-list
 #' @export
 
 
@@ -959,8 +962,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$phenotypic.transform <- rep(FALSE, bv.total)
       population$info$phenotypic.transform.function <- list()
       population$info$culling.stats <- list()
-      population$info$version_MoBPS <- sessionInfo()$otherPkgs$MoBPS
-      population$info$version_miraculix <- sessionInfo()$otherPkgs$miraculix
+      population$info$version_MoBPS <- utils::sessionInfo()$otherPkgs$MoBPS
+      population$info$version_miraculix <- utils::sessionInfo()$otherPkgs$miraculix
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{

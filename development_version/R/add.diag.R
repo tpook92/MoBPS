@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to add numeric to the diagonal of a matrix
 #' @param M Matrix Population list
 #' @param d Vector to add to the diagonal of the matrix
-#' @export
 
 add.diag <- function(M, d){
   diag(M) <- diag(M) + d

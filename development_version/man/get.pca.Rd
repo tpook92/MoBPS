@@ -4,13 +4,13 @@
 \alias{get.pca}
 \title{Derive class}
 \usage{
-get.pca(path = NULL, population, database = NULL, gen = NULL,
+get.pca(population, path = NULL, database = NULL, gen = NULL,
   cohorts = NULL, coloring = "group", components = c(1, 2))
 }
 \arguments{
-\item{path}{Location were to save the PCA-plot}
-
 \item{population}{Population list}
+
+\item{path}{Location were to save the PCA-plot}
 
 \item{database}{Groups of individuals to consider for the export}
 
@@ -22,6 +22,13 @@ get.pca(path = NULL, population, database = NULL, gen = NULL,
 
 \item{components}{Default: c(1,2) for the first two principle components}
 }
+\value{
+Genotype data for in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide the class for each individual
+}
+\examples{
+data(ex_pop)
+get.pca(ex_pop, gen=2)
 }

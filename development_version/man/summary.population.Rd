@@ -17,3 +17,7 @@ Summary of the population list including number of individuals, genone length an
 \description{
 Summary of the population list
 }
+\examples{
+data(ex_pop)
+summary(ex_pop)
+}

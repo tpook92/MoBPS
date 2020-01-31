@@ -24,6 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Summary of the population list
 #' @param object Population-list
 #' @param ... additional arguments affecting the summary produced
+#' @examples
+#' data(ex_pop)
+#' summary(ex_pop)
 #' @return Summary of the population list including number of individuals, genone length and trait overview
 #' @export
 

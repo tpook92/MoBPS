@@ -20,6 +20,13 @@ analyze.population(population, chromosome, snp, database = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Frequency of AA/AB/BB in selected gen/database/cohorts
+}
 \description{
 Analyze allele frequency of a single marker
+}
+\examples{
+data(ex_pop)
+analyze.population(ex_pop, snp=1, chromosome=1, gen=1:2)
 }

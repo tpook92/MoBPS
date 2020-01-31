@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function for bitwise-storing in R (only 30 of 32 bits are used!)
 #' @param snpseq SNP sequence
 #' @param nbits Number of usable bits (default: 30)
-#' @export
 
 
 bit.storing <- function(snpseq, nbits){

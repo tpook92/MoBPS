@@ -26,6 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @examples
+#' data(ex_pop)
+#' get.database(ex_pop, gen=2)
+#' @return Combine gen/database/cohorts to a joined database
 #' @export
 
 
@@ -63,7 +67,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
   database <- database[keep,,drop=FALSE]
 
   if(length(database)>0 && nrow(database)>1){
-    order <- sort(database[,1]*1e14 + database[,2]*1e8 + database[,3], index.return=TRUE)$ix
+    order <- sort(database[,1]*1e12 + database[,2]*1e7 + database[,3], index.return=TRUE)$ix
     database <- database[order,,drop=FALSE]
     first_same <- 1
     first_index <- 1

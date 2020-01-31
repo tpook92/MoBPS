@@ -30,7 +30,12 @@ compute.costs(population, phenotyping.costs = 10,
 
 \item{interest.rate}{Applied yearly interest rate}
 
-\item{base.gen}{Base generation (application of interest rate)}
+\item{base.gen}{Base generation (application of interest rate)
+data(ex_pop)
+compute.costs(ex_pop, gen=1:2)}
+}
+\value{
+Cost-table for selected gen/database/cohorts of a population-list
 }
 \description{
 Function to derive the costs of a breeding program / population-list

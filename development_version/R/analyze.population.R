@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosome Number of the chromosome of the relevant SNP
 #' @param snp Number of the relevant SNP
+#' @examples
+#' data(ex_pop)
+#' analyze.population(ex_pop, snp=1, chromosome=1, gen=1:2)
+#' @return Frequency of AA/AB/BB in selected gen/database/cohorts
 #' @export
 
 analyze.population <- function(population, chromosome, snp, database=NULL, gen=NULL, cohorts=NULL){
@@ -59,7 +63,7 @@ analyze.population <- function(population, chromosome, snp, database=NULL, gen=N
       col <- col + 1
     }
   }
-  datatime <- c(gen, database[,1], get.database(population, cohorts=cohorts)[,1])
+  datatime <- c(gen, database[,1], as.numeric(population$info$cohorts[cohorts,2]))
 
   state.prob <- t(t(state)/colSums(state))
   maxp <- max(state.prob)
@@ -67,6 +71,9 @@ analyze.population <- function(population, chromosome, snp, database=NULL, gen=N
                  main="")
   graphics::lines(datatime ,state.prob[2,],lty=2, lwd=3)
   graphics::lines(datatime ,state.prob[3,],lty=3, lwd=3)
+  graphics::points(datatime ,state.prob[1,])
+  graphics::points(datatime ,state.prob[2,])
+  graphics::points(datatime ,state.prob[3,])
   graphics::legend("topleft",legend = c("AA","AB","BB"),lty=c(1,2,3), lwd=c(3,3,3))
   return(state)
 }

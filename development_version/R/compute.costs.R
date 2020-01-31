@@ -33,6 +33,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param interest.rate Applied yearly interest rate
 #' @param base.gen Base generation (application of interest rate)
+#' data(ex_pop)
+#' compute.costs(ex_pop, gen=1:2)
+#' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
 compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs = 100, fix.costs= 0, fix.costs.annual = 0,
@@ -40,29 +43,7 @@ compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs =
                           interest.rate = 1, base.gen=1){
 
 
-  if(length(gen)>0){
-    database <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
-  }
-  if(length(database)>0 && ncol(database)==2){
-    start <- end <- numeric(nrow(database))
-    for(index in 1:nrow(database)){
-      start[index] <- 1
-      end[index] <- population$info$size[database[index,1], database[index,2]]
-    }
-    database <- cbind(database, start, end)
-  }
-  if(length(cohorts)>0){
-    database2 <- matrix(0L, nrow=length(cohorts), ncol=4)
-    for(index in 1:length(cohorts)){
-      row <- which(population$info$cohorts==cohorts[index])
-      gen <- as.numeric(population$info$cohorts[row,2])
-      sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
-      first <- as.numeric(population$info$cohorts[row,5 + sex])
-      last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
-      database2[index,] <- c(gen,sex,first,last)
-    }
-    database <- rbind(database, database2)
-  }
+  database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
 
   generation <- max(database[,1])
 

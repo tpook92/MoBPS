@@ -16,6 +16,13 @@ get.time.point(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Time point of generation for in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide time point for each individual
+}
+\examples{
+data(ex_pop)
+get.time.point(ex_pop, gen=2)
 }

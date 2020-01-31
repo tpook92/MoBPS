@@ -25,7 +25,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param alpha alpha
 #' @param G kinship-matrix
 #' @param Z genomic information matrix
-#' @export
 
 alpha_to_beta <- function(alpha,G,Z) {
   if (requireNamespace("MASS", quietly = TRUE)) {

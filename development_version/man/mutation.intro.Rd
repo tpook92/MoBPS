@@ -20,6 +20,13 @@ mutation.intro(population, gen, sex, individual.nr, qtl.posi,
 
 \item{haplo.set}{Select chromosome set (default: 1 , alt: 2)}
 }
+\value{
+Population-List with mutated marker for the selected individual
+}
 \description{
 Function to change the base-pair in a specific loci
+}
+\examples{
+# data(ex_pop)
+# mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
 }

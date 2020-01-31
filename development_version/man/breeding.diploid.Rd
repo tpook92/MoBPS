@@ -490,6 +490,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{culling.single}{Set to FALSE to not apply the culling module on all individuals of the cohort}
 
+\item{culling.all.copy}{Set to FALSE to not kill copies of the same individual in the culling module}
+
 \item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
 
 \item{selection.m.gen}{Generations available for selection of paternal parent}
@@ -548,6 +550,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
 }
+\value{
+Population-list
+}
 \description{
 Function to simulate a step in a breeding scheme
+}
+\examples{
+population <- creating.diploid(nsnp=1000, nindi=100)
+population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
 }

@@ -15,6 +15,13 @@ get.pheno(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Phenotypes for in gen/database/cohorts selected individuals
+}
 \description{
 Function to export underlying phenotypes
+}
+\examples{
+data(ex_pop)
+get.pheno(ex_pop, gen=2)
 }

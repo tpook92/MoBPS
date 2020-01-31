@@ -25,6 +25,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population Population list
 #' @param phenotypic.transform.function Phenotypic transformation to apply
 #' @param trait Trait for which a transformation is to be applied
+#' data(ex_pop)
+#' trafo <- function(x){ return(x^2)}
+#' ex_pop <- creating.phenotypic.transform(ex_pop, phenotypic.transform.function=trafo)
+#' @return Population-list with a new phenotypic transformation function
 #' @export
 
 creating.phenotypic.transform <- function(population, phenotypic.transform.function=NULL, trait=1){
@@ -34,6 +38,5 @@ creating.phenotypic.transform <- function(population, phenotypic.transform.funct
     population$info$phenotypic.transform.function[[trait]] <- phenotypic.transform.function
   }
   return(population)
-
 
 }

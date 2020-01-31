@@ -20,6 +20,13 @@ get.geno(population, database = NULL, gen = NULL, cohorts = NULL,
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 }
+\value{
+Genotype data for in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide genotypes of selected individuals
+}
+\examples{
+data(ex_pop)
+get.geno(ex_pop, gen=2)
 }

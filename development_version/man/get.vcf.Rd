@@ -20,6 +20,13 @@ get.vcf(population, path = NULL, database = NULL, gen = NULL,
 
 \item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
 }
+\value{
+VCF-file for in gen/database/cohorts selected individuals
+}
 \description{
 Generate a vcf-file for selected groups and chromosome
+}
+\examples{
+#data(ex_pop)
+#get.vcf(path="temp", ex_pop, gen=2)
 }

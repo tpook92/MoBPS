@@ -12,7 +12,13 @@ creating.phenotypic.transform(population,
 
 \item{phenotypic.transform.function}{Phenotypic transformation to apply}
 
-\item{trait}{Trait for which a transformation is to be applied}
+\item{trait}{Trait for which a transformation is to be applied
+data(ex_pop)
+trafo <- function(x){ return(x^2)}
+ex_pop <- creating.phenotypic.transform(ex_pop, phenotypic.transform.function=trafo)}
+}
+\value{
+Population-list with a new phenotypic transformation function
 }
 \description{
 Internal function to calculate the breeding value of a given individual

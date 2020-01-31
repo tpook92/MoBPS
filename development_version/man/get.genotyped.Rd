@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.genotyped.R
 \name{get.genotyped}
 \alias{get.genotyped}
-\title{Derive genetic origins}
+\title{Derive genotyping status}
 \usage{
 get.genotyped(population, database = NULL, gen = NULL,
   cohorts = NULL)
@@ -16,6 +16,13 @@ get.genotyped(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Check if in gen/database/cohorts selected individuals are genotyped
+}
 \description{
-Function to derive genetic origin
+Function to if selected individuals are genotyped
+}
+\examples{
+data(ex_pop)
+get.genotyped(ex_pop, gen=2)
 }

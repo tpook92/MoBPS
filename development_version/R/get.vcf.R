@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
+#' @examples
+#' #data(ex_pop)
+#' #get.vcf(path="temp", ex_pop, gen=2)
+#' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 
 get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all"){
@@ -65,12 +69,12 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   headerfile <- rbind(
     "##fileformat=VCFv4.2",
     gsub("-", "", paste0("##filedate=",  Sys.Date())),
-    paste0("##source='MoBPS_", packageVersion("MoBPS"),"'"),
+    paste0("##source='MoBPS_", utils::packageVersion("MoBPS"),"'"),
     "##FORMAT=<ID=GT,Number=1,Type=String,Description='Genotype'>"
   )
 
-  write.table(headerfile, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE)
-  write.table(vcfgenofull, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE, append = TRUE, sep="\t")
+  utils::write.table(headerfile, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE)
+  utils::write.table(vcfgenofull, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE, append = TRUE, sep="\t")
 }
 
 

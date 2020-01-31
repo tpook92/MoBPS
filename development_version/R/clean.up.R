@@ -24,6 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to remove recombination points + origins with no influence on markers
 #' @param population Population list
 #' @param gen Generations to clean up (default: "current")
+#' @examples
+#' data(ex_pop)
+#' ex_pop <- clean.up(ex_pop)
+#' @return Population-list with deleted irrelevant recombination points
 #' @export
 
 clean.up <- function(population, gen="all"){

@@ -24,6 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to export cohort names for the population list
 #' @param population Population list
 #' @param extended extended cohorts
+#' @examples
+#' data(ex_pop)
+#' get.cohorts(ex_pop)
+#' @return List of all cohorts in the population-list
 #' @export
 
 get.cohorts <- function(population, extended=FALSE){

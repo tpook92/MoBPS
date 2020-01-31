@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param size.scaling Scale the size of nodes by this factor (especially for testing smaller examples)
 #' @param rep.max Maximum number of repeats to use in fast.mode
 #' @param verbose Set to FALSE to not display any prints
+#' @examples
+#' # data(ex_json)
+#' # population <- json.simulation(total=ex_json)
+#' @return Population-list
 #' @export
 
 json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,

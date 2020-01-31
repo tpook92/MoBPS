@@ -16,6 +16,13 @@ get.pheno.off.count(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Number of offspring with phenotypes for in gen/database/cohorts selected individuals
+}
 \description{
 Function to export number of observations used for offspring phenotypes
+}
+\examples{
+data(ex_pop)
+get.pheno.off.count(ex_pop, gen=2)
 }

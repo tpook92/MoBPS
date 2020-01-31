@@ -15,6 +15,13 @@ get.recombi(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Recombination points for in gen/database/cohorts selected individuals
+}
 \description{
 Function to derive genetic origin
+}
+\examples{
+data(ex_pop)
+get.recombi(ex_pop, gen=2)
 }

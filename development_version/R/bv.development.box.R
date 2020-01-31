@@ -33,6 +33,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param json If TRUE extract which cohorts to plot according to the json-file used in json.simulation
 #' @param ylim Set this to fix the y-axis of the plot
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots
+#' @examples
+#' data(ex_pop)
+#' bv.development.box(ex_pop, gen=1:2)
+#' @return Genomic values of selected gen/database/cohort
 #' @export
 
 bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL,

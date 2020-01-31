@@ -66,3 +66,11 @@ NULL
 #' @source Web-interface
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
+
+#' @name ex_pop
+#' @title ex_pop
+#' @description Exemplary population-list
+#' @usage ex_pop
+#' @source MoBPS
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL

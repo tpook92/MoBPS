@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
 #' @param delete.bve.data Deleta all previous bve data (default: FALSE)
 #' @param add.chromosome.ends Add chromosome ends as recombination points
+#' @examples
+#' data(ex_pop)
+#' mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
+#' @return Population-List with mutated marker for the selected individual
 #' @export
 
 new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=FALSE, delete.breeding.totals=FALSE,

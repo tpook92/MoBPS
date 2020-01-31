@@ -50,7 +50,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dh.sex internal test
 #' @param n.observation internal test
 
-
 generation.individual <- function(indexb, population, info_father_list, info_mother_list,
                                   copy.individual, mutation.rate, remutation.rate, recombination.rate,
                                   recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,

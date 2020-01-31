@@ -31,6 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nchromo Number of chromosomes to export in the map
 #' @param export.filters Export possible filters for parameter filters
 #' @param export.datasets Export possible datasets for usage in parameter dataset
+#' @examples
+#' # This can take longer!
+#' # map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
+#' #                    filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip")
+#' @return Map-file for the use in creating.diploid
 #' @export
 
 ensembl.map <- function(host="www.ensembl.org", dataset="btaurus_snp", export.filters=FALSE, export.datasets=FALSE,

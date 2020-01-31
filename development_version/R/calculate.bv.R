@@ -33,7 +33,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
 #' @param nbits Bits available in RekomBre-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
-#' @export
 
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,
                          decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,

@@ -23,6 +23,13 @@ json.simulation(file = NULL, total = NULL, fast.mode = FALSE,
 
 \item{verbose}{Set to FALSE to not display any prints}
 }
+\value{
+Population-list
+}
 \description{
 Generation of the starting population
+}
+\examples{
+# data(ex_json)
+# population <- json.simulation(total=ex_json)
 }

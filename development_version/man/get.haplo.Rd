@@ -20,6 +20,13 @@ get.haplo(population, database = NULL, gen = NULL, cohorts = NULL,
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 }
+\value{
+Haplotype data for in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide haplotypes of selected individuals
+}
+\examples{
+data(ex_pop)
+get.haplo(ex_pop, gen=2)
 }

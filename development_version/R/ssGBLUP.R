@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param A12 A12
 #' @param A22 A22
 #' @param G G
-#' @export
 
 ssGBLUP <- function(A11, A12, A22, G){
 

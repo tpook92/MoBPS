@@ -30,7 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
 #' @param nbits Bits available in RekomBre-bit-storing
 #' @param population Population list
-#' @export
 
 
 edit_animal <- function(population, gen, sex, nr, nr.edits, decodeOriginsU=decodeOriginsR,

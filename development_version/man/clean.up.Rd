@@ -11,6 +11,13 @@ clean.up(population, gen = "all")
 
 \item{gen}{Generations to clean up (default: "current")}
 }
+\value{
+Population-list with deleted irrelevant recombination points
+}
 \description{
 Function to remove recombination points + origins with no influence on markers
+}
+\examples{
+data(ex_pop)
+ex_pop <- clean.up(ex_pop)
 }

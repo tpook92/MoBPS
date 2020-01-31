@@ -159,6 +159,12 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 
 \item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 }
+\value{
+Population-list
+}
 \description{
 Generation of the starting population
+}
+\examples{
+population <- creating.diploid(nsnp=1000, nindi=100)
 }

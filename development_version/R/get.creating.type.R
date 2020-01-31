@@ -26,6 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @examples
+#' data(ex_pop)
+#' get.creating.type(ex_pop, gen=2)
+#' @return Creating type of in gen/database/cohorts selected individuals
 #' @export
 
 get.creating.type <- function(population, database=NULL, gen=NULL, cohorts=NULL){
