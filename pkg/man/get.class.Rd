@@ -15,6 +15,13 @@ get.class(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Class of in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide the class for each individual
+}
+\examples{
+data(ex_pop)
+get.class(ex_pop, gen=2)
 }

@@ -16,6 +16,13 @@ get.pheno.off(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Avg. phenotype of the offspring of in gen/database/cohorts selected individuals
+}
 \description{
 Function to export offspring phenotypes
+}
+\examples{
+data(ex_pop)
+get.pheno.off(ex_pop, gen=2)
 }

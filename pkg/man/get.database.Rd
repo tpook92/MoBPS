@@ -15,6 +15,13 @@ get.database(population, gen = NULL, database = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Combine gen/database/cohorts to a joined database
+}
 \description{
 Function to derive a database based on gen/database/cohorts
+}
+\examples{
+data(ex_pop)
+get.database(ex_pop, gen=2)
 }

@@ -16,6 +16,13 @@ get.individual.loc(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Storage Position for in gen/database/cohorts selected individuals (Generation/Sex/IndividualNr)
+}
 \description{
 Export location of individuals from the population list
+}
+\examples{
+data(ex_pop)
+get.individual.loc(ex_pop, gen=2)
 }

@@ -20,6 +20,13 @@ get.pedmap(population, path = NULL, database = NULL, gen = NULL,
 
 \item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
 }
+\value{
+Ped and map-file for in gen/database/cohorts selected individuals
+}
 \description{
 Generate a ped and map file (PLINK format) for selected groups and chromosome
+}
+\examples{
+#data(ex_pop)
+#get.pca(path="temp", ex_pop, gen=2)
 }

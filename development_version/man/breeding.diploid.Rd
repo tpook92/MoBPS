@@ -57,7 +57,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   ncore.generation = 1, Z.integer = FALSE, store.effect.freq = FALSE,
   backend = "doParallel", randomSeed = NULL,
   randomSeed.generation = NULL, Rprof = FALSE, miraculix = NULL,
-  miraculix.cores = 1, miraculix.mult = NULL, miraculix.chol = FALSE,
+  miraculix.cores = 1, miraculix.mult = NULL, miraculix.chol = TRUE,
   fast.compiler = 0, best.selection.ratio.m = 1,
   best.selection.ratio.f = NULL, best.selection.criteria.m = "bv",
   best.selection.criteria.f = NULL,
@@ -86,10 +86,11 @@ breeding.diploid(population, mutation.rate = 10^-5,
   offspring.bve.parents.cohorts = NULL,
   offspring.bve.offspring.gen = NULL,
   offspring.bve.offspring.database = NULL,
-  offspring.bve.offspring.cohorts = NULL, culling.cohort = NULL,
-  culling.time = Inf, culling.name = "Not_named", culling.bv1 = 0,
-  culling.share1 = 0, culling.bv2 = NULL, culling.share2 = NULL,
-  culling.index = 0, culling.single = TRUE, culling.all.copy = TRUE,
+  offspring.bve.offspring.cohorts = NULL, culling.gen = NULL,
+  culling.database = NULL, culling.cohort = NULL, culling.time = Inf,
+  culling.name = "Not_named", culling.bv1 = 0, culling.share1 = 0,
+  culling.bv2 = NULL, culling.share2 = NULL, culling.index = 0,
+  culling.single = TRUE, culling.all.copy = TRUE,
   calculate.reliability = FALSE, selection.m.gen = NULL,
   selection.f.gen = NULL, selection.m.database = NULL,
   selection.f.database = NULL, selection.m.cohorts = NULL,
@@ -360,7 +361,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{miraculix.mult}{If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage}
 
-\item{miraculix.chol}{If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)}
+\item{miraculix.chol}{Set to FALSE to deactive miraculix based Cholesky-decomposition (default: TRUE)}
 
 \item{fast.compiler}{Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)}
 
@@ -471,6 +472,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{offspring.bve.offspring.database}{Active groups for import of offspring phenotypes}
 
 \item{offspring.bve.offspring.cohorts}{Active cohorts for import of offspring phenotypes}
+
+\item{culling.gen}{Generations to consider to culling}
+
+\item{culling.database}{Groups to consider to culling}
 
 \item{culling.cohort}{Cohort to consider to culling}
 

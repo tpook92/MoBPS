@@ -20,6 +20,13 @@ analyze.bv(population, gen = NULL, database = NULL, cohorts = NULL,
 
 \item{advanced}{Set to TRUE to also look at offspring pheno}
 }
+\value{
+[[1]] Correlation between BV/BVE/Phenotypes [[2]] Genetic variance of the traits
+}
 \description{
 Function to analyze correlation between bv/bve/pheno
+}
+\examples{
+data(ex_pop)
+analyze.bv(ex_pop,gen=1)
 }

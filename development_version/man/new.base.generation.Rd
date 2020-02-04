@@ -29,5 +29,5 @@ Function to set a new base generation for the population
 }
 \examples{
 data(ex_pop)
-mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
+ex_pop <- new.base.generation(ex_pop, base.gen=2)
 }

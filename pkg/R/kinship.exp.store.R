@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,15 +28,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param start.kinship Relationship matrix of the individuals in the first considered generation
+#' @param elements Vector of individuals from the database to include in pedigree matrix
+#' @param mult Multiplicator of kinship matrix (default: 2)
+#' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @examples
+#' data(ex_pop)
+#' kinship.exp.store(population=ex_pop, gen=2)
+#' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
 #' @export
+#'
+#A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
-kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
-                        start.kinship=NULL,
-                        elements = NULL,
-                        mult = NULL){
+kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+                              start.kinship=NULL,
+                              elements = NULL,
+                              mult = 2,
+                              storage.save=1.5){
 
-#                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
+  #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
+  #                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
+
+  int_mult <- as.integer(2^29)
+  int_mult2 <- as.integer(2^28)
   database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
 
   n.animals <- sum(diff(t(database[,3:4, drop=FALSE]))+1)
@@ -59,9 +73,11 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
     }
 
     elements <- elements_new
-    database <- database[which(activ_database),]
+    database <- database[which(activ_database),,drop=FALSE]
 
 
+  } else{
+    elements <- 1:sum(database[,4]-database[,3]+1)
   }
   if(depth.pedigree==Inf){
     pedigree.database <- get.database(population, gen=1:max(database[,1]))
@@ -75,19 +91,40 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
       if(nrow(m_parents)>0){
         m_gen <- unique(m_parents[,1])
         m_data <- cbind(m_gen, 1, 0,0)
+        nincluded <- numeric(length(m_gen))
         for(index in 1:length(m_gen)){
           m_data[index,3] <- min(m_parents[m_parents[,1]==m_gen[index],3])
           m_data[index,4] <- max(m_parents[m_parents[,1]==m_gen[index],3])
+          nincluded[index] <- length(unique(m_parents[m_parents[,1]==m_gen[index],3]))
         }
+
+        for(index in length(m_gen):1){
+          if(nincluded[index] < (m_data[index,4]-m_data[index,3]+1)/storage.save){
+            m_data <- m_data[-index,]
+            activ_p <- unique(m_parents[m_parents[,1]==m_gen[index],3])
+            m_data <- rbind(m_data, cbind(m_gen[index], 1, activ_p, activ_p))
+          }
+        }
+
       } else{
         m_data <- NULL
       }
       if(nrow(f_parents)>0){
         f_gen <- unique(f_parents[,1])
         f_data <- cbind(f_gen, 2, 0,0)
+        nincluded <- numeric(length(f_gen))
         for(index in 1:length(f_gen)){
           f_data[index,3] <- min(f_parents[f_parents[,1]==f_gen[index],3])
           f_data[index,4] <- max(f_parents[f_parents[,1]==f_gen[index],3])
+          nincluded[index] <- length(unique(f_parents[f_parents[,1]==f_gen[index],3]))
+        }
+
+        for(index in length(f_gen):1){
+          if(nincluded[index] < (f_data[index,4]-f_data[index,3]+1)/storage.save){
+            f_data <- f_data[-index,]
+            activ_p <- unique(f_parents[f_parents[,1]==f_gen[index],3])
+            f_data <- rbind(f_data, cbind(f_gen[index], 2, activ_p, activ_p))
+          }
         }
 
       } else{
@@ -123,12 +160,12 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   }
 
   cat("Derive pedigree-matrix based for ", n.animals, " individuals based on ", n.total, " individuals.\n")
-  kinship <- matrix(0, ncol=n.total, nrow=n.total)
+  kinship <- matrix(0L, ncol=n.total, nrow=n.total)
 
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1
   if(length(start.kinship)==0){
     size.firstgen <- sum(group.size[pedigree.database[,1]==pedigree.database[1,1]])
-    kinship[1:size.firstgen, 1:size.firstgen] <- diag(1/2,size.firstgen)
+    kinship[1:size.firstgen, 1:size.firstgen] <- diag(as.integer(1/2 * int_mult),size.firstgen)
   } else{
     kinship[1:nrow(start.kinship), 1:nrow(start.kinship)] <- start.kinship
     # Add reality check to validate size of start.kinship
@@ -143,10 +180,10 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
   info.indi[info.indi=="0"] <- "M1_1" # Placeholder
   # necessary when using copy.individuals
   replaces <- which(duplicated(animal.nr))
-#  for(replace in replaces){
-#    new <- which(animal.nr==animal.nr[replace])[1]
-#    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
-#  }
+  #  for(replace in replaces){
+  #    new <- which(animal.nr==animal.nr[replace])[1]
+  #    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
+  #  }
 
   if(length(replaces)>0){
     animal.nr.temp <- animal.nr[1:min(replaces)]
@@ -194,21 +231,21 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
   }
 
-#  if((total.nr[first_new]) <= total){
-#    for(second in (total.nr[first_new]):total){
-#      for(first in 1:second){
-#        nr.father <- nr_father[second]
-#        nr.mother <- nr_mother[second]
-#        if(first!=second){
-#          kinship[first,second] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-#          kinship[second,first] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-#        } else{
-#         kinship[first,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-#          kinship[second,first] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-#        }
-#      }
-#    }
-#  }
+  #  if((total.nr[first_new]) <= total){
+  #    for(second in (total.nr[first_new]):total){
+  #      for(first in 1:second){
+  #        nr.father <- nr_father[second]
+  #        nr.mother <- nr_mother[second]
+  #        if(first!=second){
+  #          kinship[first,second] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+  #          kinship[second,first] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+  #        } else{
+  #         kinship[first,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+  #          kinship[second,first] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+  #        }
+  #      }
+  #    }
+  #  }
 
 
 
@@ -219,96 +256,43 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
       nr.mother <- nr_mother[second]
       first <- 1:second
       if(is.na(nr.father) && is.na(nr.mother)){
-        kinship[second,second] <- 1/2
+        kinship[second,second] <- int_mult2
         nr.mother <- nr.father <- 1
       }
       if(is.na(nr.father)){
-        kinship[first,second] <- kinship[second,first] <-1/2 * (0 + kinship[first, nr.mother])
+        kinship[first,second] <- kinship[second,first] <- as.integer( (0L + kinship[first, nr.mother]))
         nr.mother <- nr.father <- 1 # Founder-individual
       } else if(is.na(nr.mother)){
-        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + 0)
+        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + 0L))
         nr.mother <- nr.father <- 1 # Founder-individual
       } else{
-        kinship[first,second] <- kinship[second,first] <-1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
+        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + kinship[first, nr.mother]))
       }
 
       if(nr.father==nr.mother && animal_ids[nr.father]==animal_ids[second]){
-        kinship[second,second] <- 1/2
+        kinship[second,second] <- int_mult2
         # Individual is founder!
       } else{
-        kinship[second,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
+        kinship[second,second] <- int_mult2 + as.integer(0.5 * kinship[nr.father, nr.mother])
       }
 
     }
   }
 
-#  for(replace in intersect(replaces, position.pedigree)){
-#    new <- which(animal.nr==animal.nr[replace])[1]
-#    kinship[replace,] <- kinship[new,]
-#    kinship[,replace] <- kinship[,new]
-#  }
+  #  for(replace in intersect(replaces, position.pedigree)){
+  #    new <- which(animal.nr==animal.nr[replace])[1]
+  #    kinship[replace,] <- kinship[new,]
+  #    kinship[,replace] <- kinship[,new]
+  #  }
+
   if(length(mult)>0){
-    kinship.relevant <- kinship[position.pedigree,position.pedigree] * mult
+    kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult /mult)
   } else{
-    kinship.relevant <- kinship[position.pedigree,position.pedigree]
+    kinship.relevant <- kinship[position.pedigree,position.pedigree] / int_mult
   }
 
+  kinship.relevant <- kinship.relevant[elements,elements]
 
   return(kinship.relevant)
-
-  if(FALSE){
-    groups <- calculate.averages
-    if(groups=="generations"){
-      groups <- total.nr
-    }
-    if(groups[1]=="generationsex"){
-      groups <- sort(c(1, generation.size[,1]+total.nr[-length(total.nr)], generation.size[,3]+total.nr[-length(total.nr)]))
-    }
-    if(groups[1]=="generationsexmig"){
-      groups <- 1
-      for(index in 1:length(population$breeding)){
-        for(sex in 1:2){
-          migs <- unique(population$breeding[[index]][[4+sex]])
-          for(index2 in migs){
-            groups <- c(groups, groups[length(groups)] + sum(population$breeding[[index]][[4+sex]]==index2))
-          }
-        }
-      }
-    }
-    n.groups <- (length(groups)-1)
-    kinship.matrix <- matrix(0, nrow=n.groups, ncol = n.groups)
-    hbd <- numeric(n.groups)
-
-    for(i in 1:n.groups){
-      for(j in 1:i){
-        if((groups[i] <= (groups[i+1]-1) ) && groups[j] <= (groups[j+1]-1))
-          kinship.matrix[i,j] <- mean(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)])
-        kinship.matrix[j,i] <- kinship.matrix[i,j]
-        if(ignore.diag==TRUE && i==j && (groups[i+1]-groups[i])>0){
-          tot.diag <- sum( kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)]) - sum(diag(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)]))
-          kinship.matrix[i,j] <- tot.diag/ ((groups[i+1]-groups[i])) / ((groups[i+1]-1-groups[i]))
-          if(length(groups[i]:(groups[i+1]-1))==1){
-            hbd[i] <- -1 + 2*kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)] / ((groups[i+1]-groups[i]))
-
-          } else{
-            hbd[i] <- -1 + 2*sum(diag(kinship[groups[i]:(groups[i+1]-1),groups[j]:(groups[j+1]-1)])) / ((groups[i+1]-groups[i]))
-
-          }
-        }
-
-
-      }
-    }
-
-    if(length(mult)>0){
-      kinship.matrix <- kinship.matrix * 2
-    }
-
-    if(plot_grp){
-      graphics::plot(diag(kinship.matrix), xlab="Generation", ylab="Kinship", main="Entwicklung der mittleren Kinship")
-    }
-
-    return(list(kinship.matrix, hbd))
-  }
 
 }

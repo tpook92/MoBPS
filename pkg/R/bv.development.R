@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -41,6 +41,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param time_reorder Set TRUE to order cohorts according to the time point of generation
 #' @param ylim Set this to fix the y-axis of the plot
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots
+#' @examples
+#' data(ex_pop)
+#' bv.development(ex_pop, gen=1:2)
+#' @return Genomic values of selected gen/database/cohort
 #' @export
 
 bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
@@ -161,8 +165,8 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     }
 
     if(ignore.zero==TRUE){
-      means[all0*(1:length(means))] <- NA
-      sds[all0*(1:length(means))] <- NA
+      means[as.numeric(all0*(1:length(means)))] <- NA
+      sds[as.numeric(all0*(1:length(means)))] <- NA
     }
 
     ub <- means - sds * q

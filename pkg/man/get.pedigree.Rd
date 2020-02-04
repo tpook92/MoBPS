@@ -20,6 +20,13 @@ get.pedigree(population, database = NULL, gen = NULL, cohorts = NULL,
 
 \item{raw}{Set to TRUE to not convert numbers into Sex etc.}
 }
+\value{
+Pedigree-file for in gen/database/cohorts selected individuals
+}
 \description{
 Derive pedigree for selected individuals
+}
+\examples{
+data(ex_pop)
+get.pedigree(ex_pop, gen=2)
 }

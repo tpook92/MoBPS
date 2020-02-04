@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -64,5 +64,13 @@ NULL
 #' @description Exemplary json-data
 #' @usage ex_json
 #' @source Web-interface
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name ex_pop
+#' @title ex_pop
+#' @description Exemplary population-list
+#' @usage ex_pop
+#' @source MoBPS
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL

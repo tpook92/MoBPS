@@ -51,6 +51,13 @@ bv.development(population, database = NULL, gen = NULL,
 
 \item{fix_mfrow}{Set TRUE to not use mfrow - use for custom plots}
 }
+\value{
+Genomic values of selected gen/database/cohort
+}
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts
+}
+\examples{
+data(ex_pop)
+bv.development(ex_pop, gen=1:2)
 }

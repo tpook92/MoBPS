@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License

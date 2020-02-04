@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,6 +29,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
+#' @examples
+#' #data(ex_pop)
+#' #get.pca(path="temp", ex_pop, gen=2)
+#' @return Ped and map-file for in gen/database/cohorts selected individuals
 #' @export
 
 get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all"){

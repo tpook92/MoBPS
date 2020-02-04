@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,7 +27,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param Q Q
 #' @param cAc cAc
 #' @param single single
-#' @export
 
 OGC <- function(A,u,Q,cAc=NA, single=TRUE){
   # bei NA wird cAc (Increase of average relationship) minimiert

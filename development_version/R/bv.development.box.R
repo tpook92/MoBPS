@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -138,7 +138,7 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
       y_max <- max(y_max, values[[index]][nr,])
     }
 
-    graphics::boxplot(x=c(-10^10), xlim=c(0,x_axis), ylim=if(length(ylim)==0){c(y_min,y_max)} else{ylim})
+    graphics::boxplot(x=c(-10^10), xlim=c(-0.5,x_axis), ylim=if(length(ylim)==0){c(y_min,y_max)} else{ylim})
     pos <- 0
     pref <- 0
     label_pos <- NULL

@@ -67,7 +67,12 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{trait.name}{Name of the trait generated}
 
-\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
+\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+population <- creating.diploid(nsnp=1000, nindi=100)
+population <- creating.trait(population, n.additive=100)}
+}
+\value{
+Population-list with one or more additional new traits
 }
 \description{
 Generation of the trait in a starting population

@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,13 +19,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive genetic origins
+#' Derive genotyping status
 #'
-#' Function to derive genetic origin
+#' Function to if selected individuals are genotyped
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @examples
+#' data(ex_pop)
+#' get.genotyped(ex_pop, gen=2)
+#' @return Check if in gen/database/cohorts selected individuals are genotyped
 #' @export
 
 get.genotyped <- function(population, database=NULL, gen=NULL, cohorts=NULL){

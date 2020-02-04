@@ -15,6 +15,13 @@ vlist(list, skip = NULL, first = NULL, select = NULL)
 
 \item{select}{Display only selected list-elements}
 }
+\value{
+Selected elements of a list
+}
 \description{
 Function to devide the class for each individual
+}
+\examples{
+data(ex_pop)
+vlist(ex_pop$breeding[[1]], select=3:10)
 }

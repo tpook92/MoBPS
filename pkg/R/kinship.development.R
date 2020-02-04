@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,6 +34,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param equal.spacing Equal distance between groups (independent of time.point)
 #' @param time_reorder Set TRUE to order cohorts according to the time point of generation
 #' @param display.hbd Set to TRUE to also display HBD in plot
+#' @examples
+#' data(ex_pop)
+#' kinship.development(ex_pop,gen=1:2)
+#' @return Estimated IBD (first col: kinship, second col: inbreeding)
 #' @export
 
 kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,

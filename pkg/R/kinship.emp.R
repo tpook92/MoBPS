@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param sym If True derive matrix entries below principle-diagonal
+#' @examples
+#' data(ex_pop)
+#' kinship.emp(population=ex_pop, gen=2)
+#' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
 kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE){
@@ -104,6 +108,10 @@ kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, 
 #' @param sym If True derive matrix entries below principle-diagonal
 #' @param ibd.obs Number of Individual pairs to sample for IBD estimation
 #' @param hbd.obs Number of Individuals to sample for HBD estimation
+#' @examples
+#' data(ex_pop)
+#' kinship.emp.fast(population=ex_pop,gen=2)
+#' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
 #' @export
 #'
 kinship.emp.fast <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, ibd.obs=50, hbd.obs=10){

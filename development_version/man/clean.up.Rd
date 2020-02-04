@@ -4,12 +4,16 @@
 \alias{clean.up}
 \title{Clean-up recombination points}
 \usage{
-clean.up(population, gen = "all")
+clean.up(population, gen = "all", database = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}
 
 \item{gen}{Generations to clean up (default: "current")}
+
+\item{database}{Groups of individuals to consider}
+
+\item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
 \value{
 Population-list with deleted irrelevant recombination points

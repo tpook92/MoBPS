@@ -15,6 +15,13 @@ get.bv(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Genomic value of in gen/database/cohorts selected individuals
+}
 \description{
 Function to export underlying true breeding values
+}
+\examples{
+data(ex_pop)
+get.bv(ex_pop, gen=2)
 }

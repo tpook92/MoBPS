@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
 #' @param delete.bve.data Deleta all previous bve data (default: FALSE)
 #' @param add.chromosome.ends Add chromosome ends as recombination points
+#' @examples
+#' data(ex_pop)
+#' ex_pop <- new.base.generation(ex_pop, base.gen=2)
+#' @return Population-List with mutated marker for the selected individual
 #' @export
 
 new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=FALSE, delete.breeding.totals=FALSE,

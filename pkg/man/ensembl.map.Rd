@@ -24,6 +24,14 @@ ensembl.map(host = "www.ensembl.org", dataset = "btaurus_snp",
 
 \item{nchromo}{Number of chromosomes to export in the map}
 }
+\value{
+Map-file for the use in creating.diploid
+}
 \description{
 Function to generate a ensemble map file
+}
+\examples{
+# This can take longer!
+# map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
+#                    filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip")
 }

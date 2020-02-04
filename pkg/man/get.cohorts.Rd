@@ -11,6 +11,13 @@ get.cohorts(population, extended = FALSE)
 
 \item{extended}{extended cohorts}
 }
+\value{
+List of all cohorts in the population-list
+}
 \description{
 Function to export cohort names for the population list
+}
+\examples{
+data(ex_pop)
+get.cohorts(ex_pop)
 }

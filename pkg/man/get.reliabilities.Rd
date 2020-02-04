@@ -16,6 +16,13 @@ get.reliabilities(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Estimated reliability for BVE for in gen/database/cohorts selected individuals
+}
 \description{
 Function to export underlying reliabilities
+}
+\examples{
+data(ex_pop)
+get.reliabilities(ex_pop, gen=2)
 }

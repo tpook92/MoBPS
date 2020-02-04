@@ -6,7 +6,7 @@
 \usage{
 bv.standardization(population, mean.target = 100, var.target = 10,
   gen = NULL, database = NULL, cohorts = NULL, adapt.bve = FALSE,
-  adapt.pheno = FALSE)
+  adapt.pheno = FALSE, verbose = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -23,8 +23,17 @@ bv.standardization(population, mean.target = 100, var.target = 10,
 
 \item{adapt.bve}{Modify previous breeding value estimations by scaling (default: FALSE)}
 
-\item{adpat.pheno}{Modify previous phenotypes by scaling (default: FALSE)}
+\item{adapt.pheno}{Modify previous phenotypes by scaling (default: FALSE)}
+
+\item{verbose}{Set to TRUE to display prints}
+}
+\value{
+Population-list with scaled QTL-effects
 }
 \description{
 Function to get mean and genetic variance of a trait to a fixed value
+}
+\examples{
+population <- creating.diploid(nsnp=1000, nindi=100, n.additive=100)
+population <- bv.standardization(population, mean.target=200, var.target=5)
 }

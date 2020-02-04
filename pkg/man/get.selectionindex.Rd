@@ -16,6 +16,13 @@ get.selectionindex(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Last applied selection index for in gen/database/cohorts selected individuals
+}
 \description{
 Function to export underlying selection index
+}
+\examples{
+data(ex_pop)
+get.selectionindex(ex_pop, gen=2)
 }

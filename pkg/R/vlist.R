@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -26,7 +26,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param skip Skip first that many list-elements
 #' @param first Only display first that many list-elements
 #' @param select Display only selected list-elements
+#' @examples
+#' data(ex_pop)
+#' vlist(ex_pop$breeding[[1]], select=3:10)
+#' @return Selected elements of a list
 #' @export
+
 
 vlist <- function(list, skip=NULL, first=NULL, select=NULL){
   if(length(skip)==0 && length(first)==0 && length(select)==0){

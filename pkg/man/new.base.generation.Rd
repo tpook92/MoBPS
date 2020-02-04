@@ -21,6 +21,13 @@ new.base.generation(population, base.gen = NULL,
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
 }
+\value{
+Population-List with mutated marker for the selected individual
+}
 \description{
 Function to set a new base generation for the population
+}
+\examples{
+data(ex_pop)
+ex_pop <- new.base.generation(ex_pop, base.gen=2)
 }

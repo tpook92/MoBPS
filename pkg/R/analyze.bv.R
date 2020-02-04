@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param bvrow Which traits to display (for multiple traits separte plots (par(mfrow)))
 #' @param advanced Set to TRUE to also look at offspring pheno
+#' @examples
+#' data(ex_pop)
+#' analyze.bv(ex_pop,gen=1)
+#' @return [[1]] Correlation between BV/BVE/Phenotypes [[2]] Genetic variance of the traits
 #' @export
 #'
 

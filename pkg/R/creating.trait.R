@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -48,6 +48,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param trait.name Name of the trait generated
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+#' population <- creating.diploid(nsnp=1000, nindi=100)
+#' population <- creating.trait(population, n.additive=100)
+#' @return Population-list with one or more additional new traits
 #' @export
 
 

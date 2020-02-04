@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,13 +29,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param adapt.bve Modify previous breeding value estimations by scaling (default: FALSE)
-#' @param adpat.pheno Modify previous phenotypes by scaling (default: FALSE)
+#' @param adapt.pheno Modify previous phenotypes by scaling (default: FALSE)
+#' @param verbose Set to TRUE to display prints
+#' @examples
+#' population <- creating.diploid(nsnp=1000, nindi=100, n.additive=100)
+#' population <- bv.standardization(population, mean.target=200, var.target=5)
+#' @return Population-list with scaled QTL-effects
 #' @export
 
 
 
 bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL,
-                               adapt.bve=FALSE, adapt.pheno=FALSE){
+                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE){
 
   n_traits <- population$info$bv.nr
 
@@ -53,7 +58,7 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
     new_var <- var.target[index]
 
     if(population$info$bv.calculated==FALSE){
-      population <- breeding.diploid(population, verbose=FALSE)
+      population <- breeding.diploid(population, verbose=verbose)
     }
 
     var_test <- stats::var(get.bv(population, database= database)[index,])

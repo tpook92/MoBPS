@@ -16,6 +16,13 @@ get.death.point(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Time of death of in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide the time of death for each individual (NA for individuals that are still alive))
+}
+\examples{
+data(ex_pop)
+get.death.point(ex_pop, gen=2)
 }

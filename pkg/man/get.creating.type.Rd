@@ -16,6 +16,13 @@ get.creating.type(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Creating type of in gen/database/cohorts selected individuals
+}
 \description{
 Function to devide creating type for each individual
+}
+\examples{
+data(ex_pop)
+get.creating.type(ex_pop, gen=2)
 }

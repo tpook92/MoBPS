@@ -25,6 +25,13 @@ kinship.emp.fast(animals = NULL, population = NULL, gen = NULL,
 
 \item{hbd.obs}{Number of Individuals to sample for HBD estimation}
 }
+\value{
+Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
+}
 \description{
 Function to compute empirical kinship for a set of individuals)
+}
+\examples{
+data(ex_pop)
+kinship.emp.fast(population=ex_pop,gen=2)
 }

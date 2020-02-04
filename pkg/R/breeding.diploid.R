@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -165,7 +165,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param Rprof Store computation times of each function
 #' @param miraculix If TRUE use miraculix to perform computations (ideally already generate population in creating.diploid with this; default: automatic detection from population list)
 #' @param miraculix.mult If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage
-#' @param miraculix.chol If TRUE perform Cholesky-decomposition implemented in miraculix (also works for semi-definite matrices)
+#' @param miraculix.chol Set to FALSE to deactive miraculix based Cholesky-decomposition (default: TRUE)
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @param miraculix.destroyA If FALSE A will not be destroyed in the process of inversion (less computing / more memory)
 #' @param best.selection.ratio.m Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)
@@ -224,6 +224,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param selection.m.miesenberger Use Weighted selection index according to Miesenberger 1997 for paternal selection
 #' @param selection.f.miesenberger Use Weighted selection index according to Miesenberger 1997 for maternal selection
 #' @param selection.miesenberger.reliability.est If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement
+#' @param culling.gen Generations to consider to culling
+#' @param culling.database Groups to consider to culling
 #' @param culling.cohort Cohort to consider to culling
 #' @param culling.time Age of the individuals at culling
 #' @param culling.name Name of the culling action (user-interface stuff)
@@ -233,6 +235,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param culling.share2 Probability of death for individuals with bv2
 #' @param culling.index Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)
 #' @param culling.single Set to FALSE to not apply the culling module on all individuals of the cohort
+#' @param culling.all.copy Set to FALSE to not kill copies of the same individual in the culling module
 #' @param verbose Set to FALSE to not display any prints
 #' @param bve.parent.mean Set to TRUE to use the average parental performance as the breeding value estimate
 #' @param bve.grandparent.mean Set to TRUE to use the average grandparental performance as the breeding value estimate
@@ -244,6 +247,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param threshold.selection Minimum value in the selection index selected individuals have to have
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
 #' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
+#' @examples
+#' population <- creating.diploid(nsnp=1000, nindi=100)
+#' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
+#' @return Population-list
 #' @export
 
 
@@ -374,7 +381,7 @@ breeding.diploid <- function(population,
             miraculix = NULL,
             miraculix.cores = 1,
             miraculix.mult = NULL,
-            miraculix.chol = FALSE,
+            miraculix.chol = TRUE,
             fast.compiler = 0,
             best.selection.ratio.m = 1,
             best.selection.ratio.f = NULL,
@@ -430,6 +437,8 @@ breeding.diploid <- function(population,
             offspring.bve.offspring.gen = NULL,
             offspring.bve.offspring.database = NULL,
             offspring.bve.offspring.cohorts = NULL,
+            culling.gen=NULL,
+            culling.database=NULL,
             culling.cohort=NULL,
             culling.time = Inf,
             culling.name = "Not_named",
@@ -1274,13 +1283,15 @@ breeding.diploid <- function(population,
 {
   ## Culling Module
   if(culling){
+    culling.database <- get.database(population, gen=culling.gen, database=culling.database, cohorts=culling.cohort)
+
     if(length(culling.index)==1 && culling.index=="lastindex"){
-      culling.index <- get.selectionindex(population, cohorts=culling.cohort)
+      culling.index <- get.selectionindex(population, cohorts=culling.database)
     }
     if(population$info$bv.nr>0){
-      culling.bv <- colSums(get.bv(population, cohorts = culling.cohort) * culling.index)
+      culling.bv <- colSums(get.bv(population, database = culling.database) * culling.index)
     } else{
-      culling.bv <- numeric(length(get.id(population, cohorts= culling.cohort)))
+      culling.bv <- numeric(length(get.id(population, database= culling.database)))
     }
     n_animals <- length(culling.bv)
 
@@ -1297,7 +1308,7 @@ breeding.diploid <- function(population,
     culling.prob <- culling.prob * culling.single
     culling.action <- stats::rbinom(n_animals,1,culling.prob)==1
 
-    culling.database <- get.database(population, cohorts=culling.cohort)
+
     store <- population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]]
     population$breeding[[culling.database[1]]][[culling.database[2]+4]][culling.database[3]:culling.database[4]][culling.action] <- (-1)
     population$breeding[[culling.database[1]]][[culling.database[2]+24]][culling.database[3]:culling.database[4]][culling.action] <-
@@ -1325,13 +1336,16 @@ breeding.diploid <- function(population,
     if(n_death>0){
       population$breeding[[culling.database[1]]][[culling.database[2]+16]][culling.database[3]:culling.database[4]][which(new_death)] <- population$breeding[[culling.database[1]]][[culling.database[2]+10]][culling.database[3]:culling.database[4]][which(new_death)]
       active_cohort <- which(population$info$cohorts[,1]==culling.cohort)
-      if(length(population$info$culling.stats)<active_cohort){
-        population$info$culling.stats[[active_cohort]] <- cbind(culling.name, n_death, deparse.level = 0)
-      } else{
-        population$info$culling.stats[[active_cohort]] <- rbind(population$info$culling.stats[[active_cohort]],
-                                                                c(culling.name, n_death), deparse.level = 0)
+      if(length(active_cohort)>0){
+        if(length(population$info$culling.stats)<active_cohort){
+          population$info$culling.stats[[active_cohort]] <- cbind(culling.name, n_death, deparse.level = 0)
+        } else{
+          population$info$culling.stats[[active_cohort]] <- rbind(population$info$culling.stats[[active_cohort]],
+                                                                  c(culling.name, n_death), deparse.level = 0)
 
+        }
       }
+
 
     }
   }
@@ -1486,13 +1500,13 @@ breeding.diploid <- function(population,
       }
     }
     for(index in 1:population$info$bv.nr){
-      var_trait <- var(y_real[,index])
+      var_trait <- stats::var(y_real[,index])
       if(bve.pseudo.accuracy[index]==0){
         var_residual <- (var_trait - (bve.pseudo.accuracy[index])^2 * var_trait) / (bve.pseudo.accuracy[index])^2
         y_real[,index] <- y_hat[,index] <- 0
       } else{
         var_residual <- (var_trait - (bve.pseudo.accuracy[index])^2 * var_trait) / (bve.pseudo.accuracy[index])^2
-        y_hat[,index] <- y_real[,index] + rnorm(n.animals, sd= sqrt(var_residual))
+        y_hat[,index] <- y_real[,index] + stats::rnorm(n.animals, sd= sqrt(var_residual))
       }
       if(!is.matrix(y_hat)){
         y_hat <- matrix(y_hat, ncol=1)
@@ -2189,7 +2203,7 @@ breeding.diploid <- function(population,
 
         mas_geno <- as.matrix(Z.code)[mas.markers.temp,]
         if(length(mas.effects)==0){
-          model <- lm(y~t(mas_geno))
+          model <- stats::lm(y~t(mas_geno))
           y_hat[,bven] <- model$fitted.values
         } else{
           mas.effects <- rep(mas.effects, length.out=length(mas.markers.temp))
@@ -2443,7 +2457,7 @@ breeding.diploid <- function(population,
         if(length(take)==nrow(A)){
           skip.copy = TRUE
         } else{
-          x = FALSE
+          skip.copy = FALSE
         }
 
         if(estimate.u || rrblup.required){
@@ -2491,7 +2505,7 @@ breeding.diploid <- function(population,
 
             if(bve.direct.est.now){
               y_hat[take2,bven] <- A[take2,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
-              y_reli[take1,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
+              y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
               y_reli[take2,bven] <- diag( A[,take2] %*% GR1 %*% A[take2,])[which(duplicated(c(take,take2))[-(1:length(take))])]
             } else{
               y_hat[take,bven] <- A[take,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]

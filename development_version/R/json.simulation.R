@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param size.scaling Scale the size of nodes by this factor (especially for testing smaller examples)
 #' @param rep.max Maximum number of repeats to use in fast.mode
 #' @param verbose Set to FALSE to not display any prints
+#' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @examples
 #' # data(ex_json)
 #' # population <- json.simulation(total=ex_json)
@@ -37,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                             progress.bars=FALSE, size.scaling=NULL, rep.max=1,
-                            verbose=TRUE){
+                            verbose=TRUE, miraculix.cores=NULL){
   if(requireNamespace("miraculix", quietly = TRUE)){
     miraculix <- TRUE
     miraculix.dataset <- TRUE
@@ -57,6 +58,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       if(requireNamespace("RandomFieldsUtils", quietly = TRUE)){
         RandomFieldsUtils::RFoptions(helpinfo=FALSE)
+        if(length(miraculix.cores)>0){
+          RandomFieldsUtils::RFoptions(cores=miraculix.cores)
+        } else if( length(total$`Genomic Info`$`number-simulations-parallel`)>0 &&
+                   total$`Genomic Info`$`number-simulations-parallel`!=""){
+          RandomFieldsUtils::RFoptions(cores=as.numeric(total$`Genomic Info`$`number-simulations-parallel`))
+        }
+
       }
 
       nodes <- total$Nodes
@@ -263,6 +271,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
           residual_var <- pheno_var - gen_var
           cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
+          cor_pheno[is.na(cor_pheno)] = 0
           if(verbose) cat("Used residual correlations:")
           if(verbose) print(cor_pheno)
         }

@@ -16,6 +16,13 @@ get.age.point(population, database = NULL, gen = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Time point selected gen/database/cohorts-individuals are born
+}
 \description{
 Function to devide age point for each individual (Same as time.point unless copy.individual is used for aging)
+}
+\examples{
+data(ex_pop)
+get.age.point(ex_pop, gen=2)
 }

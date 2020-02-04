@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,7 +23,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' R-Version of the internal bitwise-coding of origins
 #' @param M Origins matrix
-#' @export
 
 codeOriginsR <- function(M){
   P <- as.integer(colSums(t(M-1) * c(2^26,2^25,2^3,1)))
@@ -35,7 +34,6 @@ codeOriginsR <- function(M){
 #' R-Version of the internal bitwise-decoding of origins
 #' @param P coded origins vector
 #' @param row row
-#' @export
 
 decodeOriginsR <- function(P, row){
   activ <- P[row]
@@ -54,6 +52,5 @@ decodeOriginsR <- function(P, row){
 #'
 #' Funktion to check availablity of a package
 #' @param mypkg package to test
-#' @export
 
 is.installed <- function(mypkg) is.element(mypkg, utils::installed.packages()[,1])

@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param beagle_jar Directory of BEAGLE
 #' @param plink_dir Directory of Plink
 #' @param db_dir Directory to save newly generated files (ped/map will be stored in the original folder)
+#' @examples
+#' # Requires BEAGLE 5 jar + PLINK + ped/map or vcf file!
+#' @return Phased VCF-file
 #' @export
 
 pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NULL, beagle_jar="/home/nha/beagle.03Jul18.40b.jar", plink_dir="/home/nha/Plink/plink", db_dir="/home/nha/Plink/DB/"){

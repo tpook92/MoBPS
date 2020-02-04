@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,7 +24,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to add numeric to the diagonal of a matrix
 #' @param M Matrix Population list
 #' @param d Vector to add to the diagonal of the matrix
-#' @export
 
 add.diag <- function(M, d){
   diag(M) <- diag(M) + d

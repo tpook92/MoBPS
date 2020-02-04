@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,6 +34,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param interest.rate Applied yearly interest rate
+#' data(ex_pop)
+#' compute.costs.cohorts(ex_pop, gen=1:2, genotyping.costs=25, json=FALSE)
+#' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
 compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=NULL, json=TRUE,
@@ -55,6 +58,12 @@ compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=N
     }
   }
 
+  if(length(housing.costs)==0){
+    housing.costs <- 0
+  }
+  if(length(phenotyping.costs)==0){
+    phenotyping.costs <- 0
+  }
   database <- get.database(population, gen=gen, database=database,cohorts=cohorts)
 
 
@@ -115,7 +124,7 @@ compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=N
   cat(paste0("Annual fixed costs: ", round(sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
   cat(paste0("Gains: ", round(gain_total[4], digits=2), " Euro \n"))
   cat(paste0("Total: ", round(gain_total[4] - gain_total[3] - gain_total[1] - gain_total[2] - fix.costs -sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
-  colnames(cost_table_interest) <- c("Genotyping", "Phenotyping", "Gains", "Housing costs",  "Total")
+  colnames(cost_table_interest) <- c("Genotyping", "Phenotyping", "Housing costs","Gains" , "Total")
 
   time_point <- as.numeric(time_point)
   plot_points <- sort(unique(time_point))

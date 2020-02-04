@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,9 +29,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param coloring Coloring by "group", "sex", "plain"
 #' @param components Default: c(1,2) for the first two principle components
+#' @examples
+#' data(ex_pop)
+#' get.pca(ex_pop, gen=2)
+#' @return Genotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.pca <- function(path=NULL, population, database=NULL, gen=NULL, cohorts=NULL, coloring="group",
+get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, coloring="group",
                     components = c(1,2)){
 
   database <- get.database(population, gen, database, cohorts)
@@ -41,7 +45,9 @@ get.pca <- function(path=NULL, population, database=NULL, gen=NULL, cohorts=NULL
   if(population$info$miraculix){
     A <- miraculix::relationshipMatrix(miraculix::genomicmatrix(geno),centered=TRUE, normalized=TRUE )
   } else{
-    A <- 1
+    p_i <- rowSums(geno)/ncol(geno)/2
+    Ztm <- geno - p_i * 2
+    A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
   }
 
   b <- eigen(A)
@@ -73,16 +79,16 @@ get.pca <- function(path=NULL, population, database=NULL, gen=NULL, cohorts=NULL
 
 
   if(length(path)==0){
-    plot(b$vectors[,components], col=col,
+    graphics::plot(b$vectors[,components], col=col,
          xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
          ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
   } else{
-    png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
-    par(mar=c(2.5,2.5,1.5,0.1))
-    plot(b$vectors[,components], col=col,
+    grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
+    graphics::par(mar=c(2.5,2.5,1.5,0.1))
+    graphics::plot(b$vectors[,components], col=col,
          xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
          ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
-    dev.off()
+    grDevices::dev.off()
   }
 
 

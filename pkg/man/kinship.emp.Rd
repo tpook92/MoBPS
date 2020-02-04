@@ -20,6 +20,13 @@ kinship.emp(animals = NULL, population = NULL, gen = NULL,
 
 \item{sym}{If True derive matrix entries below principle-diagonal}
 }
+\value{
+Empirical kinship matrix (IBD-based since Founders)
+}
 \description{
 Function to compute empirical kinship for a set of individuals)
+}
+\examples{
+data(ex_pop)
+kinship.emp(population=ex_pop, gen=2)
 }

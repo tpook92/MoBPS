@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,8 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param store.adding Internal parameter to derive number of added individuals per database entry (only relevant internally for GWAS)
 #' @param store.which.adding Internal parameter to derive which individuals are copy entries
 #' @param list.of.copys Internal parameter to derive further information on the copies individuals
-#' @export
-
 
 derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.duplicates, store.adding=FALSE,
                                  store.which.adding=FALSE, list.of.copys=FALSE){

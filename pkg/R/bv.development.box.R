@@ -2,7 +2,7 @@
   Authors
 Torsten Pook, torsten.pook@uni-goettingen.de
 
-Copyright (C) 2017 -- 2018  Torsten Pook
+Copyright (C) 2017 -- 2020  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -33,6 +33,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param json If TRUE extract which cohorts to plot according to the json-file used in json.simulation
 #' @param ylim Set this to fix the y-axis of the plot
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots
+#' @examples
+#' data(ex_pop)
+#' bv.development.box(ex_pop, gen=1:2)
+#' @return Genomic values of selected gen/database/cohort
 #' @export
 
 bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL,
@@ -134,7 +138,7 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
       y_max <- max(y_max, values[[index]][nr,])
     }
 
-    graphics::boxplot(x=c(-10^10), xlim=c(0,x_axis), ylim=if(length(ylim)==0){c(y_min,y_max)} else{ylim})
+    graphics::boxplot(x=c(-10^10), xlim=c(-0.5,x_axis), ylim=if(length(ylim)==0){c(y_min,y_max)} else{ylim})
     pos <- 0
     pref <- 0
     label_pos <- NULL
