@@ -35,7 +35,7 @@ Removed last CRAN check notes
 Miraculix/RandomFieldUtils updates (0.9.19 / 0.5.17). Mostly for automatic detection of AVX2 on Linux.
 On windows, MoBPS will run without AVX2 unless specified while installing miraculix.
 
-### Version 1.4.67 ()
+### Version 1.4.67 (05.02.20)
 
 Default for miraculix.chol has been set to TRUE (If miraculix is available this leads to fast version of chol2inv(chol()) without downside)
 
