@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sym If True derive matrix entries below principle-diagonal
 #' @examples
 #' data(ex_pop)
-#' kinship.emp(population=ex_pop, gen=2)
+#' kinship.emp(population=ex_pop, database=cbind(2,1,1,50))
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 

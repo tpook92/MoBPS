@@ -14,7 +14,8 @@ creating.trait(population = NULL, real.bv.add = NULL,
   var.qualitative.l = NULL, var.quantitative.l = NULL,
   exclude.snps = NULL, randomSeed = NULL, shuffle.traits = NULL,
   shuffle.cor = NULL, replace.real.bv = FALSE, trait.name = NULL,
-  remove.invalid.qtl = TRUE)
+  remove.invalid.qtl = TRUE, bv.standard = FALSE, mean.target = NULL,
+  var.target = NULL)
 }
 \arguments{
 \item{population}{Population list}
@@ -67,7 +68,13 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{trait.name}{Name of the trait generated}
 
-\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
+
+\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization()}
+
+\item{mean.target}{Target mean}
+
+\item{var.target}{Target variance
 population <- creating.diploid(nsnp=1000, nindi=100)
 population <- creating.trait(population, n.additive=100)}
 }

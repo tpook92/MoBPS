@@ -98,8 +98,8 @@ compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.
 #            }
             mid <- (start+1):(tail-1)
 
-            # Wenn start außerhalb vom bereichen start_snp <- 1
-            # end tail außerhalb vom bereich dann tail_snp <- nbits bbv. Ende
+            # Wenn start ausserhalb vom bereichen start_snp <- 1
+            # end tail ausserhalb vom bereich dann tail_snp <- nbits bbv. Ende
 
             if(start==tail){
               leftover <- c(leftover, bit.snps(population$breeding[[ursprung[1]]][[ursprung[2]]][[ursprung[3]]][[ursprung[4]+8]][start], nbits)[start_snp:tail_snp])

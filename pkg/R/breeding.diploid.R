@@ -148,9 +148,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param emmreml.bve If TRUE use REML estimator from R-package EMMREML in breeding value estimation
 #' @param rrblup.bve If TRUE use REML estimator from R-package rrBLUP in breeding value estimation
 #' @param sommer.bve If TRUE use REML estimator from R-package sommer in breeding value estimation
-#' @param breedR.bve If TRUE use pedigree-based breeding value estimation implemented in the r-package breedR
 #' @param bve.direct.est If TRUE predict BVEs in direct estimation according to vanRaden 2008 method 2 (default: TRUE)
-#' @param breedR.groups Cohorts to consider for breedR-breeding value estimation
 #' @param sequenceZ Split genomic matric into parts (relevent if high memory usage)
 #' @param maxZ Number of SNPs to consider in each part of sequenceZ
 #' @param maxZtotal Number of matrix entries to consider jointly (maxZ = maxZtotal/number of animals)
@@ -247,6 +245,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param threshold.selection Minimum value in the selection index selected individuals have to have
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
 #' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
+#' @param bve.ignore.traits Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -352,8 +351,6 @@ breeding.diploid <- function(population,
             rrblup.bve = FALSE,
             sommer.bve = FALSE,
             sommer.multi.bve=FALSE,
-            breedR.bve = FALSE,
-            breedR.groups = NULL,
             nr.edits = 0,
             gene.editing.offspring = FALSE,
             gene.editing.best = FALSE,
@@ -477,7 +474,8 @@ breeding.diploid <- function(population,
             mas.effects=NULL,
             threshold.selection=NULL,
             threshold.sign=">",
-            input.phenotype="own"
+            input.phenotype="own",
+            bve.ignore.traits=NULL
             ){
 
 
@@ -488,7 +486,7 @@ breeding.diploid <- function(population,
   # Duplication re-work - account for true genetic structure of duplications - known?
   # Duplikationen in Duplizierten Bereichen werden nicht doppelt dupliziert
   # Keine feste matrix-struktur in 11/12? - testelement 13 entfernen
-  # Duplikation am Rand benötigt info ob am start oder Ende bei mehreren Chromosomen
+  # Duplikation am Rand benoetigt info ob am start oder Ende bei mehreren Chromosomen
   #
   # Matrixstrukur bei mehreren Zuchtwerten geht verloren wenn nur ein relevantes Tier enthalten
   #
@@ -505,6 +503,19 @@ breeding.diploid <- function(population,
   if(Rprof){
     Rprof()
   }
+
+  {
+    # foreach variables
+    indexb <- NULL
+    keeps <- NULL
+    pheno <- NULL
+    if (requireNamespace("foreach", quietly = TRUE)) {
+      `%dopar%` <- foreach::`%dopar%`
+    }
+
+
+  }
+
   reduced.selection.panel <- list(reduced.selection.panel.m, reduced.selection.panel.f)
 
   if(culling.share1>0 || (length(culling.share2)>0 && culling.share2>0)){
@@ -815,6 +826,14 @@ breeding.diploid <- function(population,
   if(length(multiple.bve.weights.f)==0){
     multiple.bve.weights.f <- multiple.bve.weights.m
   }
+  if(length(bve.ignore.traits)==1 && bve.ignore.traits=="zero"){
+    bve.ignore.traits <- which(multiple.bve.weights.m==0 & multiple.bve.weights.f==0)
+  }
+  if(length(bve.ignore.traits)==0){
+    bve.keeps <- 1:population$info$bv.nr
+  } else{
+    bve.keeps <- (1:population$info$bv.nr)[-bve.ignore.traits]
+  }
   if(length(multiple.bve.weights.f)< population$info$bv.nr){
     multiple.bve.weights.f <- rep(multiple.bve.weights.f, length.out = population$info$bv.nr)
   }
@@ -889,6 +908,8 @@ breeding.diploid <- function(population,
   if(repeat.mating>1 && length(fixed.breeding.best)>0){
     fixed.breeding <- matrix(rep(t(fixed.breeding.best), repeat.mating), ncol=5, byrow=TRUE)
   }
+
+
 
 }
   #######################################################################
@@ -1543,39 +1564,6 @@ breeding.diploid <- function(population,
       if(verbose) cat("\n")
     }
 
-  } else if(bve && breedR.bve==TRUE){
-    ## Breeding value estimation using breedR package (as this is just pedigree based all other computational steps are not needed)
-    ## Add accuracy report!
-
-    if(verbose) cat("Start pedigree-based BVE.\n")
-
-    y <- get.pheno(population, database=breedR.groups)
-    animal_list <- get.individual.loc(population, database = breedR.groups)
-
-    ped1 <- ped <- get.pedigree(population, database=breedR.groups, founder.zero=FALSE)
-    y_real <- y_hat <- array(0,dim=c(ncol(y),population$info$bv.nr))
-    setna <- 1
-    while(sum(setna)>0){
-      setna <- !duplicated(c(ped1[,1], ped1[,2]))[-(1:nrow(ped))]
-      ped1[setna,2] <- NA
-      setna <- !duplicated(c(ped1[,1], ped1[,3]))[-(1:nrow(ped))]
-      ped1[setna,3] <- NA
-    }
-    for(index in 1:nrow(ped1)){
-      change <- which(ped1==ped[index,1])
-      ped1[change] <- index
-    }
-    x <- rep(1,length(pheno[1,]))
-    for(bven in 1:population$info$bv.nr){
-      fit <- breedR::remlf90(fixed = pheno~1,genetic=list('add_animal', pedigree=ped1, id='self'), data=data.frame(pheno=y[bven,], x=x, self=ped1[,1], mum = ped1[,3], dad=ped1[,2]))
-      y_hat[bven] <- stats::fitted(fit)
-    }
-    for(index in 1:nrow(animal_list)){
-      population$breeding[[animal_list[index,1]]][[animal_list[index,2]+2]][, animal_list[index,3]] <- y_hat[,index]
-    }
-
-    best.selection.ratio.m
-
   } else if(bve){
     ## Breeding value estimation using a mixed model
 
@@ -2175,7 +2163,15 @@ breeding.diploid <- function(population,
 
     }
     # Breeding value estimation (Solving of the mixed-model) - all single trait models execpt multi-sommer
-    for(bven in 1:population$info$bv.nr){
+
+    if(length(bve.ignore.traits)>0){
+      text <- population$info$trait.name[bve.ignore.traits][1]
+      for(write in population$info$trait.name[bve.ignore.traits][-1]){
+        text <- paste0(text, ", ", write)
+      }
+      cat(paste0("BVE for: ", text, " has been skipped.\n"))
+    }
+    for(bven in (1:population$info$bv.nr)[bve.keeps]){
       if(forecast.sigma.g){
         sigma.g[bven] <- stats::var(y_real[,bven])
       }
@@ -2250,7 +2246,7 @@ breeding.diploid <- function(population,
       } else if(rrblup.bve){
 
         check <- sum(is.na(y[,bven]))
-        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2266,7 +2262,7 @@ breeding.diploid <- function(population,
 
       } else if(emmreml.bve){
         check <- sum(is.na(y[,bven]))
-        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE."))
@@ -2302,7 +2298,7 @@ breeding.diploid <- function(population,
       } else if(sommer.bve){
 
         check <- sum(is.na(y[,bven]))
-        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2326,7 +2322,7 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y))
 
-        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2334,7 +2330,7 @@ breeding.diploid <- function(population,
         }
 
 
-        if(bven==population$info$bv.nr){
+        if(bven==max((1:population$info$bv.nr)[bve.keeps])){
 
           traitnames <- paste0("name", 1:ncol(y))
           colnames(y) <- as.factor(traitnames)
@@ -2353,7 +2349,7 @@ breeding.diploid <- function(population,
           }
           text <- paste0("sommer::mmer(",text,"~1, random=~sommer::vs(id, Gu=A, Gtc=sommer::unsm(bven)), rcov = ~sommer::vs(units, Gtc=diag(bven)), data=y_som)")
           test <- eval(parse(text=text))
-          for(bven1 in 1:bven){
+          for(bven1 in 1:population$info$bv.nr){
             y_hat[sort(as.character(id), index.return=TRUE)$ix,bven1] <- test$U[[1]][[bven1]]
           }
 
@@ -2384,7 +2380,7 @@ breeding.diploid <- function(population,
 
         rrblup.required <- FALSE
 
-        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE.\n"))
+        if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2793,7 +2789,7 @@ breeding.diploid <- function(population,
 
 
 
-      if(report.accuracy && bven==population$info$bv.nr){
+      if(report.accuracy && bven==max((1:population$info$bv.nr)[bve.keeps])){
         if(verbose) cat("Correlation between genetic values and BVE:\n")
         if(n.rep==0){
           y_hat_temp <- y_hat
@@ -2828,11 +2824,11 @@ breeding.diploid <- function(population,
         if(verbose) cat("\n")
       }
       for(index in (1:nrow(loop_elements))[bve.insert]){
-        population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][, loop_elements[index,2]] <- y_hat[index,]
+        population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
       }
       if(calculate.reliability){
         for(index in (1:nrow(loop_elements))[bve.insert]){
-          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][, loop_elements[index,2]] <- y_reli[index,]
+          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_reli[index,bve.keeps]
         }
       }
 
@@ -2844,7 +2840,7 @@ breeding.diploid <- function(population,
             non_copy <- loop_elements_copy[index,6]
           }
           if(length(non_copy)==1){
-            population$breeding[[loop_elements_copy[index,4]]][[loop_elements_copy[index,5]+2]][, loop_elements_copy[index,2]] <- y_hat[non_copy,]
+            population$breeding[[loop_elements_copy[index,4]]][[loop_elements_copy[index,5]+2]][bve.keeps, loop_elements_copy[index,2]] <- y_hat[non_copy,bve.keeps]
 
           }
         }
@@ -4178,6 +4174,12 @@ breeding.diploid <- function(population,
     generation_stuff <- 0
     bv_stuff <- 0
   }
+
+  if(length(name.cohort)==0 && breeding.size.total>0){
+    name.cohort <- paste0("Cohort_", population$info$cohort.index)
+    population$info$cohort.index <- population$info$cohort.index + 1
+  }
+
   if(parallel.generation && breeding.size.total>0){
 
     if(requireNamespace("doParallel", quietly = TRUE)) {
@@ -4221,7 +4223,7 @@ breeding.diploid <- function(population,
                 info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
                 info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
               } else{
-                sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhöht
+                sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhoeht
 
                 sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
 
@@ -4559,7 +4561,7 @@ breeding.diploid <- function(population,
               info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
               info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
             } else{
-              sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhöht
+              sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhoeht
 
               sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
               number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
@@ -4856,7 +4858,7 @@ breeding.diploid <- function(population,
 
         if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc]){
 
-          #Means passt (Korrelation exakt wie gewünscht)
+          #Means passt (Korrelation exakt wie gewuenscht)
           means <- 0.5*(population$breeding[[info.father[1]]][[6+info.father[2]]][population$info$bv.calc:population$info$bv.nr,info.father[3]] + population$breeding[[info.mother[1]]][[6+info.mother[2]]][population$info$bv.calc:population$info$bv.nr,info.mother[3]])
 
           # Berechnung i (0-0.5)
@@ -5074,11 +5076,29 @@ breeding.diploid <- function(population,
                                        c(paste0(name.cohort, "_F"), current.gen+1, 0, breeding.size[2], new.class, 0, (current.size-breeding.size)[2],time.point, creating.type))
       print("Added _M, _F to cohort names!")
       rownames(population$info$cohorts)[(nrow(population$info$cohorts)-1):nrow(population$info$cohorts)] <- paste0(name.cohort, c("_M", c("_F")))
+
+      if(verbose){
+        posi <- get.database(population, cohorts = paste0(name.cohort, "_M"))
+        cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_M"), "\n",
+                   "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+        posi <- get.database(population, cohorts = paste0(name.cohort, "_F"))
+        cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_F"), "\n",
+                   "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+      }
+
     } else{
       population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, current.gen+1, breeding.size[1:2], new.class, current.size-breeding.size,
                                                                   time.point, creating.type))
       rownames(population$info$cohorts)[nrow(population$info$cohorts)] <- paste0(name.cohort)
+
+
+      if(verbose){
+        posi <- get.database(population, cohorts = name.cohort)
+        cat(paste0("Successfully generated cohort: ", name.cohort, "\n",
+                   "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+      }
     }
+
     if(nrow(population$info$cohorts)<=2){
       colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                              "time point", "creating.type")    }

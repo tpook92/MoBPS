@@ -51,7 +51,7 @@ analyze.population <- function(population, chromosome, snp, database=NULL, gen=N
   }
   if(length(database)>0){
     for(index in 1:nrow(database)){
-      genos <- get.geno(population, database = database[index,])[n.snp,]
+      genos <- get.geno(population, database = database[index,,drop=FALSE])[n.snp,]
       state[,col] <- c(sum(genos==0), sum(genos==1), sum(genos==2))
       col <- col + 1
     }

@@ -48,6 +48,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param trait.name Name of the trait generated
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+#' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization()
+#' @param mean.target Target mean
+#' @param var.target Target variance
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
 #' @return Population-list with one or more additional new traits
@@ -73,11 +76,25 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            shuffle.cor= NULL,
                            replace.real.bv=FALSE,
                            trait.name=NULL,
-                           remove.invalid.qtl=TRUE){
+                           remove.invalid.qtl=TRUE,
+                           bv.standard=FALSE,
+                           mean.target=NULL,
+                           var.target=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
   }
+  if(length(mean.target)>0){
+    bv.standard <- TRUE
+  } else{
+    mean.target <- 100
+  }
+  if(length(var.target)>0){
+    bv.standard <- TRUE
+  } else{
+    var.target <- 10
+  }
+
 
   if(!is.list(var.additive.l) ){
     var.additive.l <- list(var.additive.l)
@@ -588,6 +605,10 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
       }
     }
 
+  }
+
+  if(bv.standard){
+    population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
   }
 
   return(population)

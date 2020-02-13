@@ -79,9 +79,9 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
 
   n.chromosome <- length(length.total)-1
 
-  # Außerhalb von breeding.intern berechnen
+  # Ausserhalb von breeding.intern berechnen
   if(length(recom.f.indicator)!=0){
-    # Für Polynom Numerische Bestimmung anstrengend?
+    # Fuer Polynom Numerische Bestimmung anstrengend?
     recom.f.indicator <- rbind(recom.f.indicator, c(length.total[n.chromosome+1],0))
     indicator.vol <- sum((recom.f.indicator[-1,1] -recom.f.indicator[-nrow(recom.f.indicator),1])*recom.f.indicator[-nrow(recom.f.indicator),2])
 #    polynom.vol <- cumprod(c(1,rep(length.total[n.chromosome+1], length(recom.f.polynom)))) *c(0,recom.f.polynom)
@@ -144,7 +144,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
 
   start.point <- c(stats::rbinom(n.chromosome,1,0.5),0) * (1:(n.chromosome+1)) #Wechsel zu Beginn des Chromosoms
   porc <- sortd((c(length.total[start.point],porc))) # Sortieren der Rekombinationspunkte
-  #Füge bvei irrelevante Punkte hinzu die in jedemfall Außerhalb des Gens liegen
+  #Fuege bvei irrelevante Punkte hinzu die in jedemfall Ausserhalb des Gens liegen
   porc <- c(-1,porc,length.total[n.chromosome+1]+1)
 
 

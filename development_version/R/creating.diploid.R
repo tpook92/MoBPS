@@ -87,6 +87,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+#' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
+#' @param mean.target Target mean
+#' @param var.target Target variance
+#' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -133,7 +137,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              share.genotyped=1,
                              genotyped.s=NULL,
                              map=NULL,
-                             remove.invalid.qtl=TRUE){
+                             remove.invalid.qtl=TRUE,
+                             verbose=TRUE,
+                             bv.standard=FALSE,
+                             mean.target=NULL,
+                             var.target=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -142,6 +150,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     cat("miraculix.dataset only possible when miraculix is active")
     miraculix.dataset <- FALSE
   }
+
+  if(length(mean.target)>0){
+    bv.standard <- TRUE
+  } else{
+    mean.target <- 100
+  }
+  if(length(var.target)>0){
+    bv.standard <- TRUE
+  } else{
+    var.target <- 10
+  }
+
 
   if(length(map)>0){
     while(ncol(map)<5){
@@ -964,6 +984,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$culling.stats <- list()
       population$info$version_MoBPS <- utils::sessionInfo()$otherPkgs$MoBPS
       population$info$version_miraculix <- utils::sessionInfo()$otherPkgs$miraculix
+      population$info$cohort.index <- 1
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
@@ -1363,6 +1384,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
 
     }
+    if(length(name.cohort)==0 && add.chromosome==FALSE){
+      name.cohort <- paste0("Cohort_", population$info$cohort.index)
+      population$info$cohort.index <- population$info$cohort.index + 1
+    }
     if(length(name.cohort)>=1 && add.chromosome==FALSE){
 
       if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
@@ -1372,9 +1397,26 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                                                     time.point, creating.type))
 
         cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
+
+        if(verbose){
+          posi <- get.database(population, cohorts = paste0(name.cohort, "_M"))
+          cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_M"), "\n",
+                     "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+          posi <- get.database(population, cohorts = paste0(name.cohort, "_F"))
+          cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_F"), "\n",
+                     "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+        }
+
       } else{
         population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort, generation, counter - counter.start, class, counter.start,
                                                                     time.point, creating.type))
+
+        if(verbose){
+          posi <- get.database(population, cohorts = name.cohort)
+          cat(paste0("Successfully generated cohort: ", name.cohort, "\n",
+                     "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
+        }
+
       }
       if(nrow(population$info$cohorts)<=2){
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
@@ -1444,7 +1486,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        real.bv.dice = real.bv.dice,
                                        freq = freq_activ,
                                        bpcm.conversion = bpcm.conversion[chr_index],
-                                       remove.invalid.qtl=FALSE)
+                                       remove.invalid.qtl=FALSE,
+                                       shuffle.traits = shuffle.traits,
+                                       shuffle.cor = shuffle.cor)
       }
     } else{
       if(min(diff(chr.nr))<0 || !miraculix.dataset){
@@ -1494,7 +1538,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        real.bv.dice = real.bv.dice,
                                        hom0 =population$info$snp.base[1,],
                                        hom1 =population$info$snp.base[2,],
-                                       remove.invalid.qtl =FALSE)
+                                       remove.invalid.qtl =FALSE,
+                                     shuffle.traits = shuffle.traits,
+                                     shuffle.cor = shuffle.cor)
     }
 
   }
@@ -1541,6 +1587,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
+  if(bv.standard){
+    population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
+  }
   class(population) <- "population"
   return(population)
 }

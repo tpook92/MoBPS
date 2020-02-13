@@ -26,7 +26,8 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   name.cohort = NULL, template.chip = NULL, beta.shape1 = 1,
   beta.shape2 = 1, time.point = 0, creating.type = 0,
   trait.name = NULL, share.genotyped = 1, genotyped.s = NULL,
-  map = NULL, remove.invalid.qtl = TRUE)
+  map = NULL, remove.invalid.qtl = TRUE, verbose = TRUE,
+  bv.standard = FALSE, mean.target = NULL, var.target = NULL)
 }
 \arguments{
 \item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
@@ -158,6 +159,14 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 \item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
 
 \item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
+
+\item{verbose}{Set to FALSE to not display any prints}
+
+\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used}
+
+\item{mean.target}{Target mean}
+
+\item{var.target}{Target variance}
 }
 \value{
 Population-list

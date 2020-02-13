@@ -206,6 +206,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             trait_matrix[index,11] <- traitinfo[[index]]$`quantitative_qtl`
           }
           if(length(traitinfo[[index]]$'trafo')>0 && traitinfo[[index]]$'trafo' != "function(x){return(x)}" && nchar(traitinfo[[index]]$'trafo')>11){
+            f_temp <- NULL
             eval(parse(text=paste0("f_temp <- ", traitinfo[[index]]$'trafo')))
             trafos[[index]] <- f_temp
           }
@@ -335,6 +336,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           edges[[index]]$`Use Offspring for BVE` <- "No"
         } else{
           edges[[index]]$`Use Offspring for BVE` <- "Yes"
+        }
+        if(length(edges[[index]]$skip)==0){
+          edges[[index]]$skip <- "No"
         }
       }
       if(fast.mode){
@@ -1442,6 +1446,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                      chromosome.length = chromo.length,
                                      #snps.equidistant = if(is.na(map[1,4])) {TRUE} else {FALSE},
                                      snps.equidistant = TRUE,
+                                     verbose=FALSE,
                                      miraculix = miraculix,
                                      miraculix.dataset = miraculix.dataset,
                                      chr.nr = map[,1], bp=map[,3], snp.name = map[,2],
@@ -1666,6 +1671,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             }
           }
           nodes[[to_node]]$'Relationship Matrix' <- edges[[index]]$'Relationship Matrix'
+          nodes[[to_node]]$skip <- edges[[index]]$skip
           nodes[[to_node]]$'BVE Method' <- edges[[index]]$'BVE Method'
           nodes[[to_node]]$'MAS_marker' <- edges[[index]]$'MAS_marker'
           nodes[[to_node]]$'Use Offspring for BVE' <- edges[[index]]$'Use Offspring for BVE'
@@ -2560,6 +2566,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 masmarker <- 0
                 threshold <- NULL
                 threshold_sign <- ">"
+                if(length(nodes[[groupnr]]$skip)>0 && nodes[[groupnr]]$skip=="Yes"){
+                  skip <- "zero"
+                } else{
+                  skip <- NULL
+                }
+
                 if(length(nodes[[groupnr]]$'threshold')>0){
                   threshold <- as.numeric(nodes[[groupnr]]$'threshold')
                 }
@@ -2746,7 +2758,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                                bve.mean.between=mean_between,
                                                threshold.selection = threshold,
                                                threshold.sign = threshold_sign,
-                                               input.phenotype = input_phenotype
+                                               input.phenotype = input_phenotype,
+                                               bve.ignore.traits = skip
                 )
 
                 if(nodes[[groupnr]]$'Breeding Type'=="Split"){

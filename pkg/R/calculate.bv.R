@@ -38,7 +38,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
                          decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
                          bit.storing=FALSE, nbits=30, output_compressed=FALSE){
 
-  # Falls nötig könnten Haplotypen hier erst bestimmt werden.
+  # Falls noetig koennten Haplotypen hier erst bestimmt werden.
   if(population$info$miraculix){
     if (requireNamespace("miraculix", quietly = TRUE)) {
       geno <- miraculix::computeSNPS(population, gen, sex, nr, what="geno")

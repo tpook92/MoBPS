@@ -46,10 +46,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
   special.comb.add = FALSE, BGLR.save = "RKHS",
   BGLR.save.random = FALSE, ogc = FALSE, ogc.cAc = NA,
   emmreml.bve = FALSE, rrblup.bve = FALSE, sommer.bve = FALSE,
-  sommer.multi.bve = FALSE, breedR.bve = FALSE, breedR.groups = NULL,
-  nr.edits = 0, gene.editing.offspring = FALSE,
-  gene.editing.best = FALSE, gene.editing.offspring.sex = c(TRUE,
-  TRUE), gene.editing.best.sex = c(TRUE, TRUE), gwas.u = FALSE,
+  sommer.multi.bve = FALSE, nr.edits = 0,
+  gene.editing.offspring = FALSE, gene.editing.best = FALSE,
+  gene.editing.offspring.sex = c(TRUE, TRUE),
+  gene.editing.best.sex = c(TRUE, TRUE), gwas.u = FALSE,
   approx.residuals = TRUE, sequenceZ = FALSE, maxZ = 5000,
   maxZtotal = 0, delete.sex = 1:2, gwas.group.standard = FALSE,
   y.gwas.used = "pheno", gen.architecture.m = 0,
@@ -104,7 +104,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   bve.direct.est = TRUE, bve.pseudo = FALSE, bve.pseudo.accuracy = 1,
   miraculix.destroyA = TRUE, mas.bve = FALSE, mas.markers = NULL,
   mas.number = 5, mas.effects = NULL, threshold.selection = NULL,
-  threshold.sign = ">", input.phenotype = "own")
+  threshold.sign = ">", input.phenotype = "own",
+  bve.ignore.traits = NULL)
 }
 \arguments{
 \item{population}{Population list}
@@ -302,10 +303,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{sommer.bve}{If TRUE use REML estimator from R-package sommer in breeding value estimation}
 
 \item{sommer.multi.bve}{Set TRUE to use a mulit-trait model in the R-package sommer for BVE}
-
-\item{breedR.bve}{If TRUE use pedigree-based breeding value estimation implemented in the r-package breedR}
-
-\item{breedR.groups}{Cohorts to consider for breedR-breeding value estimation}
 
 \item{nr.edits}{Number of edits to perform per individual}
 
@@ -554,6 +551,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
 
 \item{input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
+
+\item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
 }
 \value{
 Population-list
