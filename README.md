@@ -22,6 +22,23 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.78 (13.02.20)
+
+BVE can be skipped for selected traits via bve.ignore.traits in breeding.diploid()
+
+Position (gen/database/cohort) is now automatically displayed at point of generation 
+
+Added Value/Example to all exported functions
+
+Removed last CRAN check notes
+
+Miraculix/RandomFieldUtils updates (0.9.19 / 0.5.17). Mostly for automatic detection of AVX2 on Linux.
+On windows, MoBPS will run without AVX2 unless specified while installing miraculix.
+
+### Version 1.4.67 ()
+
+Default for miraculix.chol has been set to TRUE (If miraculix is available this leads to fast version of chol2inv(chol()) without downside)
+
 ### Version 1.4.62 (22.01.20) - Only Development branch
 
 Improvements to storage / memory usage (use integers / remove attributes)
