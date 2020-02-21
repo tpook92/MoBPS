@@ -35,12 +35,12 @@ kinship.development(population, database = NULL, gen = NULL,
 \item{display.hbd}{Set to TRUE to also display HBD in plot}
 }
 \value{
-Estimated IBD (first col: kinship, second col: inbreeding)
+Estimated of avg. kinship/inbreeding based on IBD/HBD
 }
 \description{
 Function to plot genetic/breeding values for multiple generation/cohorts
 }
 \examples{
 data(ex_pop)
-kinship.development(ex_pop,gen=1:2)
+kinship.development(ex_pop,gen=1:5)
 }

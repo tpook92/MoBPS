@@ -34,14 +34,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param interest.rate Applied yearly interest rate
+#' @param verbose Set to FALSE to not display any prints
 #' data(ex_pop)
-#' compute.costs.cohorts(ex_pop, gen=1:2, genotyping.costs=25, json=FALSE)
+#' compute.costs.cohorts(ex_pop, gen=1:5, genotyping.costs=25, json=FALSE)
 #' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
 compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=NULL, json=TRUE,
                           phenotyping.costs = NULL, genotyping.costs = 0, housing.costs=NULL, fix.costs= 0, fix.costs.annual = 0,
-                          profit.per.bv = 1, interest.rate = 1){
+                          profit.per.bv = 1, interest.rate = 1, verbose=TRUE){
 
 
   if(json){
@@ -116,14 +117,16 @@ compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=N
     time_span <- nrow(population$info$size)
   }
   gain_total <- round(gain_total, digits=2)
-  cat(paste0("The given programs takes ",time_span," years and results in:\n"))
-  cat(paste0("Genotyping costs: ", gain_total[1], " Euro \n"))
-  cat(paste0("Phenotyping costs: ", gain_total[2], " Euro \n"))
-  cat(paste0("Housing costs: ", gain_total[3], " Euro \n"))
-  cat(paste0("Fixed costs: ", round(fix.costs, digits=2), " Euro \n"))
-  cat(paste0("Annual fixed costs: ", round(sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
-  cat(paste0("Gains: ", round(gain_total[4], digits=2), " Euro \n"))
-  cat(paste0("Total: ", round(gain_total[4] - gain_total[3] - gain_total[1] - gain_total[2] - fix.costs -sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
+  if(verbose){
+    cat(paste0("The given programs takes ",time_span," years and results in:\n"))
+    cat(paste0("Genotyping costs: ", gain_total[1], " Euro \n"))
+    cat(paste0("Phenotyping costs: ", gain_total[2], " Euro \n"))
+    cat(paste0("Housing costs: ", gain_total[3], " Euro \n"))
+    cat(paste0("Fixed costs: ", round(fix.costs, digits=2), " Euro \n"))
+    cat(paste0("Annual fixed costs: ", round(sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
+    cat(paste0("Gains: ", round(gain_total[4], digits=2), " Euro \n"))
+    cat(paste0("Total: ", round(gain_total[4] - gain_total[3] - gain_total[1] - gain_total[2] - fix.costs -sum(fix.costs.annual * cumprod(rep(interest.rate,time_span))/interest.rate), digits=2), " Euro \n"))
+  }
   colnames(cost_table_interest) <- c("Genotyping", "Phenotyping", "Housing costs","Gains" , "Total")
 
   time_point <- as.numeric(time_point)
@@ -138,7 +141,6 @@ compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=N
   }
   eco_total <- cumsum(time_eco) - fix.costs
 
-  graphics::par(mfrow=c(1,1))
   graphics::plot(plot_points, eco_total, type="l", ylab="gain in Euro", xlab="year", lwd=2)
   colr <- rep("red", length(plot_points))
   colr[eco_total>0] <- "green"

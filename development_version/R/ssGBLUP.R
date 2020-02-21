@@ -20,29 +20,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
 
-#' ssGBLUP
+#' Single Step GBLUP
 #'
-#' Function to perform single step GBLUP
-#' @param A11 A11
-#' @param A12 A12
-#' @param A22 A22
+#' Function to perform single step GBLUP according to Legarra 2014
+#' @param A11 pedigree relationship matrix of non-genotyped individuals
+#' @param A12 pedigree relationship matrix between non-genotyped and genotyped individuals
+#' @param A22 genomic relationship matrix of genotyped individuals
 #' @param G G
 
 ssGBLUP <- function(A11, A12, A22, G){
 
 
-#  A <- cbind(rbind(A11,A21), rbind(A12,A22))
-#  I <- diag(nrow(A22))
-#  Front <- rbind(A12 %*% solve(A22) %*% I, I)
-#  Back <- rbind(solve(A22) %*% A21 %*% I, I)
-#  H <- A + Front %*% (G - A22) %*% Back # EXTREMELY INEFFICIENT + you should avoid MASS::ginv()
-
-  # Legarra 2014 Single Step, A general Approach For Genomic Selection
-  # A21 <- t(A12)
-  # H11 <- A11 - A12 %*% A22inv %*% A21 + A12 %*% A22inv %*% G %*% A22inv %*% A21
-  # H12 <- A12 %*% A22inv %*% G
-  # H22 <- G
-  # H1 <- rbind(cbind(H11,H12), cbind(t(H12), H22))
 
   A22 <- add.diag(A22, 0.001) # numeric stability
   A22inv <- solve(A22)

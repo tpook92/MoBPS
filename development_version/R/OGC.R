@@ -19,14 +19,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' THIS NEEDs SOME REWORK BEFORE USAGE
+#' Optimal genetic contribution
 #'
-#' THIS NEEDs SOME REWORK BEFORE USAGE
-#' @param A A
-#' @param u u
-#' @param Q Q
-#' @param cAc cAc
-#' @param single single
+#' In this function the OGC selection according to Meuwissen 1997 is performed
+#' @param A relationship matrix
+#' @param u breeding values
+#' @param Q sex indicator
+#' @param cAc target gain in inbreeding
+#' @param single If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)
 
 OGC <- function(A,u,Q,cAc=NA, single=TRUE){
   # bei NA wird cAc (Increase of average relationship) minimiert

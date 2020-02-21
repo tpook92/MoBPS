@@ -22,8 +22,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Ensemble Map
 #'
 #' Function to generate a ensemble map file
-
-#' @export
 #' @param host Host to use in Ensembl (default: "www.ensembl.org" , alt: "plants.ensembl.org")
 #' @param dataset Dataset used in Ensembl
 #' @param filter Filters to apply in Ensembl
@@ -32,15 +30,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.filters Export possible filters for parameter filters
 #' @param export.datasets Export possible datasets for usage in parameter dataset
 #' @examples
-#' # This can take longer!
-#' # map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
-#' #                    filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip")
+#' \donttest{map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
+#'          filter=list("variation_set_name"="Illumina BovineSNP50 BeadChip",
+#'                      "chr_name"= 26))}
 #' @return Map-file for the use in creating.diploid
 #' @export
 
 ensembl.map <- function(host="www.ensembl.org", dataset="btaurus_snp", export.filters=FALSE, export.datasets=FALSE,
                         filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip",
                         nchromo=NULL){
+
+  if (requireNamespace("biomaRt", quietly = TRUE)) {
+  } else{
+    stop("Use of biomaRt without being installed!")
+  }
   if(export.datasets){
     if(host!="www.ensembl.org"){
       mart <- biomaRt::useMart(biomaRt::listMarts(host=host)[1,1],host=host)
@@ -59,10 +62,13 @@ ensembl.map <- function(host="www.ensembl.org", dataset="btaurus_snp", export.fi
   }
   # head(listAttributes(ensembl))
 
+  if(length(filter)>0 && is.list(filter)){
+    filter.values = ""
+  }
   snps <- biomaRt::getBM(attributes=c('chr_name','refsnp_id', 'chrom_start', 'minor_allele_freq'),
                          filters=filter, values=filter.values, mart=ensembl)
 
-    ## Map generation
+  ## Map generation
   map <- NULL
   if(length(nchromo)==0){
     nchromo <- max(as.numeric((snps[,1])), na.rm =TRUE)

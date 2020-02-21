@@ -31,8 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @examples
-#' # data(ex_json)
-#' # population <- json.simulation(total=ex_json)
+#' data(ex_json)
+#' \donttest{population <- json.simulation(total=ex_json)}
 #' @return Population-list
 #' @export
 
@@ -48,7 +48,11 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
   }
 
   if(length(file)>0){
-    total <- jsonlite::read_json(path=file)
+    if(requireNamespace("jsonlite", quietly = TRUE)){
+      total <- jsonlite::read_json(path=file)
+    } else{
+      stop("Use of jsonlite without being installed!")
+    }
   } else if(length(total)==0){
     cat("No dataset provided in file or total \n")
   }
@@ -79,7 +83,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       bp <- NULL
 
       if(length(geninfo$'advanced_miraculix')>0 && geninfo$'advanced_miraculix'==FALSE){
-        cat("Miraculix has been manually disabled!\n")
+        if(verbose) cat("Miraculix has been manually disabled!\n")
         miraculix.dataset <- FALSE
         miraculix <- FALSE
         miraculix.chol <- FALSE
@@ -273,13 +277,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           residual_var <- pheno_var - gen_var
           cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
           cor_pheno[is.na(cor_pheno)] = 0
-          if(verbose) cat("Used residual correlations:")
+          if(verbose) cat("Used residual correlations:\n")
           if(verbose) print(cor_pheno)
         }
         eigen_pheno <- eigen(cor_pheno)
         if(sum(eigen_pheno$values<0)>0){
           if(verbose) cat("Residual covariance matrix is not positive definit.\n")
-          if(verbose) cat("Generate projection on the set of positive definit matrices:")
+          if(verbose) cat("Generate projection on the set of positive definit matrices:\n")
 
           test <- eigen_pheno
 
@@ -668,7 +672,19 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         }
       }
 
+
+
       while(sum(repeat_node)>0){
+
+        required_nodes <- list()
+        required_nodes[[length(ids)+1]] <- "placeholder"
+        for(index in 1:length(edges)){
+          if(edges[[index]]$`Breeding Type`!="Repeat"){
+            new_node <- which(edges[[index]]$to==ids)
+            required_nodes[[new_node]] <- c(required_nodes[[new_node]], which(edges[[index]]$from==ids))
+          }
+
+        }
         n_nodes <- length(nodes)
         n_edges <- length(edges)
         link <- NULL
@@ -686,7 +702,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           for(index2 in 1:length(edges)){
             desti <- which(edges[[index2]]$to==ids)
             ori <- which(edges[[index2]]$from==ids)
-            if(length(intersect(ori, step))>0){
+            if(length(intersect(ori, step))>0 & length(required_nodes[[desti]])== length(intersect(required_nodes[[desti]], step))){
               if(repeat_node[ori]==1){
                 if(edges[[index2]]$`Breeding Type`=="Repeat"){
                   start <- unique(c(start, desti))
@@ -700,14 +716,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               } else{
                 if(sum(ori==step)>0){
                   step <- unique(c(step, desti))
-
-                  #if(incoming_repeat_node[desti]==1 && length(intersect(founder,desti))>0){
-                  #  step_vali <- unique(c(step_vali, desti))
-                  #} else
-                  #if(incoming_repeat_node[desti]==1 || length(intersect(step_vali,ori))>0){
-                  #  step_vali <- unique(c(step_vali, desti))
-                  #  edges_to_repeat <- unique(c(edges_to_repeat, index2))
-                  #}
 
                   if(incoming_repeat_node[desti]==1 || length(intersect(step_vali,ori))>0){
                     step_vali <- unique(c(step_vali, desti))
@@ -919,7 +927,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               vcf_file <- vcfR::read.vcfR(map_path)
               map <- cbind(vcf_file@fix[,c(1,3,2)],NA,NA)
             } else{
-              stop("Map-import failed! vcfR-package not available! \n")
+              stop("Use of vcfR without being installed!")
             }
           } else if(map_type=="map"){
             if(verbose) cat("Map identified as Ped-map-file - extract map information")
@@ -1102,14 +1110,14 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 } else if(length(prev)>1){
                   skips[index] <- index
                   if(max_print1){
-                    cat("Marker names in vcf are not unique!")
+                    warning("Marker names in vcf are not unique!")
                     max_print1 <- FALSE
                   }
 
                 } else if(length(prev)==0 ){
                   skips[index] <- index
                   if(max_print2){
-                    cat("Marker in VCF that do not appear in the map!\n")
+                    warning("Marker in VCF that do not appear in the map!\n")
                     max_print2 <- FALSE
                   }
 
@@ -1127,13 +1135,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 haplo[order,] <- haplo_temp
               }
               if(sum(is.na(haplo))>0){
-                cat("YOUR DATASET CONTAINS MISSING ELEMENTS. \nEverything missing is set to 0. Consider Phasing!\n")
-                cat(paste0(sum(is.na(haplo)), " missing entries in haplotype data!\n"))
+                warning("Your dataset contains missing elements! \nEverything missing is set to 0. Consider Phasing!\n")
+                if(verbose) cat(paste0(sum(is.na(haplo)), " missing entries in haplotype data!\n"))
                 haplo[is.na(haplo)] <- 0
               }
 
             } else{
-              stop("Data-import failed! vcfR-package not available! \n")
+              stop("Use of vcfR without being installed!")
             }
           } else if(data_type=="ped"){
             if(verbose) cat("Data input identified as Ped-map-file - extract genomic information \n")
@@ -1164,14 +1172,14 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                   } else if(length(prev)>1){
                     skips[index] <- index
                     if(max_print1){
-                      cat("Marker names in vcf are not unique!")
+                      warning("Marker names in vcf are not unique!")
                       max_print1 <- FALSE
                     }
 
                   } else if(length(prev)==0 ){
                     skips[index] <- index
                     if(max_print2){
-                      cat("Marker in VCF that do not appear in the map!\n")
+                      warning("Marker in VCF that do not appear in the map!\n")
                       max_print2 <- FALSE
                     }
 
@@ -1189,13 +1197,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                   haplo[order,] <- haplo_temp
                 }
                 if(sum(is.na(haplo))>0){
-                  cat("YOUR DATASET CONTAINS MISSING ELEMENTS. \nEverything missing is set to 0. Consider Phasing!\n")
-                  cat(paste0(sum(is.na(haplo)), " missing entries in haplotype data!\n"))
+                  warning("Your dataset contains missing elements.\n Everything missing is set to 0. Consider Phasing!")
+                  if(verbose) cat(paste0(sum(is.na(haplo)), " missing entries in haplotype data!\n"))
                   haplo[is.na(haplo)] <- 0
                 }
 
               } else{
-                stop("Data-import failed! vcfR-package not available! \n")
+                stop("Use of vcfR without being installed!")
               }
             } else{
               if(verbose) cat("Haplotype phase is assumed to be by colum - No internal phasing performed! \n")
@@ -2193,8 +2201,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           take_repeat <- which.max(class_time)
           if(max(class_time) == (-Inf) && length(class_time)>1){
             if(length(which(repeat_links[,1]==cohort_type))!=1){
-              cat("Problem in UseLastAvailable!\n")
-              cat("No automatic fix possible")
+              warning("Problem in UseLastAvailable!\n")
+              stop("No automatic fix possible")
             }
             nodes[[index1]]$origin[index2] <- repeat_links[which(repeat_links[,1]==cohort_type),2]
           } else{
@@ -2442,8 +2450,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
 
               if(selection.size[1]>selection.size.max[1] || selection.size[2]>selection.size.max[2] ){
-                cat(paste0("Less individuals available than designed for cohort: ", group,".\n"))
-                cat(paste0(selection.size.max[1], " male individuals & ", selection.size.max[2], " female individuals.\n"))
+                if(verbose) cat(paste0("Less individuals available than designed for cohort: ", group,".\n"))
+                if(verbose) cat(paste0(selection.size.max[1], " male individuals & ", selection.size.max[2], " female individuals.\n"))
                 selection.size[selection.size>selection.size.max] <- selection.size.max[selection.size>selection.size.max]
 
               }
@@ -2456,7 +2464,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 for(temp1 in 1:2){
                   if(breeding.size[temp1]>selection.size[temp1]){
                     breeding.size[temp1] <- selection.size[temp1]
-                    cat(paste0("Reduce size of cohort ", group," to ", breeding.size[temp1],".\n"))
+                    if(verbose) cat(paste0("Reduce size of cohort ", group," to ", breeding.size[temp1],".\n"))
                     if(sum(group==to_split)>0){
                       split_info[[which(group==to_split)]] <- 1:breeding.size[temp1]
                     }
@@ -2475,11 +2483,11 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
                 if(length(nodes[[groupnr]]$max_offspring)>0 && nodes[[groupnr]]$max_offspring[1] < Inf && sum(breeding.size)>(selection.size[1] *nodes[[groupnr]]$max_offspring[1])){
                   breeding.size[breeding.size>0] <- selection.size[1] * nodes[[groupnr]]$max_offspring[1]
-                  cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
+                  if(verbose) cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
                 }
                 if(length(nodes[[groupnr]]$max_offspring)>0 && nodes[[groupnr]]$max_offspring[2] < Inf && sum(breeding.size)>(selection.size[2] *nodes[[groupnr]]$max_offspring[2])){
                   breeding.size[breeding.size>0] <- selection.size[2] * nodes[[groupnr]]$max_offspring[2]
-                  cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
+                  if(verbose) cat(paste0("Reduce size of cohort ", group," to ", sum(breeding.size),".\n"))
                 }
 
               }
@@ -3077,18 +3085,20 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         t3 <- as.numeric(Sys.time())
 
         if(generation != (length(generation_group)+2)){
-          if(verbose) cat("Generated groups: \n")
-          if(verbose) cat(generation_group[[generation-1]])
-          if(verbose) cat("\n")
-          if(verbose) cat("Time spend: ")
-          if(verbose) cat(round(t3-t1, digits=2))
-          if(verbose) cat(" seconds.\n")
-          if(verbose) cat("For generation: ")
-          if(verbose) cat(round(t2-t1, digits=2))
-          if(verbose) cat(" seconds.\n")
-          if(verbose) cat("For culling: ")
-          if(verbose) cat(round(t3-t2, digits=2))
-          if(verbose) cat(" seconds.\n")
+          if(verbose){
+            cat("Generated groups: \n")
+            cat(generation_group[[generation-1]])
+            cat("\n")
+            cat("Time spend: ")
+            cat(round(t3-t1, digits=2))
+            cat(" seconds.\n")
+            cat("For generation: ")
+            cat(round(t2-t1, digits=2))
+            cat(" seconds.\n")
+            cat("For culling: ")
+            cat(round(t3-t2, digits=2))
+            cat(" seconds.\n")
+          }
         }
 
         if(TRUE){

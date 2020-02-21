@@ -32,7 +32,7 @@ compute.costs(population, phenotyping.costs = 10,
 
 \item{base.gen}{Base generation (application of interest rate)
 data(ex_pop)
-compute.costs(ex_pop, gen=1:2)}
+compute.costs(ex_pop, gen=1:5)}
 }
 \value{
 Cost-table for selected gen/database/cohorts of a population-list

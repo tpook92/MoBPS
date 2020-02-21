@@ -28,5 +28,5 @@ Analyze allele frequency of a single marker
 }
 \examples{
 data(ex_pop)
-analyze.population(ex_pop, snp=1, chromosome=1, gen=1:2)
+analyze.population(ex_pop, snp=1, chromosome=1, gen=1:5)
 }

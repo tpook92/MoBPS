@@ -124,7 +124,6 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
     for(index in unique(c(0,rpod))[-1]){
       activ.chromosome <- sum(pod[count] > length.total)
       length.d <- stats::rexp(1, rate=(1/duplication.length)) * (-1)^(stats::rbinom(1,1,0.5))
-      #print(c("pod",pod, "count", count, "porc.d", porc.d, "index", index, "activ.chromosome", activ.chromosome))
       pod2[count] <- max(min(pod[count]+ length.d, porc.d[index+1], length.total[activ.chromosome+1]),porc.d[index-1], length.total[activ.chromosome])
       if(pod2[count]==(porc.d[index])|| sum(length.total[start.point]==porc.d[index])){
         add.one[count] <- 1
@@ -160,7 +159,6 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
       posi <- 1:nrow(dup[[abc]])
       for(index in 1:nrow(dup[[abc]])){
         ndup <- stats::rpois(1, (dup[[abc]][index,3]- dup[[abc]][index,2])* duplication.recombination)
-#        print(ndup)
         if(ndup>0){
           pdup <- sort(stats::runif(ndup, min=dup[[abc]][index,2], max= dup[[abc]][index,3]))
         } else{
@@ -191,9 +189,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
       posi <- sort(posi,index.return=TRUE)$ix
       dup[[abc]] <- matrix(dup[[abc]][posi,], ncol=8)
       #remove duplication segements with length 0
-#      print(dup[[1]])
       remove0 <- (dup[[abc]][,2] == dup[[abc]][,3])
-#      print(remove0)
       if(sum(remove0)>0){
         remove0 <- remove0 * 1:length(remove0)
         dup[[abc]] <- dup[[abc]][-remove0,]
@@ -211,9 +207,6 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
   store_mut <- list(population$info$snp.position[parent[[3]]], population$info$snp.position[parent[[4]]])
 
   for(index in 1:(length(porc)-1)){
-    #    print(parent[[activ+10]])
-    #    if(length(parent[[activ+10]])>0) print(is.matrix[parent[[activ+10]]])
-
     activ.porc <- (parent[[activ]]<porc[index+1]) & (parent[[activ]]>porc[index])
 
     if(length(store_mut[[activ]])==0){
@@ -318,12 +311,11 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
   }
 
 
-#  print(pod)
+
   new.dups <- NULL
 
   if(length(pod)>0){
     new.dups <- cbind(0,pod.start, pod.end, info.parent[1],info.parent[2],info.parent[3], 0, 0)
-#    print(new.dups)
     # calculation of the position on the chromosome and the origin of the sequence
     for(index in 1:length(pod)){
 
@@ -380,11 +372,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
 
 
   if(length(new.poc)!=(length(new.origin)+1)){
-    print("Rekombination - origin Inkonsistenz!!")
-      print(new.poc)
-      print(new.origin)
-      print(parent)
-      print(porc)
+    stop("recombination inconsistency!")
 
   }
 

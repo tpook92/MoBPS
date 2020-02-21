@@ -4,7 +4,7 @@
 \alias{maize_chip}
 \title{maize chip}
 \source{
-Lee et al
+Lee et al 2002
 }
 \usage{
 maize_chip

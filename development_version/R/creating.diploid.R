@@ -147,7 +147,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     set.seed(randomSeed)
   }
   if(!miraculix && miraculix.dataset){
-    cat("miraculix.dataset only possible when miraculix is active")
+    if(verbose) cat("miraculix.dataset only possible when miraculix is active\n")
     miraculix.dataset <- FALSE
   }
 
@@ -179,7 +179,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       snp.position <- map[,4]
     } else if(sum(is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
       if(bpcm.conversion==0){
-        cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion")
+        if(verbose) cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion")
         bpcm.conversion <- 100000000
       }
       map[,4] <- as.numeric(bp) /  bpcm.conversion
@@ -195,11 +195,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       freq <- map[,5]
     }
     if(nsnp!=0 && nsnp!=nrow(map)){
-      cat("Number of SNPs not in concordance with used map!\n")
+      warning("Number of SNPs not in concordance with used map!\n")
+      warning(paste0("Set number of SNPs to", nrow(map), "!\n"))
 
-      cat("Set number of SNPs to")
-      cat(nrow(map))
-      cat("!\n")
     }
     nsnp <- nrow(map)
 
@@ -208,7 +206,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     if(length(snp.position)>0){
       chromosome.length <- max(snp.position) + min(snp.position)
       if(chromosome.length<=0){
-        print("invalid setting for snp.position - Proceed with chromosome of 5M and equidistant markers")
+        warning("invalid setting for snp.position - Proceed with chromosome of 5M and equidistant markers")
         chromosome.length <- 5
         snps.equidistant <- TRUE
       }
@@ -352,13 +350,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     } else if(class(dataset)=="matrix" && nrow(dataset)>chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nrow(dataset)))
     } else if(class(dataset)=="haplomatrix" && attr(dataset[[1]], "information")[2]==1){
-      cat("Are you sure you want to generate a 1 SNP chromosome via miraculix?")
+      if(verbose) cat("Are you sure you want to generate a 1 SNP chromosome via miraculix?")
     }
 
   }
 
   if(skip.rest==FALSE){
-    if(length(vcf)>0 && requireNamespace("vcfR", quietly = TRUE)){
+    if(length(vcf)>0){
+      if(requireNamespace("vcfR", quietly = TRUE)){
       vcf_file <- vcfR::read.vcfR(vcf)
       vcf_data <- vcf_file@gt[,-1]
       dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
@@ -371,6 +370,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       hom0 <- vcf_file@fix[,4]
       hom1 <- vcf_file@fix[,5]
 
+      } else{
+        stop("Use of vcfR without being installed!")
+      }
     }
 
 
@@ -884,7 +886,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       snp.position <- as.numeric(bp) / bpcm.conversion
       chromosome.length <- max(snp.position) - min(snp.position)
     } else if(bpcm.conversion>0 && length(snp.position)>0){
-      cat("Do not use bpcm.conversion and snp.position jointly!\n")
+      if(verbose) cat("Do not use bpcm.conversion and snp.position jointly!\n")
     }
   }
   if(length(bpcm.conversion)!=length(chr.opt)){
@@ -911,12 +913,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   if(length(snp.position)>0 && snp.position[1]<=0 && (length(snps.equidistant)==0 || snps.equidistant!=TRUE)){
     snp.position[1] <- snp.position[2]/2
-    print(paste("Illegal position for SNP 1 - changed to",snp.position[1]))
+    warning(paste("Illegal position for SNP 1 - changed to",snp.position[1]))
   }
   mindex <- max(which(chr.opt[1]==chr.nr))
   if(length(snp.position)>1 && snp.position[mindex]>=chromosome.length[1] && (length(snps.equidistant)==0 || snps.equidistant!=TRUE)){
     snp.position[mindex] <- mean(c(snp.position[mindex-1], chromosome.length[1]))
-    print(paste("Illegal position for last SNP - changed to",snp.position[mindex]))
+    warning(paste("Illegal position for last SNP - changed to",snp.position[mindex]))
   }
 
   position <- snp.position
@@ -1026,8 +1028,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$origin.gen <- c(population$info$origin.gen, as.integer(generation))
           origin_code <- length(population$info$origin.gen)
         } else{
-          print("To many origin generation!")
-          print("Delete second lowest origin.gen")
+          warning("To many origin generation!")
+          warning("Delete second lowest origin.gen")
           switch <- sort(population$info$origin.gen, index.return=TRUE)[[2]]
           population$info$origin.gen[switch] <- as.integer(generation)
           origin_code <- switch
@@ -1239,7 +1241,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$real.bv.dice <- real.bv.dice
         } else{
           if(length(real.bv.dice)>0){
-            print("Keine vorschriftmaessige Eingabe fuer real.bv.dice!")
+            warning("Invalid input for real.bv.dice!")
           }
           population$info$real.bv.dice <- list(real.bv.dice)
         }
@@ -1289,7 +1291,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
           population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
           if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
-            print("No-covariance matrix for traits given! Values above diagonal used.")
+            warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
           }
 
           store.add <- population$info$real.bv.add
@@ -1396,7 +1398,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                                                   c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
                                                                     time.point, creating.type))
 
-        cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
+        if(verbose) cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
 
         if(verbose){
           posi <- get.database(population, cohorts = paste0(name.cohort, "_M"))
@@ -1564,24 +1566,24 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       removes <- which(population$info$real.bv.add[[index]][,1] > population$info$snp[population$info$real.bv.add[[index]][,2]])
       if(length(removes)>0){
         population$info$real.bv.add[[index]] <- population$info$real.bv.add[[index]][-removes,,drop=FALSE]
-        cat(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.add[[index]]), " QTL-effects remain.\n"))
+        warning(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], "."))
+        warning(paste0(nrow(population$info$real.bv.add[[index]]), " QTL-effects remain."))
       }
     }
     for(index in 1:(length(population$info$real.bv.mult)-1)){
       removes <- which(population$info$real.bv.mult[[index]][,1] > population$info$snp[population$info$real.bv.mult[[index]][,2]])
       if(length(removes)>0){
         population$info$real.bv.mult[[index]] <- population$info$real.bv.mult[[index]][-removes,,drop=FALSE]
-        cat(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
+        warning(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], "."))
+        warning(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain."))
       }
     }
     for(index in 1:(length(population$info$real.bv.mult)-1)){
       removes <- which(population$info$real.bv.mult[[index]][,3] > population$info$snp[population$info$real.bv.mult[[index]][,4]])
       if(length(removes)>0){
         population$info$real.bv.mult[[index]] <- population$info$real.bv.mult[[index]][-removes,,drop=FALSE]
-        cat(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
+        warning(paste0(length(removes), " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], "."))
+        warning(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain."))
       }
     }
 
@@ -1589,7 +1591,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
+
   }
+
+
   class(population) <- "population"
   return(population)
 }

@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param bvrow Which traits to display (for multiple traits separte plots (par(mfrow)))
+#' @param bvrow Which traits to display
 #' @param advanced Set to TRUE to also look at offspring pheno
 #' @examples
 #' data(ex_pop)

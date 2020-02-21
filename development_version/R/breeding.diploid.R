@@ -85,7 +85,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param fixed.assignment Set TRUE for targeted mating of best-best individual till worst-worst (of selected). set to "bestworst" for best-worst mating
 #' @param reduce.group (OLD! - use culling modules) Groups of animals for reduce to a new size (by changing class to -1)
 #' @param reduce.group.selection (OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")
-#' @param selection.critera If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))
+#' @param selection.highest If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))
 #' @param same.sex.activ If TRUE allow matings of individuals of same sex
 #' @param same.sex.sex Probability to use female individuals as parents (default: 0.5)
 #' @param same.sex.selfing If FALSE no matings between an individual with itself
@@ -130,12 +130,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param store.comp.times If TRUE store computation times in $info$comp.times (default: TRUE)
 #' @param store.comp.times.bve If TRUE store computation times of breeding value estimation in $info$comp.times.bve (default: TRUE)
 #' @param store.comp.times.generation If TRUE store computation times of mating simulations in $info$comp.times.generation (default: TRUE)
-#' @param special.comb If TRUE selected individuals based on their special combining ability
-#' @param predict.effects If TRUE use estimated effects instead of true values in special.comb
-#' @param SNP.density Use every _ SNP in predict.effects (default: 10)
-#' @param use.effect.markers If TRUE use QTL markers in special.comb
-#' @param use.effect.combination If TRUE use QTL combinations (epistatic/mult) in special.comb
-#' @param max.auswahl Maximum amount of times a individuals is considered in special.comb
 #' @param ogc If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)
 #' @param ogc.cAc Increase of average relationship in ogc. Default: minimize inbreeding rate.
 #' @param gene.editing.offspring If TRUE perform gene editing on newly generated individuals
@@ -144,7 +138,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gene.editing.best.sex Which sex to perform editing on (Default c(TRUE,TRUE), mw)
 #' @param nr.edits Number of edits to perform per individual
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
-#' @param special.comb.add If TRUE select matings based on additive combining ability
 #' @param emmreml.bve If TRUE use REML estimator from R-package EMMREML in breeding value estimation
 #' @param rrblup.bve If TRUE use REML estimator from R-package rrBLUP in breeding value estimation
 #' @param sommer.bve If TRUE use REML estimator from R-package sommer in breeding value estimation
@@ -172,18 +165,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param best.selection.criteria.f Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")
 #' @param best.selection.manual.ratio.m vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))
 #' @param best.selection.manual.ratio.f vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))
-#' @param selection.criteria.type What to use in the selection proces (default: "bve", alt: "bv", "pheno")
+#' @param selection.criteria What to use in the selection proces (default: "bve", alt: "bv", "pheno")
 #' @param bve.class Consider only animals of those class classes in breeding value estimation (default: NULL - use all)
 #' @param parallel.generation Set TRUE to active parallel computing in animal generation
 #' @param ncore.generation Number of cores to use in parallel generation
 #' @param randomSeed Set random seed of the process
 #' @param randomSeed.generation Set random seed for parallel generation process
 #' @param new.selection.calculation If TRUE recalculate breeding values obtained by selection.function.matrix
-#' @param fast.compiler Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)
 #' @param name.cohort Name of the newly added cohort
 #' @param add.class.cohorts Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)
 #' @param display.progress Set FALSE to not display progress bars
-#' @param max.ticks Maximal number of ticks in a progress bar
 #' @param ignore.best Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @param repeat.mating Generate multiple mating from the same dam/sire combination
@@ -257,7 +248,7 @@ breeding.diploid <- function(population,
                              mutation.rate = 10^-5,
                              remutation.rate = 10^-5,
             recombination.rate = 1,
-            selection.m = "random",
+            selection.m = NULL,
             selection.f = NULL,
             new.selection.calculation = TRUE,
             selection.function.matrix = NULL,
@@ -294,8 +285,8 @@ breeding.diploid <- function(population,
             fixed.assignment = FALSE,
             reduce.group = NULL,
             reduce.group.selection = "random",
-            selection.critera = c(TRUE,TRUE),
-            selection.criteria.type = c("bve", "bve"),
+            selection.highest = c(TRUE,TRUE),
+            selection.criteria = NULL,
             same.sex.activ = FALSE,
             same.sex.sex = 0.5,
             same.sex.selfing = TRUE,
@@ -335,14 +326,7 @@ breeding.diploid <- function(population,
             store.comp.times = TRUE,
             store.comp.times.bve = TRUE,
             store.comp.times.generation = TRUE,
-            special.comb = FALSE,
-            max.auswahl = Inf,
-            predict.effects = FALSE,
-            SNP.density = 10,
-            use.effect.markers = FALSE,
-            use.effect.combination = FALSE,
             import.position.calculation = NULL,
-            special.comb.add = FALSE,
             BGLR.save = "RKHS",
             BGLR.save.random = FALSE,
             ogc = FALSE,
@@ -379,7 +363,6 @@ breeding.diploid <- function(population,
             miraculix.cores = 1,
             miraculix.mult = NULL,
             miraculix.chol = TRUE,
-            fast.compiler = 0,
             best.selection.ratio.m = 1,
             best.selection.ratio.f = NULL,
             best.selection.criteria.m = "bv",
@@ -390,7 +373,6 @@ breeding.diploid <- function(population,
             parallel.generation = FALSE,
             name.cohort = NULL,
             display.progress = TRUE,
-            max.ticks = Inf,
             combine = FALSE,
             repeat.mating = 1,
             time.point = 0,
@@ -518,6 +500,16 @@ breeding.diploid <- function(population,
 
   reduced.selection.panel <- list(reduced.selection.panel.m, reduced.selection.panel.f)
 
+  if(length(selection.criteria)==0){
+    selection.criteria <- c("bve", "bve")
+    if(length(selection.m)==0){
+      selection.m <- "random"
+    }
+  } else{
+    if(length(selection.m)==0){
+      selection.m <- "function"
+    }
+  }
   if(culling.share1>0 || (length(culling.share2)>0 && culling.share2>0)){
     culling <- TRUE
   } else{
@@ -651,11 +643,12 @@ breeding.diploid <- function(population,
     population$info$bv.random.activ <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
   }
 
-  if(length(selection.m.gen)==0 && length(selection.m.database)==0 && length(selection.m.cohorts)==0 && selection.size[1]>0){
+  add.selection <- sum(breeding.size)>0 & sum(selection.size)==0
+  if(length(selection.m.gen)==0 && length(selection.m.database)==0 && length(selection.m.cohorts)==0 && (selection.size[1]>0 || add.selection)){
     if(verbose) cat("No individuals for selection provided (male side). Use last available.\n")
     selection.m.database <- cbind(max(which(population$info$size[,1]>0)),1)
   }
-  if(length(selection.f.gen)==0 && length(selection.f.database)==0 && length(selection.f.cohorts)==0 && selection.size[2]>0){
+  if(length(selection.f.gen)==0 && length(selection.f.database)==0 && length(selection.f.cohorts)==0 && (selection.size[2]>0 ||add.selection)){
     if(verbose) cat("No individuals for selection provided (female side). Use last available.\n")
     selection.f.database <- cbind(max(which(population$info$size[,2]>0)),2)
   }
@@ -669,8 +662,8 @@ breeding.diploid <- function(population,
   if(length(gen.architecture.f)==0){
     gen.architecture.f=gen.architecture.m
   }
-  if(length(selection.criteria.type)==1){
-    selection.criteria.type <- rep(selection.criteria.type,2)
+  if(length(selection.criteria)==1){
+    selection.criteria <- rep(selection.criteria,2)
   }
   if(length(max.offspring)==1){
     max.offspring <- rep(max.offspring,2)
@@ -713,9 +706,7 @@ breeding.diploid <- function(population,
     population$info$origin <- 1:64
   }
 
-  if(fast.compiler && requireNamespace("compiler", quietly = TRUE)){
-    compiler::enableJIT(3)
-  }
+
   if(sum(population$info$snp)<=maxZ){
     sequenceZ <- FALSE
   }
@@ -879,6 +870,10 @@ breeding.diploid <- function(population,
   }
 
   if(breeding.all.combination){
+    if(sum(selection.size)==0){
+      selection.size[1] <- sum(selection.m.database[,4]-selection.m.database[,3]+1)
+      selection.size[2] <- sum(selection.f.database[,4]-selection.f.database[,3]+1)
+    }
     if(selection.size[1]>0 && selection.size[2]>0){
       fixed.breeding.best <- matrix(0, nrow= selection.size[1] * selection.size[2], ncol=4)
       for(index in 1:selection.size[1]){
@@ -1755,7 +1750,11 @@ breeding.diploid <- function(population,
         }
 
         if(backend=="doParallel"){
-          doParallel::registerDoParallel(cores=ncore)
+          if (requireNamespace("doParallel", quietly = TRUE)) {
+            doParallel::registerDoParallel(cores=ncore)
+          } else{
+            stop("Usage of doParallel without being installed")
+          }
         } else if(backend=="doMPI"){
           if (requireNamespace("doMPI", quietly = TRUE)) {
             cl <- doMPI::startMPIcluster(count=ncore)
@@ -1883,7 +1882,11 @@ breeding.diploid <- function(population,
             }
 
             if(backend=="doParallel"){
-              doParallel::registerDoParallel(cores=ncore)
+              if (requireNamespace("doParallel", quietly = TRUE)) {
+                doParallel::registerDoParallel(cores=ncore)
+              } else{
+                stop("Usage of doParallel without being installed!")
+              }
             } else if(backend=="doMPI"){
               if (requireNamespace("doMPI", quietly = TRUE)) {
                 cl <- doMPI::startMPIcluster(count=ncore)
@@ -2185,7 +2188,7 @@ breeding.diploid <- function(population,
       if(mas.bve){
         if(length(mas.markers)==0){
           if(length(population$info$real.bv.add[[bven]])>24){
-            cat("No markers for MAS provided. Use 5 true effect markers with highest effect")
+            cat("No markers for MAS provided. Use 5 true effect markers with highest effect.\n")
             temp1 <- sort(rowSums(abs(population$info$real.bv.add[[bven]][,3:5])), index.return=TRUE, decreasing=TRUE)$ix[1:mas.number]
             active.snp <- population$info$real.bv.add[[bven]][temp1,]
             mas.markers.temp <- c(0,population$info$cumsnp)[active.snp[,2]]+ active.snp[,1]
@@ -2254,7 +2257,11 @@ breeding.diploid <- function(population,
         }
 
         t1 <- as.numeric(Sys.time())
-        test <- rrBLUP::mixed.solve(y[,bven], K = A, method="REML", bounds = c(1e-9,1e9))
+        if (requireNamespace("rrBLUP", quietly = TRUE)) {
+          test <- rrBLUP::mixed.solve(y[,bven], K = A, method="REML", bounds = c(1e-9,1e9))
+        } else{
+          stop("Use of rrBLUP without being installed!")
+        }
         t2 <- as.numeric(Sys.time())
 
         if(verbose) cat(paste0(round(t2-t1, digits=2), " seconds for BVE.\n"))
@@ -2314,7 +2321,11 @@ breeding.diploid <- function(population,
         rownames(y_som) <- id
         colnames(A) <- rownames(A) <- id
 
-        test <- sommer::mmer(name ~1, random=~sommer::vs(id, Gu=A), rcov = ~units, data=y_som)
+        if (requireNamespace("sommer", quietly = TRUE)) {
+          test <- sommer::mmer(name ~1, random=~sommer::vs(id, Gu=A), rcov = ~units, data=y_som)
+        } else{
+          stop("Use of sommer without being installed!")
+        }
 
         y_hat[sort(as.character(id), index.return=TRUE)$ix,bven] <- test$U[[1]][[1]] + as.numeric(test$Beta[3])
 
@@ -2348,7 +2359,12 @@ breeding.diploid <- function(population,
 
           }
           text <- paste0("sommer::mmer(",text,"~1, random=~sommer::vs(id, Gu=A, Gtc=sommer::unsm(bven)), rcov = ~sommer::vs(units, Gtc=diag(bven)), data=y_som)")
-          test <- eval(parse(text=text))
+          if (requireNamespace("sommer", quietly = TRUE)) {
+            test <- eval(parse(text=text))
+          } else{
+            stop("Use of sommer without being installed!")
+          }
+
           for(bven1 in 1:population$info$bv.nr){
             y_hat[sort(as.character(id), index.return=TRUE)$ix,bven1] <- test$U[[1]][[bven1]]
           }
@@ -2578,7 +2594,11 @@ breeding.diploid <- function(population,
                 }
 
                 if(backend=="doParallel"){
-                  doParallel::registerDoParallel(cores=ncore)
+                  if (requireNamespace("doParallel", quietly = TRUE)) {
+                    doParallel::registerDoParallel(cores=ncore)
+                  } else{
+                    stop("Use of doParallel without being installed!")
+                  }
                 } else if(backend=="doMPI"){
                   if (requireNamespace("doMPI", quietly = TRUE)) {
                     cl <- doMPI::startMPIcluster(count=ncore)
@@ -2643,7 +2663,11 @@ breeding.diploid <- function(population,
               }
 
               if(!(length(rest_take)==length(prev_rest_take) && prod(rest_take==prev_rest_take)==1) && !fast.uhat){
-                A1 <- MASS::ginv(A[take2[rest_take], take2[rest_take]])
+                if (requireNamespace("MASS", quietly = TRUE)) {
+                  A1 <- MASS::ginv(A[take2[rest_take], take2[rest_take]])
+                } else{
+                  stop("Use of MASS without being installed!")
+                }
               }
               if(computation.A!="vanRaden"){
                 if(miraculix){
@@ -2710,7 +2734,11 @@ breeding.diploid <- function(population,
                 Zt2 <- Zt
               }
               if(!fast.uhat){
-                A1 <- MASS::ginv(A[take2[rest_take], take2[rest_take]])
+                if (requireNamespace("MASS", quietly = TRUE)) {
+                  A1 <- MASS::ginv(A[take2[rest_take], take2[rest_take]])
+                } else{
+                  stop("Use of MASS without being installed!")
+                }
               }
 
               prev_rest_take <- rest_take
@@ -3017,339 +3045,6 @@ breeding.diploid <- function(population,
   }
 }
 
-  #############################################################################################################
-  #############################################################################################################
-  ########################## TEST MARTINI######################################################################
-{
-  if(special.comb==TRUE){
-    pos_grp <- matrix(c(length(population$breeding),1), nrow=1)
-
-    n <- sum(population$info$size[pos_grp])
-    combination <- matrix(NA, n, n)
-
-    haplo_data <- get.haplo(population, database = pos_grp, chromosomen = 1:10)
-    geno_data <- get.geno(population, database = pos_grp, chromosomen = 1:10)
-
-    if(predict.effects==TRUE){
-      if(use.effect.combination==TRUE){
-        markers_used <- c(population$info$real.bv.mult[[1]][,1] + 500 * population$info$real.bv.mult[[1]][,2] - 500, population$info$real.bv.mult[[1]][,3] + 500 * population$info$real.bv.mult[[1]][,4] - 500)
-        X_sub <- geno_data[markers_used, -(1:2)]
-        p <- (nrow(population$info$real.bv.mult[[1]]))
-        temp1 <- 0
-        Z <- matrix(NA, ncol=n, nrow=p*9)
-        for(index in 1:(nrow(population$info$real.bv.mult[[1]]))){
-          Z1 <- rbind((X_sub[index,]==0)*(X_sub[index+p,]==0), (X_sub[index,]==0)*(X_sub[index+p,]==1),(X_sub[index,]==0)*(X_sub[index+p,]==2),
-                      (X_sub[index,]==1)*(X_sub[index+p,]==0), (X_sub[index,]==1)*(X_sub[index+p,]==1),(X_sub[index,]==1)*(X_sub[index+p,]==2),
-                      (X_sub[index,]==2)*(X_sub[index+p,]==0), (X_sub[index,]==2)*(X_sub[index+p,]==1),(X_sub[index,]==2)*(X_sub[index+p,]==2))
-          Z[1:9+9*temp1,] <- Z1
-          temp1 <- temp1+1
-
-        }
-        if(mean(population$breeding[[length(population$breeding)]][[9]][1,])!=0){
-          y <- population$breeding[[length(population$breeding)]][[9]][1,]
-        } else{
-          y <- population$breeding[[length(population$breeding)]][[7]][1,]
-        }
-
-
-#        A_BGLR <- tcrossprod(Z) / ncol(Z)
-#        ETA <- list(list(K=A_BGLR, model='RKHS'))
-#        fm_BGLR <- BGLR(y=y, ETA=ETA, verbose=BGLR.print)
-#        u_hat <-  fm_BGLR$yHat - y
-#        effects <- crossprod(Z,solve(A_BGLR,u_hat))
-
-        effects <- epi(y, t(Z))
-#        model <- rq.fit.lasso(Z,y, lambda = 10)
-#        effects <- model$coefficients
-        real.effect.mult  <- cbind(population$info$real.bv.mult[[1]][,1:4] , matrix(effects, ncol=9, byrow=TRUE), deparse.level = 0)
-#        cor(as.numeric(real.effect.mult[,5:13]), as.numeric(population$info$real.bv.mult[[1]][,5:13]))
-        real.effect.add <- NULL
-      } else{
-        if(use.effect.markers==TRUE){
-          markers_used <- c(population$info$real.bv.mult[[1]][,1] + 500 * population$info$real.bv.mult[[1]][,2] - 500, population$info$real.bv.mult[[1]][,3] + 500 * population$info$real.bv.mult[[1]][,4] - 500)
-        } else{
-          markers_used <- 1:(nrow(geno_data)/SNP.density) * SNP.density
-        }
-
-        X_sub <- geno_data[markers_used, -(1:2)]
-        Z <- matrix(NA, ncol=ncol(X_sub), nrow=9*(nrow(X_sub))*(nrow(X_sub)+1)/2)
-        temp1 <- 0
-        for(index in 1:nrow(X_sub)){
-          for(index2 in index:nrow(X_sub)){
-            Z1 <- rbind((X_sub[index,]==0)*(X_sub[index2,]==0), (X_sub[index,]==0)*(X_sub[index2,]==1),(X_sub[index,]==0)*(X_sub[index2,]==2),
-                        (X_sub[index,]==1)*(X_sub[index2,]==0), (X_sub[index,]==1)*(X_sub[index2,]==1),(X_sub[index,]==1)*(X_sub[index2,]==2),
-                        (X_sub[index,]==2)*(X_sub[index2,]==0), (X_sub[index,]==2)*(X_sub[index2,]==1),(X_sub[index,]==2)*(X_sub[index2,]==2))
-            Z[1:9+9*temp1,] <- Z1
-            temp1 <- temp1+1
-          }
-        }
-        #
-
-        Z <- t(Z)
-        if(mean(population$breeding[[length(population$breeding)]][[9]][1,])!=0){
-          y <- population$breeding[[length(population$breeding)]][[9]][1,]
-        } else{
-          y <- population$breeding[[length(population$breeding)]][[7]][1,]
-        }
-        effects <- epi(y, Z)
-
-
-        pos <- cbind((markers_used-1)%%500+1, (markers_used - (markers_used-1)%%500 -1)/500 +1, deparse.level = 0)
-        tz <- which(matrix(0, ncol=nrow(pos), nrow=nrow(pos))==0, arr.ind = TRUE)
-        tz <- tz[tz[,1]<=tz[,2],]
-
-        real.effect.mult  <- cbind(pos[tz[,1],1:2], pos[tz[,2],1:2], matrix(effects, ncol=9, byrow=TRUE), deparse.level = 0)
-        real.effect.add <- NULL
-      }
-    } else{
-      real.effect.add <- population$info$real.bv.add[[1]]
-      real.effect.mult <- population$info$real.bv.mult[[1]]
-    }
-
-    p <- nrow(real.effect.mult)
-
-
-    position0 <- real.effect.add[,1]+ cumsum(c(0,population$info$snp))[real.effect.add[,2]]
-    position1 <- real.effect.mult[,1]+ cumsum(c(0,population$info$snp))[real.effect.mult[,2]]
-    position2 <- real.effect.mult[,3]+ cumsum(c(0,population$info$snp))[real.effect.mult[,4]]
-
-    positions <- numeric(length(position1)*2)
-    positions[1:length(position1)*2-1] <- position1
-    positions[1:length(position2)*2] <- position2
-
-    geno_data0 <- geno_data[position0, -(1:2)]
-    haplo_data <- haplo_data[positions,-(1:2)]
-    geno_data <- geno_data[positions,-(1:2)]
-#    haplo_data <- haplo_data[c(position1, position2),-(1:2)]
-#    geno_data <- geno_data[c(position1, position2),-(1:2)]
-
-    storage.mode(haplo_data) <- "numeric"
-    storage.mode(geno_data) <- "numeric"
-    storage.mode(geno_data0) <- "numeric"
-
-    same_chromo_effects <- which(real.effect.mult[,2]==real.effect.mult[,4])
-    non_same_chromo_effects <- which(real.effect.mult[,2]!= real.effect.mult[,4])
-
-    if(length(p)==0){
-      p <- 0
-    }
-    effect.prob <- matrix(0, nrow= 4 * n, ncol= p)
-
-    for(index in non_same_chromo_effects){
-#      p1 <- geno_data[index*2-1,]/2
-#      p2 <- geno_data[index*2,]/2
-#      effect.prob[,index] <- c((1-p1)*(1-p2), (1-p1)*(p2), p1 * (1-p2), p1*p2)
-      p1 <- geno_data[index*2-1,]
-      p2 <- geno_data[index*2,]
-      effect.prob[,index] <- c((p1==0)*(p2==0) + 0.5*(p1==1)*(p2==0)+ 0.5*(p1==0)*(p2==1)+ 0.25*(p1==1)*(p2==1),
-                               (p1==0)*(p2==2) + 0.5*(p1==0)*(p2==1)+ 0.5*(p1==1)*(p2==2)+ 0.25*(p1==1)*(p2==1),
-                               (p1==2)*(p2==0) + 0.5*(p1==1)*(p2==0)+ 0.5*(p1==2)*(p2==1)+ 0.25*(p1==1)*(p2==1),
-                               (p1==2)*(p2==2) + 0.5*(p1==1)*(p2==2)+ 0.5*(p1==2)*(p2==1)+ 0.25*(p1==1)*(p2==1))
-    }
-
-
-    switch <- 1:(2*n)
-    switch[1:n*2] <- switch[1:n*2]-1
-    switch[1:n*2-1] <- switch[1:n*2-1]+1
-    for(index in same_chromo_effects){
-      distanz <- abs(population$info$snp.position[position1[index]] - population$info$snp.position[position2[index]])
-      ab <- sinh(distanz) * exp(-distanz) * 0.5
-      aa <- 0.5 - ab
-
-      aa_real <- paste(haplo_data[index*2-1,], haplo_data[index*2,], sep="")
-      r00 <- round(which(aa_real=="00")/2+0.01)
-      r01 <- round(which(aa_real=="01")/2+0.01)
-      r10 <- round(which(aa_real=="10")/2+0.01)
-      r11 <- round(which(aa_real=="11")/2+0.01)
-      if(length(r00)>0){
-        dubs00 <- r00[duplicated(r00)]
-        effect.prob[r00,index] <- effect.prob[r00,index] + aa
-        effect.prob[dubs00,index] <- effect.prob[dubs00,index] + aa
-      }
-      if(length(r01)>0){
-        dubs01 <- r01[duplicated(r01)]
-        effect.prob[r01+n,index] <- effect.prob[r01+n,index] + aa
-        effect.prob[dubs01+n,index] <- effect.prob[dubs01+n,index] + aa
-      }
-      if(length(r10)>0){
-        dubs10 <- r10[duplicated(r10)]
-        effect.prob[r10+2*n,index] <- effect.prob[r10+2*n,index] + aa
-        effect.prob[dubs10+2*n,index] <- effect.prob[dubs10+2*n,index] + aa
-      }
-      if(length(r11)>0){
-        dubs11 <- r11[duplicated(r11)]
-        effect.prob[r11+3*n,index] <- effect.prob[r11+3*n,index] + aa
-        effect.prob[dubs11+3*n,index] <- effect.prob[dubs11+3*n,index] + aa
-      }
-
-
-      ab_real <- paste(haplo_data[index*2-1,], haplo_data[index*2,switch], sep="")
-
-
-      r00 <- round(which(ab_real=="00")/2+0.01)
-      r01 <- round(which(ab_real=="01")/2+0.01)
-      r10 <- round(which(ab_real=="10")/2+0.01)
-      r11 <- round(which(ab_real=="11")/2+0.01)
-      if(length(r00)>0){
-        dubs00 <- r00[duplicated(r00)]
-        effect.prob[r00,index] <- effect.prob[r00,index] + ab
-        effect.prob[dubs00,index] <- effect.prob[dubs00,index] + ab
-      }
-      if(length(r01)>0){
-        dubs01 <- r01[duplicated(r01)]
-        effect.prob[r01 +n,index] <- effect.prob[r01+n,index] + ab
-        effect.prob[dubs01+n,index] <- effect.prob[dubs01+n,index] + ab
-      }
-      if(length(r10)>0){
-        dubs10 <- r10[duplicated(r10)]
-        effect.prob[r10+2*n,index] <- effect.prob[r10+2*n,index] + ab
-        effect.prob[dubs10+2*n,index] <- effect.prob[dubs10+2*n,index] + ab
-      }
-      if(length(r11)>0){
-        dubs11 <- r11[duplicated(r11)]
-        effect.prob[r11+3*n,index] <- effect.prob[r11+3*n,index] + ab
-        effect.prob[dubs11+3*n,index] <- effect.prob[dubs11+3*n,index] + ab
-      }
-
-    }
-
-
-
-    teffect.prob <- t(effect.prob)
-    for(index2 in 1:n){
-      if(index2%%25==0) print(index2)
-      if(index2==1){
-        combination[1:index2, index2] <- combination[index2, 1:index2] <-sum(real.effect.mult[,5]* teffect.prob[,1:index2] * teffect.prob[,index2] + # 00 Effekt
-                                                                                   real.effect.mult[,6]* (teffect.prob[,1:index2+n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+n]) + # 01 Effekt
-                                                                                   real.effect.mult[,7]* (teffect.prob[,1:index2+n] * teffect.prob[,index2+n]) + # 02 Effekt
-                                                                                   real.effect.mult[,8]* (teffect.prob[,1:index2+2*n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+2*n]) + # 10 Effekt
-                                                                                   real.effect.mult[,9]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+3*n]+teffect.prob[,1:index2+n] * teffect.prob[,index2+2*n]+teffect.prob[,1:index2+2*n] * teffect.prob[,index2+n]) + # 11 Effekt
-                                                                                   real.effect.mult[,10]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+n]+teffect.prob[,1:index2+n] * teffect.prob[,index2+3*n]) + # 12 Effekt
-                                                                                   real.effect.mult[,11]* (teffect.prob[,1:index2+2*n] * teffect.prob[,index2+2*n]) + # 20 Effekt
-                                                                                   real.effect.mult[,12]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+2*n]+teffect.prob[,1:index2+2*n] * teffect.prob[,index2+3*n]) + # 21 Effekt
-                                                                                   real.effect.mult[,13]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+3*n]))  # 22 Effekt
-
-      } else{
-        combination[1:index2, index2] <- combination[index2, 1:index2] <-colSums(real.effect.mult[,5]* teffect.prob[,1:index2] * teffect.prob[,index2] + # 00 Effekt
-                                                                                   real.effect.mult[,6]* (teffect.prob[,1:index2+n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+n]) + # 01 Effekt
-                                                                                   real.effect.mult[,7]* (teffect.prob[,1:index2+n] * teffect.prob[,index2+n]) + # 02 Effekt
-                                                                                   real.effect.mult[,8]* (teffect.prob[,1:index2+2*n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+2*n]) + # 10 Effekt
-                                                                                   real.effect.mult[,9]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2]+teffect.prob[,1:index2] * teffect.prob[,index2+3*n]+teffect.prob[,1:index2+n] * teffect.prob[,index2+2*n]+teffect.prob[,1:index2+2*n] * teffect.prob[,index2+n]) + # 11 Effekt
-                                                                                   real.effect.mult[,10]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+n]+teffect.prob[,1:index2+n] * teffect.prob[,index2+3*n]) + # 12 Effekt
-                                                                                   real.effect.mult[,11]* (teffect.prob[,1:index2+2*n] * teffect.prob[,index2+2*n]) + # 20 Effekt
-                                                                                   real.effect.mult[,12]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+2*n]+teffect.prob[,1:index2+2*n] * teffect.prob[,index2+3*n]) + # 21 Effekt
-                                                                                   real.effect.mult[,13]* (teffect.prob[,1:index2+3*n] * teffect.prob[,index2+3*n]))  # 22 Effekt
-
-      }
-    }
-
-
-    #removes <- 1:500*500-499:0
-    #plot(combination0[-removes], combination1[-removes])
-    #cor(combination[-removes], combination2[-removes])
-
-    if(max.auswahl<1000){
-      auswahl <- which(combination>=(-999), arr.ind=TRUE)
-      values <- combination[auswahl]
-      removes <- (auswahl[,1]<auswahl[,2])*1:length(values)
-      values <- values[removes]
-      auswahl <- auswahl[removes,]
-      ordering <- sort(values, index.return=TRUE, decreasing = TRUE)
-      auswahl <- auswahl[ordering$ix,]
-      counts <- numeric(n)
-      choosen <- numeric(n)
-      row <- 1
-      activ <- 1
-      while(sum(counts)<(2*n)){
-        if(counts[auswahl[row,1]]<max.auswahl && counts[auswahl[row,2]]<max.auswahl){
-          counts[auswahl[row,1]] <- counts[auswahl[row,1]] +1
-          counts[auswahl[row,2]] <- counts[auswahl[row,2]] +1
-          choosen[activ] <- row
-          activ <- activ +1
-        }
-        row <- row +1
-      }
-      auswahl <- auswahl[choosen,]
-    } else{
-      cutoff <- sort(combination, decreasing = TRUE)[n*4+1]
-      auswahl <- which(combination>=cutoff, arr.ind = TRUE)
-      auswahl <- auswahl[auswahl[,1]<auswahl[,2],]
-      values <- combination[auswahl]
-
-      ordering <- sort(values, index.return=TRUE, decreasing = TRUE)
-      auswahl <- auswahl[ordering$ix[1:n],]
-    }
-
-    animals <- c(auswahl[,1], auswahl[,2])
-
-    animals1 <- unique(animals)
-    count <- numeric(length(animals1))
-    for(index in 1:length(animals1)){
-      count[index] <- sum(animals==animals1[index])
-    }
-    fixed.breeding <- cbind(length(population$breeding), 1, auswahl[,1], length(population$breeding), 1, auswahl[,2], 0, deparse.level = 0)
-    population$breeding[[length(population$breeding)]][[11]] <- rbind(animals1, count)
-    population$breeding[[length(population$breeding)]][[12]] <- ordering$x[1:n]
-  }
-
-  if(special.comb.add==TRUE){
-    add_bv <- population$breeding[[length(population$breeding)]][[3]][1,]
-    n <- length(add_bv)
-    combination <- matrix(NA, n, n)
-    for(index in 1:n){
-      for(index2 in index:n){
-        combination[index, index2]  <- add_bv[index] + add_bv[index2]
-      }
-    }
-    if(max.auswahl<500){
-      auswahl <- which(combination>=(-999), arr.ind=TRUE)
-      values <- combination[auswahl]
-      removes <- (auswahl[,1]<auswahl[,2])*1:length(values)
-      values <- values[removes]
-      auswahl <- auswahl[removes,]
-      ordering <- sort(values, index.return=TRUE, decreasing = TRUE)
-      auswahl <- auswahl[ordering$ix,]
-      counts <- numeric(n)
-      choosen <- numeric(n)
-      row <- 1
-      activ <- 1
-      while(sum(counts)<(2*n)){
-        if(counts[auswahl[row,1]]<max.auswahl && counts[auswahl[row,2]]<max.auswahl){
-          counts[auswahl[row,1]] <- counts[auswahl[row,1]] +1
-          counts[auswahl[row,2]] <- counts[auswahl[row,2]] +1
-          choosen[activ] <- row
-          activ <- activ +1
-        }
-        row <- row +1
-      }
-      auswahl <- auswahl[choosen,]
-    } else{
-      cutoff <- sort(combination, decreasing = TRUE)[n*4+1]
-      auswahl <- which(combination>=cutoff, arr.ind = TRUE)
-      auswahl <- auswahl[auswahl[,1]<auswahl[,2],]
-      values <- combination[auswahl]
-
-      ordering <- sort(values, index.return=TRUE, decreasing = TRUE)
-      auswahl <- auswahl[ordering$ix[1:n],]
-    }
-
-    animals <- c(auswahl[,1], auswahl[,2])
-
-    animals1 <- unique(animals)
-    count <- numeric(length(animals1))
-    for(index in 1:length(animals1)){
-      count[index] <- sum(animals==animals1[index])
-    }
-    fixed.breeding <- cbind(length(population$breeding), 1, auswahl[,1], length(population$breeding), 1, auswahl[,2], 0, deparse.level = 0)
-    population$breeding[[length(population$breeding)]][[11]] <- rbind(animals1, count)
-    population$breeding[[length(population$breeding)]][[12]] <- ordering$x[1:n]
-
-  }
-}
-  ######################### ENDE TEST MARTINI ######################
-  #############################################################################################################
-  #############################################################################################################
-  #############################################################################################################
 {
   if(gene.editing){
     if(estimate.u){
@@ -3386,34 +3081,40 @@ breeding.diploid <- function(population,
 }
 
 {
-  if(length(threshold.selection)>0){
-    if(length(selection.m.database)>0 & selection.size[1]==0){
-      selection.size[1] <- sum(selection.m.database[,4] - selection.m.database[,3] + 1)
 
-    }
-    if(length(selection.f.database)>0 & selection.size[2]==0){
-      selection.size[2] <- sum(selection.f.database[,4] - selection.f.database[,3] + 1)
-    }
+  if(length(selection.m.database)>0 & selection.size[1]==0){
+    selection.size[1] <- sum(selection.m.database[,4] - selection.m.database[,3] + 1)
+    if(verbose) cat("No selection.size provided. Use all available selected individuals.")
+    if(verbose) cat(paste0(selection.size[1], " male individuals selected."))
+  }
+  if(length(selection.f.database)>0 & selection.size[2]==0){
+    selection.size[2] <- sum(selection.f.database[,4] - selection.f.database[,3] + 1)
+    if(verbose) cat("No selection.size provided. Use all available selected individuals.")
+    if(verbose) cat(paste0(selection.size[1], " female individuals selected."))
+  }
+
+  if(length(threshold.selection)>0){
     if(threshold.sign=="<"){
-      selection.critera <- c(FALSE, FALSE)
+      selection.highest <- c(FALSE, FALSE)
     }
   }
 
     {
-    best.m <- matrix(0, nrow=selection.size[1],ncol=5)
-    best.f <- matrix(0, nrow=selection.size[2],ncol=5)
+    best <- list(matrix(0, nrow=selection.size[1],ncol=5),
+                 matrix(0, nrow=selection.size[2],ncol=5))
+
 
     addsel <- c(2,2)
-    if(selection.criteria.type[1]=="bv"){
+    if(selection.criteria[1]=="bv"){
       addsel[1] = 6
     }
-    if(selection.criteria.type[2]=="bv"){
+    if(selection.criteria[2]=="bv"){
       addsel[2] = 6
     }
-    if(selection.criteria.type[1]=="pheno"){
+    if(selection.criteria[1]=="pheno"){
       addsel[1] = 8
     }
-    if(selection.criteria.type[2]=="pheno"){
+    if(selection.criteria[2]=="pheno"){
       addsel[2] = 8
     }
 
@@ -3433,7 +3134,7 @@ breeding.diploid <- function(population,
     }
 
 
-    best <- list(best.m,best.f)
+
 
   }
 
@@ -3462,6 +3163,15 @@ breeding.diploid <- function(population,
         relevant.animals <- unique(c(0,relevant.animals * 1:nrow(possible_animals)))[-1]
         possible_animals <- rbind(NULL, possible_animals[unique(relevant.animals),])
         n.animals <- nrow(possible_animals)
+
+
+        if(n.animals==0){
+          stop("No available individuals for selection provided - check gen/database/cohorts and classes of your input!")
+        }else if(n.animals<selection.size[sex]){
+          warnings(paste0("Less individuals available than to select. Reduce number of selected individuals to ", n.animals))
+          selection.size[sex] <- n.animals
+          best[[sex]] <- matrix(0, nrow=selection.size[sex],ncol=5)
+        }
 
         if(selection.sex[sex]=="random"){
           if(population$info$bv.nr==0){
@@ -3526,7 +3236,7 @@ breeding.diploid <- function(population,
               }
               ranking <- matrix(0, ncol=nrow(possible_animals), nrow= population$info$bv.nr)
               for(bven in 1:population$info$bv.nr){
-                order <- sort(breeding.values[bven,], index.return=TRUE, decreasing=selection.critera[sex])$ix
+                order <- sort(breeding.values[bven,], index.return=TRUE, decreasing=selection.highest[sex])$ix
                 ranking[bven,order] <- length(order):1
               }
               bve.sum <- colSums(ranking*multiple.bve.weights[[sex]])
@@ -3542,7 +3252,7 @@ breeding.diploid <- function(population,
             for(index5 in 1:nrow(possible_animals)){
               import.bv[index5] <- population$breeding[[possible_animals[index5,1]]][[possible_animals[index5,2]+addsel[possible_animals[index5,2]]]][,possible_animals[index5,3]]
             }
-            chosen.animals <- sort(import.bv, index.return=TRUE, decreasing=selection.critera[sex])$ix[1:sum(selection.size[[sex]])] # Diese 3er werden zu 4 in Weiblich
+            chosen.animals <- sort(import.bv, index.return=TRUE, decreasing=selection.highest[sex])$ix[1:sum(selection.size[[sex]])] # Diese 3er werden zu 4 in Weiblich
             best[[sex]][,1:4] <- cbind(possible_animals[chosen.animals, 1], possible_animals[chosen.animals, 2], possible_animals[chosen.animals, 3], import.bv[chosen.animals])
           } else{
             if(multiple.bve=="add"){
@@ -3673,17 +3383,16 @@ breeding.diploid <- function(population,
                   if(verbose) cat("Average index used for in selection according to Miesenberger:\n")
                   if(multiple.bve.scale[sex]=="pheno_sd"){
                     if(sum(diag(pheno.cov)==0)>0){
-                      if(verbose) cat(rowMeans(bve.index) * sqrt(diag(genomic.cov) + sigma.e[active_traits]))
+                      if(verbose) cat(paste0(rowMeans(bve.index) * sqrt(diag(genomic.cov) + sigma.e[active_traits]), " avg. index weightings.\n"))
                     } else{
-                      if(verbose) cat(rowMeans(bve.index) * sqrt(diag(pheno.cov)))
+                      if(verbose) cat(paste0(rowMeans(bve.index) * sqrt(diag(pheno.cov)), " avg. index weightings.\n"))
                     }
                   } else if(multiple.bve.scale[sex]=="unit"){
-                    if(verbose) cat(rowMeans(bve.index))
+                    if(verbose) cat(paste0(rowMeans(bve.index), " avg. index weightings.\n"))
                   } else if(multiple.bve.scale[sex]=="bve_sd"){
-                    if(verbose) cat(rowMeans(bve.index) * sqrt(diag(bve.cov)))
+                    if(verbose) cat(paste0(rowMeans(bve.index) * sqrt(diag(bve.cov)), " avg. index weightings.\n"))
                   }
 
-                  if(verbose) cat("\n")
 
                 }
 
@@ -3699,12 +3408,12 @@ breeding.diploid <- function(population,
               }
               ranking <- matrix(0, ncol=nrow(possible_animals), nrow= population$info$bv.nr)
               for(bven in 1:population$info$bv.nr){
-                order <- sort(breeding.values[bven,], index.return=TRUE, decreasing=selection.critera[sex])$ix
+                order <- sort(breeding.values[bven,], index.return=TRUE, decreasing=selection.highest[sex])$ix
                 ranking[bven,order] <- length(order):1
               }
               bve.sum <- colSums(ranking*multiple.bve.weights[[sex]], na.rm=TRUE)
             }
-            chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.critera[sex])$ix[1:sum(selection.size.sex[[sex]])] # Diese 3er werden zu 4 in Weiblich
+            chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.highest[sex])$ix[1:sum(selection.size.sex[[sex]])] # Diese 3er werden zu 4 in Weiblich
             best[[sex]][,1:4] <- cbind(possible_animals[chosen.animals,1:3, drop=FALSE], bve.sum[chosen.animals])
           }
 
@@ -3796,7 +3505,7 @@ breeding.diploid <- function(population,
               }
             }
             for(bven in 1:population$info$bv.nr){
-              order <- sort(ranking[bven,], index.return=TRUE, decreasing=selection.critera[sex])$ix
+              order <- sort(ranking[bven,], index.return=TRUE, decreasing=selection.highest[sex])$ix
               ranking[bven,order] <- length(order):1
             }
             bve.sum <- colSums(ranking*breeding.values.scaling, na.rm=TRUE)
@@ -3804,7 +3513,7 @@ breeding.diploid <- function(population,
           best[[sex]][,5] <- bve.sum
         }
 
-        reorder <- sort(best[[sex]][,4], index.return=TRUE, decreasing = selection.critera[sex])$ix
+        reorder <- sort(best[[sex]][,4], index.return=TRUE, decreasing = selection.highest[sex])$ix
         best[[sex]] <- best[[sex]][reorder,,drop=FALSE]
         chosen.animals <- chosen.animals[reorder]
         if(ignore.best[sex]>0){
@@ -3913,21 +3622,21 @@ breeding.diploid <- function(population,
 
       best[[1]] <- best[[1]][keeps,]
 
-      cat(paste0(length(keeps), " sires fullfil threshold selection!"))
+      if(verbose) cat(paste0(length(keeps), " sires fullfil threshold selection!\n"))
       selection.size[1] <- nrow(best[[1]])
       if(max.offspring[1]*selection.size[1] < breeding.size[1]){
         breeding.size[1] <- max.offspring[1]*selection.size[1]
-        cat("Breeding size reduced based on threshold selection")
+        if(verbose) cat("Breeding size reduced based on threshold selection.\n")
       }
     }
     if(length(best[[2]])>0){
       eval(parse(text=paste0("keeps <- which(best[[2]][,4]",threshold.sign,"threshold.selection)")))
       best[[2]] <- best[[2]][keeps,]
-      cat(paste0(length(keeps), " dams fullfil threshold selection!"))
+      if(verbose) cat(paste0(length(keeps), " dams fullfil threshold selection!\n"))
       selection.size[2] <- nrow(best[[2]])
       if(max.offspring[2]*selection.size[2] < breeding.size[2]){
         breeding.size[2] <- max.offspring[2]*selection.size[2]
-        cat("Breeding size reduced based on threshold selection")
+        if(verbose) cat("Breeding size reduced based on threshold selection")
       }
     }
 
@@ -3983,17 +3692,17 @@ breeding.diploid <- function(population,
 
         } else if(reduce.group.selection=="selection"){
           if(multiple.bve=="add"){
-            print(population$breeding[[activ.reduce[1]]][[activ.reduce[2]+2]])
+            if(verbose) cat(population$breeding[[activ.reduce[1]]][[activ.reduce[2]+2]])
             bve.sum <- colSums(rbind(population$breeding[[activ.reduce[1]]][[activ.reduce[2]+2]][,animal.position]*multiple.bve.weights[[sex]],0))
           } else if(multiple.bve=="ranking"){
             ranking <- population$breeding[[index]][[sex+2]][,relevant.animals]
             for(bven in 1:population$info$bv.nr){
-              order <- sort(ranking[bven,], index.return=TRUE, decreasing=selection.critera[activ.reduce[2]])$ix
+              order <- sort(ranking[bven,], index.return=TRUE, decreasing=selection.highest[activ.reduce[2]])$ix
               ranking[bven,order] <- length(order):1
             }
             bve.sum <- colSums(ranking*multiple.bve.weights[[sex]])
           }
-          chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.critera[activ.reduce[2]])$ix
+          chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.highest[activ.reduce[2]])$ix
           death <- chosen.animals[(length(chosen.animals)-to.kill+1):length(chosen.animals)]
         }
         for(modanimal in death){
@@ -4164,7 +3873,7 @@ breeding.diploid <- function(population,
         praeimplantation.max[[sex]][index] <- sum(pos)
       }
     }
-    print("praeimplantation bisher nicht in Selektion enthalten")
+    if(verbose) cat("praeimplantation bisher nicht in Selektion enthalten!")
   }
 
 
@@ -4234,7 +3943,7 @@ breeding.diploid <- function(population,
                   number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
                   test <- test+1
                   if(test==100 && number1==number2){
-                    print("Selbstung durchgefuehrt da nur ein Tier in Selektionsgruppe")
+                    warning("Only one remaining individual in the selected cohorts.")
                   }
                 }
 
@@ -4293,7 +4002,11 @@ breeding.diploid <- function(population,
       }
 
       if(Sys.info()[['sysname']]=="Windows"){
-        doParallel::registerDoParallel(cores=ncore.generation)
+        if (requireNamespace("doParallel", quietly = TRUE)) {
+          doParallel::registerDoParallel(cores=ncore.generation)
+        } else{
+          stop("Usage of doParallel without being installed!")
+        }
         if(length(randomSeed.generation)>0){
           if (requireNamespace("doRNG", quietly = TRUE)) {
             doRNG::registerDoRNG(seed=randomSeed.generation)
@@ -4311,6 +4024,10 @@ breeding.diploid <- function(population,
         }
 
         if(Sys.info()[['sysname']]=="Windows"){
+          if (requireNamespace("foreach", quietly = TRUE)) {
+          } else{
+            stop("Usage of foreach without being installed!")
+          }
           new_animal <- foreach::foreach(indexb=(1:breeding.size.total)[sex.animal==sex_running],
                                          .packages="MoBPS") %dopar% {
 
@@ -4329,6 +4046,11 @@ breeding.diploid <- function(population,
           }
         } else {
           activ_stuff <- (1:breeding.size.total)[sex.animal==sex_running]
+
+          if (requireNamespace("parallel", quietly = TRUE)) {
+          } else{
+            stop("Use of parallel without being installed!")
+          }
           new_animal <- parallel::mclapply(activ_stuff, function(x) generation.individual(x,
                                                                                 population, info_father_list, info_mother_list,
                                                                                 copy.individual, mutation.rate, remutation.rate, recombination.rate,
@@ -4373,7 +4095,7 @@ breeding.diploid <- function(population,
         }
         if(store.effect.freq){
           store.effect.freq <- FALSE
-          cat("Effect-Freq not available in parallel computing.\n")
+          if(verbose) cat("Effect-Freq not available in parallel computing.\n")
         }
 
         index_loop <- NULL
@@ -4530,7 +4252,7 @@ breeding.diploid <- function(population,
       if(verbose) cat("Start generation of new individuals.\n")
     }
     if(display.progress){
-          pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
+      pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
     }
 
     runs <- repeat.mating
@@ -4571,7 +4293,7 @@ breeding.diploid <- function(population,
                 number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
                 test <- test+1
                 if(test==100 && number1==number2){
-                  print("Selbstung durchgefuehrt da nur ein Tier in Selektionsgruppe")
+                  warning("Only one remaining individual in the selected cohorts.")
                 }
               }
 
@@ -4594,7 +4316,7 @@ breeding.diploid <- function(population,
           } else{
             sex1 <- sex2 <- stats::rbinom(1,1,selfing.sex)+1
             if(length(availables[[sex1]])==0){
-              if(verbose) cat(paste0("No ", if(sex1==1){"male"} else{"female"}, " individuals left. Use other sex individuals"))
+              if(verbose) cat(paste0("No ", if(sex1==1){"male"} else{"female"}, " individuals left. Use other sex individuals\n"))
               sex1 <- sex2 <- 3 - sex1
             }
             number1 <- number2 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
@@ -4683,7 +4405,7 @@ breeding.diploid <- function(population,
           }
           if(hap1[pos] == praeimplantation.max[[sex1]][[number1]] || counter==25){
             good1 <- 1
-            if(counter==25){print("Praeimplantation gescheitert!")}
+            if(counter==25){warning("praeimplantation failed.")}
           } else{
             child1 <- breeding.intern(info.father, father, population,
                                       mutation.rate, remutation.rate, recombination.rate,
@@ -4717,7 +4439,7 @@ breeding.diploid <- function(population,
           }
           if(hap1[pos] == praeimplantation.max[[sex2]][[number2]] || counter==25){
             good1 <- 1
-            if(counter==25){print("Praeimplantation gescheitert!")}
+            if(counter==25){cat("praeimplantation failed!")}
           } else{
             child2 <- breeding.intern(info.mother, mother, population,
                                       mutation.rate, remutation.rate, recombination.rate,
@@ -5074,7 +4796,7 @@ breeding.diploid <- function(population,
       population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), current.gen+1, breeding.size[1],0, new.class, (current.size-breeding.size)[1], 0,
                                                                   time.point, creating.type),
                                        c(paste0(name.cohort, "_F"), current.gen+1, 0, breeding.size[2], new.class, 0, (current.size-breeding.size)[2],time.point, creating.type))
-      print("Added _M, _F to cohort names!")
+      if(verbose) cat("Added _M, _F to cohort names!")
       rownames(population$info$cohorts)[(nrow(population$info$cohorts)-1):nrow(population$info$cohorts)] <- paste0(name.cohort, c("_M", c("_F")))
 
       if(verbose){

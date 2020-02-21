@@ -31,7 +31,7 @@ Map-file for the use in creating.diploid
 Function to generate a ensemble map file
 }
 \examples{
-# This can take longer!
-# map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
-#                    filter="variation_set_name", filter.values="Illumina BovineSNP50 BeadChip")
+\donttest{map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
+         filter=list("variation_set_name"="Illumina BovineSNP50 BeadChip",
+                     "chr_name"= 26))}
 }

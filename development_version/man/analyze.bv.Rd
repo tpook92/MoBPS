@@ -16,7 +16,7 @@ analyze.bv(population, gen = NULL, database = NULL, cohorts = NULL,
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{bvrow}{Which traits to display (for multiple traits separte plots (par(mfrow)))}
+\item{bvrow}{Which traits to display}
 
 \item{advanced}{Set to TRUE to also look at offspring pheno}
 }

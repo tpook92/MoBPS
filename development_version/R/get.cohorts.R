@@ -34,7 +34,7 @@ get.cohorts <- function(population, extended=FALSE){
   if(extended){
     return(population$info$cohorts)
   } else{
-    return(population$info$cohorts[,1])
+    return(as.character(population$info$cohorts[,1]))
   }
 
 }

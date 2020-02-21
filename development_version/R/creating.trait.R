@@ -410,7 +410,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
       population$info$real.bv.dice <- real.bv.dice
     } else{
       if(length(real.bv.dice)>0){
-        print("Keine vorschriftmaessige Eingabe fuer real.bv.dice!")
+        warning("Invalid input for real.bv.dice!")
       }
       population$info$real.bv.dice <- list(real.bv.dice)
     }
@@ -473,7 +473,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
       population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
       if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
-        print("No-covariance matrix for traits given! Values above diagonal used.")
+        warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
       }
 
       store.add <- population$info$real.bv.add
@@ -610,6 +610,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
   }
+
 
   return(population)
 }

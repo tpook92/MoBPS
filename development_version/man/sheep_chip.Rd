@@ -4,7 +4,7 @@
 \alias{sheep_chip}
 \title{sheep chip}
 \source{
-Prieur et al
+Prieur et al 2017
 }
 \usage{
 sheep_chip

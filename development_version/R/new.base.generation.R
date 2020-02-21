@@ -62,8 +62,8 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
       population$info$origin.gen <- c(population$info$origin.gen, as.integer(base.gen))
       origin_code <- length(population$info$origin.gen)
     } else{
-      print("To many origin generation!")
-      print("Delete second lowest origin.gen")
+      warning("To many origin generation!")
+      warning("Delete second lowest origin.gen")
       switch_gen <- sort(population$info$origin.gen, index.return=TRUE)[[2]]
       population$info$origin.gen[switch_gen] <- as.integer(base.gen)
       origin_code <- switch_gen
