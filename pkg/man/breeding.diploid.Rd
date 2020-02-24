@@ -6,7 +6,7 @@
 \usage{
 breeding.diploid(population, mutation.rate = 10^-5,
   remutation.rate = 10^-5, recombination.rate = 1,
-  selection.m = "random", selection.f = NULL,
+  selection.m = NULL, selection.f = NULL,
   new.selection.calculation = TRUE, selection.function.matrix = NULL,
   selection.size = 0, ignore.best = 0, breeding.size = 0,
   breeding.sex = NULL, breeding.sex.random = FALSE,
@@ -22,8 +22,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   forecast.sigma.g = TRUE, multiple.bve = "add",
   store.bve.data = FALSE, fixed.assignment = FALSE,
   reduce.group = NULL, reduce.group.selection = "random",
-  selection.critera = c(TRUE, TRUE), selection.criteria.type = c("bve",
-  "bve"), same.sex.activ = FALSE, same.sex.sex = 0.5,
+  selection.highest = c(TRUE, TRUE), selection.criteria = NULL,
+  same.sex.activ = FALSE, same.sex.sex = 0.5,
   same.sex.selfing = TRUE, selfing.mating = FALSE, selfing.sex = 0.5,
   praeimplantation = NULL, heritability = NULL,
   use.last.sigma.e = FALSE, save.recombination.history = FALSE,
@@ -40,10 +40,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   best1.from.cohort = NULL, best2.from.cohort = NULL,
   add.class.cohorts = TRUE, store.comp.times = TRUE,
   store.comp.times.bve = TRUE, store.comp.times.generation = TRUE,
-  special.comb = FALSE, max.auswahl = Inf, predict.effects = FALSE,
-  SNP.density = 10, use.effect.markers = FALSE,
-  use.effect.combination = FALSE, import.position.calculation = NULL,
-  special.comb.add = FALSE, BGLR.save = "RKHS",
+  import.position.calculation = NULL, BGLR.save = "RKHS",
   BGLR.save.random = FALSE, ogc = FALSE, ogc.cAc = NA,
   emmreml.bve = FALSE, rrblup.bve = FALSE, sommer.bve = FALSE,
   sommer.multi.bve = FALSE, nr.edits = 0,
@@ -58,16 +55,15 @@ breeding.diploid(population, mutation.rate = 10^-5,
   backend = "doParallel", randomSeed = NULL,
   randomSeed.generation = NULL, Rprof = FALSE, miraculix = NULL,
   miraculix.cores = 1, miraculix.mult = NULL, miraculix.chol = TRUE,
-  fast.compiler = 0, best.selection.ratio.m = 1,
-  best.selection.ratio.f = NULL, best.selection.criteria.m = "bv",
-  best.selection.criteria.f = NULL,
+  best.selection.ratio.m = 1, best.selection.ratio.f = NULL,
+  best.selection.criteria.m = "bv", best.selection.criteria.f = NULL,
   best.selection.manual.ratio.m = NULL,
   best.selection.manual.ratio.f = NULL, bve.class = NULL,
   parallel.generation = FALSE, name.cohort = NULL,
-  display.progress = TRUE, max.ticks = Inf, combine = FALSE,
-  repeat.mating = 1, time.point = 0, creating.type = 0,
-  multiple.observation = FALSE, new.bv.observation = NULL,
-  new.bv.observation.gen = NULL, new.bv.observation.cohorts = NULL,
+  display.progress = TRUE, combine = FALSE, repeat.mating = 1,
+  time.point = 0, creating.type = 0, multiple.observation = FALSE,
+  new.bv.observation = NULL, new.bv.observation.gen = NULL,
+  new.bv.observation.cohorts = NULL,
   new.bv.observation.database = NULL, bve.gen = NULL,
   bve.cohorts = NULL, bve.database = NULL, sigma.e.gen = NULL,
   sigma.e.cohorts = NULL, sigma.e.database = NULL,
@@ -190,9 +186,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{reduce.group.selection}{(OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")}
 
-\item{selection.critera}{If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))}
+\item{selection.highest}{If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))}
 
-\item{selection.criteria.type}{What to use in the selection proces (default: "bve", alt: "bv", "pheno")}
+\item{selection.criteria}{What to use in the selection proces (default: "bve", alt: "bv", "pheno")}
 
 \item{same.sex.activ}{If TRUE allow matings of individuals of same sex}
 
@@ -272,21 +268,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{store.comp.times.generation}{If TRUE store computation times of mating simulations in $info$comp.times.generation (default: TRUE)}
 
-\item{special.comb}{If TRUE selected individuals based on their special combining ability}
-
-\item{max.auswahl}{Maximum amount of times a individuals is considered in special.comb}
-
-\item{predict.effects}{If TRUE use estimated effects instead of true values in special.comb}
-
-\item{SNP.density}{Use every _ SNP in predict.effects (default: 10)}
-
-\item{use.effect.markers}{If TRUE use QTL markers in special.comb}
-
-\item{use.effect.combination}{If TRUE use QTL combinations (epistatic/mult) in special.comb}
-
 \item{import.position.calculation}{Function to calculate recombination point into adjacent/following SNP}
-
-\item{special.comb.add}{If TRUE select matings based on additive combining ability}
 
 \item{BGLR.save}{Method to use in BGLR (default: "RKHS" - alt: NON currently)}
 
@@ -360,8 +342,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{miraculix.chol}{Set to FALSE to deactive miraculix based Cholesky-decomposition (default: TRUE)}
 
-\item{fast.compiler}{Use a just-in-time compiler from the compiler package (Default: 0, alt: 1,2,3)}
-
 \item{best.selection.ratio.m}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
 
 \item{best.selection.ratio.f}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
@@ -381,8 +361,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{name.cohort}{Name of the newly added cohort}
 
 \item{display.progress}{Set FALSE to not display progress bars}
-
-\item{max.ticks}{Maximal number of ticks in a progress bar}
 
 \item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 

@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param interest.rate Applied yearly interest rate
 #' @param base.gen Base generation (application of interest rate)
 #' data(ex_pop)
-#' compute.costs(ex_pop, gen=1:2)
+#' compute.costs(ex_pop, gen=1:5)
 #' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
@@ -58,7 +58,7 @@ compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs =
     if(t==2){
       phenotyping.costs <- matrix(phenotyping.costs, nrow=generation, ncol=2, byrow=TRUE)
       if(generation==2){
-        print("Specify if phenotyping.costs are per generation or per sex. Default use: Gender")
+        warning("Specify if phenotyping.costs are per generation or per sex. Default use: Gender")
       }
     }
   }
@@ -74,7 +74,7 @@ compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs =
     if(t==2){
       genotyping.costs <- matrix(genotyping.costs, nrow=generation, ncol=2, byrow=TRUE)
       if(generation==2){
-        print("Specify if genotyping.costs are per generation or per sex. Default use: Gender")
+        warning("Specify if genotyping.costs are per generation or per sex. Default use: Gender")
       }
     }
   }
@@ -90,7 +90,7 @@ compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs =
     if(t==2){
       profit.per.bv <- matrix(profit.per.bv, nrow=generation, ncol=2, byrow=TRUE)
       if(generation==2){
-        print("Specify if profit.per.bv are per generation or per sex. Default use: Gender")
+        warning("Specify if profit.per.bv are per generation or per sex. Default use: Gender")
       }
     }
   }
@@ -128,6 +128,9 @@ compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs =
     gains_year[t] <- sum(gains_group[which(database[,1]==index)]) + fix.costs.annual[index]
     t <- t + 1
   }
+
+  oldpar <- graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
 
   graphics::par(mfrow=(c(1,2)))
   graphics::plot(timest, gains_year, main="Gains per Year", xlab="generation", ylab="gains")

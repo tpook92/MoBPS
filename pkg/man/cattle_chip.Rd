@@ -4,7 +4,7 @@
 \alias{cattle_chip}
 \title{Cattle chip}
 \source{
-Ma et al
+Ma et al 2015
 }
 \usage{
 cattle_chip

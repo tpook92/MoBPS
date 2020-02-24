@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @title Cattle chip
 #' @description Genome for cattle according to Ma et al.
 #' @usage cattle_chip
-#' @source Ma et al
+#' @source Ma et al 2015
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
 
@@ -31,7 +31,7 @@ NULL
 #' @title pig chip
 #' @description Genome for pig according to Rohrer et al.
 #' @usage pig_chip
-#' @source Rohrer et al
+#' @source Rohrer et al 1994
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
 
@@ -39,7 +39,7 @@ NULL
 #' @title chicken chip
 #' @description Genome for chicken according to Groenen et al.
 #' @usage chicken_chip
-#' @source Groenen et al
+#' @source Groenen et al 2009
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
 
@@ -47,7 +47,7 @@ NULL
 #' @title sheep chip
 #' @description Genome for sheep according to Prieur et al.
 #' @usage sheep_chip
-#' @source Prieur et al
+#' @source Prieur et al 2017
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
 
@@ -55,7 +55,7 @@ NULL
 #' @title maize chip
 #' @description Genome for maize according to Lee et al.
 #' @usage maize_chip
-#' @source Lee et al
+#' @source Lee et al 2002
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
 

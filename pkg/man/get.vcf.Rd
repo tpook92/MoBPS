@@ -27,6 +27,6 @@ VCF-file for in gen/database/cohorts selected individuals
 Generate a vcf-file for selected groups and chromosome
 }
 \examples{
-#data(ex_pop)
-#get.vcf(path="temp", ex_pop, gen=2)
+data(ex_pop)
+\donttest{get.vcf(path="temp", ex_pop, gen=2)}
 }

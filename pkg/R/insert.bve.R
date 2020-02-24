@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bves Matrix of breeding values to enter (one row per individual with 1 element coding individual name)
 #' @param type which time of values to input (default: "bve", alt: "bv", "pheno")
 #' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
-#' #' @examples
+#' @examples
 #' data(ex_pop)
 #' bv <- get.bv(ex_pop, gen=2)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!

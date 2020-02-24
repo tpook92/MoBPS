@@ -43,7 +43,7 @@ bit.storing <- function(snpseq, nbits){
 #' @param nbits Number of usable bits (default: 30)
 #' @param population Population list
 #' @param from.p.bit Bit to start on
-#' @export
+
 
 bit.snps <- function(bit.seq, nbits, population=NULL, from.p.bit=1){
   raw <- intToBits(bit.seq)

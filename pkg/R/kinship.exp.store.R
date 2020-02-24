@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
 #' @examples
 #' data(ex_pop)
-#' kinship.exp.store(population=ex_pop, gen=2)
+#' kinship <- kinship.exp.store(population=ex_pop, gen=2)
 #' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
 #' @export
 #'

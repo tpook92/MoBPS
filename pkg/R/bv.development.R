@@ -43,7 +43,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots
 #' @examples
 #' data(ex_pop)
-#' bv.development(ex_pop, gen=1:2)
+#' bv.development(ex_pop, gen=1:5)
 #' @return Genomic values of selected gen/database/cohort
 #' @export
 
@@ -69,6 +69,10 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
   time.point <- list()
   creating.type <- list()
   sex <- list()
+
+  oldpar <- graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   if(!fix_mfrow){
     graphics::par(mfrow=c(1,length(bvrow)))
   }
@@ -133,7 +137,7 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
       for(index in 1:length(bv)){
         time_plot[index] <- mean(time.point[[index]])
         if(length(unique(time.point[[index]]))>1){
-          print("More than one time point in a plotted element")
+          warning("More than one time point in a plotted element.")
         }
       }
     }
@@ -141,7 +145,7 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
       for(index in 1:length(bv)){
         type_plot[index] <- stats::median(creating.type[[index]])
         if(length(unique(creating.type[[index]]))>1){
-          print("More than one creating type in a plotted element")
+          warning("More than one creating type in a plotted element.")
         }
       }
     }
@@ -193,9 +197,9 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
 
     inc <- (rowSums(all0)!=ncol(all0))* (1:3)
     if(display.cohort.name){
-      graphics::par(mar=c(8.1,4.1,2.1,0.1))
+      graphics::par(mar=c(8.1,4.1,2.1,1.1))
     } else{
-      graphics::par(mar=c(4.1,4.1,2.1,0.1))
+      graphics::par(mar=c(6.1,4.1,2.1,1.1))
     }
 
     graphics::plot(time_plot, means[1,],type=if(display.line) {"l"} else {NULL},  main=paste("Development:", population$info$trait.name[nr]),

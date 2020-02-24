@@ -28,5 +28,5 @@ Function to compute empirical kinship for a set of individuals)
 }
 \examples{
 data(ex_pop)
-kinship.emp(population=ex_pop, database=cbind(2,1,1,50))
+kinship <- kinship.emp(population=ex_pop, database=cbind(2,1,1,25))
 }

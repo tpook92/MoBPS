@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param snp Number of the relevant SNP
 #' @examples
 #' data(ex_pop)
-#' analyze.population(ex_pop, snp=1, chromosome=1, gen=1:2)
+#' analyze.population(ex_pop, snp=1, chromosome=1, gen=1:5)
 #' @return Frequency of AA/AB/BB in selected gen/database/cohorts
 #' @export
 

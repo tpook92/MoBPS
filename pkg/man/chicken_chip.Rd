@@ -4,7 +4,7 @@
 \alias{chicken_chip}
 \title{chicken chip}
 \source{
-Groenen et al
+Groenen et al 2009
 }
 \usage{
 chicken_chip

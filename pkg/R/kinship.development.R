@@ -36,8 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param display.hbd Set to TRUE to also display HBD in plot
 #' @examples
 #' data(ex_pop)
-#' kinship.development(ex_pop,gen=1:2)
-#' @return Estimated IBD (first col: kinship, second col: inbreeding)
+#' kinship.development(ex_pop,gen=1:5)
+#' @return Estimated of avg. kinship/inbreeding based on IBD/HBD
 #' @export
 
 kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
@@ -88,7 +88,7 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
     for(index in 1:nrow(inbred)){
       time_plot[index] <- mean(time.point[[index]])
       if(length(unique(time.point[[index]]))>1){
-        print("More than one time point in a plotted element")
+        warning("More than one time point in a plotted element.")
       }
     }
   }
@@ -138,9 +138,9 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
   }
 
   if(display.hbd){
-    graphics::legend("topleft",c("IBD", "HBD"), lty=c(1,1), col=c("red","blue"), lwd=c(2,2))
+    graphics::legend("topleft",c("avg. kinship (based on IBD)", "avg. inbreeding (based on HBD)"), lty=c(1,1), col=c("red","blue"), lwd=c(2,2))
   } else{
-    graphics::legend("topleft",c("IBD"), lty=c(1), col=c("red"), lwd=c(2,2))
+    graphics::legend("topleft",c("avg. kinship (based on IBD)"), lty=c(1), col=c("red"), lwd=c(2,2))
   }
 
   return(inbred)

@@ -27,6 +27,6 @@ Population-List with mutated marker for the selected individual
 Function to change the base-pair in a specific loci
 }
 \examples{
-# data(ex_pop)
-# mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
+data(ex_pop)
+ex_pop <- mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
 }

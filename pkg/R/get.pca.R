@@ -83,12 +83,15 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
          xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
          ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
   } else{
-    grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
-    graphics::par(mar=c(2.5,2.5,1.5,0.1))
-    graphics::plot(b$vectors[,components], col=col,
-         xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
-         ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
-    grDevices::dev.off()
+    if (requireNamespace("grDevices", quietly = TRUE)) {
+      grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
+      graphics::plot(b$vectors[,components], col=col,
+           xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+           ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+      grDevices::dev.off()
+    } else{
+      stop("Use of grDevices without being installed!")
+    }
   }
 
 

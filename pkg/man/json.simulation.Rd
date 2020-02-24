@@ -32,6 +32,6 @@ Population-list
 Generation of the starting population
 }
 \examples{
-# data(ex_json)
-# population <- json.simulation(total=ex_json)
+data(ex_json)
+\donttest{population <- json.simulation(total=ex_json)}
 }

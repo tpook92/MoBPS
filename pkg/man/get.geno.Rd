@@ -28,5 +28,5 @@ Function to devide genotypes of selected individuals
 }
 \examples{
 data(ex_pop)
-get.geno(ex_pop, gen=2)
+geno <- get.geno(ex_pop, gen=2)
 }

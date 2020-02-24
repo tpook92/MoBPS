@@ -21,12 +21,6 @@ pedmap.to.phasedbeaglevcf(ped_path = NULL, map_path = NULL,
 
 \item{db_dir}{Directory to save newly generated files (ped/map will be stored in the original folder)}
 }
-\value{
-Phased VCF-file
-}
 \description{
 Perform imputing/phasing (path chosen for the web-based application)
-}
-\examples{
-# Requires BEAGLE 5 jar + PLINK + ped/map or vcf file!
 }

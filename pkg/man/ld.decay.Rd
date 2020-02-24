@@ -32,6 +32,6 @@ LD-decay plot for in gen/database/cohorts selected individuals
 Generate LD pot
 }
 \examples{
-# data(ex_pop)
-# ld.decay(population=ex_pop, gen=2)
+data(ex_pop)
+ld.decay(population=ex_pop, gen=5)
 }

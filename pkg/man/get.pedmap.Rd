@@ -27,6 +27,6 @@ Ped and map-file for in gen/database/cohorts selected individuals
 Generate a ped and map file (PLINK format) for selected groups and chromosome
 }
 \examples{
-#data(ex_pop)
-#get.pca(path="temp", ex_pop, gen=2)
+data(ex_pop)
+\donttest{get.pca(path="temp", ex_pop, gen=2)}
 }

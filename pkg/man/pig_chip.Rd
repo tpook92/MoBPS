@@ -4,7 +4,7 @@
 \alias{pig_chip}
 \title{pig chip}
 \source{
-Rohrer et al
+Rohrer et al 1994
 }
 \usage{
 pig_chip

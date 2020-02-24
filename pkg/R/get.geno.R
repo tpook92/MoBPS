@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @examples
 #' data(ex_pop)
-#' get.geno(ex_pop, gen=2)
+#' geno <- get.geno(ex_pop, gen=2)
 #' @return Genotype data for in gen/database/cohorts selected individuals
 #' @export
 

@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots
 #' @examples
 #' data(ex_pop)
-#' bv.development.box(ex_pop, gen=1:2)
+#' bv.development.box(ex_pop, gen=1:5)
 #' @return Genomic values of selected gen/database/cohort
 #' @export
 
@@ -55,6 +55,8 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
   time.point <- list()
   sex <- list()
   if(!fix_mfrow){
+    oldpar <- graphics::par(no.readonly=TRUE)
+    on.exit(graphics::par(oldpar))
     graphics::par(mfrow=c(1,length(bvrow)))
   }
 
@@ -119,13 +121,13 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
   for(index in 1:length(values)){
     time_plot[index] <- mean(time.point[[index]])
     if(length(unique(time.point[[index]]))>1){
-      print("More than one time point in a plotted element")
+      warning("More than one time point in a plotted element")
     }
   }
   for(index in 1:length(values)){
     type_plot[index] <- stats::median(creating.type[[index]])
     if(length(unique(creating.type[[index]]))>1){
-      print("More than one creating type in a plotted element")
+      warning("More than one creating type in a plotted element")
     }
   }
   for(nr in bvrow){
@@ -147,11 +149,13 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
     for(index in time_points){
       for(activ_c in which(time_plot==index)){
         graphics::boxplot(values[[activ_c]][nr,], add=TRUE, at=pos, width=0.95,
-                          col = c("black", "blue", "red")[sex[activ_c]+1])
+                          col = c("black", "blue", "red")[sex[activ_c]+1],
+                          bty="n")
         cohort_pos[activ_c] <- pos
         pos <- pos + 1
       }
-      graphics::abline(v=pos)
+      if(index!=max(time_points)){  graphics::abline(v=pos)}
+
       pos <- pos + 1
       label_pos <- c(label_pos, mean(c(pref, pos-2)))
       pref <- pos

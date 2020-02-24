@@ -40,19 +40,16 @@ vlist <- function(list, skip=NULL, first=NULL, select=NULL){
   total <- list()
   if(length(skip)==1){
     for(index in (skip+1):length(list)){
-      print(list[[index]])
       total[[length(total)+1]] <- list[[index]]
     }
   }
   if(length(first)==1){
     for(index in 1:first){
-      print(list[[index]])
       total[[length(total)+1]] <- list[[index]]
     }
   }
   if(length(select)>0){
     for(index in select){
-      print(list[[index]])
       total[[length(total)+1]] <- list[[index]]
     }
   }

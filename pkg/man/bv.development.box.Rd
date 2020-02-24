@@ -40,5 +40,5 @@ Function to plot genetic/breeding values for multiple generation/cohorts
 }
 \examples{
 data(ex_pop)
-bv.development.box(ex_pop, gen=1:2)
+bv.development.box(ex_pop, gen=1:5)
 }

@@ -2,21 +2,21 @@
 % Please edit documentation in R/OGC.R
 \name{OGC}
 \alias{OGC}
-\title{THIS NEEDs SOME REWORK BEFORE USAGE}
+\title{Optimal genetic contribution}
 \usage{
 OGC(A, u, Q, cAc = NA, single = TRUE)
 }
 \arguments{
-\item{A}{A}
+\item{A}{relationship matrix}
 
-\item{u}{u}
+\item{u}{breeding values}
 
-\item{Q}{Q}
+\item{Q}{sex indicator}
 
-\item{cAc}{cAc}
+\item{cAc}{target gain in inbreeding}
 
-\item{single}{single}
+\item{single}{If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)}
 }
 \description{
-THIS NEEDs SOME REWORK BEFORE USAGE
+In this function the OGC selection according to Meuwissen 1997 is performed
 }

@@ -35,5 +35,5 @@ Function to derive expected kinship
 }
 \examples{
 data(ex_pop)
-kinship.exp.store(population=ex_pop, gen=2)
+kinship <- kinship.exp.store(population=ex_pop, gen=2)
 }
