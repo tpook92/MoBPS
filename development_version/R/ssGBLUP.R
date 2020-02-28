@@ -25,8 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to perform single step GBLUP according to Legarra 2014
 #' @param A11 pedigree relationship matrix of non-genotyped individuals
 #' @param A12 pedigree relationship matrix between non-genotyped and genotyped individuals
-#' @param A22 genomic relationship matrix of genotyped individuals
-#' @param G G
+#' @param A22 pedigree relationship matrix of genotyped individuals
+#' @param G genomic relationship matrix of genotyped individuals
 
 ssGBLUP <- function(A11, A12, A22, G){
 

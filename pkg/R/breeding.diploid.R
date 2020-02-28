@@ -644,13 +644,26 @@ breeding.diploid <- function(population,
   }
 
   add.selection <- sum(breeding.size)>0 & sum(selection.size)==0
-  if(length(selection.m.gen)==0 && length(selection.m.database)==0 && length(selection.m.cohorts)==0 && (selection.size[1]>0 || add.selection)){
-    if(verbose) cat("No individuals for selection provided (male side). Use last available.\n")
-    selection.m.database <- cbind(max(which(population$info$size[,1]>0)),1)
+  if(length(selection.m.gen)==0 && length(selection.m.database)==0 && length(selection.m.cohorts)==0 && (selection.size[1]>0 || add.selection) &&
+     length(fixed.breeding)==0 ){
+
+    if(sum(population$info$size[,1])>0){
+      if(verbose) cat("No individuals for selection provided (male side). Use last available.\n")
+      selection.m.database <- cbind(max(which(population$info$size[,1]>0)),1)
+    } else{
+      if(verbose) cat("No individuals for selection provided (male side). Non available.\n")
+    }
+
   }
-  if(length(selection.f.gen)==0 && length(selection.f.database)==0 && length(selection.f.cohorts)==0 && (selection.size[2]>0 ||add.selection)){
-    if(verbose) cat("No individuals for selection provided (female side). Use last available.\n")
-    selection.f.database <- cbind(max(which(population$info$size[,2]>0)),2)
+  if(length(selection.f.gen)==0 && length(selection.f.database)==0 && length(selection.f.cohorts)==0 && (selection.size[2]>0 ||add.selection)&&
+     length(fixed.breeding)==0){
+    if(sum(population$info$size[,2])>0){
+      if(verbose) cat("No individuals for selection provided (female side). Use last available.\n")
+      selection.f.database <- cbind(max(which(population$info$size[,2]>0)),2)
+    } else{
+      if(verbose) cat("No individuals for selection provided (female side). Non available.\n")
+    }
+
   }
 
   selection.m.database <- get.database(population, selection.m.gen, selection.m.database, selection.m.cohorts)
@@ -3146,7 +3159,7 @@ breeding.diploid <- function(population,
   multiple.bve.weights <- list(multiple.bve.weights.m, multiple.bve.weights.f)
   multiple.bve.scale <- c(multiple.bve.scale.m, multiple.bve.scale.f)
   sd_scaling <- rep(1, population$info$bv.nr)
-  if(length(fixed.breeding)==0){
+  if(length(fixed.breeding)==0 || length(fixed.breeding.best)>=0){
     if(sum(selection.size)>0){
       if(verbose) cat("Start selection procedure.\n")
       for(sex in (1:2)[selection.size>0]){
@@ -3612,8 +3625,10 @@ breeding.diploid <- function(population,
 
   } else{
     breeding.size.total <- nrow(fixed.breeding)
+
     sex.animal <- fixed.breeding[,7] <- stats::rbinom(breeding.size.total, 1, fixed.breeding[,7]) +1
     breeding.size <- c(sum(fixed.breeding[,7]==1), sum(fixed.breeding[,7]==2))
+
   }
 
   if(length(threshold.selection)>0){

@@ -13,16 +13,17 @@ insert.bve(population, bves, type = "bve", count = 1)
 
 \item{type}{which time of values to input (default: "bve", alt: "bv", "pheno")}
 
-\item{count}{Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
-#' @examples
-data(ex_pop)
-bv <- get.bv(ex_pop, gen=2)
-new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
-ex_pop <- insert.bve(ex_pop, bves=new.bve)}
+\item{count}{Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))}
 }
 \value{
 Population-List with newly entered estimated breeding values
 }
 \description{
 Function to export estimated breeding values
+}
+\examples{
+data(ex_pop)
+bv <- get.bv(ex_pop, gen=2)
+new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
+ex_pop <- insert.bve(ex_pop, bves=new.bve)
 }

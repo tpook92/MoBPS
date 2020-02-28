@@ -11,9 +11,9 @@ ssGBLUP(A11, A12, A22, G)
 
 \item{A12}{pedigree relationship matrix between non-genotyped and genotyped individuals}
 
-\item{A22}{genomic relationship matrix of genotyped individuals}
+\item{A22}{pedigree relationship matrix of genotyped individuals}
 
-\item{G}{G}
+\item{G}{genomic relationship matrix of genotyped individuals}
 }
 \description{
 Function to perform single step GBLUP according to Legarra 2014

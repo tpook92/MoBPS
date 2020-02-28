@@ -28,5 +28,5 @@ Function to devide haplotypes of selected individuals
 }
 \examples{
 data(ex_pop)
-get.haplo(ex_pop, gen=2)
+haplo <- get.haplo(ex_pop, gen=2)
 }

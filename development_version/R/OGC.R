@@ -33,8 +33,13 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE){
 
   Opt.int <- function(A, u, Q, cAc=NA){
 
-    A1 <- MASS::ginv(A)
-    QAQ1 <- MASS::ginv(t(Q)%*%A1%*%Q)
+    if (requireNamespace("MASS", quietly = TRUE)) {
+      A1 <- MASS::ginv(A)
+      QAQ1 <- MASS::ginv(t(Q)%*%A1%*%Q)
+    } else{
+      stop("Use of MASS without being installed!")
+    }
+
     minA <- round(0.25*sum(QAQ1)+0.000005,5)
     if(minA<=0){
       minA <- 0.000005

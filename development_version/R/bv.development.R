@@ -197,9 +197,9 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
 
     inc <- (rowSums(all0)!=ncol(all0))* (1:3)
     if(display.cohort.name){
-      graphics::par(mar=c(8.1,4.1,2.1,0.1))
+      graphics::par(mar=c(8.1,4.1,2.1,1.1))
     } else{
-      graphics::par(mar=c(4.1,4.1,2.1,0.1))
+      graphics::par(mar=c(6.1,4.1,2.1,1.1))
     }
 
     graphics::plot(time_plot, means[1,],type=if(display.line) {"l"} else {NULL},  main=paste("Development:", population$info$trait.name[nr]),

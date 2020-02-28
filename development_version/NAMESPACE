@@ -3,7 +3,6 @@
 S3method(summary,population)
 export(analyze.bv)
 export(analyze.population)
-export(bit.snps)
 export(breeding.diploid)
 export(bv.development)
 export(bv.development.box)

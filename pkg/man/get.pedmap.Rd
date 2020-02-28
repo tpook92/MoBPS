@@ -28,5 +28,5 @@ Generate a ped and map file (PLINK format) for selected groups and chromosome
 }
 \examples{
 data(ex_pop)
-\donttest{get.pca(path="temp", ex_pop, gen=2)}
+\donttest{get.pedmap(path="temp", ex_pop, gen=2)}
 }
