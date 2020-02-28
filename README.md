@@ -22,6 +22,34 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.82 (28.02.09)
+
+Fixed bug in fixed.breeding when no individuals were selected (selection.size=0)
+
+Updates to Guidelines_to_MoBPS
+
+### Version 1.4.81 (24.02.09)
+
+Renamed selection.criteria to selection.highest
+
+Renamed selection.criteria.type to selection.criteria
+
+Default of selection.m / selection.f is now automatically derived based on input in selection.criteria. "function" in case selection.criteria is used and "random" if not - unless of course manually set
+
+selection.size is automatically calculated to be all available individuals if not provided
+
+Remove pedmap.to.phasedbeaglevcf from the list of exported function (use of BEAGLE-jar not in line with CRAN policies)
+
+par -setting in bv.development ect. are not overwritten automatically anymore
+
+All print can now be deactivated via use of verbose in the respective function
+
+Added missing uses of requireNamespace for suggested packages
+
+Added warnings() / stop() for critical issues
+
+Minor improvements to documentation
+
 ### Version 1.4.78 (13.02.20)
 
 BVE can be skipped for selected traits via bve.ignore.traits in breeding.diploid()
