@@ -22,6 +22,16 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.4.85 (24.03.09)
+
+Adding verbose statements for all functions
+
+Fixed issue when manually setting per QTL variants
+
+Added export function to extract the map of a population list (get.map)
+
+Added coloring in get.pca according to class
+
 ### Version 1.4.82 (28.02.09)
 
 Fixed bug in fixed.breeding when no individuals were selected (selection.size=0)
