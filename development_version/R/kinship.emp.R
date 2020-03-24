@@ -178,10 +178,14 @@ kinship.emp.fast <- function(animals=NULL, population=NULL, gen=NULL, database=N
     for(steps in 1:(length(c(chr[[1]], chr[[2]], chr[[3]], chr[[4]]))-3)){
       activ.min <- which.min(activ.recom)[1]
       activ.posi <- chr[[activ.min]][activ[activ.min]]
-      ibd <- length(unique(activ.ursprung)) # Nur vergleich des Neuen mit bisherigen Rechenzeiteffizienter!
 
-      ibd.factor <- 1-ibd*0.25 + 0.25*(ibd==1)
-      score[index] <- score[index] + ibd.factor * (activ.posi - prev) / chrom.length
+      if((activ.posi - prev)>0){
+        ibd <- length(unique(activ.ursprung)) # Nur vergleich des Neuen mit bisherigen Rechenzeiteffizienter!
+        #ibd <- sum(!duplicated(activ.ursprung)) # Nur vergleich des Neuen mit bisherigen Rechenzeiteffizienter!
+        ibd.factor <- 1-ibd*0.25 + 0.25*(ibd==1)
+        score[index] <- score[index] + ibd.factor * (activ.posi - prev) / chrom.length
+      }
+
       prev <- activ.posi
 
       activ[activ.min] <- min(activ[activ.min] +1, length(chr[[activ.min]]))

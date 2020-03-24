@@ -28,8 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param beagle_jar Directory of BEAGLE
 #' @param plink_dir Directory of Plink
 #' @param db_dir Directory to save newly generated files (ped/map will be stored in the original folder)
+#' @param verbose Set to FALSE to not display any prints
 
-pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NULL, beagle_jar="/home/nha/beagle.03Jul18.40b.jar", plink_dir="/home/nha/Plink/plink", db_dir="/home/nha/Plink/DB/"){
+pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NULL, beagle_jar="/home/nha/beagle.03Jul18.40b.jar",
+                                      plink_dir="/home/nha/Plink/plink", db_dir="/home/nha/Plink/DB/", verbose=TRUE){
 
   if(length(vcf_path)>0){
 
@@ -47,7 +49,7 @@ pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NUL
     map <- map[-remove_dup,]
   }
   if(length(remove_dup)>0){
-    cat(paste0("Removed ",length(remove_dup), " markers from the set to avoid markers with the same name (duplicates?!).\n"))
+    if(verbose) cat(paste0("Removed ",length(remove_dup), " markers from the set to avoid markers with the same name (duplicates?!).\n"))
   }
 
 
@@ -64,7 +66,7 @@ pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NUL
   }
 
   if(changes>0){
-    cat(paste0("Increased bp of ",changes, "markers to avoid multiple Markers on same bp.\n"))
+    if(verbose) cat(paste0("Increased bp of ",changes, "markers to avoid multiple Markers on same bp.\n"))
   }
 
 

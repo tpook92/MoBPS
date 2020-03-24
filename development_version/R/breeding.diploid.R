@@ -174,7 +174,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.selection.calculation If TRUE recalculate breeding values obtained by selection.function.matrix
 #' @param name.cohort Name of the newly added cohort
 #' @param add.class.cohorts Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)
-#' @param display.progress Set FALSE to not display progress bars
+#' @param display.progress Set FALSE to not display progress bars. Setting verbose to FALSE will automatically deactive progress bars
 #' @param ignore.best Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @param repeat.mating Generate multiple mating from the same dam/sire combination
@@ -1304,7 +1304,7 @@ breeding.diploid <- function(population,
     if(sum(counter)==0){
       if(input.phenotype!="own"){
         input.phenotype <- "own"
-        cat("No phenotypes to import. Automatically set input.phenotype to own")
+        if(verbose) cat("No phenotypes to import. Automatically set input.phenotype to own")
       }
     }
   }
@@ -1863,7 +1863,7 @@ breeding.diploid <- function(population,
     # Derive relationship matrix sequenceZ and single-step only for vanRaden based genomic relationship
     if(computation.A=="kinship"){
       z_ped <- z_ped - as.numeric(Sys.time())
-      A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2)
+      A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose)
       z_ped <- z_ped + as.numeric(Sys.time())
     } else if(computation.A=="vanRaden"){
       if(sequenceZ){
@@ -2020,7 +2020,7 @@ breeding.diploid <- function(population,
             if(verbose) cat("No genotyped individuals included. Automatically switch to pedigree BLUP instead of ssGBLUP\n")
             singlestep.active <- FALSE
             computation.A <- "kinship"
-            A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
+            A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
             z_ped <- z_ped + as.numeric(Sys.time())
           }
         }
@@ -2029,7 +2029,7 @@ breeding.diploid <- function(population,
           if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
           z_ped <- z_ped - as.numeric(Sys.time())
 
-          A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
+          A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
           z_ped <- z_ped + as.numeric(Sys.time())
           if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
           if(miraculix){
@@ -2185,7 +2185,7 @@ breeding.diploid <- function(population,
       for(write in population$info$trait.name[bve.ignore.traits][-1]){
         text <- paste0(text, ", ", write)
       }
-      cat(paste0("BVE for: ", text, " has been skipped.\n"))
+      if(verbose) cat(paste0("BVE for: ", text, " has been skipped.\n"))
     }
     for(bven in (1:population$info$bv.nr)[bve.keeps]){
       if(forecast.sigma.g){
@@ -2201,7 +2201,7 @@ breeding.diploid <- function(population,
       if(mas.bve){
         if(length(mas.markers)==0){
           if(length(population$info$real.bv.add[[bven]])>24){
-            cat("No markers for MAS provided. Use 5 true effect markers with highest effect.\n")
+            if(verbose) cat("No markers for MAS provided. Use 5 true effect markers with highest effect.\n")
             temp1 <- sort(rowSums(abs(population$info$real.bv.add[[bven]][,3:5])), index.return=TRUE, decreasing=TRUE)$ix[1:mas.number]
             active.snp <- population$info$real.bv.add[[bven]][temp1,]
             mas.markers.temp <- c(0,population$info$cumsnp)[active.snp[,2]]+ active.snp[,1]
@@ -3159,7 +3159,7 @@ breeding.diploid <- function(population,
   multiple.bve.weights <- list(multiple.bve.weights.m, multiple.bve.weights.f)
   multiple.bve.scale <- c(multiple.bve.scale.m, multiple.bve.scale.f)
   sd_scaling <- rep(1, population$info$bv.nr)
-  if(length(fixed.breeding)==0 || length(fixed.breeding.best)>=0){
+  if(length(fixed.breeding)==0 || length(fixed.breeding.best)>0){
     if(sum(selection.size)>0){
       if(verbose) cat("Start selection procedure.\n")
       for(sex in (1:2)[selection.size>0]){
@@ -3589,7 +3589,7 @@ breeding.diploid <- function(population,
 
         # Verwandtschaftsmatrix:
         if(computation.A.ogc=="kinship"){
-          A <- kinship.exp.store(population, database = animallist[,c(1,2,3,3)], depth.pedigree = depth.pedigree.ogc)
+          A <- kinship.exp.store(population, database = animallist[,c(1,2,3,3)], depth.pedigree = depth.pedigree.ogc, verbose=verbose)
         } else if(computation.A.ogc=="vanRaden"){
           if(miraculix){
             p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
@@ -3625,7 +3625,6 @@ breeding.diploid <- function(population,
 
   } else{
     breeding.size.total <- nrow(fixed.breeding)
-
     sex.animal <- fixed.breeding[,7] <- stats::rbinom(breeding.size.total, 1, fixed.breeding[,7]) +1
     breeding.size <- c(sum(fixed.breeding[,7]==1), sum(fixed.breeding[,7]==2))
 
@@ -4266,7 +4265,7 @@ breeding.diploid <- function(population,
     } else{
       if(verbose) cat("Start generation of new individuals.\n")
     }
-    if(display.progress){
+    if(display.progress & verbose){
       pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
     }
 
@@ -4454,7 +4453,7 @@ breeding.diploid <- function(population,
           }
           if(hap1[pos] == praeimplantation.max[[sex2]][[number2]] || counter==25){
             good1 <- 1
-            if(counter==25){cat("praeimplantation failed!")}
+            if(counter==25){if(verbose) cat("praeimplantation failed!")}
           } else{
             child2 <- breeding.intern(info.mother, mother, population,
                                       mutation.rate, remutation.rate, recombination.rate,
@@ -4711,13 +4710,13 @@ breeding.diploid <- function(population,
         tock2 <- as.numeric(Sys.time())
         bv_stuff <- bv_stuff+tock2-tock
       }
-      if(display.progress){
+      if(display.progress & verbose){
         utils::setTxtProgressBar(pb, animal.nr)
       }
 
       current.size[sex] <- current.size[sex] +1
     }
-    if(display.progress){
+    if(display.progress & verbose){
       close(pb)
     }
 
@@ -4811,7 +4810,7 @@ breeding.diploid <- function(population,
       population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), current.gen+1, breeding.size[1],0, new.class, (current.size-breeding.size)[1], 0,
                                                                   time.point, creating.type),
                                        c(paste0(name.cohort, "_F"), current.gen+1, 0, breeding.size[2], new.class, 0, (current.size-breeding.size)[2],time.point, creating.type))
-      if(verbose) cat("Added _M, _F to cohort names!")
+      if(verbose) cat("Added _M, _F to cohort names!\n")
       rownames(population$info$cohorts)[(nrow(population$info$cohorts)-1):nrow(population$info$cohorts)] <- paste0(name.cohort, c("_M", c("_F")))
 
       if(verbose){

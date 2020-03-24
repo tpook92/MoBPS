@@ -54,7 +54,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       stop("Use of jsonlite without being installed!")
     }
   } else if(length(total)==0){
-    cat("No dataset provided in file or total \n")
+    stop("No dataset provided in file or total \n")
   }
   {
     {
@@ -467,7 +467,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
       {
         for(index in 1:length(nodes)){
           if(length(nodes[[index]]$earliest_time)==0){
-            # cat("Manually entered earliest time.\n")
             nodes[[index]]$earliest_time <- 0
           }
         }
@@ -634,11 +633,6 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         sex2 <- sex[which(edges[[index]]$to==ids)]
         if(sex1!=sex2 && edges[[index]]$'Breeding Type'!="Reproduction"){
           edges[[index]] <- NULL
-          #      if(sex1==2){
-          #        cat("Invalid Edge to generate female from male individuals")
-          #      } else{
-          #        cat("Invalid Edge to generate male from female individuals")
-          #      }
 
         }
       }

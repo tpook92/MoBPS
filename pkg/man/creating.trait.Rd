@@ -15,7 +15,7 @@ creating.trait(population = NULL, real.bv.add = NULL,
   exclude.snps = NULL, randomSeed = NULL, shuffle.traits = NULL,
   shuffle.cor = NULL, replace.real.bv = FALSE, trait.name = NULL,
   remove.invalid.qtl = TRUE, bv.standard = FALSE, mean.target = NULL,
-  var.target = NULL)
+  var.target = NULL, verbose = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -74,7 +74,9 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{mean.target}{Target mean}
 
-\item{var.target}{Target variance
+\item{var.target}{Target variance}
+
+\item{verbose}{Set to FALSE to not display any prints
 population <- creating.diploid(nsnp=1000, nindi=100)
 population <- creating.trait(population, n.additive=100)}
 }

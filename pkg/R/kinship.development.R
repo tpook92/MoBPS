@@ -104,6 +104,9 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
     time_plot <- 1:length(time_plot)
   }
 
+  oldpar <- graphics::par(no.readonly=TRUE)
+  on.exit(graphics::par(oldpar))
+
   if(display.cohort.name){
     graphics::par(mar=c(8.1,4.1,2.1,0.1))
   } else{

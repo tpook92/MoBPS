@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param elements Vector of individuals from the database to include in pedigree matrix
 #' @param mult Multiplicator of kinship matrix (default: 2)
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
 #' kinship <- kinship.exp.store(population=ex_pop, gen=2)
@@ -43,7 +44,8 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
                               start.kinship=NULL,
                               elements = NULL,
                               mult = 2,
-                              storage.save=1.5){
+                              storage.save=1.5,
+                              verbose=TRUE){
 
   #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
@@ -159,7 +161,7 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
     position.pedigree[1:(diff(database[index,3:4])+1) + prior2] <- 1:(diff(database[index,3:4])+1) + prior
   }
 
-  cat("Derive pedigree-matrix based for ", n.animals, " individuals based on ", n.total, " individuals.\n")
+  if(verbose) cat("Derive pedigree-matrix based for ", n.animals, " individuals based on ", n.total, " individuals.\n")
   kinship <- matrix(0L, ncol=n.total, nrow=n.total)
 
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1

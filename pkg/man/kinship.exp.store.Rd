@@ -6,7 +6,7 @@
 \usage{
 kinship.exp.store(population, gen = NULL, database = NULL,
   cohorts = NULL, depth.pedigree = 7, start.kinship = NULL,
-  elements = NULL, mult = 2, storage.save = 1.5)
+  elements = NULL, mult = 2, storage.save = 1.5, verbose = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -26,6 +26,8 @@ kinship.exp.store(population, gen = NULL, database = NULL,
 \item{mult}{Multiplicator of kinship matrix (default: 2)}
 
 \item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \value{
 Pedigree-based kinship matrix for in gen/database/cohort selected individuals

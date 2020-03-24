@@ -336,7 +336,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(dataset)>0 && class(dataset)=="data.frame"){
     dataset <- as.matrix(dataset)
   }
-  if(length(dataset)>0 && class(dataset)=="matrix"){
+  if(length(dataset)>0 && class(dataset)=="matrix" || length(vcf)>0){
     miraculix.dataset <- FALSE
   }
 
@@ -504,28 +504,28 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           if(length(var_additive)==0){
             var_additive <- 1
           }
-          var_additive <- rep(1, length.out=n.additive[index_trait])
+          var_additive <- rep(var_additive, length.out=n.additive[index_trait])
           var.additive.l[[index_trait]] <- var_additive
         }
         if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
           if(length(var_dominant)==0){
             var_dominant <- 1
           }
-          var_dominant <- rep(1, length.out=n.dominant[index_trait])
+          var_dominant <- rep(var_dominant, length.out=n.dominant[index_trait])
           var.dominant.l[[index_trait]] <- var_dominant
         }
         if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
           if(length(var_qualitative)==0){
             var_qualitative <- 1
           }
-          var_qualitative <- rep(1, length.out=n.qualitative[index_trait])
+          var_qualitative <- rep(var_qualitative, length.out=n.qualitative[index_trait])
           var.qualitative.l[[index_trait]] <- var_qualitative
         }
         if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
           if(length(var_quantitative)==0){
             var_quantitative <- 1
           }
-          var_quantitative <- rep(1, length.out=n.quantitative[index_trait])
+          var_quantitative <- rep(var_quantitative, length.out=n.quantitative[index_trait])
           var.quantitative.l[[index_trait]] <- var_quantitative
 
         }
@@ -823,7 +823,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
     }
     if(sex.s[1]=="fixed"){
-      sex.s <- rep(1, nindi*(1-sex.quota))
+      sex.s <- rep(1, round(nindi*(1-sex.quota), digits = 10))
       sex.s <- c(sex.s, rep(2, nindi - length(sex.s)))
     }
 
@@ -1398,7 +1398,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                                                   c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
                                                                     time.point, creating.type))
 
-        if(verbose) cat("Both genders in the cohort. Added _M, _F to cohort names!\n")
+        if(verbose) cat("Both sexes in the cohort. Added _M, _F to cohort names!\n")
 
         if(verbose){
           posi <- get.database(population, cohorts = paste0(name.cohort, "_M"))
@@ -1490,7 +1490,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        bpcm.conversion = bpcm.conversion[chr_index],
                                        remove.invalid.qtl=FALSE,
                                        shuffle.traits = shuffle.traits,
-                                       shuffle.cor = shuffle.cor)
+                                       shuffle.cor = shuffle.cor,
+                                       verbose = verbose)
       }
     } else{
       if(min(diff(chr.nr))<0 || !miraculix.dataset){
@@ -1542,7 +1543,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        hom1 =population$info$snp.base[2,],
                                        remove.invalid.qtl =FALSE,
                                      shuffle.traits = shuffle.traits,
-                                     shuffle.cor = shuffle.cor)
+                                     shuffle.cor = shuffle.cor,
+                                     verbose = verbose)
     }
 
   }

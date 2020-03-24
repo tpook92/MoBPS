@@ -6,7 +6,8 @@
 \usage{
 pedmap.to.phasedbeaglevcf(ped_path = NULL, map_path = NULL,
   vcf_path = NULL, beagle_jar = "/home/nha/beagle.03Jul18.40b.jar",
-  plink_dir = "/home/nha/Plink/plink", db_dir = "/home/nha/Plink/DB/")
+  plink_dir = "/home/nha/Plink/plink", db_dir = "/home/nha/Plink/DB/",
+  verbose = TRUE)
 }
 \arguments{
 \item{ped_path}{Directory of the ped-file}
@@ -20,6 +21,8 @@ pedmap.to.phasedbeaglevcf(ped_path = NULL, map_path = NULL,
 \item{plink_dir}{Directory of Plink}
 
 \item{db_dir}{Directory to save newly generated files (ped/map will be stored in the original folder)}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \description{
 Perform imputing/phasing (path chosen for the web-based application)

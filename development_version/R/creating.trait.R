@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization()
 #' @param mean.target Target mean
 #' @param var.target Target variance
+#' @param verbose Set to FALSE to not display any prints
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
 #' @return Population-list with one or more additional new traits
@@ -79,7 +80,8 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            remove.invalid.qtl=TRUE,
                            bv.standard=FALSE,
                            mean.target=NULL,
-                           var.target=NULL){
+                           var.target=NULL,
+                           verbose=TRUE){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -560,6 +562,9 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   }
 
   if(bv.total){
+    if(length(population$info$trait.name)>0){
+      trait.name <- c(population$info$trait.name, trait.name)
+    }
     population$info$trait.name <- trait.name
     if(length(trait.name)<bv.total){
       population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
@@ -584,24 +589,24 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
       removes <- which(population$info$real.bv.add[[index]][,1] > population$info$snp[population$info$real.bv.add[[index]][,2]])
       if(length(removes)>0){
         population$info$real.bv.add[[index]] <- population$info$real.bv.add[[index]][-removes,,drop=FALSE]
-        cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.add[[index]]), " QTL-effects remain.\n"))
+        if(verbose) cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
+        if(verbose) cat(paste0(nrow(population$info$real.bv.add[[index]]), " QTL-effects remain.\n"))
       }
     }
     for(index in 1:(length(population$info$real.bv.mult)-1)){
       removes <- which(population$info$real.bv.mult[[index]][,1] > population$info$snp[population$info$real.bv.mult[[index]][,2]])
       if(length(removes)>0){
         population$info$real.bv.mult[[index]] <- population$info$real.bv.mult[[index]][-removes,,drop=FALSE]
-        cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
+        if(verbose) cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
+        if(verbose) cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
       }
     }
     for(index in 1:(length(population$info$real.bv.mult)-1)){
       removes <- which(population$info$real.bv.mult[[index]][,3] > population$info$snp[population$info$real.bv.mult[[index]][,4]])
       if(length(removes)>0){
         population$info$real.bv.mult[[index]] <- population$info$real.bv.mult[[index]][-removes,,drop=FALSE]
-        cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
-        cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
+        if(verbose) cat(paste0(removes, " QTL-effects entered on markers that do not exist for ", population$info$trait.name[index], ".\n"))
+        if(verbose) cat(paste0(nrow(population$info$real.bv.mult[[index]]), " QTL-effects remain.\n"))
       }
     }
 

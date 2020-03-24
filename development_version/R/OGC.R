@@ -27,8 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param Q sex indicator
 #' @param cAc target gain in inbreeding
 #' @param single If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)
+#' @param verbose Set to FALSE to not display any prints
 
-OGC <- function(A,u,Q,cAc=NA, single=TRUE){
+
+OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE){
   # bei NA wird cAc (Increase of average relationship) minimiert
 
   Opt.int <- function(A, u, Q, cAc=NA){
@@ -46,7 +48,7 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE){
     }
     if(!is.na(cAc)){
       if(minA>cAc){
-        cat(paste0("Minimal increase possible is for cAc is ",minA,"\n"))
+        if(verbose) cat(paste0("Minimal increase possible is for cAc is ",minA,"\n"))
         cAc <- minA
         }
     }else{
@@ -82,9 +84,9 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE){
   }
   res <- numeric(n)
   res[as.numeric(names(u))] <- xopt
-  cat(paste0("Realized gain in inbreeding via OGC: ", minA1 ,"\n"))
-  cat(paste0(sum(Q[,1]), " of the ", n_male, " male individuals have positive contribution.\n"))
-  cat(paste0(sum(Q[,2]), " of the ", n_female, " female individuals have positive contribution.\n"))
+  if(verbose) cat(paste0("Realized gain in inbreeding via OGC: ", minA1 ,"\n"))
+  if(verbose) cat(paste0(sum(Q[,1]), " of the ", n_male, " male individuals have positive contribution.\n"))
+  if(verbose) cat(paste0(sum(Q[,2]), " of the ", n_female, " female individuals have positive contribution.\n"))
 
   return(list("Optimal c"=res, "c'u"=t(xopt)%*%u))
 }

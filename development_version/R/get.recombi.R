@@ -43,7 +43,7 @@ get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL){
 
   for(row in 1:nrow(database)){
     animals <- database[row,]
-    if(diff(database[row,3:4])>0){
+    if(diff(database[row,3:4])>=0){
       for(index in database[row,3]:database[row,4]){
         data[[rindex]] <-  list()
 

@@ -360,7 +360,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{name.cohort}{Name of the newly added cohort}
 
-\item{display.progress}{Set FALSE to not display progress bars}
+\item{display.progress}{Set FALSE to not display progress bars. Setting verbose to FALSE will automatically deactive progress bars}
 
 \item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 

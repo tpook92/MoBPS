@@ -4,7 +4,7 @@
 \alias{OGC}
 \title{Optimal genetic contribution}
 \usage{
-OGC(A, u, Q, cAc = NA, single = TRUE)
+OGC(A, u, Q, cAc = NA, single = TRUE, verbose = FALSE)
 }
 \arguments{
 \item{A}{relationship matrix}
@@ -16,6 +16,8 @@ OGC(A, u, Q, cAc = NA, single = TRUE)
 \item{cAc}{target gain in inbreeding}
 
 \item{single}{If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \description{
 In this function the OGC selection according to Meuwissen 1997 is performed
