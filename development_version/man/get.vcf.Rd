@@ -28,5 +28,5 @@ Generate a vcf-file for selected groups and chromosome
 }
 \examples{
 data(ex_pop)
-\donttest{get.vcf(path="temp", ex_pop, gen=2)}
+\donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
 }

@@ -15,6 +15,9 @@ bit.snps(bit.seq, nbits, population = NULL, from.p.bit = 1)
 
 \item{from.p.bit}{Bit to start on}
 }
+\value{
+De-coded marker sequence
+}
 \description{
 Function for decoding in bitwise-storing in R (only 30 of 32 bits are used!)
 }

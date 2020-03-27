@@ -11,6 +11,9 @@ find.chromo(position, length.total)
 
 \item{length.total}{Length of each chromosome}
 }
+\value{
+Chromosome the marker is part of
+}
 \description{
 Internal function for the detection on which chromosome each marker is
 }

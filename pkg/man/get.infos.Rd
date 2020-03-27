@@ -15,6 +15,9 @@ get.infos(population, database = NULL, gen = NULL, cohorts = NULL)
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
+\value{
+Info list [[1]] phenotypes [[2]] genomic values [[3]] Z [[4/5/6]] additive/epistatic/dice marker effects
+}
 \description{
 Function to extract bv/pheno/geno of selected individuals
 }

@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function for bitwise-storing in R (only 30 of 32 bits are used!)
 #' @param snpseq SNP sequence
 #' @param nbits Number of usable bits (default: 30)
+#' @return Bit-wise coded marker sequence
 
 
 bit.storing <- function(snpseq, nbits){
@@ -43,6 +44,7 @@ bit.storing <- function(snpseq, nbits){
 #' @param nbits Number of usable bits (default: 30)
 #' @param population Population list
 #' @param from.p.bit Bit to start on
+#' @return De-coded marker sequence
 
 
 bit.snps <- function(bit.seq, nbits, population=NULL, from.p.bit=1){

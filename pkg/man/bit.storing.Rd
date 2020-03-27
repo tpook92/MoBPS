@@ -11,6 +11,9 @@ bit.storing(snpseq, nbits)
 
 \item{nbits}{Number of usable bits (default: 30)}
 }
+\value{
+Bit-wise coded marker sequence
+}
 \description{
 Function for bitwise-storing in R (only 30 of 32 bits are used!)
 }

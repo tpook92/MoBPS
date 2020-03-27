@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nr.edits Number of edits to perform per individual
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
+#' @return Inherited parent gamete
 
 breeding.intern <- function(info.parent, parent,  population , mutation.rate, remutation.rate, recombination.rate,
                             recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,

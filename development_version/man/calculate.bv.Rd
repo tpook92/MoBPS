@@ -32,6 +32,9 @@ calculate.bv(population, gen, sex, nr, activ_bv,
 
 \item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 }
+\value{
+[[1]] true genomic value [[2]] allele frequency at QTL markers
+}
 \description{
 Internal function to calculate the breeding value of a given individual
 }

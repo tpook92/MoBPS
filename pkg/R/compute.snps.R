@@ -34,6 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
 #' @param nbits Bits available in RekomBre-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
+#' @return haplotypes for the selected individual
 
 compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.calculation=NULL,
                          from_p=1, to_p=Inf, decodeOriginsU=decodeOriginsR,
@@ -183,6 +184,7 @@ compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.
 #' @param faster If FALSE use slower version to compute markers between recombination points
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
+#' @return haplotypes for the selected individual
 
 compute.snps_single <- function(population, current.recombi, current.mut, current.ursprung, faster=TRUE,
                                 import.position.calculation=NULL, decodeOriginsU=decodeOriginsR){

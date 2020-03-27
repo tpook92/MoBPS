@@ -34,6 +34,9 @@ compute.snps(population, gen, sex, nr, faster = TRUE,
 
 \item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 }
+\value{
+haplotypes for the selected individual
+}
 \description{
 Internal function for the computation of genotypes & haplotypes
 }

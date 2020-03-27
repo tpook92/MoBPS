@@ -196,6 +196,8 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     }
 
     inc <- (rowSums(all0)!=ncol(all0))* (1:3)
+
+    # On exit has already been called prior!
     if(display.cohort.name){
       graphics::par(mar=c(8.1,4.1,2.1,1.1))
     } else{

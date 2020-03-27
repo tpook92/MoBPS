@@ -22,33 +22,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to generate a new individual
 #'
 #' Function to generate a new individual
-#' @param indexb internal test
-#' @param population internal test
-#' @param info_father_list internal test
-#' @param info_mother_list internal test
-#' @param copy.individual internal test
-#' @param mutation.rate internal test
-#' @param remutation.rate internal test
-#' @param recombination.rate internal test
-#' @param recom.f.indicator internal test
-#' @param recom.f.polynom internal test
-#' @param duplication.rate internal test
-#' @param duplication.length internal test
-#' @param duplication.recombination internal test
-#' @param delete.same.origin internal test
-#' @param gene.editing internal test
-#' @param nr.edits internal test
-#' @param gen.architecture.m internal test
-#' @param gen.architecture.f internal test
-#' @param decodeOriginsU internal test
-#' @param current.gen internal test
-#' @param save.recombination.history internal test
-#' @param new.bv.child internal test
-#' @param dh.mating internal test
-#' @param share.genotyped internal test
-#' @param added.genotyped internal test
-#' @param dh.sex internal test
-#' @param n.observation internal test
+#' @param indexb windows parallel internal test
+#' @param population windows parallel internal test
+#' @param info_father_list windows parallel internal test
+#' @param info_mother_list windows parallel internal test
+#' @param copy.individual windows parallel internal test
+#' @param mutation.rate windows parallel internal test
+#' @param remutation.rate windows parallel internal test
+#' @param recombination.rate windows parallel internal test
+#' @param recom.f.indicator windows parallel internal test
+#' @param recom.f.polynom windows parallel internal test
+#' @param duplication.rate windows parallel internal test
+#' @param duplication.length windows parallel internal test
+#' @param duplication.recombination windows parallel internal test
+#' @param delete.same.origin windows parallel internal test
+#' @param gene.editing windows parallel internal test
+#' @param nr.edits windows parallel internal test
+#' @param gen.architecture.m windows parallel internal test
+#' @param gen.architecture.f windows parallel internal test
+#' @param decodeOriginsU windows parallel internal test
+#' @param current.gen windows parallel internal test
+#' @param save.recombination.history windows parallel internal test
+#' @param new.bv.child windows parallel internal test
+#' @param dh.mating windows parallel internal test
+#' @param share.genotyped windows parallel internal test
+#' @param added.genotyped windows parallel internal test
+#' @param dh.sex windows parallel internal test
+#' @param n.observation windows parallel internal test
+#' @return Offspring individual
 
 generation.individual <- function(indexb, population, info_father_list, info_mother_list,
                                   copy.individual, mutation.rate, remutation.rate, recombination.rate,

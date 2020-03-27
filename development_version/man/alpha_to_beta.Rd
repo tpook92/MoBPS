@@ -13,6 +13,9 @@ alpha_to_beta(alpha, G, Z)
 
 \item{Z}{genomic information matrix}
 }
+\value{
+Vector with single marker effects
+}
 \description{
 Internal transformation using Moore-Penrose
 }

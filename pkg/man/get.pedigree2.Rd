@@ -20,6 +20,13 @@ get.pedigree2(population, database = NULL, gen = NULL,
 
 \item{founder.zero}{Parents of founders are displayed as "0" (default: TRUE)}
 }
+\value{
+Pedigree-file (grandparents) for in gen/database/cohorts selected individuals
+}
 \description{
 Derive pedigree for selected individuals including grandparents
+}
+\examples{
+data(ex_pop)
+get.pedigree2(ex_pop, gen=2)
 }

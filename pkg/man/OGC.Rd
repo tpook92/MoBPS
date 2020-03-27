@@ -19,6 +19,9 @@ OGC(A, u, Q, cAc = NA, single = TRUE, verbose = FALSE)
 
 \item{verbose}{Set to FALSE to not display any prints}
 }
+\value{
+[[1]] Contributions [[2]] expected inbreeding gain
+}
 \description{
 In this function the OGC selection according to Meuwissen 1997 is performed
 }

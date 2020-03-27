@@ -97,6 +97,10 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param shares Determine actual inherited shares of grandparents
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' get.pedigree2(ex_pop, gen=2)
+#' @return Pedigree-file (grandparents) for in gen/database/cohorts selected individuals
 #' @export
 
 get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, shares=FALSE, founder.zero=TRUE){
@@ -147,21 +151,25 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
   }
 
   if(founder.zero){
-    set0 <- which(pedigree[,1]==pedigree[,2])
+    pedi1 <- get.pedigree(population, database = database)
+  }
+
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,2] | pedi1[,2]==pedigree[,2])
     if(length(set0)>0){
       pedigree[set0,2] <- "0"
     }
-    set0 <- which(pedigree[,1]==pedigree[,3])
+    set0 <- which(pedigree[,1]==pedigree[,3]| pedi1[,2]==pedigree[,3])
     if(length(set0)>0){
       pedigree[set0,3] <- "0"
     }
   }
   if(founder.zero){
-    set0 <- which(pedigree[,1]==pedigree[,4])
+    set0 <- which(pedigree[,1]==pedigree[,4] | pedi1[,3]==pedigree[,4])
     if(length(set0)>0){
       pedigree[set0,4] <- "0"
     }
-    set0 <- which(pedigree[,1]==pedigree[,5])
+    set0 <- which(pedigree[,1]==pedigree[,5] | pedi1[,3]==pedigree[,5])
     if(length(set0)>0){
       pedigree[set0,5] <- "0"
     }
@@ -177,6 +185,10 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' get.pedigree3(ex_pop, gen=3)
+#' @return Pedigree-file (parents + grandparents) for in gen/database/cohorts selected individuals
 #' @export
 #'
 get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE){
@@ -217,16 +229,7 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
       rindex <- rindex + 1
     }
   }
-  if(founder.zero){
-    set0 <- which(pedigree[,1]==pedigree[,2])
-    if(length(set0)>0){
-      pedigree[set0,2] <- "0"
-    }
-    set0 <- which(pedigree[,1]==pedigree[,3])
-    if(length(set0)>0){
-      pedigree[set0,3] <- "0"
-    }
-  }
+
   if(founder.zero){
     set0 <- which(pedigree[,2]==pedigree[,4])
     if(length(set0)>0){
@@ -247,6 +250,18 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
       pedigree[set0,7] <- "0"
     }
   }
+
+  if(founder.zero){
+    set0 <- which(pedigree[,1]==pedigree[,2])
+    if(length(set0)>0){
+      pedigree[set0,2] <- "0"
+    }
+    set0 <- which(pedigree[,1]==pedigree[,3])
+    if(length(set0)>0){
+      pedigree[set0,3] <- "0"
+    }
+  }
+
   colnames(pedigree) <- c("offspring", "father", "mother", "grandfatherf", "grandmotherf", "grandfatherm", "grandmotherm")
   return(pedigree)
 }

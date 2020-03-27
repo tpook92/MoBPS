@@ -56,6 +56,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
   } else if(length(total)==0){
     stop("No dataset provided in file or total \n")
   }
+
   {
     {
 
@@ -1485,7 +1486,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                      n.quantitative = as.numeric(trait_matrix[,11]),
                                      shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
                                      shuffle.traits=1:n_traits,
-                                     trait.name = trait_matrix[,1])
+                                     trait.name = trait_matrix[,1], verbose=verbose)
         # Correct Scaling
         snp.before <- cumsum(c(0,population$info$snp))
 
@@ -2345,36 +2346,38 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
       }
 
+      '#
       if(FALSE){
-        as.data.frame(costdata)
-        time_point_plot <- unique(sort(time.point.list))
-        cost_plot <- numeric(length(time_point_plot))
-        for(index in 1:length(time_point_plot)){
-          cost_plot[index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],4]))
-        }
-        plot(time_point_plot, cost_plot, main="Cost - overview", ylab="cost in Euro", xlab="time point", ylim=c(0, max(cost_plot)))
-        barplot(cost_plot, names=time_point_plot, ylab="cost in Euro", xlab="time point")
-
-        cost_plot_sex <- matrix(0, ncol=length(time_point_plot), nrow=2)
-        for(index in 1:length(time.point.list)){
-          index2 <- which(costdata[index,1]==ids)
-          sex <- as.numeric(nodes[[index2]]$'Sex'=="Female") + 1
-          index3 <- which(time_point_plot==costdata[index,3])
-          cost_plot_sex[sex,index3] <-  cost_plot_sex[sex,index3] + as.numeric(costdata[index,4])
-        }
-        barplot(cost_plot_sex, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("blue", "red"))
-
-        cost_plot_type <- matrix(0, ncol=length(time_point_plot), nrow=3)
-        for(index in 1:length(time_point_plot)){
-          cost_plot_type[1,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],5]))
-          cost_plot_type[2,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],6]))
-          cost_plot_type[3,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],7]))
-        }
-        barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35))
-        legend("topleft", c("Genotyping", "Phenotyping", "Housing"), lty=c(1,1,1), col=c("red", "blue", "green"))
-
-        write.csv(file="C:/Users/pook/Desktop/Cost_overview.csv", costdata, row.names = FALSE, quote=FALSE)
+      as.data.frame(costdata)
+      time_point_plot <- unique(sort(time.point.list))
+      cost_plot <- numeric(length(time_point_plot))
+      for(index in 1:length(time_point_plot)){
+      cost_plot[index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],4]))
       }
+      plot(time_point_plot, cost_plot, main="Cost - overview", ylab="cost in Euro", xlab="time point", ylim=c(0, max(cost_plot)))
+      barplot(cost_plot, names=time_point_plot, ylab="cost in Euro", xlab="time point")
+
+      cost_plot_sex <- matrix(0, ncol=length(time_point_plot), nrow=2)
+      for(index in 1:length(time.point.list)){
+      index2 <- which(costdata[index,1]==ids)
+      sex <- as.numeric(nodes[[index2]]$"Sex"=="Female") + 1
+      index3 <- which(time_point_plot==costdata[index,3])
+      cost_plot_sex[sex,index3] <-  cost_plot_sex[sex,index3] + as.numeric(costdata[index,4])
+      }
+      barplot(cost_plot_sex, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("blue", "red"))
+
+      cost_plot_type <- matrix(0, ncol=length(time_point_plot), nrow=3)
+      for(index in 1:length(time_point_plot)){
+      cost_plot_type[1,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],5]))
+      cost_plot_type[2,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],6]))
+      cost_plot_type[3,index] <- sum(as.numeric(costdata[costdata[,3]==time_point_plot[index],7]))
+      }
+      barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35))
+      legend("topleft", c("Genotyping", "Phenotyping", "Housing"), lty=c(1,1,1), col=c("red", "blue", "green"))
+
+      write.csv(file="C:/Users/pook/Desktop/Cost_overview.csv", costdata, row.names = FALSE, quote=FALSE)
+      }
+      '#
     }
 
 
@@ -2408,9 +2411,9 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                              adapt.bve = TRUE,
                                              adapt.pheno = TRUE)
 
-            population <- breeding.diploid(population)
+            population <- breeding.diploid(population, verbose=verbose)
             population <- breeding.diploid(population, sigma.e.gen = nrow(population$info$size),
-                                           heritability = as.numeric(trait_matrix[,5]))
+                                           heritability = as.numeric(trait_matrix[,5]), verbose=verbose)
 
           }
           for(group in generation_group[[generation-1]]){

@@ -23,6 +23,9 @@ derive.loop.elements(population, bve.database, bve.class,
 
 \item{list.of.copys}{Internal parameter to derive further information on the copies individuals}
 }
+\value{
+Matrix of individuals in the entered database
+}
 \description{
 Internal function to derive the position of all individuals to consider for BVE/GWAS
 }

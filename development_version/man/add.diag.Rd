@@ -7,9 +7,12 @@
 add.diag(M, d)
 }
 \arguments{
-\item{M}{Matrix Population list}
+\item{M}{Matrix}
 
 \item{d}{Vector to add to the diagonal of the matrix}
+}
+\value{
+Matrix with increased diagonal elements
 }
 \description{
 Function to add numeric to the diagonal of a matrix

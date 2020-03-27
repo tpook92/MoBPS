@@ -24,6 +24,9 @@ pedmap.to.phasedbeaglevcf(ped_path = NULL, map_path = NULL,
 
 \item{verbose}{Set to FALSE to not display any prints}
 }
+\value{
+Phased vcf file in vcf_path
+}
 \description{
 Perform imputing/phasing (path chosen for the web-based application)
 }

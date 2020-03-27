@@ -2,7 +2,7 @@
 % Please edit documentation in R/miesenberger.index.R
 \name{miesenberger.index}
 \alias{miesenberger.index}
-\title{gen/database/cohorts conversion}
+\title{Miesenberger Index}
 \usage{
 miesenberger.index(V, G, V1 = NULL, RG = NULL, r, w, zw = NULL)
 }
@@ -21,6 +21,9 @@ miesenberger.index(V, G, V1 = NULL, RG = NULL, r, w, zw = NULL)
 
 \item{zw}{Estimated breeding value}
 }
+\value{
+weights of the selection index
+}
 \description{
-Function to derive a database based on gen/database/cohorts
+Function to selection index weights according to Miesenberger 1999
 }

@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Efficient function to perform sort(unique(v))
 #' @param v Vector
+#' @return numerical sorted vector without duplicates
 
 sortd <- function(v){
   v <- sort(v)

@@ -9,6 +9,9 @@ edges.fromto(edges)
 \arguments{
 \item{edges}{Edges of the json-file generated via the web-interface}
 }
+\value{
+Matrix of Parent/Child-nodes for the considered edges
+}
 \description{
 Function to derive a database based on gen/database/cohorts
 }

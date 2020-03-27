@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param A12 pedigree relationship matrix between non-genotyped and genotyped individuals
 #' @param A22 pedigree relationship matrix of genotyped individuals
 #' @param G genomic relationship matrix of genotyped individuals
+#' @return Single step relationship matrix
 
 ssGBLUP <- function(A11, A12, A22, G){
 

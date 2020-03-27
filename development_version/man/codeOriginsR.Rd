@@ -9,6 +9,9 @@ codeOriginsR(M)
 \arguments{
 \item{M}{Origins matrix}
 }
+\value{
+Bit-wise coded origins
+}
 \description{
 R-Version of the internal bitwise-coding of origins
 }

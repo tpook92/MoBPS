@@ -9,6 +9,9 @@ sortd(v)
 \arguments{
 \item{v}{Vector}
 }
+\value{
+numerical sorted vector without duplicates
+}
 \description{
 Efficient function to perform sort(unique(v))
 }

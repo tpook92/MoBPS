@@ -15,6 +15,9 @@ ssGBLUP(A11, A12, A22, G)
 
 \item{G}{genomic relationship matrix of genotyped individuals}
 }
+\value{
+Single step relationship matrix
+}
 \description{
 Function to perform single step GBLUP according to Legarra 2014
 }

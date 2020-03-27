@@ -22,8 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Add something to the diagonal
 #'
 #' Function to add numeric to the diagonal of a matrix
-#' @param M Matrix Population list
+#' @param M Matrix
 #' @param d Vector to add to the diagonal of the matrix
+#' @return Matrix with increased diagonal elements
 
 add.diag <- function(M, d){
   diag(M) <- diag(M) + d

@@ -23,6 +23,9 @@ compute.snps_single(population, current.recombi, current.mut,
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 }
+\value{
+haplotypes for the selected individual
+}
 \description{
 Internal function for the computation of genotypes & haplotypes in gene editing application
 }

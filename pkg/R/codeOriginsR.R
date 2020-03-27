@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' R-Version of the internal bitwise-coding of origins
 #' @param M Origins matrix
+#' @return Bit-wise coded origins
 
 codeOriginsR <- function(M){
   P <- as.integer(colSums(t(M-1) * c(2^26,2^25,2^3,1)))
@@ -34,6 +35,7 @@ codeOriginsR <- function(M){
 #' R-Version of the internal bitwise-decoding of origins
 #' @param P coded origins vector
 #' @param row row
+#' @return de-coded origins
 
 decodeOriginsR <- function(P, row){
   activ <- P[row]
@@ -46,11 +48,3 @@ decodeOriginsR <- function(P, row){
   chromo <- activ+1
   return(c(gen,sex,nr,chromo))
 }
-
-
-#' Check if package is available
-#'
-#' Funktion to check availablity of a package
-#' @param mypkg package to test
-
-is.installed <- function(mypkg) is.element(mypkg, utils::installed.packages()[,1])

@@ -44,6 +44,9 @@ breeding.intern(info.parent, parent, population, mutation.rate,
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 }
+\value{
+Inherited parent gamete
+}
 \description{
 Internal function to simulate one meiosis
 }

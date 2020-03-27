@@ -13,59 +13,62 @@ generation.individual(indexb, population, info_father_list,
   dh.mating, share.genotyped, added.genotyped, dh.sex, n.observation)
 }
 \arguments{
-\item{indexb}{internal test}
+\item{indexb}{windows parallel internal test}
 
-\item{population}{internal test}
+\item{population}{windows parallel internal test}
 
-\item{info_father_list}{internal test}
+\item{info_father_list}{windows parallel internal test}
 
-\item{info_mother_list}{internal test}
+\item{info_mother_list}{windows parallel internal test}
 
-\item{copy.individual}{internal test}
+\item{copy.individual}{windows parallel internal test}
 
-\item{mutation.rate}{internal test}
+\item{mutation.rate}{windows parallel internal test}
 
-\item{remutation.rate}{internal test}
+\item{remutation.rate}{windows parallel internal test}
 
-\item{recombination.rate}{internal test}
+\item{recombination.rate}{windows parallel internal test}
 
-\item{recom.f.indicator}{internal test}
+\item{recom.f.indicator}{windows parallel internal test}
 
-\item{recom.f.polynom}{internal test}
+\item{recom.f.polynom}{windows parallel internal test}
 
-\item{duplication.rate}{internal test}
+\item{duplication.rate}{windows parallel internal test}
 
-\item{duplication.length}{internal test}
+\item{duplication.length}{windows parallel internal test}
 
-\item{duplication.recombination}{internal test}
+\item{duplication.recombination}{windows parallel internal test}
 
-\item{delete.same.origin}{internal test}
+\item{delete.same.origin}{windows parallel internal test}
 
-\item{gene.editing}{internal test}
+\item{gene.editing}{windows parallel internal test}
 
-\item{nr.edits}{internal test}
+\item{nr.edits}{windows parallel internal test}
 
-\item{gen.architecture.m}{internal test}
+\item{gen.architecture.m}{windows parallel internal test}
 
-\item{gen.architecture.f}{internal test}
+\item{gen.architecture.f}{windows parallel internal test}
 
-\item{decodeOriginsU}{internal test}
+\item{decodeOriginsU}{windows parallel internal test}
 
-\item{current.gen}{internal test}
+\item{current.gen}{windows parallel internal test}
 
-\item{save.recombination.history}{internal test}
+\item{save.recombination.history}{windows parallel internal test}
 
-\item{new.bv.child}{internal test}
+\item{new.bv.child}{windows parallel internal test}
 
-\item{dh.mating}{internal test}
+\item{dh.mating}{windows parallel internal test}
 
-\item{share.genotyped}{internal test}
+\item{share.genotyped}{windows parallel internal test}
 
-\item{added.genotyped}{internal test}
+\item{added.genotyped}{windows parallel internal test}
 
-\item{dh.sex}{internal test}
+\item{dh.sex}{windows parallel internal test}
 
-\item{n.observation}{internal test}
+\item{n.observation}{windows parallel internal test}
+}
+\value{
+Offspring individual
 }
 \description{
 Function to generate a new individual

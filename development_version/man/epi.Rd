@@ -13,6 +13,9 @@ epi(y, Z, G = NULL)
 
 \item{G}{kinship matrix}
 }
+\value{
+Estimated breeding values
+}
 \description{
 Internal function to perform martini test
 }

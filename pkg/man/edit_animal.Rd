@@ -24,6 +24,9 @@ edit_animal(population, gen, sex, nr, nr.edits,
 
 \item{nbits}{Bits available in RekomBre-bit-storing}
 }
+\value{
+animal after genome editing
+}
 \description{
 Internal function to perform gene editing
 }

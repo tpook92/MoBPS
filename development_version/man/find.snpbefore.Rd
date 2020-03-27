@@ -11,6 +11,9 @@ find.snpbefore(position, snp.position)
 
 \item{snp.position}{Position of the SNPs on the genome}
 }
+\value{
+SNP-position of the target position
+}
 \description{
 Internal function for the detection on which position each marker is
 }

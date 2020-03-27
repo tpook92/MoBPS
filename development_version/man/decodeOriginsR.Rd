@@ -11,6 +11,9 @@ decodeOriginsR(P, row)
 
 \item{row}{row}
 }
+\value{
+de-coded origins
+}
 \description{
 R-Version of the internal bitwise-decoding of origins
 }

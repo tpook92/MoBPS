@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Internal function for the detection on which chromosome each marker is
 #' @param position position in the genome
 #' @param length.total Length of each chromosome
+#' @return Chromosome the marker is part of
 
 
 find.chromo <- function(position, length.total){

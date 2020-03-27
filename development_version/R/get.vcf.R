@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
 #' @examples
 #' data(ex_pop)
-#' \donttest{get.vcf(path="temp", ex_pop, gen=2)}
+#' \donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
 #' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 

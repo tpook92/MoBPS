@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to derive a database based on gen/database/cohorts
 #' @param edges Edges of the json-file generated via the web-interface
+#' @return Matrix of Parent/Child-nodes for the considered edges
 
 
 edges.fromto<- function(edges){
