@@ -179,10 +179,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       snp.position <- map[,4]
     } else if(sum(is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
       if(bpcm.conversion==0){
-        if(verbose) cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion")
-        bpcm.conversion <- 100000000
+        if(verbose) cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion\n")
+        bpcm.conversion <- 1000000
       }
-      map[,4] <- as.numeric(bp) /  bpcm.conversion
+      map[,4] <- as.numeric(bp) /  bpcm.conversion / 100
     }
     if(sum(!is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
       chr.opt <- unique(chr.nr)
@@ -343,7 +343,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(chr.nr)==1 && chr.nr>1){
     if(length(nsnp)==1  && nsnp > chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nsnp))
-      nsnp <- numeric(length(chr.nr))
+      nsnp <- numeric(max(chr.nr))
       for(index in 1:length(nsnp)){
         nsnp[index] <- sum(chr.nr==index)
       }
@@ -353,6 +353,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(verbose) cat("Are you sure you want to generate a 1 SNP chromosome via miraculix?")
     }
 
+  } else if(length(unique(chr.nr))>length(nsnp)){
+    # in case map is provided.
+    chr.unique <- unique(chr.nr)
+    nsnp <- numeric(length(chr.unique))
+    for(chr.c in 1:length(chr.unique)){
+      nsnp[chr.c] <- sum(chr.nr==chr.unique[chr.c])
+    }
   }
 
   if(skip.rest==FALSE){
@@ -883,7 +890,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   if(length(chr.opt)==1){
     if(bpcm.conversion>0 && length(snp.position)==0){
-      snp.position <- as.numeric(bp) / bpcm.conversion
+      snp.position <- as.numeric(bp) / bpcm.conversion / 100
       chromosome.length <- max(snp.position) - min(snp.position)
     } else if(bpcm.conversion>0 && length(snp.position)>0){
       if(verbose) cat("Do not use bpcm.conversion and snp.position jointly!\n")

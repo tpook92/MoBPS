@@ -29,7 +29,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   use.last.sigma.e = FALSE, save.recombination.history = FALSE,
   martini.selection = FALSE, BGLR.bve = FALSE, BGLR.model = "RKHS",
   BGLR.burnin = 500, BGLR.iteration = 5000, BGLR.print = FALSE,
-  copy.individual = FALSE, dh.mating = FALSE, dh.sex = 0.5,
+  copy.individual = FALSE, copy.individual.m = FALSE,
+  copy.individual.f = FALSE, dh.mating = FALSE, dh.sex = 0.5,
   n.observation = 1L, bve.0isNA = TRUE, phenotype.bv = FALSE,
   standardize.bv = FALSE, standardize.bv.level = 100,
   standardize.bv.gen = 1, delete.same.origin = FALSE,
@@ -101,7 +102,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   miraculix.destroyA = TRUE, mas.bve = FALSE, mas.markers = NULL,
   mas.number = 5, mas.effects = NULL, threshold.selection = NULL,
   threshold.sign = ">", input.phenotype = "own",
-  bve.ignore.traits = NULL)
+  bve.ignore.traits = NULL, genotyped.database = NULL,
+  genotyped.gen = NULL, genotyped.cohorts = NULL,
+  genotyped.share = 1)
 }
 \arguments{
 \item{population}{Population list}
@@ -221,6 +224,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{BGLR.print}{If TRUE set verbose to TRUE in BGLR}
 
 \item{copy.individual}{If TRUE copy the selected father for a mating}
+
+\item{copy.individual.m}{If TRUE generate exactly one copy of all selected male in a new cohort (or more by setting breeding.size)}
+
+\item{copy.individual.f}{If TRUE generate exactly one copy of all selected female in a new cohort (or more by setting breeding.size)}
 
 \item{dh.mating}{If TRUE generate a DH-line in mating process}
 
@@ -426,7 +433,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{report.accuracy}{Report the accuracy of the breeding value estimation}
 
-\item{share.genotyped}{Share of individuals genotyped in the founders}
+\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped}
 
 \item{singlestep.active}{Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)}
 
@@ -531,6 +538,14 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
 
 \item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
+
+\item{genotyped.database}{Groups to generate genotype data (that can be used in a BVE)}
+
+\item{genotyped.gen}{Generations to generate genotype data (that can be used in a BVE)}
+
+\item{genotyped.cohorts}{Cohorts to generate genotype data (that can be used in a BVE)}
+
+\item{genotyped.share}{Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)}
 }
 \value{
 Population-list

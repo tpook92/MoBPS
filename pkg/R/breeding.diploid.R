@@ -106,6 +106,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param BGLR.save Method to use in BGLR (default: "RKHS" - alt: NON currently)
 #' @param BGLR.save.random Add random number to store location of internal BGLR computations (only needed when simulating a lot in parallel!)
 #' @param copy.individual If TRUE copy the selected father for a mating
+#' @param copy.individual.m If TRUE generate exactly one copy of all selected male in a new cohort (or more by setting breeding.size)
+#' @param copy.individual.f If TRUE generate exactly one copy of all selected female in a new cohort (or more by setting breeding.size)
 #' @param copy.individual.keep.bve Set to FALSE to not keep estimated breeding value in case of use of copy.individuals
 #' @param dh.mating If TRUE generate a DH-line in mating process
 #' @param dh.sex Share of DH-lines generated from selected female individuals
@@ -191,7 +193,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree.ogc Depth of the pedigree in generations (default: 7)
 #' @param bve.avoid.duplicates If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)
 #' @param report.accuracy Report the accuracy of the breeding value estimation
-#' @param share.genotyped Share of individuals genotyped in the founders
+#' @param share.genotyped Share of individuals newly generated individuals that are genotyped
 #' @param added.genotyped Share of individuals that is additionally genotyped (only for copy.individuals)
 #' @param singlestep.active Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)
 #' @param remove.non.genotyped Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well
@@ -237,6 +239,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
 #' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @param bve.ignore.traits Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)
+#' @param genotyped.gen Generations to generate genotype data (that can be used in a BVE)
+#' @param genotyped.database Groups to generate genotype data (that can be used in a BVE)
+#' @param genotyped.cohorts Cohorts to generate genotype data (that can be used in a BVE)
+#' @param genotyped.share Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -303,6 +309,8 @@ breeding.diploid <- function(population,
             BGLR.iteration = 5000,
             BGLR.print = FALSE,
             copy.individual = FALSE,
+            copy.individual.m = FALSE,
+            copy.individual.f = FALSE,
             dh.mating = FALSE,
             dh.sex = 0.5,
             n.observation = 1L,
@@ -457,7 +465,11 @@ breeding.diploid <- function(population,
             threshold.selection=NULL,
             threshold.sign=">",
             input.phenotype="own",
-            bve.ignore.traits=NULL
+            bve.ignore.traits=NULL,
+            genotyped.database = NULL,
+            genotyped.gen = NULL,
+            genotyped.cohorts = NULL,
+            genotyped.share = 1
             ){
 
 
@@ -535,6 +547,8 @@ breeding.diploid <- function(population,
 
   # Fill databases
 
+  genotyped.database <- get.database(population, genotyped.gen, genotyped.database, genotyped.cohorts)
+
   bve.gen.input <- bve.gen
   bve.database.input <- bve.database
   bve.cohorts.input <- bve.cohorts
@@ -592,6 +606,34 @@ breeding.diploid <- function(population,
   }
 
   new.bv.observation.database <- get.database(population, new.bv.observation.gen, new.bv.observation.database, new.bv.observation.cohorts)
+
+  if((copy.individual.m + copy.individual.f + combine)>1){
+    stop("Use of multiple copy parameter at the same time is forbidden!")
+  }
+  if(copy.individual.m){
+    copy.individual <- TRUE
+    selfing.mating <- TRUE
+    selfing.sex <- 0
+    if(sum(breeding.size)==0){
+      breeding.size <- c(selection.size[1],0)
+    }
+    if(selection.size[1]>=breeding.size[1]){
+      max.offspring <- c(1,1)
+    }
+  }
+
+  if(copy.individual.f){
+    copy.individual <- TRUE
+    selfing.mating <- TRUE
+    selfing.sex <- 0
+    if(sum(breeding.size)==0){
+      breeding.size <- c(0,selection.size[2])
+    }
+    if(selection.size[2]>=breeding.size[2]){
+      max.offspring <- c(1,1)
+    }
+  }
+
 
   if(combine==TRUE){
     # combine is modelled via cloning with no recombination
@@ -1124,6 +1166,15 @@ breeding.diploid <- function(population,
 
   }
 
+  if(length(genotyped.database)>0){
+    for(index in 1:nrow(genotyped.database)){
+      if((genotyped.database[index,4]-genotyped.database[index,3])>=0){
+        for(index2 in genotyped.database[index,3]:genotyped.database[index,4]){
+          population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[16]] <- stats::rbinom(1, 1, share.genotyped)
+        }
+      }
+    }
+  }
 
   if(length(new.bv.observation.database)>0 && population$info$bve && sum(n.observation)>0){
     if(length(n.observation)<population$info$bv.nr){
@@ -1593,7 +1644,7 @@ breeding.diploid <- function(population,
       n.rep <- nrow(loop_elements_copy)
     }
     # remove non-genotyped samples in case no pedigree-based estimation // single-step
-    if(remove.non.genotyped && singlestep.active==FALSE && computation.A!="kinship"){
+    if(remove.non.genotyped && singlestep.active==FALSE && (computation.A!="kinship" && computation.A !="pedigree")){
       for(index in 1:n.animals){
 
         k.database <- bve.database[loop_elements[index,3],]
@@ -1615,7 +1666,7 @@ breeding.diploid <- function(population,
         }
         remove.loop.elements <- which(genotyped.copy==0)
 
-        if(length(remove.loop.elements)>0){
+        if(length(remove.loop.elements)>0 && FALSE){
           loop_elements_list[[3]] <- loop_elements_list[[3]][-remove.loop.elements,]
         }
       }
@@ -1699,7 +1750,7 @@ breeding.diploid <- function(population,
         } else{
           non_copy <- loop_elements_copy[index,6]
         }
-        genotyped[non_copy] <- population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]]
+        genotyped[non_copy] <- max(genotyped[non_copy],population$breeding[[k.database[[1]]]][[k.database[[2]]]][[kindex]][[16]])
       }
     }
     genotype.included <- which(genotyped==1)
@@ -1861,7 +1912,7 @@ breeding.diploid <- function(population,
     }
 
     # Derive relationship matrix sequenceZ and single-step only for vanRaden based genomic relationship
-    if(computation.A=="kinship"){
+    if(computation.A=="kinship" || computation.A == "pedigree"){
       z_ped <- z_ped - as.numeric(Sys.time())
       A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose)
       z_ped <- z_ped + as.numeric(Sys.time())
@@ -2156,7 +2207,7 @@ breeding.diploid <- function(population,
     prev_rest_take <- NULL
 
     n.rep <- 0
-    if(length(bve.database)==length(bve.insert.database) && prod(bve.database==bve.insert.database) && nrow(loop_elements_list[[3]])==0){
+    if(length(bve.database)==length(bve.insert.database) && prod(bve.database==bve.insert.database)==1 && nrow(loop_elements_list[[3]])==0){
       bve.insert <- rep(TRUE, n.animals)
       bve.insert.copy <- NULL
     } else{
@@ -2263,8 +2314,10 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+        if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
+
           if(verbose) cat(paste0("Skip this BVE.\n"))
           next
         }
@@ -2283,6 +2336,7 @@ breeding.diploid <- function(population,
       } else if(emmreml.bve){
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+        if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE."))
@@ -2319,6 +2373,7 @@ breeding.diploid <- function(population,
 
         check <- sum(is.na(y[,bven]))
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+        if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2347,6 +2402,7 @@ breeding.diploid <- function(population,
         check <- sum(is.na(y))
 
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+        if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2410,6 +2466,7 @@ breeding.diploid <- function(population,
         rrblup.required <- FALSE
 
         if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+        if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
         if(check >= (length(y[,bven])-1)){
           if(verbose) cat(paste0("No phenotyped individuals for trait ", population$info$trait.name[bven], "\n"))
           if(verbose) cat(paste0("Skip this BVE.\n"))
@@ -2841,7 +2898,8 @@ breeding.diploid <- function(population,
 
           if(length(stay.loop.elements)>0){
             for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
-              insert.temp[index] <- which(stay.loop.elements==loop_elements_copy[index,6])
+              inserter <- which(stay.loop.elements==loop_elements_copy[index,6])
+              insert.temp[index] <- if(length(inserter)==1){ inserter} else{NA}
             }
           } else{
             for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
@@ -3103,8 +3161,11 @@ breeding.diploid <- function(population,
   if(length(selection.f.database)>0 & selection.size[2]==0){
     selection.size[2] <- sum(selection.f.database[,4] - selection.f.database[,3] + 1)
     if(verbose) cat("No selection.size provided. Use all available selected individuals.")
-    if(verbose) cat(paste0(selection.size[1], " female individuals selected."))
+    if(verbose) cat(paste0(selection.size[2], " female individuals selected."))
   }
+
+
+
 
   if(length(threshold.selection)>0){
     if(threshold.sign=="<"){
@@ -3588,7 +3649,7 @@ breeding.diploid <- function(population,
         }
 
         # Verwandtschaftsmatrix:
-        if(computation.A.ogc=="kinship"){
+        if(computation.A.ogc=="kinship" || computation.A.ogc == "pedigree"){
           A <- kinship.exp.store(population, database = animallist[,c(1,2,3,3)], depth.pedigree = depth.pedigree.ogc, verbose=verbose)
         } else if(computation.A.ogc=="vanRaden"){
           if(miraculix){

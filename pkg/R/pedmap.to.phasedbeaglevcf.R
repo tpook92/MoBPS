@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param db_dir Directory to save newly generated files (ped/map will be stored in the original folder)
 #' @param verbose Set to FALSE to not display any prints
 #' @return Phased vcf file in vcf_path
+#' @export
+
+# THIS FUNCTION CAN NOT BE EXPORTED IN ANY CRAN VERSION!
 
 pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NULL, beagle_jar="/home/nha/beagle.03Jul18.40b.jar",
                                       plink_dir="/home/nha/Plink/plink", db_dir="/home/nha/Plink/DB/", verbose=TRUE){
