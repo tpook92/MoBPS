@@ -26,6 +26,8 @@ json.simulation(file = NULL, total = NULL, fast.mode = FALSE,
 
 \item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
 
+\item{miraculix.chol}{Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is actived}
+
 \item{skip.population}{Set to TRUE to not execute breeding actions (only cost/time estimation will be performed)}
 }
 \value{

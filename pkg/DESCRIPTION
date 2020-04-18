@@ -9,7 +9,7 @@ Depends: R (>= 3.0),
 Imports: graphics, stats, utils
 License: GPL ( >= 3)
 LazyData: TRUE
-Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel
+Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer
 Enhances: miraculix (>= 0.9.10), RandomFieldsUtils (>= 0.5.9), MoBPSmaps
 Additional_repositories: https://tpook92.github.io/drat/
 RoxygenNote: 6.1.1

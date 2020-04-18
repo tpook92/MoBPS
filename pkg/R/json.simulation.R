@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @param skip.population Set to TRUE to not execute breeding actions (only cost/time estimation will be performed)
+#' @param miraculix.chol Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is actived
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
