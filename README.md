@@ -1,6 +1,6 @@
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
-A manuscript for the package is finally available in preprint (https://www.biorxiv.org/content/10.1101/829333v1)
+A manuscript for the package is published in G3 Genes Genomes Genetics (https://www.g3journal.org/content/early/2020/03/30/g3.120.401193)
  
 The package is designed in a way to allow for a maximum of flexibility and possible extensions in basically any step of the simulation. In case you feel like a specific functionally or option is missing in the program just contact me (torsten.pook@uni-goettingen.de). 
 I would highly appreciate detailled explanation of the genetics/breeding you are trying to model to make it easier for me to add in the options needed in an efficient manner. 
@@ -21,6 +21,28 @@ Note that this web-interface is still under active development with the final st
 # Update
 
 Updates since initial release:
+
+### Version 1.4.92 (18.04.09)
+
+Added copy.individual.m / copy.individual.f in breeding.diploid() for a more convenient way to copy selected individuals
+
+Added genotyped.share in breeding.diploid() to add genotype data for genotyped.gen/database/cohorts after initial generation
+
+Added bve.ignore.traits in breeding.diploid() to skip breeding value estimation for selected traits
+
+Fixed issue that bpcm.conversion in breeding.diploid() was actually expected BP/M conversion and not BP/CM
+
+Added set.class() function to manually change the class of selected gen/database/cohorts
+
+Updated Guidelines to MoBPS (e.g. examples on the use of how to generate genotyping/phenotyping data for subcohorts, generate traits based on real-world genotype+phenotype data)
+
+Fixes Bug in miraculix when more than 2 million markers were used. Miraculix 0.9.19 now automatically detects compiler settings and installs the most efficient algorith depending on the system (only for Linux)
+
+### Version 1.4.87 (27.03.09)
+
+CRAN RELEASE VERSION
+
+Only minor updates to documentation to pass remaining CRAN checks
 
 ### Version 1.4.85 (24.03.09)
 
