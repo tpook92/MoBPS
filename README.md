@@ -22,6 +22,42 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.5.0 (12.05.09) - Only Development-branch
+
+Non-phenotyped individuals now have the phenotype NA instead of 0 
+
+Default of bve.0isNA is now FALSE (as phenotypes of 0 usually do not code NA anymore)
+
+Share phenotyped of the selected cohorts can now be controlled via share.phenotyped
+
+Introduction of multiple genotyping arrays (select array used via genotyped.array and share genotyped via genotyped.share)
+
+Add different genotyping arrays via add.array()-function, Default array has all markers
+
+Renaming MoBPS parameters to more intuitive names (old ones are still usable):
+new.bv.observation -> phenotyping (.gen/database/cohort)
+new.bv.child -> phenotyping.child
+computation.A -> relationship.matrix
+computation.A.ogc -> relationship.matrix.ogc
+new.phenotype.correlation -> new.residual.correlation
+
+get.pheno now can extract phenotypes from all copies of an individual (set use.all.copy = TRUE)
+
+Added get.selectionbve() to export the estimated breeding value from the last applied selection procedure 
+
+Added sex.s as a parameter in breeding.diploid to controll offspring sex.
+
+Fixed a bug when partically phenotyping individuals
+
+Fixed a bug when traits were deleted from the population-list in creating.trait()
+
+#### Still in work: 
+
+simulation of imputation errors for BVE
+
+Use of genotyping arrays for GWAS
+
+
 ### Version 1.4.92 (18.04.09)
 
 Added copy.individual.m / copy.individual.f in breeding.diploid() for a more convenient way to copy selected individuals
@@ -33,6 +69,8 @@ Added bve.ignore.traits in breeding.diploid() to skip breeding value estimation 
 Fixed issue that bpcm.conversion in breeding.diploid() was actually expected BP/M conversion and not BP/CM
 
 Added set.class() function to manually change the class of selected gen/database/cohorts
+
+Added plot() for population-lists to apply common analysis function bv.development() / kinship.development(), get.pca()
 
 Updated Guidelines to MoBPS (e.g. examples on the use of how to generate genotyping/phenotyping data for subcohorts, generate traits based on real-world genotype+phenotype data)
 
