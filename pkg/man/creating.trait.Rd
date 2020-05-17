@@ -8,14 +8,14 @@ creating.trait(population = NULL, real.bv.add = NULL,
   real.bv.mult = NULL, real.bv.dice = NULL, bv.total = 0,
   polygenic.variance = 100, bve.mult.factor = NULL,
   bve.poly.factor = NULL, base.bv = NULL,
-  new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
-  n.additive = 0, n.dominant = 0, n.qualitative = 0,
-  n.quantitative = 0, var.additive.l = NULL, var.dominant.l = NULL,
-  var.qualitative.l = NULL, var.quantitative.l = NULL,
-  exclude.snps = NULL, randomSeed = NULL, shuffle.traits = NULL,
-  shuffle.cor = NULL, replace.real.bv = FALSE, trait.name = NULL,
-  remove.invalid.qtl = TRUE, bv.standard = FALSE, mean.target = NULL,
-  var.target = NULL, verbose = TRUE)
+  new.phenotype.correlation = NULL, new.residual.correlation = NULL,
+  new.breeding.correlation = NULL, n.additive = 0, n.dominant = 0,
+  n.qualitative = 0, n.quantitative = 0, var.additive.l = NULL,
+  var.dominant.l = NULL, var.qualitative.l = NULL,
+  var.quantitative.l = NULL, exclude.snps = NULL, randomSeed = NULL,
+  shuffle.traits = NULL, shuffle.cor = NULL, replace.traits = FALSE,
+  trait.name = NULL, remove.invalid.qtl = TRUE, bv.standard = FALSE,
+  mean.target = NULL, var.target = NULL, verbose = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -36,7 +36,9 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{base.bv}{Average genetic value of a trait}
 
-\item{new.phenotype.correlation}{Correlation of the simulated enviromental variance}
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
+
+\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
 
@@ -64,7 +66,7 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{shuffle.cor}{Target Correlation between shuffeled traits}
 
-\item{replace.real.bv}{If TRUE delete the simulated traits added before}
+\item{replace.traits}{If TRUE delete the simulated traits added before}
 
 \item{trait.name}{Name of the trait generated}
 

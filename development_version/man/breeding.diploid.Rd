@@ -108,7 +108,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
   bve.ignore.traits = NULL, genotyped.database = NULL,
   genotyped.gen = NULL, genotyped.cohorts = NULL,
   genotyped.share = 1, genotyped.array = 1, sex.s = NULL,
-  bve.imputation = TRUE, bve.imputation.errorrate = 0.01,
+  bve.imputation = TRUE, bve.imputation.errorrate = 0,
   share.phenotyped = 1)
 }
 \arguments{
@@ -169,6 +169,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
 \item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+
+\item{relationship.matrix.ogc}{Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
 \item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
 
@@ -575,8 +577,6 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0.01)}
 
 \item{share.phenotyped}{Share of the individuals to phenotype}
-
-\item{relationship.matrix}{Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 }
 \value{
 Population-list

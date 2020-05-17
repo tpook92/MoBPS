@@ -14,28 +14,30 @@ breeding.diploid(population, mutation.rate = 10^-5,
   add.gen = 0, recom.f.indicator = NULL, recom.f.polynom = NULL,
   duplication.rate = 0, duplication.length = 0.01,
   duplication.recombination = 1, new.class = 0L, bve = FALSE,
-  sigma.e = NULL, sigma.g = 100, new.bv.child = "zero",
-  computation.A = "vanRaden", computation.A.ogc = "kinship",
-  delete.haplotypes = NULL, delete.individuals = NULL,
-  fixed.breeding = NULL, fixed.breeding.best = NULL,
-  max.offspring = Inf, store.breeding.totals = FALSE,
-  forecast.sigma.g = TRUE, multiple.bve = "add",
-  store.bve.data = FALSE, fixed.assignment = FALSE,
-  reduce.group = NULL, reduce.group.selection = "random",
-  selection.highest = c(TRUE, TRUE), selection.criteria = NULL,
-  same.sex.activ = FALSE, same.sex.sex = 0.5,
-  same.sex.selfing = TRUE, selfing.mating = FALSE, selfing.sex = 0.5,
-  praeimplantation = NULL, heritability = NULL,
-  use.last.sigma.e = FALSE, save.recombination.history = FALSE,
-  martini.selection = FALSE, BGLR.bve = FALSE, BGLR.model = "RKHS",
-  BGLR.burnin = 500, BGLR.iteration = 5000, BGLR.print = FALSE,
-  copy.individual = FALSE, copy.individual.m = FALSE,
-  copy.individual.f = FALSE, dh.mating = FALSE, dh.sex = 0.5,
-  n.observation = 1L, bve.0isNA = TRUE, phenotype.bv = FALSE,
-  standardize.bv = FALSE, standardize.bv.level = 100,
-  standardize.bv.gen = 1, delete.same.origin = FALSE,
-  remove.effect.position = FALSE, estimate.u = FALSE,
-  new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
+  sigma.e = NULL, sigma.g = 100, new.bv.child = NULL,
+  phenotyping.child = "zero", relationship.matrix = "vanRaden",
+  relationship.matrix.ogc = "kinship", computation.A = NULL,
+  computation.A.ogc = NULL, delete.haplotypes = NULL,
+  delete.individuals = NULL, fixed.breeding = NULL,
+  fixed.breeding.best = NULL, max.offspring = Inf,
+  store.breeding.totals = FALSE, forecast.sigma.g = TRUE,
+  multiple.bve = "add", store.bve.data = FALSE,
+  fixed.assignment = FALSE, reduce.group = NULL,
+  reduce.group.selection = "random", selection.highest = c(TRUE, TRUE),
+  selection.criteria = NULL, same.sex.activ = FALSE,
+  same.sex.sex = 0.5, same.sex.selfing = TRUE,
+  selfing.mating = FALSE, selfing.sex = 0.5, praeimplantation = NULL,
+  heritability = NULL, use.last.sigma.e = FALSE,
+  save.recombination.history = FALSE, martini.selection = FALSE,
+  BGLR.bve = FALSE, BGLR.model = "RKHS", BGLR.burnin = 500,
+  BGLR.iteration = 5000, BGLR.print = FALSE, copy.individual = FALSE,
+  copy.individual.m = FALSE, copy.individual.f = FALSE,
+  dh.mating = FALSE, dh.sex = 0.5, n.observation = 1L,
+  bve.0isNA = FALSE, phenotype.bv = FALSE, standardize.bv = FALSE,
+  standardize.bv.level = 100, standardize.bv.gen = 1,
+  delete.same.origin = FALSE, remove.effect.position = FALSE,
+  estimate.u = FALSE, new.phenotype.correlation = NULL,
+  new.residual.correlation = NULL, new.breeding.correlation = NULL,
   estimate.add.gen.var = FALSE, estimate.pheno.var = FALSE,
   best1.from.group = NULL, best2.from.group = NULL,
   best1.from.cohort = NULL, best2.from.cohort = NULL,
@@ -65,12 +67,13 @@ breeding.diploid(population, mutation.rate = 10^-5,
   time.point = 0, creating.type = 0, multiple.observation = FALSE,
   new.bv.observation = NULL, new.bv.observation.gen = NULL,
   new.bv.observation.cohorts = NULL,
-  new.bv.observation.database = NULL, bve.gen = NULL,
-  bve.cohorts = NULL, bve.database = NULL, sigma.e.gen = NULL,
-  sigma.e.cohorts = NULL, sigma.e.database = NULL,
-  sigma.g.gen = NULL, sigma.g.cohorts = NULL,
-  sigma.g.database = NULL, gwas.gen = NULL, gwas.cohorts = NULL,
-  gwas.database = NULL, bve.insert.gen = NULL,
+  new.bv.observation.database = NULL, phenotyping = NULL,
+  phenotyping.gen = NULL, phenotyping.cohorts = NULL,
+  phenotyping.database = NULL, bve.gen = NULL, bve.cohorts = NULL,
+  bve.database = NULL, sigma.e.gen = NULL, sigma.e.cohorts = NULL,
+  sigma.e.database = NULL, sigma.g.gen = NULL,
+  sigma.g.cohorts = NULL, sigma.g.database = NULL, gwas.gen = NULL,
+  gwas.cohorts = NULL, gwas.database = NULL, bve.insert.gen = NULL,
   bve.insert.cohorts = NULL, bve.insert.database = NULL,
   reduced.selection.panel.m = NULL, reduced.selection.panel.f = NULL,
   breeding.all.combination = FALSE, depth.pedigree = 7,
@@ -104,7 +107,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
   threshold.sign = ">", input.phenotype = "own",
   bve.ignore.traits = NULL, genotyped.database = NULL,
   genotyped.gen = NULL, genotyped.cohorts = NULL,
-  genotyped.share = 1)
+  genotyped.share = 1, genotyped.array = 1, sex.s = NULL,
+  bve.imputation = TRUE, bve.imputation.errorrate = 0,
+  share.phenotyped = 1)
 }
 \arguments{
 \item{population}{Population list}
@@ -139,7 +144,7 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{class.f}{Migrationlevels of female individuals to consider for mating process (default: 0)}
 
-\item{add.gen}{New animals are generated in the next generation (default: length(population$breeding))}
+\item{add.gen}{Generation you want to add the new individuals to (default: New generation)}
 
 \item{recom.f.indicator}{Use step function for recombination map (transform snp.positions if possible instead)}
 
@@ -159,11 +164,17 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{sigma.g}{Genetic variance (default: 100 - only used if not computed via estimate.sigma.g^2 in der Zuchtwertschaetzung (Default: 100)}
 
-\item{new.bv.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
+\item{new.bv.child}{(OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
-\item{computation.A}{Method to calculate pedigree matrix (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+\item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
-\item{computation.A.ogc}{Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
+\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+
+\item{relationship.matrix.ogc}{Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
+
+\item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+
+\item{computation.A.ogc}{(OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
 \item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted (only use if storage problem!)}
 
@@ -251,7 +262,9 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{estimate.u}{If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)}
 
-\item{new.phenotype.correlation}{Correlation of the simulated enviromental variance}
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance}
+
+\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!)}
 
@@ -379,13 +392,21 @@ breeding.diploid(population, mutation.rate = 10^-5,
 
 \item{multiple.observation}{Set TRUE to allow for more than one phenotype observation per individual (this will decrease enviromental variance!)}
 
-\item{new.bv.observation}{Vector of all generation for which breeding values are observed (alt: "all" for all & "non_obs" for all non-observed individuals)}
+\item{new.bv.observation}{(OLD! - use phenotyping) Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
 
-\item{new.bv.observation.gen}{Vector of generation from which to generate additional phenotypes}
+\item{new.bv.observation.gen}{(OLD! use phenotyping.gen) Vector of generation from which to generate additional phenotypes}
 
-\item{new.bv.observation.cohorts}{Vector of cohorts from which to generate additional phenotype}
+\item{new.bv.observation.cohorts}{(OLD! use phenotyping.cohorts)Vector of cohorts from which to generate additional phenotype}
 
-\item{new.bv.observation.database}{Matrix of groups from which to generate additional phenotypes}
+\item{new.bv.observation.database}{(OLD! use phenotyping.database) Matrix of groups from which to generate additional phenotypes}
+
+\item{phenotyping}{Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
+
+\item{phenotyping.gen}{Vector of generation from which to generate additional phenotypes}
+
+\item{phenotyping.cohorts}{Vector of cohorts from which to generate additional phenotype}
+
+\item{phenotyping.database}{Matrix of groups from which to generate additional phenotypes}
 
 \item{bve.gen}{Generations of individuals to consider in breeding value estimation (default: NULL)}
 
@@ -546,6 +567,16 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{genotyped.cohorts}{Cohorts to generate genotype data (that can be used in a BVE)}
 
 \item{genotyped.share}{Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)}
+
+\item{genotyped.array}{Genotyping array used}
+
+\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
+
+\item{bve.imputation}{Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available}
+
+\item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0.01)}
+
+\item{share.phenotyped}{Share of the individuals to phenotype}
 }
 \value{
 Population-list

@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
 #' @param exclude.snps Marker were no QTL are simulated on
-#' @param replace.real.bv If TRUE delete the simulated traits added before
+#' @param replace.traits If TRUE delete the simulated traits added before
 #' @param shuffle.traits Combine different traits into a joined trait
 #' @param shuffle.cor Target Correlation between shuffeled traits
 #' @param real.bv.add Single Marker effects
@@ -44,7 +44,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.mult.factor Multiplicate trait value times this
 #' @param bve.poly.factor Potency trait value over this
 #' @param base.bv Average genetic value of a trait
-#' @param new.phenotype.correlation Correlation of the simulated enviromental variance
+#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
+#' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param trait.name Name of the trait generated
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
@@ -62,6 +63,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            bv.total=0, polygenic.variance=100,
                            bve.mult.factor=NULL, bve.poly.factor=NULL, base.bv=NULL,
                            new.phenotype.correlation=NULL,
+                           new.residual.correlation=NULL,
                            new.breeding.correlation=NULL,
                            n.additive=0,
                            n.dominant=0,
@@ -75,7 +77,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            randomSeed=NULL,
                            shuffle.traits=NULL,
                            shuffle.cor= NULL,
-                           replace.real.bv=FALSE,
+                           replace.traits=FALSE,
                            trait.name=NULL,
                            remove.invalid.qtl=TRUE,
                            bv.standard=FALSE,
@@ -97,6 +99,9 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     var.target <- 10
   }
 
+  if(length(new.phenotype.correlation)>0){
+    new.residual.correlation <- new.phenotype.correlation
+  }
 
   if(!is.list(var.additive.l) ){
     var.additive.l <- list(var.additive.l)
@@ -157,30 +162,30 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
 
   if(length(population)>0){
-    if(length(real.bv.add)==0 && replace.real.bv==FALSE){
+    if(length(real.bv.add)==0 && replace.traits==FALSE){
       real.bv.add <- population$info$real.bv.add
       real.bv.add[[population$info$bv.calc+1]] <- NULL
-    } else if(replace.real.bv==FALSE){
+    } else if(replace.traits==FALSE){
       if(!is.list(real.bv.add)){
         real.bv.add <- list(real.bv.add)
       }
       real.bv.add <- c(population$info$real.bv.add, real.bv.add)
       real.bv.add[[population$info$bv.calc+1]] <- NULL
     }
-    if(length(real.bv.mult)==0 && replace.real.bv==FALSE){
+    if(length(real.bv.mult)==0 && replace.traits==FALSE){
       real.bv.mult <- population$info$real.bv.mult
       real.bv.mult[[population$info$bv.calc+1]] <- NULL
-    } else if(replace.real.bv==FALSE){
+    } else if(replace.traits==FALSE){
       if(!is.list(real.bv.mult)){
         real.bv.mult <- list(real.bv.mult)
       }
       real.bv.mult <- c(population$info$real.bv.mult, real.bv.mult)
       real.bv.mult[[population$info$bv.calc+1]] <- NULL
     }
-    if(length(real.bv.dice)==0 && replace.real.bv==FALSE){
+    if(length(real.bv.dice)==0 && replace.traits==FALSE){
       real.bv.dice <- population$info$real.bv.dice
       real.bv.dice[[population$info$bv.calc+1]] <- NULL
-    } else if(replace.real.bv==FALSE){
+    } else if(replace.traits==FALSE){
       if(!is.list(real.bv.dice)){
         real.bv.dice <- list(real.bv.dice)
       }
@@ -437,11 +442,24 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     population$info$real.bv.length <- c(0,0,0)
   }
 
+  if(length(new.residual.correlation)==0 &&
+     length(population$info$pheno.correlation)>0 &&
+     sum(population$info$pheno.correlation)>sum(diag(population$info$pheno.correlation))){
+    cat("Residual correlation has been set to zero since new traits were added ")
+  }
+
+  if(length(new.breeding.correlation)==0 &&
+     length(population$info$bv.correlation)>0 &&
+     sum(population$info$bv.correlation)>sum(diag(population$info$bv.correlation))){
+    cat("Genetic correlation between non-QTL traits has been set to zero since new traits were added ")
+  }
+
   if(bv.total>0){
     population$info$pheno.correlation <- diag(1L, bv.total)
   }
-  if(length(new.phenotype.correlation)>0){
-    population$info$pheno.correlation <- t(chol(new.phenotype.correlation))
+
+  if(length(new.residual.correlation)>0){
+    population$info$pheno.correlation <- t(chol(new.residual.correlation))
   }
   if(bv.total>0){
     population$info$bv.correlation <- diag(1L, bv.total)
@@ -452,12 +470,12 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
   for(generation in 1:nrow(population$info$size)){
     counter <- population$info$size[generation,] + 1
-    population$breeding[[generation]][[3]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Selektionsfunktion
+    population$breeding[[generation]][[3]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # estimated breeding value
       population$breeding[[generation]][[4]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
+      population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # real genomic value
       population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # geschaetzer ZW
-      population$breeding[[generation]][[10]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+      population$breeding[[generation]][[9]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-1) # phenotype
+      population$breeding[[generation]][[10]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-1)
       population$breeding[[generation]][[19]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Reliabilities
       population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
       population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
@@ -572,12 +590,12 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   }
 
   # Add traits with no generated phenotypes
+  temp1 <- rep(0, population$info$bv.nr)
   for(gen in 1:length(population$breeding)){
     for(sex in 1:2){
       if(length(population$breeding[[gen]][[sex]])>0){
-        to_add <- population$info$bv.nr - length(population$breeding[[gen]][[sex]][[1]][[15]])
         for(index in 1:length(population$breeding[[gen]][[sex]])){
-          population$breeding[[gen]][[sex]][[index]][[15]] <- c(population$breeding[[gen]][[sex]][[index]][[15]], rep(0, to_add))
+          population$breeding[[gen]][[sex]][[index]][[15]] <- temp1
         }
       }
     }

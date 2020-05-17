@@ -10,7 +10,8 @@ generation.individual(indexb, population, info_father_list,
   duplication.length, duplication.recombination, delete.same.origin,
   gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
   decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
-  dh.mating, share.genotyped, added.genotyped, dh.sex, n.observation)
+  dh.mating, share.genotyped, added.genotyped, genotyped.array, dh.sex,
+  n.observation)
 }
 \arguments{
 \item{indexb}{windows parallel internal test}
@@ -62,6 +63,8 @@ generation.individual(indexb, population, info_father_list,
 \item{share.genotyped}{windows parallel internal test}
 
 \item{added.genotyped}{windows parallel internal test}
+
+\item{genotyped.array}{windows parallel internal test}
 
 \item{dh.sex}{windows parallel internal test}
 

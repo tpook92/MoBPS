@@ -4,7 +4,8 @@
 \alias{get.pheno}
 \title{Export underlying phenotypes}
 \usage{
-get.pheno(population, database = NULL, gen = NULL, cohorts = NULL)
+get.pheno(population, database = NULL, gen = NULL, cohorts = NULL,
+  use.all.copy = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +15,8 @@ get.pheno(population, database = NULL, gen = NULL, cohorts = NULL)
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{use.all.copy}{Set to TRUE to extract phenotyping}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals

@@ -146,7 +146,7 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
     graphics::legend("topleft",c("avg. kinship (based on IBD)"), lty=c(1), col=c("red"), lwd=c(2,2))
   }
 
-  return(inbred)
+  inbred
 }
 
 

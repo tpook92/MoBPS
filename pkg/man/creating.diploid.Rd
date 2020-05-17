@@ -14,20 +14,21 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   snps.equidistant = NULL, change.order = FALSE, bv.total = 0,
   polygenic.variance = 100, bve.mult.factor = NULL,
   bve.poly.factor = NULL, base.bv = NULL, add.chromosome.ends = TRUE,
-  new.phenotype.correlation = NULL, new.breeding.correlation = NULL,
-  add.architecture = NULL, snp.position = NULL,
-  position.scaling = FALSE, bit.storing = FALSE, nbits = 30,
-  randomSeed = NULL, miraculix = TRUE, miraculix.dataset = TRUE,
-  n.additive = 0, n.dominant = 0, n.qualitative = 0,
-  n.quantitative = 0, var.additive.l = NULL, var.dominant.l = NULL,
-  var.qualitative.l = NULL, var.quantitative.l = NULL,
-  exclude.snps = NULL, replace.real.bv = FALSE,
-  shuffle.traits = NULL, shuffle.cor = NULL, skip.rest = FALSE,
-  name.cohort = NULL, template.chip = NULL, beta.shape1 = 1,
-  beta.shape2 = 1, time.point = 0, creating.type = 0,
-  trait.name = NULL, share.genotyped = 1, genotyped.s = NULL,
-  map = NULL, remove.invalid.qtl = TRUE, verbose = TRUE,
-  bv.standard = FALSE, mean.target = NULL, var.target = NULL)
+  new.phenotype.correlation = NULL, new.residual.correlation = NULL,
+  new.breeding.correlation = NULL, add.architecture = NULL,
+  snp.position = NULL, position.scaling = FALSE, bit.storing = FALSE,
+  nbits = 30, randomSeed = NULL, miraculix = TRUE,
+  miraculix.dataset = TRUE, n.additive = 0, n.dominant = 0,
+  n.qualitative = 0, n.quantitative = 0, var.additive.l = NULL,
+  var.dominant.l = NULL, var.qualitative.l = NULL,
+  var.quantitative.l = NULL, exclude.snps = NULL,
+  replace.real.bv = FALSE, shuffle.traits = NULL, shuffle.cor = NULL,
+  skip.rest = FALSE, name.cohort = NULL, template.chip = NULL,
+  beta.shape1 = 1, beta.shape2 = 1, time.point = 0,
+  creating.type = 0, trait.name = NULL, share.genotyped = 1,
+  genotyped.s = NULL, map = NULL, remove.invalid.qtl = TRUE,
+  verbose = TRUE, bv.standard = FALSE, mean.target = NULL,
+  var.target = NULL)
 }
 \arguments{
 \item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
@@ -54,7 +55,7 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 
 \item{population}{Population list}
 
-\item{sex.s}{Specify with newly added individuals are male (1) or female (2)}
+\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
 
 \item{add.chromosome}{If TRUE add an additional chromosome to the dataset}
 
@@ -92,7 +93,9 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
 
-\item{new.phenotype.correlation}{Correlation of the simulated enviromental variance}
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
+
+\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
 

@@ -128,5 +128,5 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
   }
 
 
-  return(b$vectors)
+  b$vectors
 }

@@ -132,7 +132,7 @@ bv.development.box <- function(population, database=NULL, gen=NULL, cohorts=NULL
   }
   for(nr in bvrow){
     time_points <- sort(unique(time_plot))
-    x_axis <- length(time_points) + length(values)
+    x_axis <- length(time_points) + length(values) - 1.5
     y_min <- Inf
     y_max <- -Inf
     for(index in 1:length(values)){

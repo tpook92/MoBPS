@@ -27,7 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nindi number of inidividuals to generate in a random dataset
 #' @param freq frequency of allele 1 when randomly generating a dataset
 #' @param population Population list
-#' @param sex.s Specify with newly added individuals are male (1) or female (2)
+#' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
 #' @param add.chromosome If TRUE add an additional chromosome to the dataset
 #' @param generation Generation of the newly added individuals (default: 1)
@@ -64,7 +64,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.poly.factor Potency trait value over this
 #' @param base.bv Average genetic value of a trait
 #' @param add.chromosome.ends Add chromosome ends as recombination points
-#' @param new.phenotype.correlation Correlation of the simulated enviromental variance
+#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
+#' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param add.architecture Add genetic architecture (marker positions)
 #' @param position.scaling Manual scaling of snp.position
@@ -107,6 +108,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              bve.mult.factor=NULL, bve.poly.factor=NULL,
                              base.bv=NULL, add.chromosome.ends=TRUE,
                              new.phenotype.correlation=NULL,
+                             new.residual.correlation = NULL,
                              new.breeding.correlation=NULL,
                              add.architecture=NULL, snp.position=NULL,
                              position.scaling=FALSE,
@@ -162,6 +164,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     var.target <- 10
   }
 
+  if(length(new.phenotype.correlation)>0){
+    new.residual.correlation <- new.phenotype.correlation
+  }
 
   if(length(map)>0){
     while(ncol(map)<5){
@@ -222,6 +227,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     decodeOriginsU <- decodeOriginsR
     miraculix <- FALSE
     miraculix.dataset <- FALSE
+  }
+
+  if(add.chromosome == FALSE & length(population)>0){
+    if(length(dataset)==0 & nindi > 0){
+      nsnp <- sum(population$info$snp)
+    }
   }
 
   if(length(template.chip)==1){
@@ -359,6 +370,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     nsnp <- numeric(length(chr.unique))
     for(chr.c in 1:length(chr.unique)){
       nsnp[chr.c] <- sum(chr.nr==chr.unique[chr.c])
+    }
+  }
+  if(length(chr.nr)==0 & sum(nsnp)>0){
+    chr.nr <- numeric(sum(nsnp))
+    for(sindex in 1:length(nsnp)){
+      chr.nr[1:nsnp[sindex] + sum(nsnp[0:(sindex-1)])] <- sindex
     }
   }
 
@@ -994,6 +1011,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$version_MoBPS <- utils::sessionInfo()$otherPkgs$MoBPS
       population$info$version_miraculix <- utils::sessionInfo()$otherPkgs$miraculix
       population$info$cohort.index <- 1
+      population$info$array.name = "Full_Array"
+      population$info$array.markers = list(rep(TRUE,nsnp))
+      population$info$array.is_subset = FALSE
+
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
@@ -1025,6 +1046,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$cumsnp <- c(population$info$cumsnp, sum(population$info$snp))
       population$info$bp <- c(population$info$bp, bp)
       population$info$snp.name <- c(population$info$snp.name, snp.name)
+
+      if(length(population$info$array.name)>1){
+        stop("New chromosomes can not be added after more than one array is entered!")
+      } else{
+        population$info$array.markers[[1]] <- c(population$info$array.markers[[1]], rep(TRUE, nsnp))
+      }
+
     }
     if(generation!=1){
       take <- which(population$info$origin.gen==generation)
@@ -1112,6 +1140,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- genotyped
         population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex], deparse.level = 0)
         storage.mode(population$breeding[[generation]][[sex]][[counter[sex]]][[21]]) <- "integer"
+
+        population$breeding[[generation]][[sex]][[counter[sex]]][[22]] <- if(genotyped>0){1} else{NULL}
+        population$breeding[[generation]][[sex]][[counter[sex]]][[23]] <- "placeholder"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -1123,8 +1154,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[6]] <- rep(class,counter[2]-1)
         population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
         population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-        population$breeding[[generation]][[9]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Phenotype
-        population$breeding[[generation]][[10]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+        population$breeding[[generation]][[9]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-1) # Phenotype
+        population$breeding[[generation]][[10]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[11]] <- rep(time.point,counter[1]-1) # Time point
         population$breeding[[generation]][[12]] <- rep(time.point,counter[2]-1)
         population$breeding[[generation]][[13]] <- rep(creating.type,counter[1]-1) # Creating.type
@@ -1147,6 +1178,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
         population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
         population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+        population$breeding[[generation]][[31]] <- rep(0,counter[1]-1) # Time of death point
+        population$breeding[[generation]][[32]] <- rep(0,counter[2]-1)
         # calculate Real-ZW
       } else{
         population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -1155,8 +1188,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[6]] <- c(population$breeding[[generation]][[6]], rep(class ,counter[2]-counter.start[2]))
         population$breeding[[generation]][[7]] <- cbind(population$breeding[[generation]][[7]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # realer ZW
         population$breeding[[generation]][[8]] <- cbind(population$breeding[[generation]][[8]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
-        population$breeding[[generation]][[9]] <- cbind(population$breeding[[generation]][[9]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # geschaetzer ZW
-        population$breeding[[generation]][[10]] <-cbind(population$breeding[[generation]][[10]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+        population$breeding[[generation]][[9]] <- cbind(population$breeding[[generation]][[9]] , matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # geschaetzer ZW
+        population$breeding[[generation]][[10]] <-cbind(population$breeding[[generation]][[10]] , matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
         population$breeding[[generation]][[11]] <- c(population$breeding[[generation]][[11]], rep(time.point ,counter[1]-counter.start[1])) # Time point
         population$breeding[[generation]][[12]] <- c(population$breeding[[generation]][[12]], rep(time.point ,counter[2]-counter.start[2]))
         population$breeding[[generation]][[13]] <- c(population$breeding[[generation]][[13]], rep(time.point ,counter[1]-counter.start[1])) # Creating type
@@ -1180,6 +1213,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[28]] <-cbind(population$breeding[[generation]][[28]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
         population$breeding[[generation]][[29]] <- cbind(population$breeding[[generation]][[29]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # number of offspring used
         population$breeding[[generation]][[30]] <-cbind(population$breeding[[generation]][[30]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+
+        population$breeding[[generation]][[31]] <- c(population$breeding[[generation]][[31]], rep(0, counter[1]-counter.start[1])) # Last applied selection index
+        population$breeding[[generation]][[32]] <- c(population$breeding[[generation]][[32]], rep(0, counter[2]-counter.start[2]))
 
       }
 
@@ -1276,8 +1312,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(bv.total>0){
         population$info$pheno.correlation <- diag(1L, bv.total)
       }
-      if(length(new.phenotype.correlation)>0){
-        population$info$pheno.correlation <- t(chol(new.phenotype.correlation))
+      if(length(new.residual.correlation)>0){
+        population$info$pheno.correlation <- t(chol(new.residual.correlation))
       }
       if(bv.total>0){
         population$info$bv.correlation <- diag(1L, bv.total)
@@ -1431,6 +1467,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                                "time point", "creating.type")
       }
+      rownames(population$info$cohorts) <- population$info$cohorts[,1]
     }
 
 

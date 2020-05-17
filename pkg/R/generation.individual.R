@@ -47,6 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dh.mating windows parallel internal test
 #' @param share.genotyped windows parallel internal test
 #' @param added.genotyped windows parallel internal test
+#' @param genotyped.array windows parallel internal test
 #' @param dh.sex windows parallel internal test
 #' @param n.observation windows parallel internal test
 #' @return Offspring individual
@@ -57,7 +58,7 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
                                   duplication.recombination, delete.same.origin,
                                   gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
                                   decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
-                                  dh.mating, share.genotyped, added.genotyped,
+                                  dh.mating, share.genotyped, added.genotyped, genotyped.array,
                                   dh.sex, n.observation){
 
   info.father <- info_father_list[indexb,]
@@ -154,11 +155,19 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
   }
   if(copy.individual){
     child[[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
-    if(added.genotyped>0 && child[[16]]==0){
-      child[[16]] <- stats::rbinom(1,1,added.genotyped)
+    if(added.genotyped>0){
+      if(stats::rbinom(1,1,added.genotyped)==1){
+        child[[16]] <- 1
+        child[[22]] <- c(child[[22]], genotyped.array)
+      }
+
     }
   } else{
-    child[[16]] <- stats::rbinom(1,1,share.genotyped)
+    if(stats::rbinom(1,1,share.genotyped)==1){
+      child[[16]] <- 1
+      child[[22]] <- genotyped.array
+    }
+
   }
 
   child[[19]] <- child1[[7]]
@@ -167,6 +176,8 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
   if(copy.individual){
     child[[21]] <-  matrix(info.father[1:3], nrow=1)
   }
+
+  child[[23]] <- "placeholder"
 
   return(child)
 

@@ -64,7 +64,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param phenotyping Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
 #' @param phenotyping.child Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)
 #' @param relationship.matrix Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")
-#' @param relationship.matrix Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
+#' @param relationship.matrix.ogc Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param delete.haplotypes Generations for with haplotypes of founders can be deleted (only use if storage problem!)
 #' @param delete.individuals Generations for with individuals are completley deleted (only use if storage problem!)
 #' @param praeimplantation Only use matings the lead to a specific genotype in a specific marker
@@ -494,7 +494,7 @@ breeding.diploid <- function(population,
             genotyped.array = 1,
             sex.s = NULL,
             bve.imputation = TRUE,
-            bve.imputation.errorrate = 0.01,
+            bve.imputation.errorrate = 0,
             share.phenotyped=1
             ){
 
@@ -698,7 +698,12 @@ breeding.diploid <- function(population,
     # combine is modelled via cloning with no recombination
     copy.individual <- TRUE
     selfing.mating <- TRUE
-    selfing.sex <- 0
+    if(selection.size[2]>0 & selection.size[1]==0){
+      selfing.sex <- 1
+    } else{
+      selfing.sex <- 0
+    }
+
     class.m <- unique(c(class.m, class.f))
     best1.from.cohort <- c(best1.from.cohort, best2.from.cohort)
     best2.from.cohort <- NULL
@@ -1637,6 +1642,7 @@ breeding.diploid <- function(population,
       activ.base <- bve.insert.database[index,]
       if(diff(activ.base[3:4])>=0){
         population$breeding[[activ.base[1]]][[activ.base[2]+2]][,activ.base[3]:activ.base[4]] <- population$breeding[[activ.base[1]]][[activ.base[2]+8]][,activ.base[3]:activ.base[4]]
+        population$breeding[[activ.base[1]]][[activ.base[2]+2]][,activ.base[3]:activ.base[4]][is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,activ.base[3]:activ.base[4]])] <- 0 # Breeding values cant be missing
       }
       if(report.accuracy){
         y_real_report <- NULL
@@ -1777,6 +1783,10 @@ breeding.diploid <- function(population,
       loop_elements_list[[1]][,1] <- 1:n.animals
       genotyped <- numeric(n.animals)
 
+    }
+
+    if(bve.imputation.errorrate>0){
+      warning("Simulation of imputing errors currently not implemented!")
     }
     # sequenceZ is to not process all SNPs at the same time. Especially relevant for large scale datasets!
     if(sequenceZ){
@@ -2018,7 +2028,17 @@ breeding.diploid <- function(population,
       to_remove <- c(to_remove, population$info$effect.p)
     }
 
-    if(length(to_remove)>0){
+    if(length(to_remove)==sum(population$info$snp)){
+
+      if(relationship.matrix != "pedigree" && relationship.matrix != "kinship"){
+        warning("No genotyped individuals!")
+      }
+      to_remove <- NULL
+    }
+
+    if(length(to_remove)>0 ){
+
+
       if(miraculix && exists("Z.code")){
         if (requireNamespace("miraculix", quietly = TRUE)) {
           ##
@@ -3391,6 +3411,8 @@ breeding.diploid <- function(population,
               for(index5 in 1:nrow(possible_animals)){
                 breeding.values[,index5] <- population$breeding[[possible_animals[index5,1]]][[possible_animals[index5,2]+addsel[possible_animals[index5,2]]]][,possible_animals[index5,3]]
               }
+
+
               if(multiple.bve.scale[sex]=="bve_sd" || multiple.bve.scale[sex]=="pheno_sd"){
 
                 sd_store <- numeric(population$info$bv.nr)
@@ -4702,6 +4724,7 @@ breeding.diploid <- function(population,
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[7]] <- child1[[4]]
       population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[8]] <- child2[[4]]
 
+
       if(copy.individual){
         population$breeding[[current.gen+1]][[sex+22]][current.size[sex]] <- population$breeding[[info.father[1]]][[info.father[2]+22]][info.father[3]]
       }
@@ -4760,6 +4783,8 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- rep(0L, population$info$bv.nr)
       }
 
+      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <- "placeholder"
+
       if(copy.individual){
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
         if(added.genotyped>0 && population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]]==0){
@@ -4794,7 +4819,7 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[20]] <- child2[[7]]
       }
 
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <- "placeholder"
+
 
       if(store.comp.times.generation){
         tock <- as.numeric(Sys.time())
