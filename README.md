@@ -22,7 +22,25 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
-### Version 1.5.0 (12.05.09) - Only Development-branch
+### Version 1.5.11 (27.05.20)
+
+Added avoid.mating.fullsib / avoid.mating.halfsib in breeding.diploid() to not generate offspring from mating of fullsib/halfsibs
+
+Added option to scale according to variance of true genomic values in selection (multiple.bve.scale = "bv")
+
+Fixed bug in kinship.exp.store that lead to crashes when parents / offspring were stored in the same generation
+
+MoBPSmaps 0.1.9 - new genetic map for salmon (Tsai et al 2016)
+
+### Version 1.5.04 (17.05.20) - offical 1.5 release
+
+Minor bugfixes
+
+Improved documentation
+
+Updated Guidelines
+
+### Version 1.5.0 (12.05.20) - only in development branch
 
 Non-phenotyped individuals now have the phenotype NA instead of 0 
 
