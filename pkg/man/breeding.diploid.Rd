@@ -109,7 +109,8 @@ breeding.diploid(population, mutation.rate = 10^-5,
   genotyped.gen = NULL, genotyped.cohorts = NULL,
   genotyped.share = 1, genotyped.array = 1, sex.s = NULL,
   bve.imputation = TRUE, bve.imputation.errorrate = 0,
-  share.phenotyped = 1)
+  share.phenotyped = 1, avoid.mating.fullsib = FALSE,
+  avoid.mating.halfsib = FALSE)
 }
 \arguments{
 \item{population}{Population list}
@@ -577,6 +578,10 @@ breeding.diploid(population, mutation.rate = 10^-5,
 \item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0.01)}
 
 \item{share.phenotyped}{Share of the individuals to phenotype}
+
+\item{avoid.mating.fullsib}{Set to TRUE to not generate offspring of full siblings}
+
+\item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
 }
 \value{
 Population-list

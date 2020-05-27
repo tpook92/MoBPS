@@ -4,8 +4,8 @@
 \alias{analyze.population}
 \title{Analyze allele frequency of a single marker}
 \usage{
-analyze.population(population, chromosome, snp, database = NULL,
-  gen = NULL, cohorts = NULL)
+analyze.population(population, chromosome = NULL, snp = NULL,
+  snp.name = NULL, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}
@@ -13,6 +13,8 @@ analyze.population(population, chromosome, snp, database = NULL,
 \item{chromosome}{Number of the chromosome of the relevant SNP}
 
 \item{snp}{Number of the relevant SNP}
+
+\item{snp.name}{Name of the SNP to analyze}
 
 \item{database}{Groups of individuals to consider for the export}
 

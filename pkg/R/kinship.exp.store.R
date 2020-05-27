@@ -149,9 +149,9 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
   for(index in 1:nrow(database)){
     activ_ped <- which(pedigree.database[,1]==database[index,1] & pedigree.database[,2]==database[index,2] & pedigree.database[,3]<= database[index,3] & pedigree.database[,4]>= database[index,4])[1]
     if(activ_ped>1){
-      prior <- sum(diff(t(pedigree.database[1:(activ_ped-1),3:4,drop=FALSE]))+1) - database[index,3] + pedigree.database[activ_ped,3]
+      prior <- sum(diff(t(pedigree.database[1:(activ_ped-1),3:4,drop=FALSE]))+1) + database[index,3] - pedigree.database[activ_ped,3]
     } else{
-      prior <-  pedigree.database[activ_ped,3] - database[index,3]
+      prior <-  -pedigree.database[activ_ped,3] + database[index,3]
     }
     if(index==1){
       prior2 <- 0

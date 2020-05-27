@@ -145,6 +145,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               selection_index_miesenberger_wscaling[index] <- "pheno_sd"
             } else if(selection_index_scaling_raw[[index]]$w_scaling=="Per Breeding Value SD"){
               selection_index_miesenberger_wscaling[index] <- "bve_sd"
+            } else if(selection_index_scaling_raw[[index]]$w_scaling=="Per Genomic Value SD"){
+              selection_index_miesenberger_wscaling[index] <- "bv_sd"
             }
           }
 
@@ -348,6 +350,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
     #### MANUEL MODIFICATION:
     {
 
+      for(index in 1:length(nodes)){
+        if(length(nodes[[index]]$delete_info)==0){
+          nodes[[index]]$delete_info <- FALSE
+        }
+      }
+
       for(index in 1:length(edges)){
         if(length(edges[[index]]$phenotype_used)==0){
           if(length(edges[[index]]$`Use Offspring for BVE`)>0 && edges[[index]]$`Use Offspring for BVE`=="Yes"){
@@ -363,6 +371,17 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
         }
         if(length(edges[[index]]$skip)==0){
           edges[[index]]$skip <- "No"
+        }
+      }
+      for(index in 1:length(edges)){
+        if(length(edges[[index]]$'half_sib')==0){
+          edges[[index]]$'half_sib' <- FALSE
+        }
+        if(length(edges[[index]]$'full_sib')==0){
+          edges[[index]]$'full_sib' <- FALSE
+        }
+        if(edges[[index]]$'Breeding Type'=="Semen-collection"){
+          edges[[index]]$'Breeding Type' <- 'DH-Production'
         }
       }
       if(fast.mode){
@@ -463,6 +482,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           if(verbose) cat("Both node used with only one sex - set Proportion of male to 0.5. \n")
         }
       }
+
       for(index in 1:length(nodes)){
         if(length(nodes[[index]]$`Genotype generation`)==0 && nodes[[index]]$Founder=="Yes"){
           nodes[[index]]$`Genotype generation` <- "Random-sampling"
@@ -570,15 +590,12 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
     ################### Preparation ############################
     {
       # check for Ind
-      same.sex.activ <- FALSE
-      same.sex.sex <- 0.5
+
       for(index in 1:length(nodes)){
         if(nodes[[index]]$'Sex'=="Indefinit"){
           for(index2 in 1:length(nodes)){
             nodes[[index2]]$'Sex' <- "Male"
           }
-          same.sex.activ <- TRUE
-          same.sex.sex <- 0
         }
       }
 
@@ -906,6 +923,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             map <- MoBPSmaps::map_wheat1
           } else if(geninfo$`Ensembl Dataset`== "29k_Wheat_Wen"){
             map <- MoBPSmaps::map_wheat2
+          } else if(geninfo$`Ensembl Dataset`== "96k_AtlanticSalmon_male_Tsai"){
+            map <- MoBPSmaps::map_salmon1
+          } else if(geninfo$`Ensembl Dataset`== "96k_AtlanticSalmon_female_Tsai"){
+            map <- MoBPSmaps::map_salmon2
           } else{
             map <- ensembl.map(dataset = geninfo$'Ensembl Dataset',
                                filter = geninfo$'Ensembl Filter',
@@ -1287,12 +1308,13 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
               mqtl <- matrix(unlist(major[[index]]), ncol=ncols, byrow=TRUE)
               to_enter <- mqtl[,c(1,4:8), drop=FALSE]
               to_enter_name <- mqtl[,c(2,3), drop=FALSE]
-              storage.mode(to_enter) <- "numeric"
+              suppressWarnings(storage.mode(to_enter) <- "numeric")
               if(sum(is.na(to_enter[,2]))>0 || sum(is.na(to_enter[,1]))>0){
                 check_qtl <- unique(c(which(is.na(to_enter[,1])), which(is.na(to_enter[,2]))))
 
                 for(sample_index in check_qtl){
                   take_qtl <- which(to_enter_name[sample_index,1] == map[,2])
+                  snp_name_identifier <- to_enter_name[sample_index,1]
                   if(length(take_qtl)>0){
                     to_enter[sample_index, 2] <- as.numeric(map[take_qtl[1], 1])
                     to_enter[sample_index, 1] <- sum(map[1:take_qtl[1], 1] == map[take_qtl[1], 1])
@@ -1312,6 +1334,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                     } else{
                       to_enter[sample_index,1] <- sample(1:nsnp[to_enter[sample_index,2]],1)
                       if(verbose) cat(paste0("Illegal SNP-name/bp/position. SNP-effect generated on SNP ", to_enter[sample_index,1],"\n"))
+                    }
+                    if(nchar(snp_name_identifier)>0){
+                      map[to_enter[sample_index,1],2] <- snp_name_identifier
+                      if(verbose) cat(paste0("Major QTL SNP has been renamed to ", snp_name_identifier))
                     }
 
                   }
@@ -1779,6 +1805,15 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
             }
           }
 
+          if(nodes[[to_node]]$'Breeding Type' == "Reproduction"){
+            if(length(nodes[[to_node]]$full_sib)==0 || nodes[[to_node]]$full_sib == FALSE){
+              nodes[[to_node]]$full_sib <- edges[[index]]$full_sib
+            }
+            if(length(nodes[[to_node]]$half_sib)==0 || nodes[[to_node]]$half_sib == FALSE){
+              nodes[[to_node]]$half_sib <- edges[[index]]$half_sib
+            }
+          }
+
           nodes[[to_node]]$edge.nr <- c(nodes[[to_node]]$edge.nr,index)
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
           if(length(edges[[index]]$OGC)>0 && edges[[index]]$OGC=="Yes"){
@@ -1834,6 +1869,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
           }
 
         }
+
 
         if(nodes[[to_node]]$'Breeding Type'=="Combine"){
           nodes[[to_node]]$origin <- c(nodes[[to_node]]$origin,edges[[index]]$from)
@@ -2423,11 +2459,61 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                 ylab="cost in Euro", xlab="time point", col=used_color,
                 ylim=c(0, max(cost_plot_type)*1.5))
 
+        X11()
+        w <- 20
+        a <- barplot(cost_plot_ntype, names=time_point_plot, width=w, space=(c(0,diff(time_point_plot))-w)/w,
+                     ylab="cost in Euro", xlab="time point", col=used_color,
+                     ylim=c(0, max(cost_plot_ntype)*2),
+                     axes=FALSE, axisnames = FALSE)
+        axis(1, at=seq(0,600, by=100)-20, label=seq(0,600, by=100) )
+        axis(2)
         legend("topleft", type_list, col=used_color, lty=0, pch=15, ncol = 5)
 
+        w <- 20
+        order <- c(17,2,1,18,4,3,11,5,6,10,7,8,9, 12,13,15,14,16)
+        palette = c(
+          col=RColorBrewer::brewer.pal(5,"Greens")[-(c(1,5))],
+          col=RColorBrewer::brewer.pal(7,"Blues")[-(c(1,7))],
+          col=RColorBrewer::brewer.pal(5,"Purples")[-(c(1,5))],
+          col=RColorBrewer::brewer.pal(5,"Greys")[-(c(1,5))],
+          col=RColorBrewer::brewer.pal(7,"Reds")[-(c(1,7))]
+        )
+        used_color <- palette[c(3,2,1,
+                                6,5,4,
+                                19,10,9,
+                                8,13,12,
+                                7, 18,17,16,15,14)]
 
-        barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point", col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35))
-        legend("topleft", type_list, col=used_color, lty=0, pch=15)
+        options("scipen"=100)
+        a <- barplot(cost_plot_ntype[order,], names=time_point_plot, width=w, space=(c(0,diff(time_point_plot))-w)/w,
+                     ylab="cost in Euro", xlab="time point", col=used_color,
+                     ylim=c(0, max(cost_plot_ntype)*2),
+                     axes=FALSE, axisnames = FALSE)
+        axis(1, at=seq(0,600, by=100)-20, label=seq(0,600, by=100) )
+        axis(2)
+
+        # 16 = 11
+        type_list
+        legend("topleft", type_list[order][-18], col=used_color, lty=0, pch=15, ncol = 6, cex=1.5)
+
+        w <- 20
+        barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point",
+                width=w, space=(c(0,diff(time_point_plot))-w)/w,
+                col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35),
+                axes=FALSE, axisnames = FALSE)
+        axis(1, at=seq(0,600, by=100)-20, label=seq(0,600, by=100) )
+        axis(2)
+        legend("topleft", c("Genotyping", "Phenotyping", "Housing"), col=c("red", "blue", "green"), lty=0, pch=15)
+
+        barplot(cost_plot_type, names=time_point_plot, ylab="cost in Euro", xlab="time point",
+                col=c("red", "blue", "green"), ylim=c(0, max(cost_plot_type)*1.35))
+        legend("topleft", c("Genotyping", "Phenotyping", "Housing"), col=c("red", "blue", "green"), lty=0, pch=15)
+
+        plot(time_point_plot, cumsum(cost_plot_type[1,]), type="l", col="red",
+             ylab="cost in Euro", xlab="time point", lwd=2, ylim=c(0, sum(cost_plot_type)))
+        lines(time_point_plot, cumsum(cost_plot_type[2,]), col="blue", lwd=2)
+        lines(time_point_plot, cumsum(cost_plot_type[3,]), col = "green", lwd=2)
+        legend("topleft", c("Genotyping", "Phenotyping", "Housing"), col=c("red", "blue", "green"), lty=1, lwd=2)
 
         write.csv(file="C:/Users/pook/Desktop/Cost_overview.csv", costdata, row.names = FALSE, quote=FALSE)
       }
@@ -2501,6 +2587,7 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
         rbind(c("TOTAL", sum(as.numeric(expected_time[,2])), sum(as.numeric(expected_time[,3])),
                 sum(as.numeric(expected_time[,4]))), expected_time)
+
         colnames(expected_time) <- c("Cohort name", "BVEtime", "Gentime", "Totaltime")
       } else{
         # Derive Founders that are alive
@@ -2897,6 +2984,10 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                     same.sex.activ <- FALSE
                     same.sex.sex <- generation.sex
                   }
+
+                  half_sib <- nodes[[groupnr]]$half_sib
+                  full_sib <- nodes[[groupnr]]$full_sib
+
                   population <- breeding.diploid(population, breeding.size=breeding.size,
                                                  selection.size= selection.size,
                                                  heritability = heritability,
@@ -2907,6 +2998,8 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
                                                  bve.database = bve.database,
                                                  selection.m.cohorts = cohorts.m,
                                                  selection.f.cohorts = cohorts.f,
+                                                 avoid.mating.halfsib = half_sib,
+                                                 avoid.mating.fullsib = full_sib,
                                                  n.observation = pheno_index[which(pheno_index_name==nodes[[groupnr]]$'Phenotyping Class'),],
                                                  new.class = new_mig[sex],
                                                  same.sex.activ = same.sex.activ,
@@ -3243,6 +3336,23 @@ json.simulation <- function(file=NULL, total=NULL, fast.mode=FALSE,
 
 
       }
+
+    }
+
+    if(!skip.population){
+      delete_stuff <- rep(FALSE, length(nodes))
+      for(index in 1:length(nodes)){
+        delete_stuff[index] <- nodes[[index]]$delete_info
+      }
+      if(sum(delete_stuff)>0){
+        del_database <- get.database(population, cohorts = ids[delete_stuff])
+        for(index in 1:nrow(del_database)){
+          for(index2 in del_database[index,3]:del_database[index,4]){
+            population$breeding[[del_database[index,1]]][[del_database[index,2]]][[index2]] <- "removed"
+          }
+        }
+      }
+
 
     }
 
