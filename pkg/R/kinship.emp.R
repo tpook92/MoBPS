@@ -136,6 +136,10 @@ kinship.emp.fast <- function(animals=NULL, population=NULL, gen=NULL, database=N
 
   chrom.length <- max(animals[[1]][[1]])
 
+  if(chrom.length=="removed"){
+    return(c(0,0))
+  }
+
   if(n^2 <= (ibd.obs + hbd.obs)){
     i1 <- c(rep(1:n, n)[-(1:n + (1:n) * n - n )], 1:n)
     j1 <- c(sort(rep(1:n, n))[-(1:n + (1:n) * n - n )], 1:n)

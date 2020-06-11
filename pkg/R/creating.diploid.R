@@ -1142,7 +1142,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         storage.mode(population$breeding[[generation]][[sex]][[counter[sex]]][[21]]) <- "integer"
 
         population$breeding[[generation]][[sex]][[counter[sex]]][[22]] <- if(genotyped>0){1} else{NULL}
-        population$breeding[[generation]][[sex]][[counter[sex]]][[23]] <- "placeholder"
+
+        population$breeding[[generation]][[sex]][[counter[sex]]][[23]] <- NULL ## permanent environmental effects
+        population$breeding[[generation]][[sex]][[counter[sex]]][[24]] <- NULL ## random environmental effects
+
+        population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- "placeholder"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -1309,6 +1313,16 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$info$real.bv.length <- c(0,0,0)
       }
 
+      if(bit.storing){
+        population$info$bitstoring <- nbits
+        population$info$leftover <-  sum(population$info$snp)%%nbits
+      }
+      if(miraculix || miraculix.dataset){
+        population$info$miraculix <- TRUE
+      } else{
+        population$info$miraculix <- FALSE
+      }
+
       if(bv.total>0){
         population$info$pheno.correlation <- diag(1L, bv.total)
       }
@@ -1326,6 +1340,37 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(length(shuffle.traits)>0){
         if(length(shuffle.traits)==1){
           shuffle.traits <- which(population$info$bv.random==FALSE)
+        }
+        # scaling of QTL effects
+        population <- breeding.diploid(population, verbose = FALSE)
+        bvs <- get.bv(population, gen=1)
+        scalings <- sqrt(diag(stats::var(t(bvs))))
+        for(bvnr in shuffle.traits){
+          if(length(population$info$real.bv.add[[bvnr]])>0){
+            population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
+          }
+
+
+          if(length(population$info$real.bv.mult[[bvnr]])>0){
+            population$info$real.bv.mult[[bvnr]][,5:13] <- population$info$real.bv.mult[[bvnr]][,5:13] / scalings[bvnr] * scalings[1]
+          }
+
+          if(length(population$info$real.bv.dice[[bvnr]])>0){
+            population$info$real.bv.dice[[bvnr]][[2]] <- population$info$real.bv.dice[[bvnr]][[2]] / scalings[bvnr] * scalings[1]
+          }
+
+
+        }
+        population$info$bv.calculated <- FALSE
+
+        if(bit.storing){
+          population$info$bitstoring <- nbits
+          population$info$leftover <-  sum(population$info$snp)%%nbits
+        }
+        if(miraculix || miraculix.dataset){
+          population$info$miraculix <- TRUE
+        } else{
+          population$info$miraculix <- FALSE
         }
         LT <- chol(shuffle.cor)
         if(nrow(LT)!=length(shuffle.traits)){
@@ -1418,15 +1463,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$info$gen.architecture[[length(population$info$gen.architecture)]]$snp.position <- add.architecture[[2]]
 
       }
-      if(bit.storing){
-        population$info$bitstoring <- nbits
-        population$info$leftover <-  sum(population$info$snp)%%nbits
-      }
-      if(miraculix || miraculix.dataset){
-        population$info$miraculix <- TRUE
-      } else{
-        population$info$miraculix <- FALSE
-      }
+
 
     }
     if(length(name.cohort)==0 && add.chromosome==FALSE){

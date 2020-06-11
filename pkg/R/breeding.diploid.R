@@ -57,6 +57,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sigma.e.database Groups to consider when estimating sigma.e when using hertability
 #' @param forecast.sigma.g Set FALSE to not estimate sigma.g (Default: TRUE)
 #' @param heritability Use sigma.e to obtain a certain heritability (default: NULL)
+#' @param repeatability Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)
 #' @param sigma.g Genetic variance (default: 100 - only used if not computed via estimate.sigma.g^2 in der Zuchtwertschaetzung (Default: 100)
 #' @param sigma.g.gen Generations to consider when estimating sigma.g
 #' @param sigma.g.cohorts Cohorts to consider when estimating sigma.g
@@ -318,6 +319,7 @@ breeding.diploid <- function(population,
             selfing.sex = 0.5,
             praeimplantation = NULL,
             heritability = NULL,
+            repeatability = NULL,
             use.last.sigma.e = FALSE,
             save.recombination.history = FALSE,
             martini.selection = FALSE,
@@ -1230,7 +1232,7 @@ breeding.diploid <- function(population,
     if(length(population$info$last.sigma.e.database)==0 || !(nrow(population$info$last.sigma.e.database)==nrow(sigma.e.database) && prod(population$info$last.sigma.e.database==sigma.e.database)==1) || length(heritability)>0 && (length(population$info$last.sigma.e.heritability)==0 || prod(population$info$last.sigma.e.heritability==heritability)==0)){
       if(verbose) cat("Start deriving enviromental variance (according to given heritability).\n")
       if(length(heritability)!=population$info$bv.nr){
-        heritability <- rep(heritability, population$info$bv.nr)
+        heritability <- rep(heritability, length.out = population$info$bv.nr)
       }
       n.animals <- 0
       for(index in 1:nrow(sigma.e.database)){
@@ -1260,7 +1262,38 @@ breeding.diploid <- function(population,
       sigma.e <- population$info$last.sigma.e.value
     }
 
+  } else{
+    if(length(population$info$last.sigma.e.value)>0){
+      sigma.e <- population$info$last.sigma.e.value
+    }
   }
+
+  if(length(heritability)==0){
+    heritability <- population$info$last.sigma.e.heritability
+  }
+
+  if(length(repeatability)>0){
+    if(length(repeatability)!= population$info$bv.nr){
+      repeatability <- rep(repeatability, length.out = population$info$bv.nr)
+    }
+
+    repeatability[repeatability<heritability] <-  heritability[repeatability<heritability]
+    population$info$repeatability <- repeatability
+  } else{
+    repeatability <- population$info$repeatability
+  }
+
+  if(length(heritability)>0){
+    sigma.g.temp1 <- (sigma.e * heritability) /  (1 - heritability)
+    sigma.total.temp1 <-  sigma.g.temp1 + sigma.e
+
+    sigma.e.perm <- repeatability * sigma.total.temp1 - sigma.g.temp1
+    sigma.e.rest <- sigma.e - sigma.e.perm
+  } else{
+    sigma.e.perm <- rep(0, population$info$bv.nr)
+    sigma.e.rest <- sigma.e
+  }
+
 
   if(length(genotyped.database)>0){
     for(index in 1:nrow(genotyped.database)){
@@ -1278,7 +1311,7 @@ breeding.diploid <- function(population,
 
     if(verbose) cat("Start simulating phenotypes.\n")
 
-    observation_reps <- sort(unique(c(0L,n.observation)))
+
     for(index in 1:nrow(phenotyping.database)){
       gen <- phenotyping.database[index,1]
       sex <- phenotyping.database[index,2]
@@ -1291,40 +1324,39 @@ breeding.diploid <- function(population,
           to_phenotype <- phenotyping.database[index,3]:phenotyping.database[index,4]
         }
         for(nr.animal in to_phenotype){
+          if( length(population$breeding[[gen]][[sex]][[nr.animal]][[23]]) == 0){
+            population$breeding[[gen]][[sex]][[nr.animal]][[23]] <- stats::rnorm(population$info$bv.nr,0,1)
+          }
           multi_check <- (population$breeding[[gen]][[sex]][[nr.animal]][[15]]==0)
-          if(length(observation_reps)>1){
-            for(observation_rep in 2:length(observation_reps)){
-              new.obs <- observation_reps[observation_rep] - observation_reps[observation_rep-1]
-              temp_random <- matrix(stats::rnorm(population$info$bv.nr*new.obs,0,1), ncol=new.obs)
-              active.traits <- (n.observation >=observation_reps[observation_rep])
-              active.traits <- active.traits*(1:length(active.traits))
-              if(!multiple.observation){
-                active.traits <- active.traits * multi_check
-                # No phenotypes for traits which were already observed
-              }
-              for(bven in (1:population$info$bv.nr)[setdiff(active.traits, activ.trafo)]){
-                bobs <- population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]
-                fobs <- new.obs
-                if(is.na(population$breeding[[gen]][[8+sex]][[bven,nr.animal]]) & fobs > 0){
-                  population$breeding[[gen]][[8+sex]][bven,nr.animal] <-  fobs/(bobs+fobs) * (rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven]) + population$breeding[[gen]][[6+sex]][bven, nr.animal])
-                } else{
-                  population$breeding[[gen]][[8+sex]][bven,nr.animal] <-  bobs/(bobs+fobs) * population$breeding[[gen]][[8+sex]][[bven,nr.animal]] + fobs/(bobs+fobs) * (rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven]) + population$breeding[[gen]][[6+sex]][bven, nr.animal])
 
-                }
-                population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven] <- population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven] + new.obs
-              }
-              for(bven in (1:population$info$bv.nr)[intersect(active.traits, activ.trafo)]){
-                bobs <- population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]
-                fobs <- new.obs
-                new_pheno <- (population$info$pheno.correlation %*% temp_random)[bven,] * sqrt(sigma.e[bven]) + population$breeding[[gen]][[6+sex]][bven, nr.animal]
-                new_pheno <- population$info$phenotypic.transform.function[[bven]](new_pheno)
-                if(is.na(population$breeding[[gen]][[8+sex]][[bven,nr.animal]]) & fobs > 0){
-                  population$breeding[[gen]][[8+sex]][bven,nr.animal] <-  fobs/(bobs+fobs) * mean(new_pheno)
-                } else{
-                  population$breeding[[gen]][[8+sex]][bven,nr.animal] <-  bobs/(bobs+fobs) * population$breeding[[gen]][[8+sex]][[bven,nr.animal]] + fobs/(bobs+fobs) * mean(new_pheno)
-                }
-                population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven] <- population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven] + new.obs
-              }
+          n.observation_temp <- n.observation * (multi_check | multiple.observation)
+          population$breeding[[gen]][[sex]][[nr.animal]][[15]] <- population$breeding[[gen]][[sex]][[nr.animal]][[15]] + n.observation_temp
+
+          obsmax <- max(population$breeding[[gen]][[sex]][[nr.animal]][[15]])
+          if(length(population$breeding[[gen]][[sex]][[nr.animal]][[24]])==0 ||
+             obsmax > ncol(population$breeding[[gen]][[sex]][[nr.animal]][[24]]) &&
+             obsmax > 0){
+
+            population$breeding[[gen]][[sex]][[nr.animal]][[24]] <- cbind(population$breeding[[gen]][[sex]][[nr.animal]][[24]],
+                                                                          matrix(stats::rnorm(obsmax * population$info$bv.nr - length(population$breeding[[gen]][[sex]][[nr.animal]][[24]]),0,1),
+                                                                                 nrow = population$info$bv.nr))
+          }
+
+          for(bven in setdiff(1:population$info$bv.nr, activ.trafo)){
+            if(population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]>=1){
+              population$breeding[[gen]][[8+sex]][bven, nr.animal] <- (sqrt(sigma.e.rest) * rowMeans(population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[24]][,1:population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]]) +
+                                                                         sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[23]] +
+                                                                         population$breeding[[gen]][[6+sex]][, nr.animal])[bven]
+            }
+
+          }
+          for(bven in intersect(1:population$info$bv.nr, activ.trafo)){
+            if(population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]>=1){
+              new_pheno <- (sqrt(sigma.e.rest) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[24]][,1:population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]])[bven,] +
+                              (sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[23]])[bven] +
+                              population$breeding[[gen]][[6+sex]][bven, nr.animal]
+
+              population$breeding[[gen]][[8+sex]][bven, nr.animal] <- mean(population$info$phenotypic.transform.function[[bven]](new_pheno))
             }
           }
 
@@ -4836,7 +4868,7 @@ breeding.diploid <- function(population,
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- rep(0L, population$info$bv.nr)
       }
 
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <- "placeholder"
+      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[25]] <- "placeholder"
 
       if(copy.individual){
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
@@ -4958,9 +4990,16 @@ breeding.diploid <- function(population,
           new.reli <- population$breeding[[info.father[1]]][[18+info.father[2]]][,info.father[3]]
         }
 
+        if(copy.individual && length(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[23]])>0){
+          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <-
+            population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[23]]
+        }
         if(phenotyping.child=="mean" || phenotyping.child=="addobs"){
           if(copy.individual){
-            new.bv_approx <- population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]]
+            if(length(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[24]])>0){
+              population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]] <-
+                population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[24]]
+            }
           } else{
             new.bv_approx <- 0.5 * (population$breeding[[info.father[1]]][[8+info.father[2]]][,info.father[3]] + population$breeding[[info.mother[1]]][[8+info.mother[2]]][,info.mother[3]])
           }
@@ -4968,47 +5007,41 @@ breeding.diploid <- function(population,
         }
         if(phenotyping.child=="obs" || phenotyping.child=="addobs"){
           if(sum(n.observation)>0){
-            if(phenotyping.child=="addobs"){
-              prior_obs <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]
-              total_obs <- population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]]
-              n.observation.single <- total_obs - prior_obs
-              new.bv_approx <- (new.bv_approx - population$breeding[[info.father[1]]][[info.father[2]+6]][,info.father[3]]) *  prior_obs / total_obs
-            } else{
-              total_obs <- population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]]
-              n.observation.single <- n.observation * is.obs
+
+            if( length(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]]) == 0){
+              population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <- stats::rnorm(population$info$bv.nr,0,1)
             }
-            observation_reps <- sort(unique(c(0L,n.observation.single)))
-            if(length(observation_reps)>1){
 
-              for(observation_rep in 2:length(observation_reps)){
-                new.obs <- observation_reps[observation_rep] - observation_reps[observation_rep-1]
-                temp_random <- matrix(stats::rnorm(population$info$bv.nr*new.obs,0,1), ncol=new.obs)
-                active.traits <- (n.observation.single >=observation_reps[observation_rep])
-                active.traits <- active.traits*(1:length(active.traits))
+            obsmax <- max(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]])
 
-                for(bven in (1:population$info$bv.nr)[setdiff(active.traits, activ.trafo)]){
-                  if(is.na(new.bv_approx[bven]) & new.obs > 0){
-                    new.bv_approx[bven] <-  new.obs/(total_obs[bven]) * rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven])
-                  } else{
-                    new.bv_approx[bven] <-  new.bv_approx[bven] + new.obs/(total_obs[bven]) * rowMeans(population$info$pheno.correlation %*% temp_random)[bven] * sqrt(sigma.e[bven])
+            if(length(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]])==0 ||
+               obsmax > ncol(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]]) &&
+               obsmax > 0){
 
-                  }
-                }
-                for(bven in (1:population$info$bv.nr)[intersect(active.traits, activ.trafo)]){
-                  new_pheno <- (population$info$pheno.correlation %*% temp_random)[bven,] * sqrt(sigma.e[bven]) + new.bv[bven]
-                  new_pheno <- population$info$phenotypic.transform.function[[bven]](new_pheno) - new.bv[bven]
-                  if(is.na(new.bv_approx[bven]) & new.obs > 0){
-                    new.bv_approx[bven] <-  new.obs/(total_obs[bven]) * mean(new_pheno)
-                  } else{
-                    new.bv_approx[bven] <-  new.bv_approx[bven] + new.obs/(total_obs[bven]) * mean(new_pheno)
-                  }
+              population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]] <- cbind(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]],
+                                                                            matrix(stats::rnorm(obsmax * population$info$bv.nr - length(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]]),0,1),
+                                                                                   nrow = population$info$bv.nr))
+            }
 
-                }
+            for(bven in setdiff(1:population$info$bv.nr, activ.trafo)){
+              if(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]>=1){
+                new.bv_approx[bven] <- (sqrt(sigma.e.rest) * rowMeans(population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]][,1:population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]]) +
+                                    sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] +
+                                    new.bv)[bven]
+              }
 
+            }
+
+            for(bven in intersect(1:population$info$bv.nr, activ.trafo)){
+              if(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]>=1){
+                new_pheno <- (sqrt(sigma.e.rest) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]][,1:population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]])[bven,] +
+                  (sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]])[bven] +
+                  new.bv[bven]
+
+                new.bv_approx[bven] <- mean(population$info$phenotypic.transform.function[[bven]](new_pheno))
               }
             }
-            new.bv_approx <- new.bv + new.bv_approx
-            new.bv_approx[total_obs==0] <- 0
+
           }
 
 

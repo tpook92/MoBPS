@@ -153,13 +153,13 @@ bv.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
     for(index in 1:length(bv)){
       means[1,index] <- base::mean(bv[[index]][nr,])
       means[2,index] <- base::mean(bve[[index]][nr,])
-      means[3,index] <- base::mean(pheno[[index]][nr,])
+      means[3,index] <- base::mean(pheno[[index]][nr,] , na.rm=TRUE)
       sds[1,index] <- stats::sd(bv[[index]][nr,])
       sds[2,index] <- stats::sd(bve[[index]][nr,])
-      sds[3,index] <- stats::sd(pheno[[index]][nr,])
+      sds[3,index] <- stats::sd(pheno[[index]][nr,] , na.rm=TRUE)
       all0[1,index] <- base::prod(bv[[index]][nr,]==0)
       all0[2,index] <- base::prod(bve[[index]][nr,]==0)
-      all0[3,index] <- base::prod(pheno[[index]][nr,]==0)
+      all0[3,index] <- base::prod(pheno[[index]][nr,]==0, na.rm=TRUE)
     }
     for(index in 1:3){
       if(sum(development==index)==0){

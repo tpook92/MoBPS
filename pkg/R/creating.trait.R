@@ -486,6 +486,28 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     if(length(shuffle.traits)==1){
       shuffle.traits <- which(population$info$bv.random==FALSE)
     }
+
+    population <- breeding.diploid(population, verbose = FALSE)
+    bvs <- get.bv(population, gen=1)
+    scalings <- sqrt(diag(stats::var(t(bvs))))
+    for(bvnr in shuffle.traits){
+      if(length(population$info$real.bv.add[[bvnr]])>0){
+        population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
+      }
+
+
+      if(length(population$info$real.bv.mult[[bvnr]])>0){
+        population$info$real.bv.mult[[bvnr]][,5:13] <- population$info$real.bv.mult[[bvnr]][,5:13] / scalings[bvnr] * scalings[1]
+      }
+
+      if(length(population$info$real.bv.dice[[bvnr]])>0){
+        population$info$real.bv.dice[[bvnr]][[2]] <- population$info$real.bv.dice[[bvnr]][[2]] / scalings[bvnr] * scalings[1]
+      }
+
+
+    }
+    population$info$bv.calculated <- FALSE
+
     LT <- chol(shuffle.cor)
     if(nrow(LT)!=length(shuffle.traits)){
       stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
