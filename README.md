@@ -22,6 +22,16 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.5.16 (12.06.20)
+
+Added repeatability concept (multiple phenotyping observation are not necessaryly independent anymore)
+
+Fixed a bug that the residual variation of traits were not correlated when phenotyping for different traits was not done at the same time
+
+Automated Log-file generation in json.simulation()
+
+Updated Guidelines
+
 ### Version 1.5.11 (27.05.20)
 
 Added avoid.mating.fullsib / avoid.mating.halfsib in breeding.diploid() to not generate offspring from mating of fullsib/halfsibs
