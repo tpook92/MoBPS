@@ -43,12 +43,16 @@ insert.bve <- function(population, bves, type="bve", count=1){
     add <- 8
   }
 
+  if((ncol(bves)-1)!=population$info$bv.nr){
+    stop("Number of traits entered does not match with population! \n Enter NA colums if you dont want to overwrite a trait")
+  }
+
   for(index in 1:nrow(bves)){
     sex <- as.numeric(substr(bves[index,1], start=1, stop=1)=="F") + 1
     split <- strsplit(bves[index,1], split=c("_"))
     nr <- as.numeric(substr(split[[1]][1], start=2, stop=nchar(split[[1]][1])))
     gen <- as.numeric(split[[1]][2])
-    population$breeding[[gen]][[sex+add]][,nr] <- as.numeric(bves[index,-1])
+    population$breeding[[gen]][[sex+add]][,nr][!is.na(as.numeric(bves[index,-1]))] <- as.numeric(bves[index,-1])[!is.na(as.numeric(bves[index,-1]))]
     if(add==2){
       population$breeding[[gen]][[sex]][[nr]][[16]] <- count
     } else if(add==8){

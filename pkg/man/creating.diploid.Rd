@@ -23,12 +23,12 @@ creating.diploid(dataset = NULL, vcf = NULL, chr.nr = NULL,
   var.dominant.l = NULL, var.qualitative.l = NULL,
   var.quantitative.l = NULL, exclude.snps = NULL,
   replace.real.bv = FALSE, shuffle.traits = NULL, shuffle.cor = NULL,
-  skip.rest = FALSE, name.cohort = NULL, template.chip = NULL,
-  beta.shape1 = 1, beta.shape2 = 1, time.point = 0,
-  creating.type = 0, trait.name = NULL, share.genotyped = 1,
-  genotyped.s = NULL, map = NULL, remove.invalid.qtl = TRUE,
-  verbose = TRUE, bv.standard = FALSE, mean.target = NULL,
-  var.target = NULL)
+  skip.rest = FALSE, enter.bv = TRUE, name.cohort = NULL,
+  template.chip = NULL, beta.shape1 = 1, beta.shape2 = 1,
+  time.point = 0, creating.type = 0, trait.name = NULL,
+  share.genotyped = 1, genotyped.s = NULL, map = NULL,
+  remove.invalid.qtl = TRUE, verbose = TRUE, bv.standard = FALSE,
+  mean.target = NULL, var.target = NULL)
 }
 \arguments{
 \item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}

@@ -129,6 +129,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              shuffle.traits=NULL,
                              shuffle.cor=NULL,
                              skip.rest=FALSE,
+                             enter.bv=TRUE,
                              name.cohort=NULL,
                              template.chip=NULL,
                              beta.shape1=1,
@@ -1271,201 +1272,6 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
-    if(skip.rest==FALSE){
-      if(bv.total>0 ||length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
-        population$info$bve <- TRUE
-        if(is.list(real.bv.add)){
-          population$info$real.bv.add <- real.bv.add
-        } else{
-          population$info$real.bv.add <- list(real.bv.add)
-        }
-        if(is.list(real.bv.mult)){
-          population$info$real.bv.mult <- real.bv.mult
-        } else{
-          population$info$real.bv.mult <- list(real.bv.mult)
-        }
-        if(is.list(real.bv.dice)){
-          population$info$real.bv.dice <- real.bv.dice
-        } else{
-          if(length(real.bv.dice)>0){
-            warning("Invalid input for real.bv.dice!")
-          }
-          population$info$real.bv.dice <- list(real.bv.dice)
-        }
-
-        population$info$bv.nr <- bv.total
-        population$info$bv.calc <- bv.calc
-
-        population$info$real.bv.length <- c(length(population$info$real.bv.add),
-                                            length(population$info$real.bv.mult),
-                                            length(population$info$real.bv.dice))
-
-        population$info$real.bv.add[[nbv+1]] <- "placeholder" # Use nbv instead of bv.calc
-        population$info$real.bv.mult[[nbv+1]] <- "placeholder"
-        population$info$real.bv.dice[[nbv+1]] <- "placeholder"
-
-
-
-      } else if(perserve_bve){
-        population$info$bve <- FALSE
-        population$info$bv.nr <- 0
-        population$info$bv.calc <- 0
-        population$info$real.bv.length <- c(0,0,0)
-      }
-
-      if(bit.storing){
-        population$info$bitstoring <- nbits
-        population$info$leftover <-  sum(population$info$snp)%%nbits
-      }
-      if(miraculix || miraculix.dataset){
-        population$info$miraculix <- TRUE
-      } else{
-        population$info$miraculix <- FALSE
-      }
-
-      if(bv.total>0){
-        population$info$pheno.correlation <- diag(1L, bv.total)
-      }
-      if(length(new.residual.correlation)>0){
-        population$info$pheno.correlation <- t(chol(new.residual.correlation))
-      }
-      if(bv.total>0){
-        population$info$bv.correlation <- diag(1L, bv.total)
-      }
-      if(length(new.breeding.correlation)>0){
-        population$info$bv.correlation <- new.breeding.correlation
-      }
-
-
-      if(length(shuffle.traits)>0){
-        if(length(shuffle.traits)==1){
-          shuffle.traits <- which(population$info$bv.random==FALSE)
-        }
-        # scaling of QTL effects
-        population <- breeding.diploid(population, verbose = FALSE)
-        bvs <- get.bv(population, gen=1)
-        scalings <- sqrt(diag(stats::var(t(bvs))))
-        for(bvnr in shuffle.traits){
-          if(length(population$info$real.bv.add[[bvnr]])>0){
-            population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
-          }
-
-
-          if(length(population$info$real.bv.mult[[bvnr]])>0){
-            population$info$real.bv.mult[[bvnr]][,5:13] <- population$info$real.bv.mult[[bvnr]][,5:13] / scalings[bvnr] * scalings[1]
-          }
-
-          if(length(population$info$real.bv.dice[[bvnr]])>0){
-            population$info$real.bv.dice[[bvnr]][[2]] <- population$info$real.bv.dice[[bvnr]][[2]] / scalings[bvnr] * scalings[1]
-          }
-
-
-        }
-        population$info$bv.calculated <- FALSE
-
-        if(bit.storing){
-          population$info$bitstoring <- nbits
-          population$info$leftover <-  sum(population$info$snp)%%nbits
-        }
-        if(miraculix || miraculix.dataset){
-          population$info$miraculix <- TRUE
-        } else{
-          population$info$miraculix <- FALSE
-        }
-        LT <- chol(shuffle.cor)
-        if(nrow(LT)!=length(shuffle.traits)){
-          stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
-        } else{
-
-          population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
-          if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
-            warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
-          }
-
-          store.add <- population$info$real.bv.add
-          store.mult <- population$info$real.bv.mult
-          store.dice <- population$info$real.bv.dice
-
-
-          col <- 1
-          for(index in shuffle.traits){
-            new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
-            row <- 1
-            for(index2 in shuffle.traits){
-              if(length(store.add[[index2]])>0){
-                new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3))))
-                zeros <- rowSums(abs(new.add[,3:5, drop=FALSE]))
-                new.add <- new.add[zeros>0,,drop=FALSE]
-              }
-              if(length(store.mult[[index2]])>0){
-                new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
-                zeros <- rowSums(abs(new.mult[,5:13, drop=FALSE]))
-                new.mult <- new.add[zeros>0,,drop=FALSE]
-              }
-              if(length(store.dice[[index2]])>0){
-                before <- length(new.dice2)
-                new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
-                new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
-                for(index3 in (before+1):length(new.dice2)){
-                  new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
-                }
-              }
-              row <- row +1
-            }
-            # DONT REMOVE NULL - MORE WORK NEEDED HERE!
-            if(length(new.add)==0){
-
-            } else{
-              population$info$real.bv.add[[index]] <- new.add
-            }
-            if(length(new.mult)==0){
-
-            } else{
-              population$info$real.bv.mult[[index]] <- new.mult
-            }
-            if(length(new.add)==0){
-
-            } else{
-              population$info$real.bv.dice[[index]] <- list(new.dice1,new.dice2)
-            }
-            col <- col +1
-          }
-
-        }
-
-        for(index in shuffle.traits){
-          population$info$real.bv.length[1] <- max(population$info$real.bv.length[1], if(length(population$info$real.bv.add[[index]])>0){index} else{0})
-          population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
-          population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
-        }
-
-        for(index in 1:population$info$bv.nr){
-          if(length(population$info$real.bv.add[[index]])>0){
-            t <- population$info$real.bv.add[[index]]
-            take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
-            t <- t[take$ix,,drop=FALSE]
-            take <- sort(t[,1]+ t[,2] * 10^10)
-            keep <- c(0,which(diff(take)!=0), length(take))
-            if(length(keep) <= nrow(t)){
-              for(index2 in 2:(length(keep))){
-                t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
-              }
-              population$info$real.bv.add[[index]] <- t[keep,]
-            }
-          }
-        }
-      }
-
-
-      if(length(add.architecture)>0){
-        population$info$gen.architecture[[length(population$info$gen.architecture)+1]] <- list()
-        population$info$gen.architecture[[length(population$info$gen.architecture)]]$length.total <- cumsum(c(0,add.architecture[[1]]))
-        population$info$gen.architecture[[length(population$info$gen.architecture)]]$snp.position <- add.architecture[[2]]
-
-      }
-
-
-    }
     if(length(name.cohort)==0 && add.chromosome==FALSE){
       name.cohort <- paste0("Cohort_", population$info$cohort.index)
       population$info$cohort.index <- population$info$cohort.index + 1
@@ -1532,10 +1338,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         }
 
         if(chr_index==1){
-          skip.rest <- FALSE
+          skip.rest_temp <- FALSE
           add.chromosome <- add.chromosome
         } else{
-          skip.rest <- TRUE
+          skip.rest_temp <- TRUE
           add.chromosome <- TRUE
         }
         if(add.chromosome==FALSE){
@@ -1543,6 +1349,15 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         } else{
           name.cohort <- NULL
         }
+
+        enter.bv_temp <- FALSE
+
+
+        shuffle.traits_temp <- NULL
+        shuffle.cor_temp <- NULL
+        real.bv.add_temp <- NULL
+        real.bv.mult_temp <- NULL
+        real.bv.dice_temp <- NULL
 
         population <- creating.diploid(population=population, dataset=dataset_activ,
                                        nsnp=nsnp[chr_index], nindi=nindi,
@@ -1560,7 +1375,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        chromosome.length= chromosome.length[chr_index],
                                        length.before = length.before,
                                        length.behind = length.behind,
-                                       skip.rest = skip.rest,
+                                       skip.rest = skip.rest_temp,
+                                       enter.bv = enter.bv_temp,
                                        sex.s = sex.s,
                                        genotyped.s = genotyped.s,
                                        name.cohort = name.cohort,
@@ -1627,6 +1443,205 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                      shuffle.cor = shuffle.cor,
                                      verbose = verbose)
     }
+
+  }
+
+  if(enter.bv){
+    if(bv.total>0 ||length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
+      population$info$bve <- TRUE
+      if(is.list(real.bv.add)){
+        population$info$real.bv.add <- real.bv.add
+      } else{
+        population$info$real.bv.add <- list(real.bv.add)
+      }
+      if(is.list(real.bv.mult)){
+        population$info$real.bv.mult <- real.bv.mult
+      } else{
+        population$info$real.bv.mult <- list(real.bv.mult)
+      }
+      if(is.list(real.bv.dice)){
+        population$info$real.bv.dice <- real.bv.dice
+      } else{
+        if(length(real.bv.dice)>0){
+          warning("Invalid input for real.bv.dice!")
+        }
+        population$info$real.bv.dice <- list(real.bv.dice)
+      }
+
+      population$info$bv.nr <- bv.total
+      population$info$bv.calc <- bv.calc
+
+      population$info$real.bv.length <- c(length(population$info$real.bv.add),
+                                          length(population$info$real.bv.mult),
+                                          length(population$info$real.bv.dice))
+
+      population$info$real.bv.add[[nbv+1]] <- "placeholder" # Use nbv instead of bv.calc
+      population$info$real.bv.mult[[nbv+1]] <- "placeholder"
+      population$info$real.bv.dice[[nbv+1]] <- "placeholder"
+
+
+
+    } else if(perserve_bve){
+      population$info$bve <- FALSE
+      population$info$bv.nr <- 0
+      population$info$bv.calc <- 0
+      population$info$real.bv.length <- c(0,0,0)
+    }
+
+    if(bit.storing){
+      population$info$bitstoring <- nbits
+      population$info$leftover <-  sum(population$info$snp)%%nbits
+    }
+    if(miraculix || miraculix.dataset){
+      population$info$miraculix <- TRUE
+    } else{
+      population$info$miraculix <- FALSE
+    }
+
+    if(bv.total>0){
+      population$info$pheno.correlation <- diag(1L, bv.total)
+    }
+    if(length(new.residual.correlation)>0){
+      population$info$pheno.correlation <- t(chol(new.residual.correlation))
+    }
+    if(bv.total>0){
+      population$info$bv.correlation <- diag(1L, bv.total)
+    }
+    if(length(new.breeding.correlation)>0){
+      population$info$bv.correlation <- new.breeding.correlation
+    }
+
+
+    if(length(shuffle.traits)>0 ){
+      if(length(shuffle.traits)==1){
+        shuffle.traits <- which(population$info$bv.random==FALSE)
+      }
+      # scaling of QTL effects
+      population <- breeding.diploid(population, verbose = FALSE)
+      bvs <- get.bv(population, gen=1)
+      scalings <- sqrt(diag(stats::var(t(bvs))))
+      if(sum(is.na(scalings))>0){
+        stop("scaling problems!")
+      }
+      for(bvnr in shuffle.traits){
+        if(length(population$info$real.bv.add[[bvnr]])>0){
+          population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
+        }
+
+
+        if(length(population$info$real.bv.mult[[bvnr]])>0){
+          population$info$real.bv.mult[[bvnr]][,5:13] <- population$info$real.bv.mult[[bvnr]][,5:13] / scalings[bvnr] * scalings[1]
+        }
+
+        if(length(population$info$real.bv.dice[[bvnr]])>0){
+          population$info$real.bv.dice[[bvnr]][[2]] <- population$info$real.bv.dice[[bvnr]][[2]] / scalings[bvnr] * scalings[1]
+        }
+
+
+      }
+      population$info$bv.calculated <- FALSE
+
+      if(bit.storing){
+        population$info$bitstoring <- nbits
+        population$info$leftover <-  sum(population$info$snp)%%nbits
+      }
+      if(miraculix || miraculix.dataset){
+        population$info$miraculix <- TRUE
+      } else{
+        population$info$miraculix <- FALSE
+      }
+      LT <- chol(shuffle.cor)
+      if(nrow(LT)!=length(shuffle.traits)){
+        stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
+      } else{
+
+        population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+        if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
+          warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
+        }
+
+        store.add <- population$info$real.bv.add
+        store.mult <- population$info$real.bv.mult
+        store.dice <- population$info$real.bv.dice
+
+
+        col <- 1
+        for(index in shuffle.traits){
+          new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
+          row <- 1
+          for(index2 in shuffle.traits){
+            if(length(store.add[[index2]])>0){
+              new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3))))
+              zeros <- rowSums(abs(new.add[,3:5, drop=FALSE]))
+              new.add <- new.add[zeros>0,,drop=FALSE]
+            }
+            if(length(store.mult[[index2]])>0){
+              new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
+              zeros <- rowSums(abs(new.mult[,5:13, drop=FALSE]))
+              new.mult <- new.add[zeros>0,,drop=FALSE]
+            }
+            if(length(store.dice[[index2]])>0){
+              before <- length(new.dice2)
+              new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
+              new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
+              for(index3 in (before+1):length(new.dice2)){
+                new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
+              }
+            }
+            row <- row +1
+          }
+          # DONT REMOVE NULL - MORE WORK NEEDED HERE!
+          if(length(new.add)==0){
+
+          } else{
+            population$info$real.bv.add[[index]] <- new.add
+          }
+          if(length(new.mult)==0){
+
+          } else{
+            population$info$real.bv.mult[[index]] <- new.mult
+          }
+          if(length(new.add)==0){
+
+          } else{
+            population$info$real.bv.dice[[index]] <- list(new.dice1,new.dice2)
+          }
+          col <- col +1
+        }
+
+      }
+
+      for(index in shuffle.traits){
+        population$info$real.bv.length[1] <- max(population$info$real.bv.length[1], if(length(population$info$real.bv.add[[index]])>0){index} else{0})
+        population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
+        population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
+      }
+
+      for(index in 1:population$info$bv.nr){
+        if(length(population$info$real.bv.add[[index]])>0){
+          t <- population$info$real.bv.add[[index]]
+          take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
+          t <- t[take$ix,,drop=FALSE]
+          take <- sort(t[,1]+ t[,2] * 10^10)
+          keep <- c(0,which(diff(take)!=0), length(take))
+          if(length(keep) <= nrow(t)){
+            for(index2 in 2:(length(keep))){
+              t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
+            }
+            population$info$real.bv.add[[index]] <- t[keep,]
+          }
+        }
+      }
+    }
+
+
+    if(length(add.architecture)>0){
+      population$info$gen.architecture[[length(population$info$gen.architecture)+1]] <- list()
+      population$info$gen.architecture[[length(population$info$gen.architecture)]]$length.total <- cumsum(c(0,add.architecture[[1]]))
+      population$info$gen.architecture[[length(population$info$gen.architecture)]]$snp.position <- add.architecture[[2]]
+
+    }
+
 
   }
 

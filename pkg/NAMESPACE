@@ -3,6 +3,7 @@
 S3method(plot,population)
 S3method(summary,population)
 export(add.array)
+export(add.founder.kinship)
 export(analyze.bv)
 export(analyze.population)
 export(breeding.diploid)

@@ -791,6 +791,19 @@ breeding.diploid <- function(population,
   selection.m.database <- get.database(population, selection.m.gen, selection.m.database, selection.m.cohorts)
   selection.f.database <- get.database(population, selection.f.gen, selection.f.database, selection.f.cohorts)
 
+  if(add.gen==0){
+    current.gen <- length(population$breeding)
+    add.gen <- current.gen + 1
+  } else{
+    current.gen <- add.gen - 1
+  }
+
+  if(length(selection.m.database)>0 && selection.m.database[,1]>= add.gen){
+    stop("Parental individuals must be in an earlier generation than offspring! Check add.gen / selection.m.gen/database/cohort!")
+  }
+  if(length(selection.f.database)>0 && selection.f.database[,1]>= add.gen){
+    stop("Parental individuals must be in an earlier generation than offspring! Check add.gen / selection.m.gen/database/cohort!")
+  }
   if(length(population$info$cumsnp)==0){
     population$info$cumsnp <- cumsum(population$info$snp)
   }
@@ -1016,11 +1029,7 @@ breeding.diploid <- function(population,
 
 
 
-  if(add.gen==0){
-    current.gen <- length(population$breeding)
-  } else{
-    current.gen <- add.gen - 1
-  }
+
 
   if(breeding.all.combination){
     if(sum(selection.size)==0){
@@ -1283,10 +1292,9 @@ breeding.diploid <- function(population,
     repeatability <- population$info$repeatability
   }
 
-  if(length(heritability)>0){
+  if(length(heritability)>0 & length(repeatability)>0){
     sigma.g.temp1 <- (sigma.e * heritability) /  (1 - heritability)
     sigma.total.temp1 <-  sigma.g.temp1 + sigma.e
-
     sigma.e.perm <- repeatability * sigma.total.temp1 - sigma.g.temp1
     sigma.e.rest <- sigma.e - sigma.e.perm
   } else{
@@ -1443,6 +1451,7 @@ breeding.diploid <- function(population,
     for(index in 1:nrow(offspring.bve.parents.database)){
       activ.parents <- offspring.bve.parents.database[index,]
       new.bv <- counter <- matrix(0, nrow=population$info$bv.nr, ncol=activ.parents[4]-activ.parents[3]+1)
+
       next_indi <- 1
       for(index2 in 1:nrow(offspring.bve.offspring.database)){
         activ.offspring <- offspring.bve.offspring.database[index2,]
@@ -1474,14 +1483,17 @@ breeding.diploid <- function(population,
               parent2 <- c(-1,-1,-1)
             }
             if(parent1[1]==activ.parents[1] && parent1[2]==activ.parents[2] && parent1[3]>= activ.parents[3] && parent1[3]<= activ.parents[4]){
-              activ.take <- population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0
+              activ.take <- population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0 & !is.na(population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3])
               new.bv[activ.take,parent1[3] - activ.parents[3]+1] <- (new.bv[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3] * population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
               counter[activ.take,parent1[3]- activ.parents[3]+1] <- (counter[,parent1[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
             }
             if(parent2[1]==activ.parents[1] && parent2[2]==activ.parents[2] && parent2[3]>= activ.parents[3] && parent2[3]<= activ.parents[4]){
-              activ.take <-  population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0
+              activ.take <-  population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]]>0 & !is.na(population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3])
               new.bv[activ.take,parent2[3]- activ.parents[3]+1] <- (new.bv[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]+8]][,index3] * population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
               counter[activ.take,parent2[3]- activ.parents[3]+1] <- (counter[,parent2[3]- activ.parents[3]+1] + population$breeding[[activ.offspring[1]]][[activ.offspring[2]]][[activ.offspring[3]]][[15]])[activ.take]
+            }
+            if(sum(is.na(new.bv))>0){
+              stop()
             }
           }
         }
@@ -1492,8 +1504,8 @@ breeding.diploid <- function(population,
       population$breeding[[activ.parents[1]]][[activ.parents[2]+26]][,activ.parents[3]:activ.parents[4]] <- new.bv / counter
       population$breeding[[activ.parents[1]]][[activ.parents[2]+28]][,activ.parents[3]:activ.parents[4]] <- counter
       if(sum(counter==0)>0){
-        if(verbose) cat(paste0(sum(counter==0), " phenotype entries without valid offspring for phenotype import from offspring! Set offspring phenotype to 0 (NA)."))
-        population$breeding[[activ.parents[1]]][[activ.parents[2]+26]][,activ.parents[3]:activ.parents[4]][counter==0] <- 0
+        if(verbose) cat(paste0(sum(counter==0), " phenotype entries without valid offspring for phenotype import from offspring! Set offspring phenotype to NA"))
+        population$breeding[[activ.parents[1]]][[activ.parents[2]+26]][,activ.parents[3]:activ.parents[4]][counter==0] <- NA
       }
 
     }
@@ -1935,11 +1947,21 @@ breeding.diploid <- function(population,
               y[index,] <- off_pheno
               y_obs[index,] <- n_off
             } else if(input.phenotype=="mean"){
-              y[index,] <- (own_pheno + off_pheno)/((own_pheno!=0) + (off_pheno!=0))
+              take_both <- !is.na(own_pheno) & !is.na(off_pheno)
+              take_own <- !is.na(own_pheno) & is.na(off_pheno)
+              take_off <- is.na(own_pheno) & !is.na(off_pheno)
+              y[index,take_both] <- ((own_pheno + off_pheno)/((own_pheno!=0) + (off_pheno!=0)))[take_both]
+              y[index,take_own] <- (own_pheno /own_pheno!=0)[take_own]
+              y[index,take_off] <- (off_pheno/off_pheno!=0)[take_off]
               y_obs[index,] <- n_obs + n_off
             } else if(input.phenotype=="weighted"){
-              y[index,] <- (own_pheno*n_obs*2 + off_pheno*n_off)/(n_obs*2 + n_off)
-              y[index, is.na(y[index,])] <- 0
+              take_both <- !is.na(own_pheno) & !is.na(off_pheno)
+              take_own <- !is.na(own_pheno) & is.na(off_pheno)
+              take_off <- is.na(own_pheno) & !is.na(off_pheno)
+              y[index,take_both] <- ((own_pheno*n_obs*2 + off_pheno*n_off)/(n_obs*2 + n_off))[take_both]
+              y[index,take_own] <- (own_pheno /own_pheno!=0)[take_own]
+              y[index,take_off] <- (off_pheno/off_pheno!=0)[take_off]
+              y_obs[index,] <- n_obs + n_off / 2
             }
           }
         }

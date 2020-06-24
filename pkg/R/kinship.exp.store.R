@@ -167,7 +167,31 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1
   if(length(start.kinship)==0){
     size.firstgen <- sum(group.size[pedigree.database[,1]==pedigree.database[1,1]])
-    kinship[1:size.firstgen, 1:size.firstgen] <- diag(as.integer(1/2 * int_mult),size.firstgen)
+    if(length(intersect(pedigree.database[1,1], population$info$founder.kinship))>0){
+
+      if(ncol(population$info$kinship[[activ_gen]]) != sum(population$info$size[activ_gen,])){
+        stop("Dimension of start kinship matrix does not match with generation size!")
+      }
+      activ_gen <- pedigree.database[1,1]
+      activ_db <- pedigree.database[pedigree.database[,1]==pedigree.database[1,1],,drop=FALSE]
+      kin_male <- rep(FALSE,population$info$size[activ_gen,1])
+      kin_female <- rep(FALSE,population$info$size[activ_gen,2])
+      for(index in 1:nrow(activ_db)){
+        if(activ_db[index,2]==1){
+          kin_male[activ_db[index,3]:activ_db[index,4]] <- TRUE
+        } else{
+          kin_female[activ_db[index,3]:activ_db[index,4]] <- TRUE
+        }
+      }
+      activ_indi <- c(kin_male, kin_female)
+
+      temp_kinship <- population$info$kinship[[activ_gen]][activ_indi, activ_indi] * int_mult2
+      storage.mode(temp_kinship) <- "integer"
+      kinship[1:size.firstgen, 1:size.firstgen] <- temp_kinship
+    } else{
+      kinship[1:size.firstgen, 1:size.firstgen] <- diag(as.integer(1/2 * int_mult),size.firstgen)
+    }
+
   } else{
     kinship[1:nrow(start.kinship), 1:nrow(start.kinship)] <- start.kinship
     # Add reality check to validate size of start.kinship
