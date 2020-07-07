@@ -798,10 +798,10 @@ breeding.diploid <- function(population,
     current.gen <- add.gen - 1
   }
 
-  if(length(selection.m.database)>0 && selection.m.database[,1]>= add.gen){
+  if(!copy.individual && (length(selection.m.database)>0 && selection.m.database[,1]>= add.gen && (sum(breeding.size)+ sum(selection.size))>0)){
     stop("Parental individuals must be in an earlier generation than offspring! Check add.gen / selection.m.gen/database/cohort!")
   }
-  if(length(selection.f.database)>0 && selection.f.database[,1]>= add.gen){
+  if(!copy.individual && (length(selection.f.database)>0 && selection.f.database[,1]>= add.gen && (sum(breeding.size)+ sum(selection.size))>0)){
     stop("Parental individuals must be in an earlier generation than offspring! Check add.gen / selection.m.gen/database/cohort!")
   }
   if(length(population$info$cumsnp)==0){
@@ -1297,6 +1297,9 @@ breeding.diploid <- function(population,
     sigma.total.temp1 <-  sigma.g.temp1 + sigma.e
     sigma.e.perm <- repeatability * sigma.total.temp1 - sigma.g.temp1
     sigma.e.rest <- sigma.e - sigma.e.perm
+
+    sigma.e.perm[sigma.e.perm<0] <- 0
+    sigma.e.rest[sigma.e.rest<0] <- 0
   } else{
     sigma.e.perm <- rep(0, population$info$bv.nr)
     sigma.e.rest <- sigma.e
@@ -3505,6 +3508,9 @@ breeding.diploid <- function(population,
                       sd_store[bven] <- stats::sd(breeding.values[bven,])
                     } else if(multiple.bve.scale[sex]=="pheno_sd"){
                       sd_store[bven] <- stats::sd(pheno.values[bven,])
+                      if(is.na(sd_store[bven])){
+                        sd_store[bven] <- 0
+                      }
                       if(sd_store[bven]==0){
                         if(verbose) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
                         if(verbose) cat("Use residual variance for scaling!\n")
@@ -3598,6 +3604,10 @@ breeding.diploid <- function(population,
                       }
                     } else if(multiple.bve.scale[sex]=="pheno_sd") {
                       sd_scaling[bven] <- stats::sd(pheno.values[bven,], na.rm=TRUE)
+
+                      if(is.na(sd_scaling[bven])){
+                        sd_scaling[bven] <- 0
+                      }
                       if(sd_scaling[bven]==0){
                         if(verbose) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
                         if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
@@ -3687,7 +3697,7 @@ breeding.diploid <- function(population,
 
                   if(multiple.bve.scale[sex]=="pheno_sd"){
                     index.weights <- multiple.bve.weights[[sex]][active_traits] / sqrt(diag(pheno.cov))
-                    if(sum(diag(pheno.cov)==0)>0){
+                    if(sum(is.na(diag(pheno.cov))) >0 || sum(diag(pheno.cov)==0)>0){
                       if(verbose) cat("Are you sure you want to scale Miesenberger w by phenotypic sd? No phenotypes for some traits!\n")
                       if(verbose) cat("Expected phenotypic sd was used!\n")
                       index.weights <- multiple.bve.weights[[sex]][active_traits] / sqrt(diag(genomic.cov) + sigma.e[active_traits])
@@ -3707,7 +3717,7 @@ breeding.diploid <- function(population,
                   }
                   if(verbose) cat("Average index used for in selection according to Miesenberger:\n")
                   if(multiple.bve.scale[sex]=="pheno_sd"){
-                    if(sum(diag(pheno.cov)==0)>0){
+                    if(sum(is.na(diag(pheno.cov)))>0 || sum(diag(pheno.cov)==0)>0){
                       if(verbose) cat(paste0(rowMeans(bve.index) * sqrt(diag(genomic.cov) + sigma.e[active_traits]), " avg. index weightings.\n"))
                     } else{
                       if(verbose) cat(paste0(rowMeans(bve.index) * sqrt(diag(pheno.cov)), " avg. index weightings.\n"))
@@ -3809,7 +3819,7 @@ breeding.diploid <- function(population,
                     sd_scaling[bven] <- stats::sd(breeding.values[bven,])
                   } else if(multiple.bve.scale[sex] =="pheno_sd"){
                     sd_scaling[bven] <- stats::sd(pheno.values[bven,])
-                    if(sd_scaling[bven]==0){
+                    if(is.na(sd_scaling[bven]) || sd_scaling[bven]==0){
                       if(verbose) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
                       if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
                       sd_scaling[bven] <- sqrt(stats::var(genomic.values[bven,]) + sigma.e[bven])
@@ -5028,7 +5038,7 @@ breeding.diploid <- function(population,
 
         }
         if(phenotyping.child=="obs" || phenotyping.child=="addobs"){
-          if(sum(n.observation)>0){
+          if(sum(n.observation)>0 || copy.individual){
 
             if( length(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]]) == 0){
               population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] <- stats::rnorm(population$info$bv.nr,0,1)

@@ -4,7 +4,8 @@
 \alias{insert.bve}
 \title{Export estimated breeding values}
 \usage{
-insert.bve(population, bves, type = "bve", count = 1)
+insert.bve(population, bves, type = "bve", na.override = FALSE,
+  count = 1)
 }
 \arguments{
 \item{population}{Population list}
@@ -12,6 +13,8 @@ insert.bve(population, bves, type = "bve", count = 1)
 \item{bves}{Matrix of breeding values to enter (one row per individual with 1 element coding individual name)}
 
 \item{type}{which time of values to input (default: "bve", alt: "bv", "pheno")}
+
+\item{na.override}{Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)}
 
 \item{count}{Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))}
 }

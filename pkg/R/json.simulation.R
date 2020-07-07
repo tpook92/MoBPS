@@ -33,19 +33,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @param skip.population Set to TRUE to not execute breeding actions (only cost/time estimation will be performed)
 #' @param miraculix.chol Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is actived
+#' @param time.check Set to TRUE to automatically check simulation run-time before executing breeding actions
+#' @param time.max Maximum length of the simulation in seconds when time.check is active
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
 #' @return Population-list
 #' @export
+#'
+
 
 json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             progress.bars=FALSE, size.scaling=NULL, rep.max=1,
                             verbose=TRUE, miraculix.cores=NULL,
                             miraculix.chol = NULL,
-                            skip.population = FALSE){
+                            skip.population = FALSE,
+                            time.check = FALSE,
+                            time.max = 7200){
   if(length(log)==0 && length(file)>0){
-    log <- paste0(file, ".txt")
+    log <- paste0(file, ".log")
   } else if(length(log)==0 && length(file)==0){
     log <- FALSE
   }
@@ -58,9 +64,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         ############ Modular Breeding Program Simulator #############
         #############################################################")
     cat("\n")
-    cat(paste0("Simulation started: ", Sys.time()))
-    cat(paste0("MoBPS version used: ", utils::sessionInfo()$otherPkgs$MoBPS$Version))
-    cat("Copyright (C) 2017-2020 Torsten Pook")
+    cat(paste0("Simulation started: ", Sys.time(), "\n"))
+    cat(paste0("MoBPS version used: ", utils::sessionInfo()$otherPkgs$MoBPS$Version, "\n"))
+    cat("Copyright (C) 2017-2020 Torsten Pook\n\n")
   }
 
   if(requireNamespace("miraculix", quietly = TRUE)){
@@ -109,6 +115,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       traitinfo <- total$`Trait Info`
       cullinginfo <- total$Culling
       subpopulations <- total$Subpopulation$subpopulation_list
+
+      first_pop <- subpopulations[[1]]$Name
+
       major_table <- major <- list()
       n_traits <- length(traitinfo)
       map <- NULL
@@ -251,7 +260,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           if(length(traitinfo[[index]]$`quantitative_qtl`)==1){
             trait_matrix[index,11] <- traitinfo[[index]]$`quantitative_qtl`
           }
-          if(length(traitinfo[[index]]$'Trait Repeatability')==1 && suppressWarnings(is.numeric(as.numeric(traitinfo[[index]]$'Trait Repeatability')))){
+          if(length(traitinfo[[index]]$'Trait Repeatability')==1 && suppressWarnings(!is.na(as.numeric(traitinfo[[index]]$'Trait Repeatability')))){
             trait_matrix[index,12] <- traitinfo[[index]]$'Trait Repeatability'
           } else{
             trait_matrix[index,12] <- trait_matrix[index,5]
@@ -516,11 +525,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             nodes[[index]]$`Genotype generation` <- "Upload Genotypes"
           }
           if(length(nodes[[index]]$`Genotype generation subpopulation`)==0){
-            nodes[[index]]$`Genotype generation subpopulation` <- "Population 1"
+            nodes[[index]]$`Genotype generation subpopulation` <- first_pop
           }
 
         } else if(length(nodes[[index]]$`Genotype generation subpopulation`)==0){
-          nodes[[index]]$`Genotype generation subpopulation` <- "Population 1"
+          nodes[[index]]$`Genotype generation subpopulation` <- first_pop
         }
       }
       for(index in 1:length(edges)){
@@ -1440,7 +1449,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               mqtl_sub <- matrix(unlist(major_sub[[index]]), ncol=ncols, byrow=TRUE)
               to_enter_sub <- mqtl_sub[,c(1,4:6), drop=FALSE]
               to_enter_name_sub <- mqtl[,c(2,3), drop=FALSE]
-              storage.mode(to_enter_sub) <- "numeric"
+              suppressWarnings(storage.mode(to_enter_sub) <- "numeric")
               if(sum(is.na(to_enter_sub[,2]))>0 || sum(is.na(to_enter_sub[,1]))>0){
                 check_qtl <- unique(c(which(is.na(to_enter_sub[,1])), which(is.na(to_enter_sub[,2]))))
                 for(sample_index in check_qtl){
@@ -1476,15 +1485,22 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               p_i[[subpop]][position_change] <- to_enter_sub[,3]
             }
 
+          } else{
+            p_i[[subpop]] <- rep(0, nrow(map))
+            takes <- which(no_data==0 & founder_pop==subpopulation_info[subpop,1])
+            take <- NULL
           }
           if(miraculix.dataset){
-            nindi <- (starts[max(takes)+1] - starts[min(takes)])/2
-            chr.nr <- map[,1]
-            chr.opt <- unique(chr.nr)
-            dataset <- list()
-            for(chr_index in 1:length(chr.opt)){
-              dataset[[chr_index]] <- miraculix::rhaplo(p_i[[subpop]][which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index])
+            if(length(takes)>0){
+              nindi <- (starts[max(takes)+1] - starts[min(takes)])/2
+              chr.nr <- map[,1]
+              chr.opt <- unique(chr.nr)
+              dataset <- list()
+              for(chr_index in 1:length(chr.opt)){
+                dataset[[chr_index]] <- miraculix::rhaplo(p_i[[subpop]][which(chr.nr==chr.opt[chr_index])], indiv = nindi, loci = nsnp[chr_index])
+              }
             }
+
           } else{
             for(index in takes){
               # Integer * Integer > 2^32 --> NA! conversion to numerics
@@ -1665,41 +1681,44 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                     valid_markers <- c(valid_markers0, valid_markers1)
                     subpop_name <- subpopulation_info[subpop,1]
                     sub_cohort <- population$info$cohorts[which(founder_pop==subpop_name),1]
-                    mean_ref <- mean(get.bv(population, cohorts= standard_cohort )[active_trait,])
-                    mean_sub <- mean(get.bv(population, cohorts= sub_cohort )[active_trait,])
+                    if(length(sub_cohort)>0){
+                      mean_ref <- mean(get.bv(population, cohorts= standard_cohort )[active_trait,])
+                      mean_sub <- mean(get.bv(population, cohorts= sub_cohort )[active_trait,])
 
-                    current_diff <- mean_sub - mean_ref
-                    target_diff <- as.numeric(subpopulations[[subpop]][[indexmod]])
+                      current_diff <- mean_sub - mean_ref
+                      target_diff <- as.numeric(subpopulations[[subpop]][[indexmod]])
 
-                    if(subpop==1){
-                      change <- target_diff
-                    } else{
-                      change <- target_diff - current_diff
-                    }
+                      if(subpop==1){
+                        change <- target_diff
+                      } else{
+                        change <- target_diff - current_diff
+                      }
 
-                    diff_freq <- c(p_i[[subpop]][valid_markers0], - p_i[[subpop]][valid_markers1])
-
-
-                    effect_size <- change / sum(abs(diff_freq)) / 2
-                    direction <- diff_freq > 0
-
-                    snp_index <- chromo_index <- numeric(length(valid_markers))
-
-                    for(index2 in 1:length(valid_markers)){
-                      chromo_index[index2] <- max(which(c(0,population$info$cumsnp)<=valid_markers[index2]))
-                      snp_index[index2] <- valid_markers[index2] - c(0,population$info$cumsnp)[chromo_index[index2]]
-                    }
-                    add.effects <- cbind(snp_index, chromo_index, 2* effect_size, effect_size,   0)
-
-                    add.effects[direction==TRUE,3:5] <- cbind(rep(0, sum(direction)), rep(effect_size, sum(direction)), rep(2*effect_size, sum(direction)))
+                      diff_freq <- c(p_i[[subpop]][valid_markers0], - p_i[[subpop]][valid_markers1])
 
 
-                    population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)
-                    population$info$bv.calculated <- FALSE
-                    if(subpop==1){
-                      population <- breeding.diploid(population, verbose=verbose)
+                      effect_size <- change / sum(abs(diff_freq)) / 2
+                      direction <- diff_freq > 0
+
+                      snp_index <- chromo_index <- numeric(length(valid_markers))
+
+                      for(index2 in 1:length(valid_markers)){
+                        chromo_index[index2] <- max(which(c(0,population$info$cumsnp)<=valid_markers[index2]))
+                        snp_index[index2] <- valid_markers[index2] - c(0,population$info$cumsnp)[chromo_index[index2]]
+                      }
+                      add.effects <- cbind(snp_index, chromo_index, 2* effect_size, effect_size,   0)
+
+                      add.effects[direction==TRUE,3:5] <- cbind(rep(0, sum(direction)), rep(effect_size, sum(direction)), rep(2*effect_size, sum(direction)))
+
+
+                      population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)
                       population$info$bv.calculated <- FALSE
+                      if(subpop==1){
+                        population <- breeding.diploid(population, verbose=verbose)
+                        population$info$bv.calculated <- FALSE
+                      }
                     }
+
                   }
 
                 }
@@ -2556,21 +2575,37 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     }
     ############## Actual simulations ########################
     {
-      if(skip.population){
-        ## Estimate computing time:
-        pop_check <- creating.diploid(nindi = 2, nsnp = 100, chromosome.length = chromo.length,
-                                      n.additive = as.numeric(trait_matrix[,6]),
-                                      n.dominant = as.numeric(trait_matrix[,9]),
-                                      n.qualitative = as.numeric(trait_matrix[,10]),
-                                      n.quantitative = as.numeric(trait_matrix[,11]),
-                                      verbose = FALSE)
-        pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
-        pop_check <- breeding.diploid(pop_check, bve=TRUE, new.bv.observation = "all", verbose = FALSE)
-        pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
 
-        time_bve1000 <- pop_check$info$comp.times.bve[2,10]
-        time_gen1000 <- pop_check$info$comp.times.generation[1,4]
-        time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+      expected_time <- NULL
+      if(skip.population || time.check){
+        ## Estimate computing time:
+
+        if(n_traits>0){
+          pop_check <- creating.diploid(nindi = 2, nsnp = 100, chromosome.length = chromo.length,
+                                        n.additive = as.numeric(trait_matrix[,6]),
+                                        n.dominant = as.numeric(trait_matrix[,9]),
+                                        n.qualitative = as.numeric(trait_matrix[,10]),
+                                        n.quantitative = as.numeric(trait_matrix[,11]),
+                                        verbose = FALSE)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
+          pop_check <- breeding.diploid(pop_check, bve=TRUE, new.bv.observation = "all", verbose = FALSE)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+
+          time_bve1000 <- pop_check$info$comp.times.bve[2,10]
+          time_gen1000 <- pop_check$info$comp.times.generation[1,4]
+          time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+        } else{
+          pop_check <- creating.diploid(nindi = 2, nsnp = 100, chromosome.length = chromo.length,
+                                        verbose = FALSE)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
+          pop_check <- breeding.diploid(pop_check)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+
+          time_bve1000 <- 0.25 #pop_check$info$comp.times.bve[2,10]
+          time_gen1000 <- pop_check$info$comp.times.generation[1,4]
+          time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+        }
+
 
         expected_time <- matrix(0, nrow=length(ids), ncol=4)
         index <- 1 + length(founder)
@@ -2617,7 +2652,15 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                 sum(as.numeric(expected_time[,4]))), expected_time)
 
         colnames(expected_time) <- c("Cohort name", "BVEtime", "Gentime", "Totaltime")
-      } else{
+      }
+
+      if(!skip.population){
+
+        if(time.check){
+          if(t*60 > time.max){
+            stop("Expected run-time exceeds your limits!\n Simulation stopped!!")
+          }
+        }
         # Derive Founders that are alive
         alive_cohorts <- population$info$cohorts[,1]
         alive_numbers <- as.numeric(population$info$cohorts[,3])
@@ -3389,6 +3432,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     } else{
       population$info$json <- list(nodes, edges, geninfo, traitinfo, major, housing, phenotyping, ids)
       population$info$cost.data <- as.data.frame(costdata)
+      population$info$expected.time <- as.data.frame(expected_time)
       return(population)
     }
 
@@ -3398,6 +3442,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
+
 
   if(log != FALSE){
     sink(zz, append = TRUE, type = c("message"))

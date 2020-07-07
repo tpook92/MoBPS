@@ -536,7 +536,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
           if(length(store.mult[[index2]])>0){
             new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
             zeros <- rowSums(abs(new.mult[,5:13,drop=FALSE]))
-            new.mult <- new.add[zeros>0,,drop=FALSE]
+            new.mult <- new.mult[zeros>0,,drop=FALSE]
           }
           if(length(store.dice[[index2]])>0){
             if(length(store.dice[[index2]][[1]])>0){
