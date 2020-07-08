@@ -22,6 +22,19 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.5.25 (08.07.20)
+
+Added feature to model related founders (add.founder.kinship() ) 
+
+"Fixed" when deriving pedigree-matrix when offspring where in earlier generations than parents (Now Forbidden!)
+
+Minor bug-fix with repeatability / offspring.phenotypes / correlated traits with epistatic QTL effects
+
+insert.bv can now also insert NA values for phenotypes
+
+Minor updates for json.simulation in accordance to  www.mobps.de
+
+
 ### Version 1.5.16 (12.06.20)
 
 Added repeatability concept (multiple phenotyping observation are not necessaryly independent anymore)
