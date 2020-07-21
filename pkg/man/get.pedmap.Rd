@@ -4,8 +4,14 @@
 \alias{get.pedmap}
 \title{Generate plink-file (pedmap)}
 \usage{
-get.pedmap(population, path = NULL, database = NULL, gen = NULL,
-  cohorts = NULL, chromosomen = "all")
+get.pedmap(
+  population,
+  path = NULL,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  chromosomen = "all"
+)
 }
 \arguments{
 \item{population}{Population list}

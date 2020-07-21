@@ -92,6 +92,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mean.target Target mean
 #' @param var.target Target variance
 #' @param verbose Set to FALSE to not display any prints
+#' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
+#' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -144,7 +146,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              verbose=TRUE,
                              bv.standard=FALSE,
                              mean.target=NULL,
-                             var.target=NULL){
+                             var.target=NULL,
+                             is.maternal = NULL,
+                             is.paternal = NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -1015,6 +1019,20 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$array.name = "Full_Array"
       population$info$array.markers = list(rep(TRUE,nsnp))
       population$info$array.is_subset = FALSE
+
+      if(length(is.maternal)==0){
+        population$info$is.maternal <- rep(FALSE, bv.total)
+      } else{
+        population$info$is.maternal <- rep(is.maternal, length.out = bv.total)
+      }
+      if(length(is.paternal)==0){
+        population$info$is.paternal <- rep(FALSE, bv.total)
+      } else{
+        population$info$is.paternal <- rep(is.paternal, length.out = bv.total)
+      }
+
+      population$info$is.combi <- rep(FALSE, bv.total)
+      population$info$combi.weights  <- list()
 
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)

@@ -4,8 +4,15 @@
 \alias{get.pca}
 \title{Derive class}
 \usage{
-get.pca(population, path = NULL, database = NULL, gen = NULL,
-  cohorts = NULL, coloring = "group", components = c(1, 2))
+get.pca(
+  population,
+  path = NULL,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  coloring = "group",
+  components = c(1, 2)
+)
 }
 \arguments{
 \item{population}{Population list}

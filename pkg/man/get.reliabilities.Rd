@@ -4,8 +4,7 @@
 \alias{get.reliabilities}
 \title{Export underlying reliabilities}
 \usage{
-get.reliabilities(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.reliabilities(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

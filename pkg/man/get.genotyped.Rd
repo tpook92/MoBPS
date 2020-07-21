@@ -4,8 +4,7 @@
 \alias{get.genotyped}
 \title{Derive genotyping status}
 \usage{
-get.genotyped(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.genotyped(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

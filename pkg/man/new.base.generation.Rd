@@ -4,9 +4,14 @@
 \alias{new.base.generation}
 \title{Set new base generation}
 \usage{
-new.base.generation(population, base.gen = NULL,
-  delete.previous.gen = FALSE, delete.breeding.totals = FALSE,
-  delete.bve.data = FALSE, add.chromosome.ends = TRUE)
+new.base.generation(
+  population,
+  base.gen = NULL,
+  delete.previous.gen = FALSE,
+  delete.breeding.totals = FALSE,
+  delete.bve.data = FALSE,
+  add.chromosome.ends = TRUE
+)
 }
 \arguments{
 \item{population}{Population list}

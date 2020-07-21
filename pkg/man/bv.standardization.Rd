@@ -4,9 +4,17 @@
 \alias{bv.standardization}
 \title{BV standardization}
 \usage{
-bv.standardization(population, mean.target = 100, var.target = 10,
-  gen = NULL, database = NULL, cohorts = NULL, adapt.bve = FALSE,
-  adapt.pheno = FALSE, verbose = FALSE)
+bv.standardization(
+  population,
+  mean.target = 100,
+  var.target = 10,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  adapt.bve = FALSE,
+  adapt.pheno = FALSE,
+  verbose = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

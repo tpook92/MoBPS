@@ -4,8 +4,11 @@
 \alias{creating.phenotypic.transform}
 \title{Calculate breeding values}
 \usage{
-creating.phenotypic.transform(population,
-  phenotypic.transform.function = NULL, trait = 1)
+creating.phenotypic.transform(
+  population,
+  phenotypic.transform.function = NULL,
+  trait = 1
+)
 }
 \arguments{
 \item{population}{Population list}

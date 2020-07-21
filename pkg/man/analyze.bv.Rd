@@ -4,8 +4,14 @@
 \alias{analyze.bv}
 \title{Analyze genomic values}
 \usage{
-analyze.bv(population, gen = NULL, database = NULL, cohorts = NULL,
-  bvrow = "all", advanced = FALSE)
+analyze.bv(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  bvrow = "all",
+  advanced = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

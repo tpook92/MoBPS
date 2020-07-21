@@ -4,8 +4,14 @@
 \alias{get.haplo}
 \title{Derive haplotypes of selected individuals}
 \usage{
-get.haplo(population, database = NULL, gen = NULL, cohorts = NULL,
-  chromosomen = "all", export.alleles = FALSE)
+get.haplo(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  chromosomen = "all",
+  export.alleles = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

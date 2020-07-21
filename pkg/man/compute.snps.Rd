@@ -4,10 +4,20 @@
 \alias{compute.snps}
 \title{Compute genotype/haplotype}
 \usage{
-compute.snps(population, gen, sex, nr, faster = TRUE,
-  import.position.calculation = NULL, from_p = 1, to_p = Inf,
-  decodeOriginsU = decodeOriginsR, bit.storing = FALSE, nbits = 30,
-  output_compressed = FALSE)
+compute.snps(
+  population,
+  gen,
+  sex,
+  nr,
+  faster = TRUE,
+  import.position.calculation = NULL,
+  from_p = 1,
+  to_p = Inf,
+  decodeOriginsU = decodeOriginsR,
+  bit.storing = FALSE,
+  nbits = 30,
+  output_compressed = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

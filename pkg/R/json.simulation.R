@@ -241,7 +241,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
       if(n_traits>0){
         trafos <- list()
-        trait_matrix <- matrix(0, nrow=n_traits, ncol=12)
+        combi_weights <- list()
+        trait_matrix <- matrix(0, nrow=n_traits, ncol=15)
         for(index in 1:n_traits){
           trait_matrix[index,1] <- traitinfo[[index]]$`Trait Name`
           trait_matrix[index,2] <- traitinfo[[index]]$`Trait Unit`
@@ -265,6 +266,26 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           } else{
             trait_matrix[index,12] <- trait_matrix[index,5]
           }
+          if(length(traitinfo[[index]]$is_maternal)==1){
+            trait_matrix[index,13] <- traitinfo[[index]]$is_maternal
+          } else{
+            trait_matrix[index,13] <- FALSE
+          }
+          if(length(traitinfo[[index]]$is_paternal)==1){
+            trait_matrix[index,14] <- traitinfo[[index]]$is_paternal
+          } else{
+            trait_matrix[index,14] <- FALSE
+          }
+          if(length(traitinfo[[index]]$is_combi)==1){
+            trait_matrix[index,15] <- traitinfo[[index]]$is_combi
+            if(traitinfo[[index]]$is_combi){
+              combi_weights[[index]] <- unlist(as.numeric(traitinfo[[index]]$combi_weights))
+            }
+          } else{
+            trait_matrix[index,15] <- FALSE
+          }
+
+
           if(length(traitinfo[[index]]$'trafo')>0 && traitinfo[[index]]$'trafo' != "function(x){return(x)}" && nchar(traitinfo[[index]]$'trafo')>11){
             f_temp <- NULL
             eval(parse(text=paste0("f_temp <- ", traitinfo[[index]]$'trafo')))
@@ -1578,7 +1599,14 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        n.quantitative = as.numeric(trait_matrix[,11]),
                                        shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
                                        shuffle.traits=1:n_traits,
-                                       trait.name = trait_matrix[,1], verbose=verbose)
+                                       trait.name = trait_matrix[,1], verbose=verbose,
+                                       is.maternal = as.logical(trait_matrix[,13]),
+                                       is.paternal = as.logical(trait_matrix[,14]))
+
+          for(index in which(as.logical(trait_matrix[,15]))){
+            population <- add.combi(population, trait = index, combi.weights = combi_weights[[index]])
+          }
+
 
           # Correct Scaling
           snp.before <- cumsum(c(0,population$info$snp))

@@ -4,18 +4,41 @@
 \alias{creating.trait}
 \title{Generation of genomic traits}
 \usage{
-creating.trait(population = NULL, real.bv.add = NULL,
-  real.bv.mult = NULL, real.bv.dice = NULL, bv.total = 0,
-  polygenic.variance = 100, bve.mult.factor = NULL,
-  bve.poly.factor = NULL, base.bv = NULL,
-  new.phenotype.correlation = NULL, new.residual.correlation = NULL,
-  new.breeding.correlation = NULL, n.additive = 0, n.dominant = 0,
-  n.qualitative = 0, n.quantitative = 0, var.additive.l = NULL,
-  var.dominant.l = NULL, var.qualitative.l = NULL,
-  var.quantitative.l = NULL, exclude.snps = NULL, randomSeed = NULL,
-  shuffle.traits = NULL, shuffle.cor = NULL, replace.traits = FALSE,
-  trait.name = NULL, remove.invalid.qtl = TRUE, bv.standard = FALSE,
-  mean.target = NULL, var.target = NULL, verbose = TRUE)
+creating.trait(
+  population = NULL,
+  real.bv.add = NULL,
+  real.bv.mult = NULL,
+  real.bv.dice = NULL,
+  bv.total = 0,
+  polygenic.variance = 100,
+  bve.mult.factor = NULL,
+  bve.poly.factor = NULL,
+  base.bv = NULL,
+  new.phenotype.correlation = NULL,
+  new.residual.correlation = NULL,
+  new.breeding.correlation = NULL,
+  n.additive = 0,
+  n.dominant = 0,
+  n.qualitative = 0,
+  n.quantitative = 0,
+  var.additive.l = NULL,
+  var.dominant.l = NULL,
+  var.qualitative.l = NULL,
+  var.quantitative.l = NULL,
+  exclude.snps = NULL,
+  randomSeed = NULL,
+  shuffle.traits = NULL,
+  shuffle.cor = NULL,
+  replace.traits = FALSE,
+  trait.name = NULL,
+  remove.invalid.qtl = TRUE,
+  bv.standard = FALSE,
+  mean.target = NULL,
+  var.target = NULL,
+  verbose = TRUE,
+  is.maternal = NULL,
+  is.paternal = NULL
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -78,7 +101,11 @@ creating.trait(population = NULL, real.bv.add = NULL,
 
 \item{var.target}{Target variance}
 
-\item{verbose}{Set to FALSE to not display any prints
+\item{verbose}{Set to FALSE to not display any prints}
+
+\item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
+
+\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 population <- creating.diploid(nsnp=1000, nindi=100)
 population <- creating.trait(population, n.additive=100)}
 }

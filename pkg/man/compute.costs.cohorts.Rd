@@ -4,11 +4,21 @@
 \alias{compute.costs.cohorts}
 \title{Compute costs of a breeding program}
 \usage{
-compute.costs.cohorts(population, gen = NULL, database = NULL,
-  cohorts = NULL, json = TRUE, phenotyping.costs = NULL,
-  genotyping.costs = 0, housing.costs = NULL, fix.costs = 0,
-  fix.costs.annual = 0, profit.per.bv = 1, interest.rate = 1,
-  verbose = TRUE)
+compute.costs.cohorts(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  json = TRUE,
+  phenotyping.costs = NULL,
+  genotyping.costs = 0,
+  housing.costs = NULL,
+  fix.costs = 0,
+  fix.costs.annual = 0,
+  profit.per.bv = 1,
+  interest.rate = 1,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{population}{population-list}

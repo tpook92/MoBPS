@@ -4,10 +4,15 @@
 \alias{ensembl.map}
 \title{Ensemble Map}
 \usage{
-ensembl.map(host = "www.ensembl.org", dataset = "btaurus_snp",
-  export.filters = FALSE, export.datasets = FALSE,
+ensembl.map(
+  host = "www.ensembl.org",
+  dataset = "btaurus_snp",
+  export.filters = FALSE,
+  export.datasets = FALSE,
   filter = "variation_set_name",
-  filter.values = "Illumina BovineSNP50 BeadChip", nchromo = NULL)
+  filter.values = "Illumina BovineSNP50 BeadChip",
+  nchromo = NULL
+)
 }
 \arguments{
 \item{host}{Host to use in Ensembl (default: "www.ensembl.org" , alt: "plants.ensembl.org")}

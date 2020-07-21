@@ -4,8 +4,14 @@
 \alias{get.geno}
 \title{Derive genotypes of selected individuals}
 \usage{
-get.geno(population, database = NULL, gen = NULL, cohorts = NULL,
-  chromosomen = "all", export.alleles = FALSE)
+get.geno(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  chromosomen = "all",
+  export.alleles = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

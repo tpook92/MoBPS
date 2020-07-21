@@ -4,8 +4,7 @@
 \alias{plot.population}
 \title{Plot Population}
 \usage{
-\method{plot}{population}(x, type = "bve", gen = NULL,
-  database = NULL, cohorts = NULL, ...)
+\method{plot}{population}(x, type = "bve", gen = NULL, database = NULL, cohorts = NULL, ...)
 }
 \arguments{
 \item{x}{Population-list}

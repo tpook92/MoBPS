@@ -4,8 +4,7 @@
 \alias{get.time.point}
 \title{Derive time point}
 \usage{
-get.time.point(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.time.point(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

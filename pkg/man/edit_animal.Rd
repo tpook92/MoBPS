@@ -4,8 +4,16 @@
 \alias{edit_animal}
 \title{Internal gene editing function}
 \usage{
-edit_animal(population, gen, sex, nr, nr.edits,
-  decodeOriginsU = decodeOriginsR, bit.storing = FALSE, nbits = 30)
+edit_animal(
+  population,
+  gen,
+  sex,
+  nr,
+  nr.edits,
+  decodeOriginsU = decodeOriginsR,
+  bit.storing = FALSE,
+  nbits = 30
+)
 }
 \arguments{
 \item{population}{Population list}

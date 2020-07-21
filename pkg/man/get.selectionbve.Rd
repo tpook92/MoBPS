@@ -4,8 +4,7 @@
 \alias{get.selectionbve}
 \title{Export underlying selection index}
 \usage{
-get.selectionbve(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.selectionbve(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

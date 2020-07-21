@@ -4,8 +4,7 @@
 \alias{get.pheno.off.count}
 \title{Export underlying phenotypes}
 \usage{
-get.pheno.off.count(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.pheno.off.count(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

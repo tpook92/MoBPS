@@ -4,12 +4,24 @@
 \alias{breeding.intern}
 \title{Internal function to simulate one meiosis}
 \usage{
-breeding.intern(info.parent, parent, population, mutation.rate,
-  remutation.rate, recombination.rate, recom.f.indicator, recom.f.polynom,
-  duplication.rate, duplication.length, duplication.recombination,
-  delete.same.origin = FALSE, gene.editing = gene.editing,
-  nr.edits = nr.edits, gen.architecture = 0,
-  decodeOriginsU = decodeOriginsR)
+breeding.intern(
+  info.parent,
+  parent,
+  population,
+  mutation.rate,
+  remutation.rate,
+  recombination.rate,
+  recom.f.indicator,
+  recom.f.polynom,
+  duplication.rate,
+  duplication.length,
+  duplication.recombination,
+  delete.same.origin = FALSE,
+  gene.editing = gene.editing,
+  nr.edits = nr.edits,
+  gen.architecture = 0,
+  decodeOriginsU = decodeOriginsR
+)
 }
 \arguments{
 \item{info.parent}{position of the parent in the dataset}

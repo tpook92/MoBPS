@@ -4,10 +4,19 @@
 \alias{bv.development.box}
 \title{Devolopment of genetic/breeding value}
 \usage{
-bv.development.box(population, database = NULL, gen = NULL,
-  cohorts = NULL, bvrow = "all", json = FALSE, display = "bv",
-  display.selection = FALSE, display.reproduction = FALSE,
-  ylim = NULL, fix_mfrow = FALSE)
+bv.development.box(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  bvrow = "all",
+  json = FALSE,
+  display = "bv",
+  display.selection = FALSE,
+  display.reproduction = FALSE,
+  ylim = NULL,
+  fix_mfrow = FALSE
+)
 }
 \arguments{
 \item{population}{population list}

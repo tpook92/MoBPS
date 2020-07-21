@@ -4,9 +4,16 @@
 \alias{kinship.emp.fast}
 \title{Empirical kinship}
 \usage{
-kinship.emp.fast(animals = NULL, population = NULL, gen = NULL,
-  database = NULL, cohorts = NULL, sym = FALSE, ibd.obs = 50,
-  hbd.obs = 10)
+kinship.emp.fast(
+  animals = NULL,
+  population = NULL,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  sym = FALSE,
+  ibd.obs = 50,
+  hbd.obs = 10
+)
 }
 \arguments{
 \item{animals}{List of animals to compute kinship for}

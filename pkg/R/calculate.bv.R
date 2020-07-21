@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
 #' @return [[1]] true genomic value [[2]] allele frequency at QTL markers
 
+
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,
                          decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
                          bit.storing=FALSE, nbits=30, output_compressed=FALSE){
@@ -42,20 +43,61 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
   # Falls noetig koennten Haplotypen hier erst bestimmt werden.
   if(population$info$miraculix){
     if (requireNamespace("miraculix", quietly = TRUE)) {
-      geno <- miraculix::computeSNPS(population, gen, sex, nr, what="geno")
+      geno_self <- miraculix::computeSNPS(population, gen, sex, nr, what="geno")
     } else{
       stop("Usage of miraculix without being installed!")
     }
-
   } else{
     hap <- compute.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
-    geno <- colSums(hap)
+    geno_self <- colSums(hap)
+  }
+
+  if(sum(population$info$is.maternal)>0){
+    index_mother <- population$breeding[[gen]][[sex]][[nr]][[8]]
+    if(population$info$miraculix){
+      if (requireNamespace("miraculix", quietly = TRUE)) {
+        geno_mother <- miraculix::computeSNPS(population, index_mother[1], index_mother[2], index_mother[3], what="geno")
+      } else{
+        stop("Usage of miraculix without being installed!")
+      }
+    } else{
+      hap <- compute.snps(population, index_mother[1], index_mother[2], index_mother[3],
+                          import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
+                          bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+      geno_mother <- colSums(hap)
+    }
+  }
+
+  if(sum(population$info$is.paternal)>0){
+    index_father <- population$breeding[[gen]][[sex]][[nr]][[7]]
+    if(population$info$miraculix){
+      if (requireNamespace("miraculix", quietly = TRUE)) {
+        geno_father <- miraculix::computeSNPS(population, index_father[1], index_father[2], index_father[3], what="geno")
+      } else{
+        stop("Usage of miraculix without being installed!")
+      }
+    } else{
+      hap <- compute.snps(population, index_father[1], index_father[2], index_father[3],
+                          import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
+                          bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+      geno_father <- colSums(hap)
+    }
   }
 
   bv_final <- numeric(length(activ_bv))
   snp.before <- population$info$cumsnp
   cindex <- 1
   for(bven in activ_bv){
+
+    if(population$info$is.maternal[bven]){
+      geno <- geno_mother
+    } else if(population$info$is.paternal[bven]){
+      geno <- geno_father
+    } else{
+      geno <- geno_self
+    }
+
+
     bv <- population$info$base.bv[bven] # Mittelwert
 
     real.bv.adds <- population$info$real.bv.add[[bven]]

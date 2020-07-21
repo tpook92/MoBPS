@@ -4,9 +4,15 @@
 \alias{derive.loop.elements}
 \title{Derive loop elements}
 \usage{
-derive.loop.elements(population, bve.database, bve.class,
-  bve.avoid.duplicates, store.adding = FALSE,
-  store.which.adding = FALSE, list.of.copys = FALSE)
+derive.loop.elements(
+  population,
+  bve.database,
+  bve.class,
+  bve.avoid.duplicates,
+  store.adding = FALSE,
+  store.which.adding = FALSE,
+  list.of.copys = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

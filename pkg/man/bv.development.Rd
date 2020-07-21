@@ -4,13 +4,27 @@
 \alias{bv.development}
 \title{Devolopment of genetic/breeding value}
 \usage{
-bv.development(population, database = NULL, gen = NULL,
-  cohorts = NULL, confidence = c(1, 2, 3), development = c(1, 2, 3),
-  quantile = 0.95, bvrow = "all", ignore.zero = TRUE, json = FALSE,
-  display.time.point = FALSE, display.creating.type = FALSE,
-  display.cohort.name = FALSE, display.sex = FALSE,
-  equal.spacing = FALSE, time_reorder = FALSE, display.line = TRUE,
-  ylim = NULL, fix_mfrow = FALSE)
+bv.development(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  confidence = c(1, 2, 3),
+  development = c(1, 2, 3),
+  quantile = 0.95,
+  bvrow = "all",
+  ignore.zero = TRUE,
+  json = FALSE,
+  display.time.point = FALSE,
+  display.creating.type = FALSE,
+  display.cohort.name = FALSE,
+  display.sex = FALSE,
+  equal.spacing = FALSE,
+  time_reorder = FALSE,
+  display.line = TRUE,
+  ylim = NULL,
+  fix_mfrow = FALSE
+)
 }
 \arguments{
 \item{population}{population list}

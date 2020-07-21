@@ -4,8 +4,7 @@
 \alias{mutation.intro}
 \title{Mutation intro}
 \usage{
-mutation.intro(population, gen, sex, individual.nr, qtl.posi,
-  haplo.set = 1)
+mutation.intro(population, gen, sex, individual.nr, qtl.posi, haplo.set = 1)
 }
 \arguments{
 \item{population}{Population list}

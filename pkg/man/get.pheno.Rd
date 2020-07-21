@@ -4,8 +4,13 @@
 \alias{get.pheno}
 \title{Export underlying phenotypes}
 \usage{
-get.pheno(population, database = NULL, gen = NULL, cohorts = NULL,
-  use.all.copy = FALSE)
+get.pheno(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  use.all.copy = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

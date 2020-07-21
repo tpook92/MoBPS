@@ -4,10 +4,19 @@
 \alias{calculate.bv}
 \title{Calculate breeding values}
 \usage{
-calculate.bv(population, gen, sex, nr, activ_bv,
-  import.position.calculation = NULL, decodeOriginsU = decodeOriginsR,
-  store.effect.freq = FALSE, bit.storing = FALSE, nbits = 30,
-  output_compressed = FALSE)
+calculate.bv(
+  population,
+  gen,
+  sex,
+  nr,
+  activ_bv,
+  import.position.calculation = NULL,
+  decodeOriginsU = decodeOriginsR,
+  store.effect.freq = FALSE,
+  bit.storing = FALSE,
+  nbits = 30,
+  output_compressed = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

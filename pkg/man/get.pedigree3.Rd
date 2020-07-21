@@ -4,8 +4,13 @@
 \alias{get.pedigree3}
 \title{Derive pedigree parents and grandparents}
 \usage{
-get.pedigree3(population, database = NULL, gen = NULL,
-  cohorts = NULL, founder.zero = TRUE)
+get.pedigree3(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  founder.zero = TRUE
+)
 }
 \arguments{
 \item{population}{Population list}

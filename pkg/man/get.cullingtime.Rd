@@ -4,8 +4,7 @@
 \alias{get.cullingtime}
 \title{Derive time of culling}
 \usage{
-get.cullingtime(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.cullingtime(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

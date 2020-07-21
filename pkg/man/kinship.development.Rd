@@ -4,10 +4,20 @@
 \alias{kinship.development}
 \title{Devolopment of genetic/breeding value}
 \usage{
-kinship.development(population, database = NULL, gen = NULL,
-  cohorts = NULL, json = FALSE, ibd.obs = 50, hbd.obs = 10,
-  display.cohort.name = FALSE, display.time.point = FALSE,
-  equal.spacing = FALSE, time_reorder = FALSE, display.hbd = FALSE)
+kinship.development(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  json = FALSE,
+  ibd.obs = 50,
+  hbd.obs = 10,
+  display.cohort.name = FALSE,
+  display.time.point = FALSE,
+  equal.spacing = FALSE,
+  time_reorder = FALSE,
+  display.hbd = FALSE
+)
 }
 \arguments{
 \item{population}{population list}

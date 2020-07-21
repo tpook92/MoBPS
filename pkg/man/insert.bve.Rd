@@ -4,8 +4,7 @@
 \alias{insert.bve}
 \title{Export estimated breeding values}
 \usage{
-insert.bve(population, bves, type = "bve", na.override = FALSE,
-  count = 1)
+insert.bve(population, bves, type = "bve", na.override = FALSE, count = 1)
 }
 \arguments{
 \item{population}{Population list}

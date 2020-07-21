@@ -4,9 +4,15 @@
 \alias{compute.snps_single}
 \title{Compute genotype/haplotype in gene editing application}
 \usage{
-compute.snps_single(population, current.recombi, current.mut,
-  current.ursprung, faster = TRUE, import.position.calculation = NULL,
-  decodeOriginsU = decodeOriginsR)
+compute.snps_single(
+  population,
+  current.recombi,
+  current.mut,
+  current.ursprung,
+  faster = TRUE,
+  import.position.calculation = NULL,
+  decodeOriginsU = decodeOriginsR
+)
 }
 \arguments{
 \item{population}{Population list}

@@ -4,8 +4,7 @@
 \alias{get.age.point}
 \title{Derive age point}
 \usage{
-get.age.point(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.age.point(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

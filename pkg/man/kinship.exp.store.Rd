@@ -4,9 +4,18 @@
 \alias{kinship.exp.store}
 \title{Derive expected kinship}
 \usage{
-kinship.exp.store(population, gen = NULL, database = NULL,
-  cohorts = NULL, depth.pedigree = 7, start.kinship = NULL,
-  elements = NULL, mult = 2, storage.save = 1.5, verbose = TRUE)
+kinship.exp.store(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  depth.pedigree = 7,
+  start.kinship = NULL,
+  elements = NULL,
+  mult = 2,
+  storage.save = 1.5,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{population}{Population list}

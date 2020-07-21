@@ -550,6 +550,11 @@ breeding.diploid <- function(population,
   }
 
 
+  if(sum(population$info$is.combi)>0){
+    for(index in 1:length(population$info$combi.weights)){
+      population$info$combi.weights[[index]] <- c(population$info$combi.weights[[index]], rep(0, population$info$bv.nr - length(population$info$combi.weights[[index]])))
+    }
+  }
   if(length(population$info$array.name)==0){
     population$info$array.name = "Full_Array"
     population$info$array.markers = list(rep(TRUE,sum(population$info$snp)))
@@ -761,8 +766,8 @@ breeding.diploid <- function(population,
     }
   }
 
-  if(length(  population$info$bv.random.activ)==0){
-    population$info$bv.random.activ <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE)
+  if(length(  population$info$bv.random.activ)==0 || sum(population$info$is.combi)>0){
+    population$info$bv.random.activ <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE & population$info$is.combi[1:population$info$bv.calc]==FALSE)
   }
 
   add.selection <- sum(breeding.size)>0 & sum(selection.size)==0
@@ -1169,19 +1174,20 @@ breeding.diploid <- function(population,
       for(index in 1:nrow(sigma.g.database)){
         n.animals <- n.animals + diff(sigma.g.database[index,3:4]) + 1
       }
-      y_real <- array(0, dim=c(n.animals,(population$info$bv.calc-1))) # schaetzung sigma.g
+      y_real <- array(0, dim=c(n.animals,(population$info$bv.nr))) # schaetzung sigma.g
       cindex <- 1
-      temp1 <- 1:(population$info$bv.nr)
+      temp2 <- 1:(population$info$bv.nr)
+      temp3 <- which(population$info$bv.random==FALSE)
       for(index in 1:nrow(sigma.g.database)){
         k.database <- sigma.g.database[index,]
         if(diff(k.database[3:4])>=0){
           for(kindex in k.database[3]:k.database[4]){
-            y_real[cindex,temp1] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][bven,temp1]
+            y_real[cindex,temp1] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][temp2, kindex]
             cindex <- cindex +1
           }
         }
       }
-      for(bven in temp1){
+      for(bven in temp3){
         population$info$bv.random.variance[bven] <- stats::var(y_real[,bven])
         mu1[bven] <- mean(y_real[,bven])
       }
@@ -1198,11 +1204,11 @@ breeding.diploid <- function(population,
     if(temp1==FALSE){
       population$info$current.bv.random.variance  <- population$info$bv.random.variance
       if(population$info$bv.calc==1){
-        bv.var <- diag(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag(sqrt(population$info$current.bv.random.variance))
+        bv.var <- diag.mobps(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag.mobps(sqrt(population$info$current.bv.random.variance))
       } else{
-        AA <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
-        BB <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
-        CC <- diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+        AA <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
+        BB <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+        CC <- diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
         if (requireNamespace("MASS", quietly = TRUE)) {
           bv.var <- CC - t(BB) %*% MASS::ginv(AA) %*% BB
           mu_mult <- t(BB) %*% MASS::ginv(AA)
@@ -1225,6 +1231,21 @@ breeding.diploid <- function(population,
               }
               population$breeding[[index]][[6+sex]][population$info$bv.calc:population$info$bv.nr, nr.animal] <- bv.mean + bv.var_chol %*% stats::rnorm(population$info$bv.nr-population$info$bv.calc+1,0,1)
             }
+          }
+        }
+      }
+    }
+
+  }
+
+  if(temp1==FALSE && sum(population$info$is.combi)>0){
+    combis <- which(population$info$is.combi)
+    for(index in 1:length(population$breeding)){
+      for(sex in 1:2){
+        nanimals <- length(population$breeding[[index]][[sex]])
+        if(nanimals > 0){
+          for(combi in combis){
+            population$breeding[[index]][[6+sex]][combi,] <- colSums(population$info$combi.weights[[combi]] * population$breeding[[index]][[6+sex]])
           }
         }
       }
@@ -3519,8 +3540,8 @@ breeding.diploid <- function(population,
                     } else {
                       sd_store[bven] <- stats::sd(genomic.values[bven,])
                       if(sd_store[bven]==0){
-                        if(verbose) cat("No variation in true genomic values. Sure you want to scale according to true genomic values?\n")
-                        if(verbose) cat("Use residual variance for scaling!\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("No variation in true genomic values. Sure you want to scale according to true genomic values?\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("Use residual variance for scaling!\n")
                         sd_store[bven] <- sqrt(sigma.e[bven])
                       }
                     }
@@ -3568,6 +3589,7 @@ breeding.diploid <- function(population,
             for(index5 in 1:nrow(possible_animals)){
               import.bv[index5] <- population$breeding[[possible_animals[index5,1]]][[possible_animals[index5,2]+addsel[possible_animals[index5,2]]]][,possible_animals[index5,3]]
             }
+            import.bv[is.na(import.bv)] <- -Inf
             chosen.animals <- sort(import.bv, index.return=TRUE, decreasing=selection.highest[sex])$ix[1:sum(selection.size[[sex]])] # Diese 3er werden zu 4 in Weiblich
             best[[sex]][,1:4] <- cbind(possible_animals[chosen.animals, 1], possible_animals[chosen.animals, 2], possible_animals[chosen.animals, 3], import.bv[chosen.animals])
           } else{
@@ -3576,6 +3598,7 @@ breeding.diploid <- function(population,
               for(index5 in 1:nrow(possible_animals)){
                 breeding.values[,index5] <- population$breeding[[possible_animals[index5,1]]][[possible_animals[index5,2]+addsel[possible_animals[index5,2]]]][,possible_animals[index5,3]]
               }
+              breeding.values[is.na(breeding.values)] <- -Inf
               if((multiple.bve.scale[sex]=="bve_sd" || multiple.bve.scale[sex]=="pheno_sd" || multiple.bve.scale[sex] =="bv_sd") && selection.miesenberger[sex]==FALSE){
 
                 sd_scaling <- numeric(population$info$bv.nr)
@@ -3597,9 +3620,9 @@ breeding.diploid <- function(population,
                   if(ncol(breeding.values)!=1){
                     if(multiple.bve.scale[sex]=="bve_sd"){
                       sd_scaling[bven] <- stats::sd(breeding.values[bven,], na.rm=TRUE)
-                      if(sd_scaling[bven]==0 ){
-                        if(verbose) cat("No estimated breeding values entered in the group of selected individuals. Please check your input variables!?\n")
-                        if(verbose) cat("Use residual variance!\n")
+                      if(sd_scaling[bven]==0 || is.na(sd_scaling[bven])){
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("No estimated breeding values entered in the group of selected individuals. Please check your input variables!?\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("Use residual variance!\n")
                         sd_scaling[bven] <- sqrt(sigma.e[bven])
                       }
                     } else if(multiple.bve.scale[sex]=="pheno_sd") {
@@ -3609,15 +3632,15 @@ breeding.diploid <- function(population,
                         sd_scaling[bven] <- 0
                       }
                       if(sd_scaling[bven]==0){
-                        if(verbose) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
-                        if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("Expected phenotypic sd based on one observation was used!\n")
                         sd_scaling[bven] <- sqrt(stats::var(genomic.values[bven,]) + sigma.e[bven])
                       }
                     } else{
                       sd_scaling[bven] <- stats::sd(genomic.values[bven,], na.rm=TRUE)
                       if(sd_scaling[bven]==0){
-                        if(verbose) cat("No variation in true genomic values in the group of selected individuals. Sure you want to scale according to true genomic values?\n")
-                        if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("No variation in true genomic values in the group of selected individuals. Sure you want to scale according to true genomic values?\n")
+                        if(verbose & multiple.bve.weights[[sex]][bven]!=0) cat("Expected phenotypic sd based on one observation was used!\n")
                         sd_scaling[bven] <- sqrt(stats::var(genomic.values[bven,]) + sigma.e[bven])
                       }
                     }
@@ -3743,6 +3766,7 @@ breeding.diploid <- function(population,
               for(index5 in 1:nrow(possible_animals)){
                 breeding.values[,index5] <- population$breeding[[possible_animals[index5,1]]][[possible_animals[index5,2]+addsel[possible_animals[index5,2]]]][,possible_animals[index5,3]]
               }
+              breeding.values[is.na(breeding.values)] <- -Inf
               ranking <- matrix(0, ncol=nrow(possible_animals), nrow= population$info$bv.nr)
               for(bven in 1:population$info$bv.nr){
                 order <- sort(breeding.values[bven,], index.return=TRUE, decreasing=selection.highest[sex])$ix
@@ -3780,6 +3804,7 @@ breeding.diploid <- function(population,
               breeding.values[running] <- population$breeding[[possible_animals[chosen.animals[running],1]]][[possible_animals[chosen.animals[running],2]+2]][1,possible_animals[chosen.animals[running],3]]
             }
           }
+          breeding.values[is.na(breeding.values)] <- -Inf
           best[[sex]][,5] <- breeding.values
         } else if(population$info$bv.nr>1){
           if(multiple.bve=="add"){
@@ -3796,6 +3821,8 @@ breeding.diploid <- function(population,
               breeding.values.scaling[,running] <- population$breeding[[possible_animals[chosen.animals[running],1]]][[possible_animals[chosen.animals[running],2]+20]][,possible_animals[chosen.animals[running],3]]
 
             }
+            breeding.values[is.na(breeding.values)] <- -Inf
+
             if((multiple.bve.scale[sex]=="bve_sd" || multiple.bve.scale[sex]=="pheno_sd" || multiple.bve.scale[sex]=="bv_sd") && selection.miesenberger[sex]==FALSE){
 
               sd_scaling <- numeric(population$info$bv.nr)
@@ -3817,18 +3844,23 @@ breeding.diploid <- function(population,
                 if(ncol(breeding.values)!=1){
                   if(multiple.bve.scale[sex]=="bve_sd"){
                     sd_scaling[bven] <- stats::sd(breeding.values[bven,])
+                    if(sd_scaling[bven]==0 || is.na(sd_scaling[bven])){
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("No estimated breeding values entered in the group of selected individuals. Please check your input variables!?\n")
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("Use residual variance!\n")
+                      sd_scaling[bven] <- sqrt(sigma.e[bven])
+                    }
                   } else if(multiple.bve.scale[sex] =="pheno_sd"){
                     sd_scaling[bven] <- stats::sd(pheno.values[bven,])
                     if(is.na(sd_scaling[bven]) || sd_scaling[bven]==0){
-                      if(verbose) cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
-                      if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("No observed phenotypes in the group of selected individuals. Sure you want to scale according to phenotypes?\n")
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("Expected phenotypic sd based on one observation was used!\n")
                       sd_scaling[bven] <- sqrt(stats::var(genomic.values[bven,]) + sigma.e[bven])
                     }
                   } else{
                     sd_scaling[bven] <- stats::sd(genomic.values[bven,])
                     if(sd_scaling[bven]==0){
-                      if(verbose) cat("No variation in true genomic values in the group of selected individuals. Sure you want to scale according to true genomic values?\n")
-                      if(verbose) cat("Expected phenotypic sd based on one observation was used!\n")
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("No variation in true genomic values in the group of selected individuals. Sure you want to scale according to true genomic values?\n")
+                      if(verbose & multiple.bve.weights[[sex]][bven]!=0 & selection.sex[sex]!= "random") cat("Expected phenotypic sd based on one observation was used!\n")
                       sd_scaling[bven] <- sqrt(stats::var(genomic.values[bven,]) + sigma.e[bven])
                     }
                   }
@@ -3854,6 +3886,7 @@ breeding.diploid <- function(population,
                 ranking[,running] <- population$breeding[[possible_animals[chosen.animals[running],1]]][[possible_animals[chosen.animals[running],2]+2]][,possible_animals[chosen.animals[running],3]]
               }
             }
+            ranking[is.na(ranking)] <- -Inf
             for(bven in 1:population$info$bv.nr){
               order <- sort(ranking[bven,], index.return=TRUE, decreasing=selection.highest[sex])$ix
               ranking[bven,order] <- length(order):1
@@ -4490,13 +4523,13 @@ breeding.diploid <- function(population,
                                 } else{
                                   if(population$info$bv.calc==1){
                                     population$info$current.bv.random.variance <- varp * population$info$bv.random.variance
-                                    bv.var <- diag(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag(sqrt(population$info$current.bv.random.variance))
+                                    bv.var <- diag.mobps(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag.mobps(sqrt(population$info$current.bv.random.variance))
                                     single.mean <- means
                                   } else{
                                     population$info$current.bv.random.variance <- c(population$info$bv.random.variance[1:(population$info$bv.calc-1)],varp * population$info$bv.random.variance[population$info$bv.calc:population$info$bv.nr])
-                                    AA <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
-                                    BB <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
-                                    CC <- diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+                                    AA <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
+                                    BB <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+                                    CC <- diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
                                     if (requireNamespace("MASS", quietly = TRUE)) {
                                       bv.var <- CC - t(BB) %*% MASS::ginv(AA) %*% BB
                                       single.mean <- means + t(BB) %*% MASS::ginv(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
@@ -4514,6 +4547,14 @@ breeding.diploid <- function(population,
                                   new.bv[population$info$bv.calc:population$info$bv.nr] <-random_part + means_part
                                 }
 
+                              }
+
+
+                              if(sum(population$info$is.combi)>0){
+                                combis <- which(population$info$is.combi)
+                                for(combi in combis){
+                                  new.bv[combi] <- sum(new.bv * population$info$combi.weights[[combi]])
+                                }
                               }
 
                               if(phenotyping.child=="mean" || phenotyping.child=="addobs"){
@@ -4982,15 +5023,15 @@ breeding.diploid <- function(population,
           } else{
             if(population$info$bv.calc==1){
               population$info$current.bv.random.variance <- varp * population$info$bv.random.variance
-              bv.var <- diag(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag(sqrt(population$info$current.bv.random.variance))
+              bv.var <- diag.mobps(sqrt(population$info$current.bv.random.variance)) %*%population$info$current.bv.correlation %*% diag.mobps(sqrt(population$info$current.bv.random.variance))
               single.mean <- means
             } else{
               #population$info$current.bv.random.variance <- c(population$info$bv.random.variance[1:(population$info$bv.calc-1)], population$info$bv.random.variance[population$info$bv.calc:population$info$bv.nr])
               population$info$current.bv.random.variance <- c(population$info$bv.random.variance[1:(population$info$bv.calc-1)],varp * population$info$bv.random.variance[population$info$bv.calc:population$info$bv.nr])
 
-              AA <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
-              BB <- diag(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
-              CC <- diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+              AA <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*% population$info$current.bv.correlation[1:(population$info$bv.calc-1), 1:(population$info$bv.calc-1)]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[(1:(population$info$bv.calc-1))])
+              BB <- diag.mobps(sqrt(population$info$current.bv.random.variance)[1:(population$info$bv.calc-1)]) %*%population$info$current.bv.correlation[1:(population$info$bv.calc-1), -(1:(population$info$bv.calc-1))]%*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
+              CC <- diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))]) %*%population$info$current.bv.correlation[-(1:(population$info$bv.calc-1)), -(1:(population$info$bv.calc-1))] %*% diag.mobps(sqrt(population$info$current.bv.random.variance)[-(1:(population$info$bv.calc-1))])
               if (requireNamespace("MASS", quietly = TRUE)) {
                 bv.var <- CC - t(BB) %*% MASS::ginv(AA) %*% BB
                 single.mean <- means + t(BB) %*% MASS::ginv(AA) %*% ( new.bv[1:(population$info$bv.calc-1)]-mu1[1:(population$info$bv.calc-1)])
@@ -5015,6 +5056,12 @@ breeding.diploid <- function(population,
           }
 
 
+        }
+        if(sum(population$info$is.combi)>0){
+          combis <- which(population$info$is.combi)
+          for(combi in combis){
+            new.bv[combi] <- sum(new.bv * population$info$combi.weights[[combi]])
+          }
         }
 
         if(copy.individual && copy.individual.keep.bve){

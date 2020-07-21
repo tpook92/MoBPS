@@ -4,8 +4,15 @@
 \alias{analyze.population}
 \title{Analyze allele frequency of a single marker}
 \usage{
-analyze.population(population, chromosome = NULL, snp = NULL,
-  snp.name = NULL, database = NULL, gen = NULL, cohorts = NULL)
+analyze.population(
+  population,
+  chromosome = NULL,
+  snp = NULL,
+  snp.name = NULL,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL
+)
 }
 \arguments{
 \item{population}{Population list}

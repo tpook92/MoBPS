@@ -4,8 +4,7 @@
 \alias{get.creating.type}
 \title{Derive creating type}
 \usage{
-get.creating.type(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.creating.type(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

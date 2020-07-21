@@ -53,6 +53,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mean.target Target mean
 #' @param var.target Target variance
 #' @param verbose Set to FALSE to not display any prints
+#' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
+#' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
 #' @return Population-list with one or more additional new traits
@@ -83,7 +85,9 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
                            bv.standard=FALSE,
                            mean.target=NULL,
                            var.target=NULL,
-                           verbose=TRUE){
+                           verbose=TRUE,
+                           is.maternal=NULL,
+                           is.paternal=NULL){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -164,33 +168,49 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(population)>0){
     if(length(real.bv.add)==0 && replace.traits==FALSE){
       real.bv.add <- population$info$real.bv.add
-      real.bv.add[[population$info$bv.calc+1]] <- NULL
+      if(length(population$info$real.bv.add)>0){
+        real.bv.add[[length(population$info$real.bv.add)]] <- NULL
+      }
+
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.add)){
         real.bv.add <- list(real.bv.add)
       }
       real.bv.add <- c(population$info$real.bv.add, real.bv.add)
-      real.bv.add[[population$info$bv.calc+1]] <- NULL
+
+      if(length(population$info$real.bv.add)>0){
+        real.bv.add[[length(population$info$real.bv.add)]] <- NULL
+      }
     }
     if(length(real.bv.mult)==0 && replace.traits==FALSE){
       real.bv.mult <- population$info$real.bv.mult
-      real.bv.mult[[population$info$bv.calc+1]] <- NULL
+      if(length(population$info$real.bv.mult)>0){
+        real.bv.mult[[length(population$info$real.bv.mult)]] <- NULL
+      }
+
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.mult)){
         real.bv.mult <- list(real.bv.mult)
       }
       real.bv.mult <- c(population$info$real.bv.mult, real.bv.mult)
-      real.bv.mult[[population$info$bv.calc+1]] <- NULL
+      if(length(population$info$real.bv.mult)>0){
+        real.bv.mult[[length(population$info$real.bv.mult)]] <- NULL
+      }
     }
     if(length(real.bv.dice)==0 && replace.traits==FALSE){
       real.bv.dice <- population$info$real.bv.dice
-      real.bv.dice[[population$info$bv.calc+1]] <- NULL
+      if(length(population$info$real.bv.dice)>0){
+        real.bv.dice[[length(population$info$real.bv.dice)]] <- NULL
+      }
+
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.dice)){
         real.bv.dice <- list(real.bv.dice)
       }
       real.bv.dice <- c(population$info$real.bv.dice, real.bv.dice)
-      real.bv.dice[[population$info$bv.calc+1]] <- NULL
+      if(length(population$info$real.bv.dice)>0){
+        real.bv.dice[[length(population$info$real.bv.dice)]] <- NULL
+      }
     }
 
   }
@@ -383,6 +403,36 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
   population$info$phenotypic.transform <- rep(FALSE, bv.total)
   population$info$phenotypic.transform.function <- list()
+
+  store1 <- population$info$is.maternal
+  store2 <- population$info$is.paternal
+
+  if(length(is.maternal)==0){
+    population$info$is.maternal <- rep(FALSE, bv.total)
+  } else{
+    population$info$is.maternal <- rep(is.maternal, length.out = bv.total)
+  }
+  if(length(is.paternal)==0){
+    population$info$is.paternal <- rep(FALSE, bv.total)
+  } else{
+    population$info$is.paternal <- rep(is.paternal, length.out = bv.total)
+  }
+
+
+  store3 <- population$info$is.combi
+  population$info$is.combi <- rep(FALSE, bv.total)
+  if(replace.traits==FALSE){
+    if(length(store1)>0){
+      population$info$is.maternal[1:length(store1)] <- store1
+    }
+    if(length(store2)>0){
+      population$info$is.paternal[1:length(store2)] <- store2
+    }
+    if(length(store3)>0){
+      population$info$is.combi[1:length(store3)] <- store3
+    }
+  }
+
 
   if(length(bve.mult.factor)==0){
     population$info$bve.mult.factor <- rep(1L, bv.total)
@@ -602,7 +652,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   }
 
   if(bv.total){
-    if(length(population$info$trait.name)>0){
+    if(length(population$info$trait.name)>0 & replace.traits==FALSE){
       trait.name <- c(population$info$trait.name, trait.name)
     }
     population$info$trait.name <- trait.name

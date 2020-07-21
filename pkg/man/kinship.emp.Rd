@@ -4,8 +4,14 @@
 \alias{kinship.emp}
 \title{Empirical kinship}
 \usage{
-kinship.emp(animals = NULL, population = NULL, gen = NULL,
-  database = NULL, cohorts = NULL, sym = FALSE)
+kinship.emp(
+  animals = NULL,
+  population = NULL,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  sym = FALSE
+)
 }
 \arguments{
 \item{animals}{List of animals to compute kinship for}

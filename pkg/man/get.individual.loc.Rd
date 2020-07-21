@@ -4,8 +4,7 @@
 \alias{get.individual.loc}
 \title{Export location of individuals from the population list}
 \usage{
-get.individual.loc(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.individual.loc(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

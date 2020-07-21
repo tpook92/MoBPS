@@ -4,8 +4,13 @@
 \alias{set.class}
 \title{Export estimated breeding values}
 \usage{
-set.class(population, database = NULL, gen = NULL, cohorts = NULL,
-  new.class = 0)
+set.class(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  new.class = 0
+)
 }
 \arguments{
 \item{population}{Population list}

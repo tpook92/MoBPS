@@ -4,8 +4,14 @@
 \alias{get.vcf}
 \title{Generate vcf-file}
 \usage{
-get.vcf(population, path = NULL, database = NULL, gen = NULL,
-  cohorts = NULL, chromosomen = "all")
+get.vcf(
+  population,
+  path = NULL,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  chromosomen = "all"
+)
 }
 \arguments{
 \item{population}{Population list}

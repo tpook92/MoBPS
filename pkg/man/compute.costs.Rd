@@ -4,10 +4,19 @@
 \alias{compute.costs}
 \title{Compute costs of a breeding program}
 \usage{
-compute.costs(population, phenotyping.costs = 10,
-  genotyping.costs = 100, fix.costs = 0, fix.costs.annual = 0,
-  profit.per.bv = 1, database = NULL, gen = NULL, cohorts = NULL,
-  interest.rate = 1, base.gen = 1)
+compute.costs(
+  population,
+  phenotyping.costs = 10,
+  genotyping.costs = 100,
+  fix.costs = 0,
+  fix.costs.annual = 0,
+  profit.per.bv = 1,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  interest.rate = 1,
+  base.gen = 1
+)
 }
 \arguments{
 \item{population}{population-list}

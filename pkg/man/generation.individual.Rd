@@ -4,14 +4,36 @@
 \alias{generation.individual}
 \title{Function to generate a new individual}
 \usage{
-generation.individual(indexb, population, info_father_list,
-  info_mother_list, copy.individual, mutation.rate, remutation.rate,
-  recombination.rate, recom.f.indicator, recom.f.polynom, duplication.rate,
-  duplication.length, duplication.recombination, delete.same.origin,
-  gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
-  decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
-  dh.mating, share.genotyped, added.genotyped, genotyped.array, dh.sex,
-  n.observation)
+generation.individual(
+  indexb,
+  population,
+  info_father_list,
+  info_mother_list,
+  copy.individual,
+  mutation.rate,
+  remutation.rate,
+  recombination.rate,
+  recom.f.indicator,
+  recom.f.polynom,
+  duplication.rate,
+  duplication.length,
+  duplication.recombination,
+  delete.same.origin,
+  gene.editing,
+  nr.edits,
+  gen.architecture.m,
+  gen.architecture.f,
+  decodeOriginsU,
+  current.gen,
+  save.recombination.history,
+  new.bv.child,
+  dh.mating,
+  share.genotyped,
+  added.genotyped,
+  genotyped.array,
+  dh.sex,
+  n.observation
+)
 }
 \arguments{
 \item{indexb}{windows parallel internal test}

@@ -4,8 +4,7 @@
 \alias{get.selectionindex}
 \title{Export underlying selection index}
 \usage{
-get.selectionindex(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.selectionindex(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

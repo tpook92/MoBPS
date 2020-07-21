@@ -4,9 +4,16 @@
 \alias{ld.decay}
 \title{Generate LD plot}
 \usage{
-ld.decay(population, genotype.dataset = NULL, chromosomen = 1,
-  step = 5, max = 500, database = NULL, gen = NULL,
-  cohorts = NULL)
+ld.decay(
+  population,
+  genotype.dataset = NULL,
+  chromosomen = 1,
+  step = 5,
+  max = 500,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL
+)
 }
 \arguments{
 \item{population}{Population list}

@@ -4,8 +4,14 @@
 \alias{get.pedigree}
 \title{Derive pedigree}
 \usage{
-get.pedigree(population, database = NULL, gen = NULL, cohorts = NULL,
-  founder.zero = TRUE, raw = FALSE)
+get.pedigree(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  founder.zero = TRUE,
+  raw = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}

@@ -4,8 +4,7 @@
 \alias{get.death.point}
 \title{Derive death point}
 \usage{
-get.death.point(population, database = NULL, gen = NULL,
-  cohorts = NULL)
+get.death.point(population, database = NULL, gen = NULL, cohorts = NULL)
 }
 \arguments{
 \item{population}{Population list}

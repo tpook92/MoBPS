@@ -19,22 +19,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-.onAttach <- function(libname, pkgname) {
+#' Add a genotyping array
+#'
+#' Function to add a genotyping array for the population
+#' @param elements vector with entries to put on the diagonal of a matrix
+#' @examples
+#' diag(5)
+#' @return Diagonal matrix
+#' @export
 
-  #version_t <- as.numeric(as.Date("2020-05-12"))
-  #today_t <- as.numeric(Sys.Date())
+diag.mobps <- function(elements){
 
-    packageStartupMessage(
-"#############################################################
-############ Modular Breeding Program Simulator #############
-#############################################################
-################ Version: 1.5.27 (20-07-2020) ###############
-######## To update to the most recent stable version: #######
-## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##
-#############################################################
-################ Web-interface: www.mobps.de ################
-### Extended documentation: www.github.com/tpook92/MoBPS ####
-#############################################################")
-
-
+  diag.matrix <- diag(elements, nrow=length(elements))
+  return(diag.matrix)
 }
+
+
+
+
