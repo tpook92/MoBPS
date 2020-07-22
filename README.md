@@ -12,11 +12,12 @@ Hopefully our extensive User Manual containing some exemplary simulation should 
 We are always thankful for advice, for additional things to implement, feedback and/or reports of errors.
 
 # Web-based interface
-The web-based interface is finally online at www.mobps.de (http://134.76.18.242/).
+The web-based interface is finally online at www.mobps.de.
 
-For testing we are providing a test user (EAAPguest, password: eaap2019 ). This user is not allowed to use our backend server simulations, but can at least try to set up his simulations and download resulting json-files that can than be simulated via json.simulation() in the MoBPS R-package.
+For testing we are providing a Guest User. This user is not allowed to use our backend server simulations, but can at least try to set up his simulations and download resulting json-files that can than be simulated via json.simulation() in the MoBPS R-package.
 
-Note that this web-interface is still under active development with the final structure of data storage not 100% set. Additional providing feedback on "False" input for the tool is still a major concern to guide the user in inputing resonable / expected things. This web-based interface is expilicitly NOT part of our recently submitted paper // biorvix manuscript. A seperate publication on this will follow, but do not expect this to be ready soon. Until offer close collaboration and assistants in setting up your  simulation study (contact: torsten.pook@uni-goettingen.de for that). We are interested in collaborations with partners from both industry and academia.
+A separte publication of the web-based framework is uploaded on bioRvix (https://www.biorxiv.org/content/10.1101/2020.07.08.193227v1) and extended documenation for the interface can be found at www.mobps.de directly.
+
 
 # Update
 
@@ -30,7 +31,7 @@ Added feature that traits can be combination of other traits (e.g. partly matern
 
 Minor hotfix for subpopulations in json.simulation()
 
-Updated Guidelines to MoBPS
+Updated Guidelines to MoBPS (including hyperlinks)
 
 ### Version 1.5.25 (08.07.20)
 
