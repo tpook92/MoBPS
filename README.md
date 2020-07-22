@@ -22,6 +22,16 @@ Note that this web-interface is still under active development with the final st
 
 Updates since initial release:
 
+### Version 1.5.28 (22.07.20)
+
+Added maternal, paternal traits (is.maternal / is.paternal in creating.diploid() / creating.trait() ) 
+
+Added feature that traits can be combination of other traits (e.g. partly maternal traits) (add.combi() ) 
+
+Minor hotfix for subpopulations in json.simulation()
+
+Updated Guidelines to MoBPS
+
 ### Version 1.5.25 (08.07.20)
 
 Added feature to model related founders (add.founder.kinship() ) 
