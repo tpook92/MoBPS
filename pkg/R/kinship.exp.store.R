@@ -77,6 +77,21 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
     elements <- elements_new
     database <- database[which(activ_database),,drop=FALSE]
 
+    if(TRUE){
+      cumorder <- cumsum(c(1,diff(t(database[,3:4, drop=FALSE]))+1))
+      elements_new <- elements
+      for(index in 1:nrow(database)){
+        remain <- intersect(elements, cumorder[index]:(cumorder[index+1]-1)) - cumorder[index] +1
+
+        if(max(remain) < (database[index,4] - database[index,3]+1)){
+          elements_new[elements>(cumorder[index+1]-1)] <- elements_new[elements>(cumorder[index+1]-1)] + max(remain) - (database[index,4] - database[index,3] +1 )
+          database[index,4] <- max(remain) + database[index,3] - 1
+
+        }
+      }
+      elements <- elements_new
+    }
+    elements <- elements_new
 
   } else{
     elements <- 1:sum(database[,4]-database[,3]+1)

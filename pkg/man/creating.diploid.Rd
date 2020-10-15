@@ -191,6 +191,8 @@ creating.diploid(
 
 \item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
 
+\item{enter.bv}{Internal parameter}
+
 \item{name.cohort}{Name of the newly added cohort}
 
 \item{template.chip}{Import genetic map and chip from a species ("cattle", "chicken", "pig")}

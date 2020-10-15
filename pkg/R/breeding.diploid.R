@@ -74,6 +74,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param fixed.breeding Set of targeted matings to perform
 #' @param fixed.breeding.best Perform targeted matings in the group of selected individuals
 #' @param max.offspring Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))
+#' @param max.mating.pair Set to the maximum number of matings between two individuals (default: Inf)
 #' @param store.breeding.totals If TRUE store information on selected animals in $info$breeding.totals
 #' @param multiple.bve Way to handle multiple traits in bv/selection (default: "add", alt: "ranking")
 #' @param multiple.bve.weights.m Weighting between traits when using "add" (default: 1)
@@ -174,7 +175,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param display.progress Set FALSE to not display progress bars. Setting verbose to FALSE will automatically deactive progress bars
 #' @param ignore.best Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
-#' @param repeat.mating Generate multiple mating from the same dam/sire combination
+#' @param repeat.mating Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)
+#' @param repeat.mating.copy Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @param multiple.observation Set TRUE to allow for more than one phenotype observation per individual (this will decrease enviromental variance!)
@@ -403,7 +405,8 @@ breeding.diploid <- function(population,
             name.cohort = NULL,
             display.progress = TRUE,
             combine = FALSE,
-            repeat.mating = 1,
+            repeat.mating = NULL,
+            repeat.mating.copy = NULL,
             time.point = 0,
             creating.type = 0,
             multiple.observation = FALSE,
@@ -501,7 +504,8 @@ breeding.diploid <- function(population,
             bve.imputation.errorrate = 0,
             share.phenotyped=1,
             avoid.mating.fullsib=FALSE,
-            avoid.mating.halfsib=FALSE
+            avoid.mating.halfsib=FALSE,
+            max.mating.pair = Inf
             ){
 
 
@@ -511,6 +515,30 @@ breeding.diploid <- function(population,
     max_rel = 1
   } else{
     max_rel = 2
+  }
+
+  if(length(repeat.mating)>0){
+    if(length(repeat.mating)==1){
+      population$info$repeat.mating <- cbind(repeat.mating, 1)
+    } else{
+      population$info$repeat.mating <- repeat.mating
+    }
+    if(verbose) warning("New standard for litter size / repeat.mating set. This will be the new default for all downstream generation of offspring via breeding")
+  }
+  if(length(population$info$repeat.mating)==0){
+    population$info$repeat.mating <- cbind(1,1)
+  }
+
+  if(length(repeat.mating.copy)>0){
+    if(length(repeat.mating.copy)==1){
+      population$info$repeat.mating.copy <- cbind(repeat.mating.copy, 1)
+    } else{
+      population$info$repeat.mating.copy <- repeat.mating.copy
+    }
+    if(verbose) warning("New standard for litter size / repeat.mating.copy set. This will be the new default for all downstream generation of offspring via copy/combine.")
+  }
+  if(length(population$info$repeat.mating.copy)==0){
+    population$info$repeat.mating.copy <- cbind(1,1)
   }
   #######################################################################
   ############################### To-Dos ################################
@@ -561,6 +589,9 @@ breeding.diploid <- function(population,
     population$info$array.is_subset = FALSE
   }
 
+  if(dh.mating){
+    selfing.mating = TRUE
+  }
 
   reduced.selection.panel <- list(reduced.selection.panel.m, reduced.selection.panel.f)
 
@@ -1064,11 +1095,20 @@ breeding.diploid <- function(population,
   if(length(fixed.breeding.best) >0 && ncol(fixed.breeding.best)==4){
     fixed.breeding.best <- cbind(fixed.breeding.best,breeding.sex)
   }
-  if(repeat.mating>1 && length(fixed.breeding)>0){
-    fixed.breeding <- matrix(rep(t(fixed.breeding), repeat.mating), ncol=7, byrow=TRUE)
+
+  if(copy.individual){
+    repeat.mating.activ <- population$info$repeat.mating.copy
+  } else{
+    repeat.mating.activ <- population$info$repeat.mating
   }
-  if(repeat.mating>1 && length(fixed.breeding.best)>0){
-    fixed.breeding <- matrix(rep(t(fixed.breeding.best), repeat.mating), ncol=5, byrow=TRUE)
+
+
+
+  if(nrow(repeat.mating.activ)==1 && repeat.mating.activ[1,1]>1 && length(fixed.breeding)>0){
+    fixed.breeding <- matrix(rep(t(fixed.breeding), repeat.mating.activ[1,1]), ncol=7, byrow=TRUE)
+  }
+  if(nrow(repeat.mating.activ)==1 && repeat.mating.activ[1,1]>1 && length(fixed.breeding.best)>0){
+    fixed.breeding.best <- matrix(rep(t(fixed.breeding.best), repeat.mating.activ[1,1]), ncol=5, byrow=TRUE)
   }
 
 
@@ -4028,6 +4068,8 @@ breeding.diploid <- function(population,
   }
 }
 
+{
+
   if(gene.editing.best){
     for(sex in (1:2)[gene.editing.best.sex]){
       if(length(best[[sex]])>0){
@@ -4151,7 +4193,8 @@ breeding.diploid <- function(population,
     population$breeding[[current.gen+1]] <- list()
     population$info$size <- rbind(population$info$size, 0)
   }
-
+}
+{
   selection.rate <- list(numeric(selection.size[1]), numeric(selection.size[2]))
   activ.selection.size <- selection.size
   availables.m <- 1:selection.size[1]
@@ -4275,6 +4318,28 @@ breeding.diploid <- function(population,
     name.cohort <- paste0("Cohort_", population$info$cohort.index)
     population$info$cohort.index <- population$info$cohort.index + 1
   }
+}
+
+  if(copy.individual==FALSE && breeding.size.total>0){
+    if(nrow(best[[1]])==0){
+      if(same.sex.activ==FALSE || same.sex.sex > 0){
+        if(verbose){
+          if(!dh.mating && !selfing.mating) {cat("No male individuals provided for reproduction. Automatically allow female X female matings.\n")}
+        }
+      }
+      same.sex.activ <- TRUE
+      same.sex.sex <- selfing.sex <- 1
+    } else if(nrow(best[[2]])==0){
+      if(same.sex.activ==FALSE || same.sex.sex < 1){
+        if(verbose){
+          if(!dh.mating && !selfing.mating) cat("No female individuals provided for reproduction. Automatically allow male X male matings.\n")
+        }
+      }
+      same.sex.activ <- TRUE
+      same.sex.sex <- selfing.sex <-  0
+    }
+  }
+
 
   if(parallel.generation && breeding.size.total>0){
 
@@ -4293,7 +4358,7 @@ breeding.diploid <- function(population,
       info_father_list <- info_mother_list <- matrix(0, nrow=breeding.size.total, ncol=5)
 
 
-      runs <- repeat.mating
+      runs <- 0
       for(animal.nr in 1:breeding.size.total){
 
         sex <- sex.animal[animal.nr]
@@ -4301,68 +4366,91 @@ breeding.diploid <- function(population,
           info.father <- fixed.breeding[animal.nr,1:3]
           info.mother <- fixed.breeding[animal.nr,4:6]
         } else{
-          if(runs!=repeat.mating && runs>0){
+          if(runs>0){
             runs <- runs - 1
           } else{
-            runs <- repeat.mating - 1
-            if(selfing.mating==FALSE){
-              sex1 <- 1
-              sex2 <- 2
-              if(same.sex.activ==FALSE && relative.selection==FALSE){
 
-                number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-                number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+            if(copy.individual){
+              mating.temp <- sample(1:nrow(population$info$repeat.mating.copy), prob = population$info$repeat.mating.copy[,2], 1)
+              repeat.mating.temp <- population$info$repeat.mating.copy[mating.temp,1]
+            } else{
+              mating.temp <- sample(1:nrow(population$info$repeat.mating), prob = population$info$repeat.mating[,2], 1)
+              repeat.mating.temp <- population$info$repeat.mating[mating.temp,1]
+            }
 
+            runs <- repeat.mating.temp - 1
+
+            accepted <- TRUE
+            while(accepted==FALSE){
+
+              if(selfing.mating==FALSE){
+                sex1 <- 1
+                sex2 <- 2
+                if(same.sex.activ==FALSE && relative.selection==FALSE){
+
+                  number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
+                  number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+
+                  info.father <- best[[sex1]][number1,]
+                  info.mother <- best[[sex2]][number2,]
+                } else if(same.sex.activ==FALSE && relative.selection){
+                  info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
+                  info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
+                } else{
+                  sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhoeht
+
+                  sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
+
+                  number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
+                  number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+                  test <- 1
+                  while(same.sex.selfing==FALSE && number1==number2 && test < 100){
+                    number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
+                    test <- test+1
+                    if(test==100 && number1==number2){
+                      warning("Only one remaining individual in the selected cohorts.")
+                    }
+                  }
+
+                  if(relative.selection==FALSE){
+                    info.father <- best[[sex1]][number1,]
+                    # waehle fuers bveite Tier ein Tier aus der Gruppe der Nicht-besten Tiere
+                    if(martini.selection){
+                      options <- (1:population$info$size[best[[sex2]][1,1],sex2])[-best[[sex2]][,3]]
+                      number2 <- sample(options,1)
+                      info.mother <- c(best[[sex2]][1,1:2], number2)
+                    } else{
+                      info.mother <- best[[sex2]][number2,]
+                    }
+                  } else{
+                    info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,cum.sum[[sex1]])) +1 ,1:3]
+                    info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,cum.sum[[sex2]])) +1 ,1:3]
+                  }
+
+                }
+              } else{
+                sex1 <- sex2 <- stats::rbinom(1,1,selfing.sex)+1
+                if(length(availables[[sex1]])==0){
+                  sex1 <- sex2 <- 3 - sex1
+                }
+                number1 <- number2 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
                 info.father <- best[[sex1]][number1,]
                 info.mother <- best[[sex2]][number2,]
-              } else if(same.sex.activ==FALSE && relative.selection){
-                info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,sum[[1]])) +1 ,1:3]
-                info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
-              } else{
-                sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhoeht
-
-                sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
-
-                number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-                number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
-                test <- 1
-                while(same.sex.selfing==FALSE && number1==number2 && test < 100){
-                  number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
-                  test <- test+1
-                  if(test==100 && number1==number2){
-                    warning("Only one remaining individual in the selected cohorts.")
-                  }
-                }
-
-                if(relative.selection==FALSE){
-                  info.father <- best[[sex1]][number1,]
-                  # waehle fuers bveite Tier ein Tier aus der Gruppe der Nicht-besten Tiere
-                  if(martini.selection){
-                    options <- (1:population$info$size[best[[sex2]][1,1],sex2])[-best[[sex2]][,3]]
-                    number2 <- sample(options,1)
-                    info.mother <- c(best[[sex2]][1,1:2], number2)
-                  } else{
-                    info.mother <- best[[sex2]][number2,]
-                  }
-                } else{
-                  info.father <- best[[sex1]][sum(cum.sum[[sex1]] <stats::runif(1,0,cum.sum[[sex1]])) +1 ,1:3]
-                  info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,cum.sum[[sex2]])) +1 ,1:3]
-                }
 
               }
-            } else{
-              sex1 <- sex2 <- stats::rbinom(1,1,selfing.sex)+1
-              if(length(availables[[sex1]])==0){
-                sex1 <- sex2 <- 3 - sex1
-              }
-              number1 <- number2 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
-              info.father <- best[[sex1]][number1,]
-              info.mother <- best[[sex2]][number2,]
 
+              accepted <- TRUE
+              if(max.mating.pair < Inf){
+                if(  sum((colSums(t(info_father_list) == info.father) + colSums(t(info_mother_list) == info.mother))==10)  >= max.mating.pair){
+                  accepted <- FALSE
+                }
+              }
             }
+
             if(martini.selection==FALSE){
-              selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating
-              selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating
+
+              selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating.temp
+              selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating.temp
 
               if(selection.rate[[sex1]][number1] >= max.offspring[sex1]){
                 activ.selection.size[sex1] <-  activ.selection.size[sex1] - 1
@@ -4660,7 +4748,11 @@ breeding.diploid <- function(population,
       pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
     }
 
-    runs <- repeat.mating
+    runs <- 0
+
+    if(max.mating.pair < Inf){
+      info_father_list <- info_mother_list <- matrix(0, nrow=breeding.size.total, ncol=5)
+    }
 
     for(animal.nr in 1:breeding.size.total){
       if(store.comp.times.generation){
@@ -4673,13 +4765,25 @@ breeding.diploid <- function(population,
         info.father <- fixed.breeding[animal.nr,1:3]
         info.mother <- fixed.breeding[animal.nr,4:6]
       } else{
-        if(runs!=repeat.mating && runs>0){
+        if(runs>0){
           runs <- runs - 1
         } else{
-          runs <- repeat.mating - 1
+          if(copy.individual){
+            mating.temp <- sample(1:nrow(population$info$repeat.mating.copy), prob = population$info$repeat.mating.copy[,2], 1)
+            repeat.mating.temp <- population$info$repeat.mating.copy[mating.temp,1]
+          } else{
+            mating.temp <- sample(1:nrow(population$info$repeat.mating), prob = population$info$repeat.mating[,2], 1)
+            repeat.mating.temp <- population$info$repeat.mating[mating.temp,1]
+          }
+          runs <- repeat.mating.temp - 1
+
+
+
           check_rel <- FALSE
+          accepted <- FALSE
           max_counter <- 0
-          while(!check_rel){
+          max_rel_temp <- max_rel
+          while(!check_rel || accepted==FALSE){
             if(selfing.mating==FALSE){
               sex1 <- 1
               sex2 <- 2
@@ -4693,7 +4797,6 @@ breeding.diploid <- function(population,
                 info.mother <- best[[sex2]][sum(cum.sum[[sex2]] <stats::runif(1,0,sum[[2]])) +1 ,1:3]
               } else{
                 sex1 <- stats::rbinom(1,1,same.sex.sex) + 1 # ungleichviele tiere erhoeht
-
                 sex2 <- stats::rbinom(1,1,same.sex.sex) + 1
                 number1 <- availables[[sex1]][sample(1:activ.selection.size[sex1],1, prob=sample_prob[[sex1]][availables[[sex1]]])]
                 number2 <- availables[[sex2]][sample(1:activ.selection.size[sex2],1, prob=sample_prob[[sex2]][availables[[sex2]]])]
@@ -4734,16 +4837,41 @@ breeding.diploid <- function(population,
 
             }
 
-            check_rel = check.parents(population, info.father, info.mother, max.rel=max_rel)
+
+            accepted <- TRUE
+            if(max.mating.pair < Inf){
+              if( sum((colSums(t(info_father_list) == info.father) + colSums(t(info_mother_list) == info.mother))==10) >= max.mating.pair){
+                accepted <- FALSE
+              }
+            }
+
+            check_rel = check.parents(population, info.father, info.mother, max.rel=max_rel_temp)
             max_counter <- max_counter + 1
             if(max_counter>=25){
               warning("No remaining possible mating via avoid.mating. Proceed with silbing-mating.\n")
-              check_rel <- TRUE
+              max_rel_temp <- max_rel + 1
+              if(max_counter >= 50){
+                check_rel <- TRUE
+                max_rel_temp <- max_rel + 2
+              }
+              if(max_counter >= 250){
+                accepted <- TRUE
+                warning("No remaining possible mating via max.mating.pair. Proceed without limitation\n")
+              }
             }
+
+            if(accepted && max.mating.pair< Inf){
+              info_father_list[animal.nr,] <- info.father
+              info_mother_list[animal.nr,] <- info.mother
+            }
+
+
+
           }
           if(martini.selection==FALSE){
-            selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating
-            selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating
+
+            selection.rate[[sex1]][number1] <- selection.rate[[sex1]][number1] + repeat.mating.temp
+            selection.rate[[sex2]][number2] <- selection.rate[[sex2]][number2] + repeat.mating.temp
 
             if(selection.rate[[sex1]][number1] >= max.offspring[sex1]){
               activ.selection.size[sex1] <-  activ.selection.size[sex1] -1
@@ -4945,6 +5073,10 @@ breeding.diploid <- function(population,
 
       if(copy.individual){
         population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
+        if(length(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[22]])>0){
+          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[22]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[22]]
+        }
+
         if(added.genotyped>0 && population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]]==0){
           if(stats::rbinom(1,1,added.genotyped)==1){
             population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- 1

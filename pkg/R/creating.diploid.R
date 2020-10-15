@@ -94,6 +94,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
+#' @param enter.bv Internal parameter
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -183,18 +184,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(length(bp)==0){
         bp <- numeric(nrow(map))
       }
-      bp[!is.na(map[,3])] <- map[!is.na(map[,3]),3]
+      bp[!is.na(map[,3])] <- as.numeric(map[!is.na(map[,3]),3])
     }
     if(sum(!is.na(map[,4]))==nrow(map)){
-      snp.position <- map[,4]
-    } else if(sum(is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
+      snp.position <- as.numeric(map[,4])
+    } else if(sum(is.na(map[,4]))==nrow(map) && length(chromosome.length)==0){
       if(bpcm.conversion==0){
-        if(verbose) cat("Assume 1cm per 100.000.000bp - to change use bpcm.conversion\n")
+        if(verbose) cat("Assume 1 Morgan per 100.000.000bp - to change use bpcm.conversion\n")
         bpcm.conversion <- 1000000
       }
       map[,4] <- as.numeric(bp) /  bpcm.conversion / 100
     }
-    if(sum(!is.na(map[,4]))==nrow(map) || length(chromosome.length)==0){
+    if(sum(!is.na(map[,4]))==nrow(map) && length(chromosome.length)==0){
       chr.opt <- unique(chr.nr)
       chromosome.length <- numeric(length(chr.opt))
       for(index in 1:length(chr.opt)){

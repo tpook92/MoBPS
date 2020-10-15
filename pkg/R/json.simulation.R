@@ -115,7 +115,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       traitinfo <- total$`Trait Info`
       cullinginfo <- total$Culling
       subpopulations <- total$Subpopulation$subpopulation_list
-
+      litter_size <- total$litter_size
       first_pop <- subpopulations[[1]]$Name
 
       major_table <- major <- list()
@@ -190,6 +190,18 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         selection_index_name <- NULL
       }
 
+      if(length(litter_size)>0){
+        repeat.mating <- matrix(NA, nrow=length(litter_size$litter_info), 2)
+        for(index in 1:length(litter_size$litter_info)){
+          repeat.mating[index,1] <- as.numeric(litter_size$litter_info[[index]]$name)
+          repeat.mating[index,2] <- as.numeric(litter_size$litter_info[[index]]$prob)
+        }
+
+        repeat.mating[is.na(repeat.mating[,1]),1] <- 1
+        repeat.mating[is.na(repeat.mating[,2]),2] <- 0
+      } else{
+        repeat.mating <- cbind(1,1)
+      }
 
       if(length(geninfo$'history_baseline')>0){
         base.cycle <- as.numeric(geninfo$'history_baseline')
@@ -406,13 +418,32 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     #### MANUEL MODIFICATION:
     {
 
+      modify_path1 <- sum(dir()=="UserMaps")==0
+      modify_path2 <- sum(dir()=="UserGenos")==0
+      if(modify_path1){
+        if(length(geninfo$`Own Map Path` )>0 && nchar(geninfo$`Own Map Path` )>0){
+          geninfo$`Own Map Path` <- substr(geninfo$`Own Map Path`, start = gregexpr(pattern = "_" , text = geninfo$`Own Map Path`)[[1]][1] + 1, stop = 1000)
+        }
+      }
+
+
       for(index in 1:length(nodes)){
         if(length(nodes[[index]]$delete_info)==0){
           nodes[[index]]$delete_info <- FALSE
         }
+
+        if(modify_path2 && length(nodes[[index]]$Path)>0 && nchar(nodes[[index]]$Path)>0){
+          nodes[[index]]$Path <- substr(nodes[[index]]$Path, start = gregexpr(pattern = "_" , text = nodes[[index]]$Path)[[1]][1] + 1, stop = 1000)
+        }
       }
 
+
+
+
       for(index in 1:length(edges)){
+
+
+
         if(length(edges[[index]]$phenotype_used)==0){
           if(length(edges[[index]]$`Use Offspring for BVE`)>0 && edges[[index]]$`Use Offspring for BVE`=="Yes"){
             edges[[index]]$phenotype_used <- "Avg. offspring phenotype"
@@ -468,7 +499,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       if(size.scaling!=1){
         ids <- numeric(length(nodes))
         for(index in 1:length(nodes)){
-          nodes[[index]]$`Number of Individuals` <- round(as.numeric(nodes[[index]]$`Number of Individuals`) * size.scaling, digits=0)
+
+          if(!(length(nodes[[index]]$active_scaling)> 0 && nodes[[index]]$active_scaling)){
+            nodes[[index]]$`Number of Individuals` <- round(as.numeric(nodes[[index]]$`Number of Individuals`) * size.scaling, digits=0)
+          }
           if( nodes[[index]]$`Number of Individuals`==0){
             nodes[[index]]$`Number of Individuals` <- 1
           }
@@ -1025,7 +1059,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             if(verbose) cat("Map identified as Ped-map-file - extract map information")
             map_file <- utils::read.table(map_path)
             map <- cbind(map_file[,c(1,2,4,3)],NA)
-            if(sum(map[,4])==0){
+            if(sum(is.na(map[,4])==0) && sum(map[,4])==0){
               map[,4] <- NA
             }
           } else if(map_type=="ata"){
@@ -1604,7 +1638,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        is.paternal = as.logical(trait_matrix[,14]))
 
           for(index in which(as.logical(trait_matrix[,15]))){
-            population <- add.combi(population, trait = index, combi.weights = combi_weights[[index]])
+            population <- add.combi(population, trait = index, combi.weights = combi_weights[[index]], trait.name = trait_matrix[index,1])
           }
 
 
@@ -2053,6 +2087,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         }
       }
     }
+
+    #### Add litter size
+    population$info$repeat.mating <- repeat.mating
 
 
     ### derive order of generation
@@ -2934,6 +2971,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                     }
                     if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP" || nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (EMMREML)"){
                       activemmreml <- TRUE
+                    } else if(nodes[[groupnr]]$'BVE Method' =="Last BVE"){
+                      bve <- FALSE
                     } else if(nodes[[groupnr]]$'BVE Method'=="REML-GBLUP (sommer)") {
                       activesommer <- TRUE
                     } else if(nodes[[groupnr]]$'BVE Method'=="Multi-trait REML-GBLUP (sommer)") {
@@ -3455,6 +3494,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
     }
 
+    if(log != FALSE){
+      sink(zz, append = TRUE, type = c("message"))
+      warnings()
+      sink(NULL)
+      sink(NULL, type=c("message"))
+    }
+
     if(skip.population){
       return(list(costdata, expected_time))
     } else{
@@ -3472,12 +3518,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
   }
 
 
-  if(log != FALSE){
-    sink(zz, append = TRUE, type = c("message"))
-    warnings()
-    sink(NULL)
-    sink(NULL, type=c("message"))
-  }
+
+
 
 
   return(population)

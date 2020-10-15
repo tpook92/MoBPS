@@ -142,7 +142,8 @@ breeding.diploid(
   name.cohort = NULL,
   display.progress = TRUE,
   combine = FALSE,
-  repeat.mating = 1,
+  repeat.mating = NULL,
+  repeat.mating.copy = NULL,
   time.point = 0,
   creating.type = 0,
   multiple.observation = FALSE,
@@ -240,7 +241,8 @@ breeding.diploid(
   bve.imputation.errorrate = 0,
   share.phenotyped = 1,
   avoid.mating.fullsib = FALSE,
-  avoid.mating.halfsib = FALSE
+  avoid.mating.halfsib = FALSE,
+  max.mating.pair = Inf
 )
 }
 \arguments{
@@ -518,7 +520,9 @@ breeding.diploid(
 
 \item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 
-\item{repeat.mating}{Generate multiple mating from the same dam/sire combination}
+\item{repeat.mating}{Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)}
+
+\item{repeat.mating.copy}{Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)}
 
 \item{time.point}{Time point at which the new individuals are generated}
 
@@ -715,6 +719,8 @@ breeding.diploid(
 \item{avoid.mating.fullsib}{Set to TRUE to not generate offspring of full siblings}
 
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
+
+\item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
 }
 \value{
 Population-list

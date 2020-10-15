@@ -4,7 +4,7 @@
 \alias{add.combi}
 \title{Add a genotyping array}
 \usage{
-add.combi(population, trait, combi.weights)
+add.combi(population, trait, combi.weights, trait.name = NULL)
 }
 \arguments{
 \item{population}{population list}
@@ -12,13 +12,12 @@ add.combi(population, trait, combi.weights)
 \item{trait}{trait nr. for which to implement a combination of other traits}
 
 \item{combi.weights}{Weights (only linear combinations of other traits are allowed!)}
+
+\item{trait.name}{Name of the trait generated}
 }
 \value{
 Population list
 }
 \description{
 Function to add a genotyping array for the population
-}
-\examples{
-Hier sollte ihre Werbung stehen!!!
 }

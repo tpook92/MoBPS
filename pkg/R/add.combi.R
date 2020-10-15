@@ -25,12 +25,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population population list
 #' @param trait trait nr. for which to implement a combination of other traits
 #' @param combi.weights Weights (only linear combinations of other traits are allowed!)
-#' @examples
-#' Hier sollte ihre Werbung stehen!!!
+#' @param trait.name  Name of the trait generated
 #' @return Population list
 #' @export
 
-add.combi <- function(population, trait, combi.weights){
+add.combi <- function(population, trait, combi.weights, trait.name = NULL){
 
   if(trait > population$info$bv.nr){
     if(trait == (population$info$bv.nr+1)){
@@ -42,6 +41,9 @@ add.combi <- function(population, trait, combi.weights){
   population$info$is.combi[trait] <- TRUE
   population$info$is.maternal[trait] <- FALSE
   population$info$is.paternal[trait] <- FALSE
+  if(length(trait.name)==1){
+    population$info$trait.name[trait] <- trait.name
+  }
 
   combi.weights <- c(combi.weights, rep(0, population$info$bv.nr - length(combi.weights)))
 

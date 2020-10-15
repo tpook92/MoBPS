@@ -99,9 +99,9 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
         rindex <- 1
         for(index in animals[3]:animals[4]){
           if(population$info$miraculix && !subsetting){
-            data[, before + c(rindex,rindex+1)] <- t(miraculix::computeSNPS(population,animals[1], animals[2] , index, what="haplo"))
+            data[, before + c(rindex,rindex+1)] <- miraculix::computeSNPS(population,animals[1], animals[2] , index, what="haplo")
           } else if(population$info$miraculix){
-            data[, before + c(rindex,rindex+1)] <- t(miraculix::computeSNPS(population,animals[1], animals[2] , index, what="haplo")[,relevant.snps])
+            data[, before + c(rindex,rindex+1)] <- miraculix::computeSNPS(population,animals[1], animals[2] , index, what="haplo")[relevant.snps,]
           } else{
             data[, before + c(rindex,rindex+1)] <- t(compute.snps(population,animals[1], animals[2],index, decodeOriginsU=decodeOriginsU)[,relevant.snps])
           }

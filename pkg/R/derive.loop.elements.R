@@ -61,7 +61,9 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
       news <- population$breeding[[k.database[1]]][[k.database[2]+14]][k.database[3]:k.database[4]]
       if(length(news)>0){
         if(bve.avoid.duplicates){
-          to_add <- which(!duplicated(c(news,used), fromLast=TRUE)[1:length(news)])
+          to_add <- which(!duplicated(c(used, news)))
+          to_add <- to_add[to_add > length(used)] - length(used)
+
         } else{
           to_add <- 1:length(news)
         }
