@@ -31,7 +31,7 @@ Improved handling of epistatic / dice traits
 
 Fixed issue in add.combi() that lead to overriding on internal parameters with default values
 
-## Version 1.5.38 (15.10.20)
+### Version 1.5.38 (15.10.20)
 
 Revamp of repeat.mating to allow for flexible litter.size
 
