@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nbits Bits available in RekomBre-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
 #' @return [[1]] true genomic value [[2]] allele frequency at QTL markers
-
+#' @export
 
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,
                          decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
@@ -98,6 +98,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     }
 
 
+
     bv <- population$info$base.bv[bven] # Mittelwert
 
     real.bv.adds <- population$info$real.bv.add[[bven]]
@@ -107,7 +108,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
 
       position <- population$info$effect.p.add[[bven]]
       neff <- nrow(real.bv.adds)
-      take <- (geno[position] + 2L ) * neff + 1:neff
+      take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]
       ## ^ seems to be extremely inefficient!
       if(population$info$bve.poly.factor[bven]==1){
         bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))

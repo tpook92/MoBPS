@@ -478,7 +478,42 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
     }
 
-
+    if(length(real.bv.dice)>0){
+      if(is.list(real.bv.dice)){
+        mdepth <- 0
+        for(index in 1:length(real.bv.dice)){
+          if(is.data.frame(real.bv.dice[[index]][[1]]) || is.matrix(real.bv.dice[[index]][[1]])){
+            mdepth <- 1
+          }
+        }
+        if(mdepth==0){
+          for(index in 1:length(real.bv.dice)){
+            if(length(real.bv.dice[[index]])>0){
+              for(index2 in 1:length(real.bv.dice[[index]])){
+                if(is.data.frame(real.bv.dice[[index]][[index2]][[1]])){
+                  mdepth <- 2
+                }
+              }
+            }
+          }
+        }
+      }
+      if(mdepth == 1){
+        real.bv.dice <- list(real.bv.dice)
+      }
+      if(mdepth == 0){
+        stop("Illegal input for real.bv.dice")
+      }
+      for(index in 1:length(real.bv.dice)){
+        if(length(real.bv.dice[[index]])>0){
+          for(index2 in 1:length(real.bv.dice[[index]][[1]])){
+            if(length(real.bv.dice[[index]][[2]][[index2]]) != nrow(real.bv.dice[[index]][[1]][[index2]])^3){
+              stop("Length of effects does not match with involved effect SNPs - should be (effect SNPs)^3 (0..0, 0..01, ..., 2..2)")
+            }
+          }
+        }
+      }
+    }
 
 
     if(length(population)>0){
@@ -1706,10 +1741,24 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
+  population$info$neff <- list()
+  if(length(population$info$real.bv.add)>1){
+    for(index in 1:(length(population$info$real.bv.add)-1)){
+      if(length(population$info$real.bv.add[[index]])>0){
+        population$info$neff[[index]] <- 1:nrow(population$info$real.bv.add[[index]])
+      }
+    }
+  }
+
+
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
 
   }
+
+
+
+
 
 
   class(population) <- "population"

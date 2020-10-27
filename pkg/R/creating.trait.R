@@ -163,6 +163,43 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   }
 
 
+  if(length(real.bv.dice)>0){
+    if(is.list(real.bv.dice)){
+      mdepth <- 0
+      for(index in 1:length(real.bv.dice)){
+        if(is.data.frame(real.bv.dice[[index]][[1]]) || is.matrix(real.bv.dice[[index]][[1]])){
+          mdepth <- 1
+        }
+      }
+      if(mdepth==0){
+        for(index in 1:length(real.bv.dice)){
+          if(length(real.bv.dice[[index]])>0){
+            for(index2 in 1:length(real.bv.dice[[index]])){
+              if(is.data.frame(real.bv.dice[[index]][[index2]][[1]])){
+                mdepth <- 2
+              }
+            }
+          }
+        }
+      }
+    }
+    if(mdepth == 1){
+      real.bv.dice <- list(real.bv.dice)
+    }
+    if(mdepth == 0){
+      stop("Illegal input for real.bv.dice")
+    }
+    for(index in 1:length(real.bv.dice)){
+      if(length(real.bv.dice[[index]])>0){
+        for(index2 in 1:length(real.bv.dice[[index]][[1]])){
+          if(length(real.bv.dice[[index]][[2]][[index2]]) != nrow(real.bv.dice[[index]][[1]][[index2]])^3){
+            stop("Length of effects does not match with involved effect SNPs - should be (effect SNPs)^3 (0..0, 0..01, ..., 2..2)")
+          }
+        }
+      }
+    }
+  }
+
 
 
   if(length(population)>0){
@@ -406,6 +443,14 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
   store1 <- population$info$is.maternal
   store2 <- population$info$is.paternal
+  store3 <- population$info$is.combi
+  store4 <- population$info$phenotypic.transform
+  store5 <- population$info$phenotypic.transform.function
+  store6 <- population$info$bv.random
+  store7 <- population$info$bv.random.variance
+  store8 <- population$info$bve.mult.factor
+  store9 <- population$info$bve.poly.factor
+  store10 <- population$info$base.bv
 
   if(length(is.maternal)==0){
     population$info$is.maternal <- rep(FALSE, bv.total)
@@ -419,19 +464,8 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   }
 
 
-  store3 <- population$info$is.combi
+
   population$info$is.combi <- rep(FALSE, bv.total)
-  if(replace.traits==FALSE){
-    if(length(store1)>0){
-      population$info$is.maternal[1:length(store1)] <- store1
-    }
-    if(length(store2)>0){
-      population$info$is.paternal[1:length(store2)] <- store2
-    }
-    if(length(store3)>0){
-      population$info$is.combi[1:length(store3)] <- store3
-    }
-  }
 
 
   if(length(bve.mult.factor)==0){
@@ -492,18 +526,23 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     population$info$real.bv.length <- c(0,0,0)
   }
 
+
+
   if(length(new.residual.correlation)==0 &&
      length(population$info$pheno.correlation)>0 &&
      sum(population$info$pheno.correlation)>sum(diag(population$info$pheno.correlation))){
-    cat("Residual correlation has been set to zero since new traits were added ")
+    if(verbose) cat("Residual correlation has been set to zero since new traits were added ")
   }
 
   if(length(new.breeding.correlation)==0 &&
      length(population$info$bv.correlation)>0 &&
-     sum(population$info$bv.correlation)>sum(diag(population$info$bv.correlation))){
-    cat("Genetic correlation between non-QTL traits has been set to zero since new traits were added ")
+     sum(abs(population$info$bv.correlation))>sum(diag(population$info$bv.correlation))&&
+     sum(population$info$is.combi | !population$info$bv.random) < population$info$bv.nr){
+    if(verbose) cat("Genetic correlation between non-QTL traits has been set to zero since new traits were added ")
   }
 
+  store11 <- population$info$pheno.correlation
+  store12 <- population$info$bv.correlation
   if(bv.total>0){
     population$info$pheno.correlation <- diag(1L, bv.total)
   }
@@ -517,6 +556,47 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(new.breeding.correlation)>0){
     population$info$bv.correlation <- new.breeding.correlation
   }
+
+
+  if(replace.traits==FALSE){
+    if(length(store1)>0){
+      population$info$is.maternal[1:length(store1)] <- store1
+    }
+    if(length(store2)>0){
+      population$info$is.paternal[1:length(store2)] <- store2
+    }
+    if(length(store3)>0){
+      population$info$is.combi[1:length(store3)] <- store3
+    }
+    if(length(store4)>0){
+      population$info$phenotypic.transform[1:length(store4)] <- store4
+    }
+    if(length(store5)>0){
+      population$info$phenotypic.transform[1:length(store4)] <- store5
+    }
+    if(length(store6)>0){
+      population$info$bv.random[1:length(store6)] <- store6
+    }
+    if(length(store7)>0){
+      population$info$bv.random.variance[1:length(store7)] <- store7
+    }
+    if(length(store8)>0){
+      population$info$bve.mult.factor[1:length(store8)] <- store8
+    }
+    if(length(store9)>0){
+      population$info$bve.poly.factor[1:length(store9)] <- store9
+    }
+    if(length(store10)>0){
+      population$info$base.bv[1:length(store10)] <- store10
+    }
+    if(length(store11)>0){
+      population$info$pheno.correlation[1:nrow(store11), 1:nrow(store11)] <- store11
+    }
+    if(length(store12)>0){
+      population$info$bv.correlation[1:nrow(store12), 1:nrow(store12)] <- store12
+    }
+  }
+
 
   for(generation in 1:nrow(population$info$size)){
     counter <- population$info$size[generation,] + 1
@@ -702,9 +782,20 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
 
   }
 
+  population$info$neff <- list()
+  if(length(population$info$real.bv.add)>1){
+    for(index in 1:(length(population$info$real.bv.add)-1)){
+      if(length(population$info$real.bv.add[[index]])>0){
+        population$info$neff[[index]] <- 1:nrow(population$info$real.bv.add[[index]])
+      }
+    }
+  }
+
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
   }
+
+
 
 
   return(population)

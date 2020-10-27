@@ -62,7 +62,9 @@ summary.population <- function(object, ...){
   if(population$info$bv.nr>1){
     cat("\nTrait Info:\n")
     cat(paste0("There are ", population$info$bv.nr, " modelled traits.\n"))
-    cat(paste0("Of which ", population$info$bv.calc, " have underlying QTL.\n"))
+    cat(paste0("Of which ", sum(!population$info$bv.random), " have underlying QTL.\n"))
+    if(sum(population$info$bv.random & !population$info$is.combi)>0) cat(paste0("Of which ", sum(population$info$bv.random & !population$info$is.combi), " are non-QTL traits.\n"))
+    if(sum(population$info$bv.random & population$info$is.combi) >0) cat(paste0("Of which ", sum(population$info$bv.random & population$info$is.combi), " are combination of other traits.\n"))
     if(population$info$bv.nr>0){
       cat("Trait names are:")
       cat(population$info$trait.name)
@@ -77,9 +79,9 @@ summary.population <- function(object, ...){
       temp1 <- population$info$pheno.correlation %*% t(population$info$pheno.correlation)
       diag(temp1) <- 0
       if(sum(temp1)==0){
-        cat("There are no interactions between enviromental effects.\n")
+        cat("There are no interactions between residual effects.\n")
       } else{
-        cat(paste0("Highest correlation between enviromental effects is ", max(temp1)," (absolut value).\n"))
+        cat(paste0("Highest correlation between residual effects is ", max(temp1)," (absolut value).\n"))
       }
 
     }

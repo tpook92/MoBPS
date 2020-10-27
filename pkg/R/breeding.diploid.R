@@ -177,6 +177,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @param repeat.mating Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)
 #' @param repeat.mating.copy Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)
+#' @param repeat.mating.overwrite Set to FALSE to not use the current repeat.mating / repeat.mating.copy input as the new standard values (default: TRUE)
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @param multiple.observation Set TRUE to allow for more than one phenotype observation per individual (this will decrease enviromental variance!)
@@ -407,6 +408,7 @@ breeding.diploid <- function(population,
             combine = FALSE,
             repeat.mating = NULL,
             repeat.mating.copy = NULL,
+            repeat.mating.overwrite = TRUE,
             time.point = 0,
             creating.type = 0,
             multiple.observation = FALSE,
@@ -517,13 +519,17 @@ breeding.diploid <- function(population,
     max_rel = 2
   }
 
+  if(repeat.mating.overwrite){
+    repeat.mating.store <- population$info$repeat.mating
+    repeat.mating.copy.store <- population$info$repeat.mating.copy
+  }
   if(length(repeat.mating)>0){
     if(length(repeat.mating)==1){
       population$info$repeat.mating <- cbind(repeat.mating, 1)
     } else{
       population$info$repeat.mating <- repeat.mating
     }
-    if(verbose) warning("New standard for litter size / repeat.mating set. This will be the new default for all downstream generation of offspring via breeding")
+    if(verbose & repeat.mating.overwrite) warning("New standard for litter size / repeat.mating set. This will be the new default for all downstream generation of offspring via breeding")
   }
   if(length(population$info$repeat.mating)==0){
     population$info$repeat.mating <- cbind(1,1)
@@ -535,7 +541,7 @@ breeding.diploid <- function(population,
     } else{
       population$info$repeat.mating.copy <- repeat.mating.copy
     }
-    if(verbose) warning("New standard for litter size / repeat.mating.copy set. This will be the new default for all downstream generation of offspring via copy/combine.")
+    if(verbose & repeat.mating.overwrite) warning("New standard for litter size / repeat.mating.copy set. This will be the new default for all downstream generation of offspring via copy/combine.")
   }
   if(length(population$info$repeat.mating.copy)==0){
     population$info$repeat.mating.copy <- cbind(1,1)
@@ -559,6 +565,17 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
 {
+
+
+  population$info$neff <- list()
+  if(length(population$info$real.bv.add)>1){
+    for(index in 1:(length(population$info$real.bv.add)-1)){
+      if(length(population$info$real.bv.add[[index]])>0){
+        population$info$neff[[index]] <- 1:nrow(population$info$real.bv.add[[index]])
+      }
+    }
+  }
+
 
 
   if(Rprof){
@@ -4380,7 +4397,7 @@ breeding.diploid <- function(population,
 
             runs <- repeat.mating.temp - 1
 
-            accepted <- TRUE
+            accepted <- FALSE
             while(accepted==FALSE){
 
               if(selfing.mating==FALSE){
@@ -4544,6 +4561,7 @@ breeding.diploid <- function(population,
         present_before <- population$info$size[current.gen+1,sex_running]
         population$breeding[[current.gen+1]][[sex_running]] <-  c(population$breeding[[current.gen+1]][[sex_running]], new_animal)
         population$info$size[current.gen+1,sex_running] <- length(population$breeding[[current.gen+1]][[sex_running]])
+        current.size[sex_running] <- length(population$breeding[[current.gen+1]][[sex_running]]) +1
 
         if(length(new_animal)>0){
           for(index6 in 1:length(new_animal) + prev_ani){
@@ -4744,8 +4762,13 @@ breeding.diploid <- function(population,
     } else{
       if(verbose) cat("Start generation of new individuals.\n")
     }
+
+    pb_temp <- round(breeding.size.total/100)
+
     if(display.progress & verbose){
       pb <- utils::txtProgressBar(min = 0, max = breeding.size.total, style = 3)
+
+
     }
 
     runs <- 0
@@ -4999,16 +5022,7 @@ breeding.diploid <- function(population,
       }
 
 
-
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]] <- list()
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[1]] <- child1[[1]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[2]] <- child2[[1]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[3]] <- child1[[2]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[4]] <- child2[[2]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[5]] <- child1[[3]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[6]] <- child2[[3]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[7]] <- child1[[4]]
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[8]] <- child2[[4]]
+      child_temp <- list(child1[[1]], child2[[1]], child1[[2]], child2[[2]], child1[[3]], child2[[3]], child1[[4]], child2[[4]])
 
 
       if(copy.individual){
@@ -5017,38 +5031,38 @@ breeding.diploid <- function(population,
       population$info$size[current.gen+1 ,sex] <- population$info$size[current.gen+1,sex] + 1
 
       if(is.vector(child1[[5]])){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[11]] <- t(as.matrix(child1[[5]]))
+        child_temp[[11]] <- t(as.matrix(child1[[5]]))
       } else{
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[11]] <- child1[[5]]
+        child_temp[[11]] <- child1[[5]]
       }
       if(is.vector(child2[[5]])){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[12]] <- t(as.matrix(child2[[5]]))
+        child_temp[[12]] <- t(as.matrix(child2[[5]]))
       } else{
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[12]] <- child2[[5]]
+        child_temp[[12]] <- child2[[5]]
       }
       if(save.recombination.history && current.gen==1){
         if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[13]] <- cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))], deparse.level = 0)
+          child_temp[[13]] <- cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))], deparse.level = 0)
         } else{
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[13]] <- cbind(0,0, deparse.level = 0)
+          child_temp[[13]] <- cbind(0,0, deparse.level = 0)
         }
         if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[14]] <- cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))], deparse.level = 0)
+          child_temp[[14]] <- cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))], deparse.level = 0)
         } else{
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[14]] <- cbind(0,0, deparse.level = 0)
+          child_temp[[14]] <- cbind(0,0, deparse.level = 0)
         }
 
       } else if(save.recombination.history && current.gen>1){
         if(length(child1[[6]][-c(1,length(child1[[6]]))])>0){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))], deparse.level = 0), deparse.level = 0)
+          child_temp[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], cbind(current.gen, child1[[6]][-c(1,length(child1[[6]]))], deparse.level = 0), deparse.level = 0)
         } else{
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], deparse.level = 0)
+          child_temp[[13]] <- rbind(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[13]], population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[14]], deparse.level = 0)
 
         }
         if(length( child2[[6]][-c(1,length(child2[[6]]))])>0){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))]))
+          child_temp[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], cbind(current.gen, child2[[6]][-c(1,length(child2[[6]]))]))
         } else{
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], deparse.level = 0)
+          child_temp[[14]] <- rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[13]], population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[14]], deparse.level = 0)
 
         }
 
@@ -5056,31 +5070,38 @@ breeding.diploid <- function(population,
         #population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[13]] <- "test"
       }
 
-      is.obs <- stats::rbinom(1,1, share.phenotyped)==1
-      if(phenotyping.child=="obs"){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- n.observation * is.obs
-      } else if(phenotyping.child=="addobs"){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <-  colMeans(rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[15]],
-                                                                                                  population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]))
-        switch <- (population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]]< (n.observation*is.obs))
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][switch] <- (n.observation*is.obs)[switch]
-
+      if(share.phenotyped==1){
+        is.obs <- TRUE
+      } else if(share.phenotyped==0){
+        is.obs <- FALSE
       } else{
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]] <- rep(0L, population$info$bv.nr)
+        is.obs <- stats::rbinom(1,1, share.phenotyped)==1
       }
 
-      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[25]] <- "placeholder"
+      if(phenotyping.child=="obs"){
+        child_temp[[15]] <- n.observation * is.obs
+      } else if(phenotyping.child=="addobs"){
+        child_temp[[15]] <-  colMeans(rbind(population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[15]],
+                                                                                                  population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[15]]))
+        switch <- (child_temp[[15]]< (n.observation*is.obs))
+        child_temp[[15]][switch] <- (n.observation*is.obs)[switch]
+
+      } else{
+        child_temp[[15]] <- rep(0L, population$info$bv.nr)
+      }
+
+      child_temp[[25]] <- "placeholder"
 
       if(copy.individual){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
+        child_temp[[16]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[16]]
         if(length(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[22]])>0){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[22]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[22]]
+          child_temp[[22]] <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[22]]
         }
 
-        if(added.genotyped>0 && population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]]==0){
+        if(added.genotyped>0 && child_temp[[16]]==0){
           if(stats::rbinom(1,1,added.genotyped)==1){
-            population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- 1
-            population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[22]] <- c(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[22]], genotyped.array)
+            child_temp[[16]] <- 1
+            child_temp[[22]] <- c(child_temp[[22]], genotyped.array)
           }
         }
 
@@ -5088,29 +5109,33 @@ breeding.diploid <- function(population,
         new_copy <- rbind(population$breeding[[first_copy[1,1]]][[first_copy[1,2]]][[first_copy[1,3]]][[21]],
                           c(current.gen+1, sex, current.size[sex]), deparse.level = 0)
         storage.mode(new_copy) <- "integer"
-        for(index7 in 1:nrow(new_copy)){
-          population$breeding[[new_copy[index7,1]]][[new_copy[index7,2]]][[new_copy[index7,3]]][[21]] <- new_copy
+        if(nrow(new_copy)>1){
+          for(index7 in 1:(nrow(new_copy)-1)){
+            population$breeding[[new_copy[index7,1]]][[new_copy[index7,2]]][[new_copy[index7,3]]][[21]] <- new_copy
+          }
         }
+        child_temp[[21]] <- new_copy
+
       } else{
-        if(stats::rbinom(1,1,share.genotyped)==1){
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- 1
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[22]] <- genotyped.array
+        if(share.genotyped==1 || (share.genotyped!=0 && stats::rbinom(1,1,share.genotyped)==1)){
+          child_temp[[16]] <- 1
+          child_temp[[22]] <- genotyped.array
         } else{
-          population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] <- 0
+          child_temp[[16]] <- 0
         }
 
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[21]] <- cbind(current.gen+1, sex, current.size[sex], deparse.level = 0)
-        storage.mode(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[21]]) <- "integer"
+        child_temp[[21]] <- cbind(current.gen+1, sex, current.size[sex], deparse.level = 0)
+        storage.mode(child_temp[[21]]) <- "integer"
       }
       if(length(child1[[7]])>0){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[19]] <- child1[[7]]
+        child_temp[[19]] <- child1[[7]]
       }
       if(length(child2[[7]])>0){
-        population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[20]] <- child2[[7]]
+        child_temp[[20]] <- child2[[7]]
       }
 
 
-
+      population$breeding[[current.gen+1]][[sex]][[current.size[sex]]] <- child_temp
       if(store.comp.times.generation){
         tock <- as.numeric(Sys.time())
         generation_stuff <- generation_stuff + tock -tack
@@ -5276,7 +5301,7 @@ breeding.diploid <- function(population,
         tock2 <- as.numeric(Sys.time())
         bv_stuff <- bv_stuff+tock2-tock
       }
-      if(display.progress & verbose){
+      if(display.progress & verbose & (breeding.size.total < 100 || animal.nr%%pb_temp==0)){
         utils::setTxtProgressBar(pb, animal.nr)
       }
 
@@ -5347,6 +5372,11 @@ breeding.diploid <- function(population,
     population$info$last.sigma.e.heritability <- heritability
   }
 
+
+  if(repeat.mating.overwrite){
+    population$info$repeat.mating <- repeat.mating.store
+    population$info$repeat.mating.copy <- repeat.mating.copy.store
+  }
 
   if(store.comp.times){
     comp.times[7] <- as.numeric(Sys.time())

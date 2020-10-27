@@ -144,6 +144,7 @@ breeding.diploid(
   combine = FALSE,
   repeat.mating = NULL,
   repeat.mating.copy = NULL,
+  repeat.mating.overwrite = TRUE,
   time.point = 0,
   creating.type = 0,
   multiple.observation = FALSE,
@@ -523,6 +524,8 @@ breeding.diploid(
 \item{repeat.mating}{Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)}
 
 \item{repeat.mating.copy}{Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)}
+
+\item{repeat.mating.overwrite}{Set to FALSE to not use the current repeat.mating / repeat.mating.copy input as the new standard values (default: TRUE)}
 
 \item{time.point}{Time point at which the new individuals are generated}
 
