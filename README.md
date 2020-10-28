@@ -23,6 +23,25 @@ A separte publication of the web-based framework is uploaded on bioRvix (https:/
 
 Updates since initial release:
 
+### Version 1.5.41 (27.10.20)
+
+Improved generation times in single-core individual generation (~20%)
+
+Improved handling of epistatic / dice traits
+
+Fixed issue in add.combi() that lead to overriding on internal parameters with default values
+
+### Version 1.5.38 (15.10.20)
+
+Revamp of repeat.mating to allow for flexible litter.size
+
+Added max.mating.pair to limited the number of matings from a pair of individuals
+
+Concenieny changes for generation of DHs, selfing 
+
+Updated Guidelines to MoBPS (including a variety of new exemplary scripts)
+
+
 ### Version 1.5.28 (22.07.20)
 
 Added maternal, paternal traits (is.maternal / is.paternal in creating.diploid() / creating.trait() ) 
