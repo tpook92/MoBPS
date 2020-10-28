@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param M Matrix
 #' @param d Vector to add to the diagonal of the matrix
 #' @return Matrix with increased diagonal elements
+#' @export
 
 add.diag <- function(M, d){
   diag(M) <- diag(M) + d

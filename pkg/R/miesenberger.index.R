@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param w relative weighting of each trait (per genetic SD)
 #' @param zw Estimated breeding value
 #' @return weights of the selection index
+#' @export
 
 miesenberger.index <- function(V, G, V1=NULL, RG=NULL, r, w, zw=NULL){
   if(length(V1)==0){

@@ -175,7 +175,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
         for(index in 1:length(real.bv.dice)){
           if(length(real.bv.dice[[index]])>0){
             for(index2 in 1:length(real.bv.dice[[index]])){
-              if(is.data.frame(real.bv.dice[[index]][[index2]][[1]])){
+              if(is.data.frame(real.bv.dice[[index]][[1]][[index2]]) || is.matrix(real.bv.dice[[index]][[1]][[index2]]) ){
                 mdepth <- 2
               }
             }
@@ -199,7 +199,6 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
       }
     }
   }
-
 
 
   if(length(population)>0){

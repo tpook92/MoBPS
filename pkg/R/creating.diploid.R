@@ -490,7 +490,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           for(index in 1:length(real.bv.dice)){
             if(length(real.bv.dice[[index]])>0){
               for(index2 in 1:length(real.bv.dice[[index]])){
-                if(is.data.frame(real.bv.dice[[index]][[index2]][[1]])){
+                if(is.data.frame(real.bv.dice[[index]][[1]][[index2]]) || is.matrix(real.bv.dice[[index]][[1]][[index2]]) ){
                   mdepth <- 2
                 }
               }

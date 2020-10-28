@@ -2886,8 +2886,7 @@ breeding.diploid <- function(population,
 
             if(bve.direct.est.now){
               y_hat[take2,bven] <- A[take2,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
-              y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
-              y_reli[take2,bven] <- diag( A[,take2] %*% GR1 %*% A[take2,])[which(duplicated(c(take,take2))[-(1:length(take))])]
+              y_reli[take2,bven] <- diag( A[take2,take] %*% GR1 %*% A[take,take2])
             } else{
               y_hat[take,bven] <- A[take,take] %*% (GR1 %*% multi[take])  + beta_hat[bven]
               y_reli[take,bven] <- diag( A[take,take] %*% GR1 %*% A[take,take])
@@ -3742,7 +3741,7 @@ breeding.diploid <- function(population,
                   }
                   genomic.cov <- stats::var(t(genomic.values[active_traits,,drop=FALSE]))
                   bve.cov <- stats::var(t(bve.values[active_traits,,drop=FALSE]))
-                  pheno.cov <- stats::var(t(pheno.values[active_traits,,drop=FALSE]))
+                  pheno.cov <- stats::var(t(pheno.values[active_traits,colSums(is.na(pheno.values))==0,drop=FALSE]))
 
 #                  diag(genomic.cov) <- diag(genomic.cov) + 10^-8
 #                  diag(bve.cov) <- diag(bve.cov) + 10^-8
