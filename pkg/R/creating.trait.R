@@ -192,8 +192,9 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
     for(index in 1:length(real.bv.dice)){
       if(length(real.bv.dice[[index]])>0){
         for(index2 in 1:length(real.bv.dice[[index]][[1]])){
-          if(length(real.bv.dice[[index]][[2]][[index2]]) != nrow(real.bv.dice[[index]][[1]][[index2]])^3){
-            stop("Length of effects does not match with involved effect SNPs - should be (effect SNPs)^3 (0..0, 0..01, ..., 2..2)")
+          if(length(real.bv.dice[[index]][[2]][[index2]]) != (3 ^nrow(real.bv.dice[[index]][[1]][[index2]]))){
+            warning("")
+            stop("Length of effects does not match with involved effect SNPs - should be 3^(effect SNPs) (0..0, 0..01, ..., 2..2)")
           }
         }
       }
@@ -718,7 +719,7 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
         t <- t[take$ix,,drop=FALSE]
         take <- sort(t[,1]+ t[,2] * 10^10)
         keep <- c(0,which(diff(take)!=0), length(take))
-        if(length(keep) <= nrow(t)){
+        if(length(keep) <= (nrow(t)+1)){
           for(index2 in 2:(length(keep))){
             t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
           }

@@ -42,6 +42,7 @@ breeding.diploid(
   fixed.breeding = NULL,
   fixed.breeding.best = NULL,
   max.offspring = Inf,
+  max.litter = Inf,
   store.breeding.totals = FALSE,
   forecast.sigma.g = TRUE,
   multiple.bve = "add",
@@ -53,7 +54,7 @@ breeding.diploid(
   selection.criteria = NULL,
   same.sex.activ = FALSE,
   same.sex.sex = 0.5,
-  same.sex.selfing = TRUE,
+  same.sex.selfing = FALSE,
   selfing.mating = FALSE,
   selfing.sex = 0.5,
   praeimplantation = NULL,
@@ -144,6 +145,7 @@ breeding.diploid(
   combine = FALSE,
   repeat.mating = NULL,
   repeat.mating.copy = NULL,
+  repeat.mating.fixed = NULL,
   repeat.mating.overwrite = TRUE,
   time.point = 0,
   creating.type = 0,
@@ -212,9 +214,10 @@ breeding.diploid(
   selection.m.miesenberger = FALSE,
   selection.f.miesenberger = NULL,
   selection.miesenberger.reliability.est = "estimated",
+  miesenberger.trafo = 0,
   multiple.bve.weights.m = 1,
   multiple.bve.weights.f = NULL,
-  multiple.bve.scale.m = "bve_sd",
+  multiple.bve.scale.m = "bv_sd",
   multiple.bve.scale.f = NULL,
   verbose = TRUE,
   bve.parent.mean = FALSE,
@@ -255,7 +258,7 @@ breeding.diploid(
 
 \item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
 
-\item{selection.m}{Selection criteria for male individuals (default: "random", alt: "function")}
+\item{selection.m}{Selection criteria for male individuals (Set to "random" to randomly select individuals - this happens automatically when no the input in selection.criteria has no input ((usually breeding values)))}
 
 \item{selection.f}{Selection criteria for female individuals (default: selection.m , alt: "random", function")}
 
@@ -321,6 +324,8 @@ breeding.diploid(
 
 \item{max.offspring}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
 
+\item{max.litter}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
+
 \item{store.breeding.totals}{If TRUE store information on selected animals in $info$breeding.totals}
 
 \item{forecast.sigma.g}{Set FALSE to not estimate sigma.g (Default: TRUE)}
@@ -343,7 +348,7 @@ breeding.diploid(
 
 \item{same.sex.sex}{Probability to use female individuals as parents (default: 0.5)}
 
-\item{same.sex.selfing}{If FALSE no matings between an individual with itself}
+\item{same.sex.selfing}{Set to TRUE to allow for selfing when using same.sex matings}
 
 \item{selfing.mating}{If TRUE generate new individuals via selfing}
 
@@ -481,7 +486,7 @@ breeding.diploid(
 
 \item{Z.integer}{If TRUE save Z as a integer in parallel computing}
 
-\item{store.effect.freq}{If TRUE store the allele frequency of effect markers perss generation}
+\item{store.effect.freq}{If TRUE store the allele frequency of effect markers per generation}
 
 \item{backend}{Chose the used backend (default: "doParallel", alt: "doMPI")}
 
@@ -524,6 +529,8 @@ breeding.diploid(
 \item{repeat.mating}{Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)}
 
 \item{repeat.mating.copy}{Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)}
+
+\item{repeat.mating.fixed}{Vector containing number of times each mating is repeated. This will overwrite sampling from repeat.mating / repeat.mating.copy (default: NULL)}
 
 \item{repeat.mating.overwrite}{Set to FALSE to not use the current repeat.mating / repeat.mating.copy input as the new standard values (default: TRUE)}
 
@@ -665,9 +672,9 @@ breeding.diploid(
 
 \item{multiple.bve.weights.f}{Weighting between traits when using "add" (default: same as multiple.bve.weights.m)}
 
-\item{multiple.bve.scale.m}{Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+\item{multiple.bve.scale.m}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
 
-\item{multiple.bve.scale.f}{Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, default: "bve_sd"}
+\item{multiple.bve.scale.f}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
 
 \item{verbose}{Set to FALSE to not display any prints}
 

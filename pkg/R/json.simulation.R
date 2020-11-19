@@ -1024,7 +1024,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                filter.values = geninfo$'Ensembl Filter Values')
           }
         } else{
-          stop("Use of Ensembl-Maps without MoBPSmaps R-package")
+          stop("Use of Ensembl-Maps without MoBPSmaps R-package.
+        ## To Install:
+        ## devtools::install_github('tpook92/MoBPS', subdir='pkg-maps')
+        ## Or download from https://github.com/tpook92/MoBPS")
         }
 
 
@@ -1160,8 +1163,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
     }
-
-
 
 
     ################### Import genetic data  + major QTL import ####################
@@ -2001,11 +2002,20 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         if(length(nodes[[to_node]]$max_offspring)!=2){
           nodes[[to_node]]$max_offspring <- c(Inf, Inf)
         }
+        if(length(nodes[[to_node]]$max_offspring_pair)!=2){
+          nodes[[to_node]]$max_offspring_pair <- c(Inf, Inf)
+        }
 
         if(length(edges[[index]]$'Max Offspring')>0 && nchar(edges[[index]]$'Max Offspring')>0){
           from_node <- which(ids==edges[[index]]$from)
           switch <- as.numeric(nodes[[from_node]]$Sex=="Female") +1
           nodes[[to_node]]$max_offspring[switch] <- as.numeric(edges[[index]]$'Max Offspring')
+        }
+
+        if(length(edges[[index]]$'Max Offspring Pair')>0 && nchar(edges[[index]]$'Max Offspring Pair')>0){
+          from_node <- which(ids==edges[[index]]$from)
+          switch <- as.numeric(nodes[[from_node]]$Sex=="Female") +1
+          nodes[[to_node]]$max_offspring_pair[switch] <- as.numeric(edges[[index]]$'Max Offspring Pair')
         }
 
         if(length(edges[[index]]$repeat_mating)>0){
@@ -3249,6 +3259,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  repeat.mating = repeat.mating * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
+                                                 max.mating.pair = min(nodes[[groupnr]]$max_offspring_pair),
                                                  best.selection.ratio.m = nodes[[groupnr]]$selection_ratio[1],
                                                  best.selection.ratio.f = nodes[[groupnr]]$selection_ratio[2],
                                                  best.selection.criteria.m = nodes[[groupnr]]$selection_ratio_type[1],
@@ -3288,6 +3299,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  repeat.mating = repeat.mating* nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
+                                                 max.mating.pair = min(nodes[[groupnr]]$max_offspring_pair),
                                                  verbose=verbose,
                                                  miraculix.chol = miraculix.chol)
                 } else if(nodes[[groupnr]]$'Breeding Type'=="DH-Production"){
@@ -3319,6 +3331,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  repeat.mating = repeat.mating * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
+                                                 max.mating.pair = min(nodes[[groupnr]]$max_offspring_pair),
                                                  verbose=verbose,
                                                  miraculix.chol = miraculix.chol)
                 } else if(nodes[[groupnr]]$'Breeding Type'=="Recombination"){
@@ -3348,6 +3361,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  repeat.mating = repeat.mating * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
+                                                 max.mating.pair = min(nodes[[groupnr]]$max_offspring_pair),
                                                  verbose=verbose,
                                                  miraculix.chol = miraculix.chol)
                 } else if(nodes[[groupnr]]$'Breeding Type'=="Cloning"){
@@ -3385,6 +3399,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  repeat.mating.copy = repeat.mating.copy * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
+                                                 max.mating.pair = min(nodes[[groupnr]]$max_offspring_pair),
                                                  verbose=verbose,
                                                  miraculix.chol = miraculix.chol)
 
@@ -3623,6 +3638,5 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
   }
 
-  return(population)
 
 }

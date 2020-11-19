@@ -106,9 +106,13 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     if(length(real.bv.adds)>0){
 
 
-      position <- population$info$effect.p.add[[bven]]
-      neff <- nrow(real.bv.adds)
-      take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]
+      if(!population$info$effect.p.add.same[bven]){
+        position <- population$info$effect.p.add[[bven]]
+        neff <- nrow(real.bv.adds)
+        take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]
+      }
+
+
       ## ^ seems to be extremely inefficient!
       if(population$info$bve.poly.factor[bven]==1){
         bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))
