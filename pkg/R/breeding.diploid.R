@@ -826,7 +826,7 @@ breeding.diploid <- function(population,
     }
   }
 
-  if(length(  population$info$bv.random.activ)==0 || sum(population$info$is.combi)>0){
+  if(population$info$bve && (!population$info$bv.calculated || length(  population$info$bv.random.activ)==0 || sum(population$info$is.combi)>0)){
     population$info$bv.random.activ <- which(population$info$bv.random[1:population$info$bv.calc]==FALSE & population$info$is.combi[1:population$info$bv.calc]==FALSE)
   }
 
