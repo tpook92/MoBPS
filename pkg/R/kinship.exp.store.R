@@ -41,15 +41,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
 kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
-                              start.kinship=NULL,
-                              elements = NULL,
-                              mult = 2,
-                              storage.save=1.5,
-                              verbose=TRUE){
-
-  #           A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
-
-  #                        prev.gen=Inf, generation1.kinship=NULL, calculate.averages=FALSE, start.diagonal=0, ignore.diag=FALSE, plot_grp=FALSE,
+                               start.kinship=NULL,
+                               elements = NULL,
+                               mult = 2,
+                               storage.save=1.5,
+                               verbose=TRUE){
 
   int_mult <- as.integer(2^29)
   int_mult2 <- as.integer(2^28)
@@ -157,23 +153,18 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
     pedigree.database <- get.database(population, database = pedigree.database)
   }
 
-  n.animals <- sum(diff(t(database[,3:4, drop=FALSE]))+1)
-  n.total <- sum(diff(t(pedigree.database[,3:4, drop=FALSE]))+1)
+  ids_database <- get.id(population, database = database)
+  ids_database_unique <- unique(ids_database)
+  ids_pedigree <- sort(unique(get.id(population, database = pedigree.database)))
+
+  ids_pedigree_first <- max(get.id(population, database = pedigree.database[pedigree.database[1,1]==pedigree.database[,1],,drop=FALSE]))
+
+  n.animals <- length(ids_database_unique)
+  n.total <- length(ids_pedigree)
 
   position.pedigree <- numeric(n.animals)
-  for(index in 1:nrow(database)){
-    activ_ped <- which(pedigree.database[,1]==database[index,1] & pedigree.database[,2]==database[index,2] & pedigree.database[,3]<= database[index,3] & pedigree.database[,4]>= database[index,4])[1]
-    if(activ_ped>1){
-      prior <- sum(diff(t(pedigree.database[1:(activ_ped-1),3:4,drop=FALSE]))+1) + database[index,3] - pedigree.database[activ_ped,3]
-    } else{
-      prior <-  -pedigree.database[activ_ped,3] + database[index,3]
-    }
-    if(index==1){
-      prior2 <- 0
-    } else{
-      prior2 <- sum(diff(t(database[1:(index-1),3:4, drop=FALSE]))+1)
-    }
-    position.pedigree[1:(diff(database[index,3:4])+1) + prior2] <- 1:(diff(database[index,3:4])+1) + prior
+  for(index in 1:length(ids_database)){
+    position.pedigree[index] <- which(ids_pedigree==ids_database[index])
   }
 
   if(verbose) cat("Derive pedigree-matrix based for ", n.animals, " individuals based on ", n.total, " individuals.\n")
@@ -181,26 +172,17 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
 
   group.size <- pedigree.database[,4]-pedigree.database[,3] +1
   if(length(start.kinship)==0){
-    size.firstgen <- sum(group.size[pedigree.database[,1]==pedigree.database[1,1]])
+    size.firstgen <- which(ids_pedigree_first==ids_pedigree)
     if(length(intersect(pedigree.database[1,1], population$info$founder.kinship))>0){
 
+      activ_gen <- pedigree.database[1,1]
       if(ncol(population$info$kinship[[activ_gen]]) != sum(population$info$size[activ_gen,])){
         stop("Dimension of start kinship matrix does not match with generation size!")
       }
-      activ_gen <- pedigree.database[1,1]
-      activ_db <- pedigree.database[pedigree.database[,1]==pedigree.database[1,1],,drop=FALSE]
-      kin_male <- rep(FALSE,population$info$size[activ_gen,1])
-      kin_female <- rep(FALSE,population$info$size[activ_gen,2])
-      for(index in 1:nrow(activ_db)){
-        if(activ_db[index,2]==1){
-          kin_male[activ_db[index,3]:activ_db[index,4]] <- TRUE
-        } else{
-          kin_female[activ_db[index,3]:activ_db[index,4]] <- TRUE
-        }
-      }
-      activ_indi <- c(kin_male, kin_female)
+      founder_id <- get.id(population, gen=activ_gen)
+      keeps <- which(duplicated(c(founder_id,ids_pedigree[1:size.firstgen]))) - length(founder_id)
 
-      temp_kinship <- population$info$kinship[[activ_gen]][activ_indi, activ_indi] * int_mult2
+      temp_kinship <- population$info$kinship[[activ_gen]][keeps, keeps] * int_mult2
       storage.mode(temp_kinship) <- "integer"
       kinship[1:size.firstgen, 1:size.firstgen] <- temp_kinship
     } else{
@@ -209,122 +191,55 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
 
   } else{
     kinship[1:nrow(start.kinship), 1:nrow(start.kinship)] <- start.kinship
-    # Add reality check to validate size of start.kinship
+    size.firstgen <- nrow(start.kinship)
   }
-  first_new <- sum(pedigree.database[,1]==pedigree.database[1,1]) +1
-  total <- sum(group.size)
-  total.nr <- c(0,cumsum(group.size))+1
+  first_new <- size.firstgen +1
 
   ## Potential export individual id in the pedigree - more efficient for high number of copies!
-  animal.nr <- get.id(population, database=pedigree.database)
   info.indi <- get.pedigree(population, database=pedigree.database)
-  info.indi[info.indi=="0"] <- "M1_1" # Placeholder
-  # necessary when using copy.individuals
-  replaces <- which(duplicated(animal.nr))
-  #  for(replace in replaces){
-  #    new <- which(animal.nr==animal.nr[replace])[1]
-  #    info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
-  #  }
+  info.indi_id <- get.pedigree(population, database=pedigree.database, id=TRUE)
 
-  if(length(replaces)>0){
-    animal.nr.temp <- animal.nr[1:min(replaces)]
-    for(replace in replaces){
-      new <- which(animal.nr.temp==animal.nr[replace])[1]
-      if(is.na(new)){
-        animal.nr.temp <- animal.nr[1:replace]
-        new <- which(animal.nr.temp==animal.nr[replace])[1]
-      }
-      info.indi[info.indi==info.indi[replace,1]] <- info.indi[new,1]
-    }
+  info.indi <-  info.indi[!duplicated(info.indi_id[,1]),]
+  info.indi_id <-  info.indi_id[!duplicated(info.indi_id[,1]),]
+  info.indi.pos <- matrix(0, ncol=3, nrow=nrow(info.indi_id))
+
+
+  for(index in 1:length(ids_pedigree)){
+    info.indi.pos[info.indi_id==ids_pedigree[index]] <- index
   }
 
+  sorting <- sort(info.indi.pos[,1], index.return=TRUE)$ix
+
+  info.indi <- info.indi[sorting,]
+  info.indi_id <- info.indi_id[sorting,]
+  info.indi.pos <- info.indi.pos[sorting,]
+
+  nr_indi <- info.indi.pos[,1]
+  nr_father <- info.indi.pos[,2]
+  nr_mother <- info.indi.pos[,3]
 
 
-
-
-  sex.indi <- as.numeric(substr(info.indi[,1], start=1, stop=1)=="F") +1
-  temp1 <- as.numeric(unlist(strsplit(substr(info.indi[,1], start=2, stop=nchar(info.indi[,1])), "\\_")))
-  gen.indi <- temp1[1:(length(temp1)/2) *2]
-  nr.indi <- temp1[1:(length(temp1)/2) *2 -1]
-
-  sex.father <- as.numeric(substr(info.indi[,2], start=1, stop=1)=="F") +1
-  temp1 <- as.numeric(unlist(strsplit(substr(info.indi[,2], start=2, stop=nchar(info.indi[,2])), "\\_")))
-  if(length(temp1)>0){
-    gen.father <- temp1[1:(length(temp1)/2) *2]
-    nr.father <- temp1[1:(length(temp1)/2) *2 -1]
-  }
-
-
-  sex.mother <- as.numeric(substr(info.indi[,3], start=1, stop=1)=="F") +1
-  temp1 <- as.numeric(unlist(strsplit(substr(info.indi[,3], start=2, stop=nchar(info.indi[,3])), "\\_")))
-  if(length(temp1)>0){
-    gen.mother <- temp1[1:(length(temp1)/2) *2]
-    nr.mother <- temp1[1:(length(temp1)/2) *2 -1]
-  }
-
-
-  nr_father <- nr_mother <- numeric(total)
-  for(index in (total.nr[first_new]):total){
-    group_father <- which(pedigree.database[,1]==gen.father[index] & pedigree.database[,2] == sex.father[index] & pedigree.database[,3] <= nr.father[index] & pedigree.database[,4] >= nr.father[index])[1]
-    group_mother <- which(pedigree.database[,1]==gen.mother[index] & pedigree.database[,2] == sex.mother[index] & pedigree.database[,3] <= nr.mother[index] & pedigree.database[,4] >= nr.mother[index])[1]
-    nr_father[index] <- nr.father[index] - pedigree.database[group_father,3] + total.nr[group_father]
-    nr_mother[index] <- nr.mother[index] - pedigree.database[group_mother,3] + total.nr[group_mother]
-
-  }
-
-  #  if((total.nr[first_new]) <= total){
-  #    for(second in (total.nr[first_new]):total){
-  #      for(first in 1:second){
-  #        nr.father <- nr_father[second]
-  #        nr.mother <- nr_mother[second]
-  #        if(first!=second){
-  #          kinship[first,second] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-  #          kinship[second,first] <- 1/2 * (kinship[first, nr.father] + kinship[first, nr.mother])
-  #        } else{
-  #         kinship[first,second] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-  #          kinship[second,first] <- 1/2 + 1/2 * kinship[nr.father, nr.mother]
-  #        }
-  #      }
-  #    }
-  #  }
-
-
-
-  animal_ids <- get.id(population, database = pedigree.database)
-  if((total.nr[first_new]) <= total){
-    for(second in (total.nr[first_new]):total){
+  if(first_new<= n.total){
+    last <- 0
+    for(second in first_new:n.total){
       nr.father <- nr_father[second]
       nr.mother <- nr_mother[second]
       first <- 1:second
-      if(is.na(nr.father) && is.na(nr.mother)){
+      if(nr.father==0 && nr.mother==0){
         kinship[second,second] <- int_mult2
-        nr.mother <- nr.father <- 1
-      }
-      if(is.na(nr.father)){
-        kinship[first,second] <- kinship[second,first] <- as.integer( (0L + kinship[first, nr.mother]))
-        nr.mother <- nr.father <- 1 # Founder-individual
-      } else if(is.na(nr.mother)){
-        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + 0L))
-        nr.mother <- nr.father <- 1 # Founder-individual
       } else{
-        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (kinship[first, nr.father] + kinship[first, nr.mother]))
+        kinship[first,second] <- kinship[second,first] <- as.integer(0.5 * (if(nr.father==0){0} else{kinship[first, nr.father]} + if(nr.mother==0){0} else{kinship[first, nr.mother]}))
       }
 
-      if(nr.father==nr.mother && animal_ids[nr.father]==animal_ids[second]){
+      if(nr.mother==0 || nr.father==0 || (nr.father==nr.mother && nr.father==nr_indi[second])){
         kinship[second,second] <- int_mult2
         # Individual is founder!
       } else{
         kinship[second,second] <- int_mult2 + as.integer(0.5 * kinship[nr.father, nr.mother])
       }
-
     }
   }
 
-  #  for(replace in intersect(replaces, position.pedigree)){
-  #    new <- which(animal.nr==animal.nr[replace])[1]
-  #    kinship[replace,] <- kinship[new,]
-  #    kinship[,replace] <- kinship[,new]
-  #  }
 
   if(length(mult)>0){
     kinship.relevant <- kinship[position.pedigree,position.pedigree] / (int_mult /mult)
@@ -333,6 +248,8 @@ kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL,
   }
 
   kinship.relevant <- kinship.relevant[elements,elements]
+
+  colnames(kinship.relevant) <- rownames(kinship.relevant) <- info.indi_id[position.pedigree[elements],1]
 
   return(kinship.relevant)
 

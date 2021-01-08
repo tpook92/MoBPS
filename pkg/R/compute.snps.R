@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nbits Bits available in RekomBre-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
 #' @return haplotypes for the selected individual
+#' @export
 
 compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.calculation=NULL,
                          from_p=1, to_p=Inf, decodeOriginsU=decodeOriginsR,

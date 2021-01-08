@@ -35,6 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param miraculix.chol Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is actived
 #' @param time.check Set to TRUE to automatically check simulation run-time before executing breeding actions
 #' @param time.max Maximum length of the simulation in seconds when time.check is active
+#' @param export.population Path were to export the population to (at state selected in export.gen/timepoint)
+#' @param export.gen Last generation to simulate before exporting population to file
+#' @param export.timepoint Last timepoint to simulate before exporting population to file
+#' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
@@ -42,14 +46,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 #'
 
-
 json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             progress.bars=FALSE, size.scaling=NULL, rep.max=1,
                             verbose=TRUE, miraculix.cores=NULL,
                             miraculix.chol = NULL,
                             skip.population = FALSE,
                             time.check = FALSE,
-                            time.max = 7200){
+                            time.max = 7200,
+                            export.population=FALSE,
+                            export.gen=NULL,
+                            export.timepoint=NULL,
+                            fixed.generation.order=NULL){
   if(length(log)==0 && length(file)>0){
     log <- paste0(file, ".log")
   } else if(length(log)==0 && length(file)==0){
@@ -93,6 +100,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
   } else if(length(total)==0){
     stop("No dataset provided in file or total \n")
   }
+
 
   {
     {
@@ -2707,6 +2715,19 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     ############## Actual simulations ########################
     {
 
+      if(export.population != FALSE && length(export.timepoint)>0 && export.timepoint!=""){
+        export.gen <- sum(generation_times<export.timepoint) +1
+      }
+      if(verbose) {
+        if(length(export.gen)>0){
+          if(export.gen==1){
+            cat("Exported population contains all cohorts till:", ids[founder])
+          } else{
+            cat("Exported population contains all cohorts till:", generation_group[[export.gen-1]])
+          }
+        }
+      }
+
       expected_time <- NULL
       if(skip.population || time.check){
         ## Estimate computing time:
@@ -2797,6 +2818,15 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         alive_numbers <- as.numeric(population$info$cohorts[,3])
         alive_numbers[alive_numbers==0] <- as.numeric(population$info$cohorts[alive_numbers==0,4])
         death_to <- matrix(0, ncol=nrow(culling_reason), nrow=length(alive_cohorts))
+
+        if(length(fixed.generation.order)>0){
+          generation_times <- 1:length(fixed.generation.order)
+          generation_group <- list()
+          for(index in 1:length(fixed.generation.order)){
+            generation_group[[index]] <- fixed.generation.order[index]
+          }
+
+        }
 
         generation_times <- round(generation_times, digits = 4)
 
@@ -3591,6 +3621,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
           if(sum(alive_numbers<0)>0){ stop("Some multi-death?!")}
+
+
+          if(export.population!=FALSE && export.gen == generation){
+            if(verbose) cat("Export population list to ", export.population)
+            population_demiraculix <- demiraculix(population)
+            save(file=export.population, list=c("population", "population_demiraculix"))
+          }
         }
 
 
@@ -3637,6 +3674,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
+
 
 
 }

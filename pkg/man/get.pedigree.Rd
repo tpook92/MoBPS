@@ -10,7 +10,8 @@ get.pedigree(
   gen = NULL,
   cohorts = NULL,
   founder.zero = TRUE,
-  raw = FALSE
+  raw = FALSE,
+  id = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get.pedigree(
 \item{founder.zero}{Parents of founders are displayed as "0" (default: TRUE)}
 
 \item{raw}{Set to TRUE to not convert numbers into Sex etc.}
+
+\item{id}{Set to TRUE to extract individual IDs}
 }
 \value{
 Pedigree-file for in gen/database/cohorts selected individuals

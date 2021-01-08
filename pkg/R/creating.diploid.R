@@ -186,6 +186,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
       bp[!is.na(map[,3])] <- as.numeric(map[!is.na(map[,3]),3])
     }
+    if(sum(map[,4]==0)==nrow(map)){
+      warning("0 Morgan is no legal position. Set position to NA")
+      map[map[,4]==0,4] <- NA
+    } else if(sum(map[,4]==0)>1){
+      stop("0 Morgan is no legal position. Please fix!")
+    }
     if(sum(!is.na(map[,4]))==nrow(map)){
       snp.position <- as.numeric(map[,4])
     } else if(sum(is.na(map[,4]))==nrow(map) && length(chromosome.length)==0){
@@ -950,7 +956,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(chr.opt)==1){
     if(bpcm.conversion>0 && length(snp.position)==0){
       snp.position <- as.numeric(bp) / bpcm.conversion / 100
-      chromosome.length <- max(snp.position) - min(snp.position)
+      chromosome.length <- max(snp.position) + min(snp.position)
     } else if(bpcm.conversion>0 && length(snp.position)>0){
       if(verbose) cat("Do not use bpcm.conversion and snp.position jointly!\n")
     }

@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @param raw Set to TRUE to not convert numbers into Sex etc.
+#' @param id Set to TRUE to extract individual IDs
 #' @examples
 #' data(ex_pop)
 #' get.pedigree(ex_pop, gen=2)
@@ -36,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE,
-                         raw=FALSE){
+                         raw=FALSE, id=FALSE){
 
   database <- get.database(population, gen, database, cohorts)
 
@@ -52,6 +53,19 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
         father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3]
         mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]][1:3]
         pedigree[rindex,] <- c(database[row,1:2], index, father, mother)
+        rindex <- rindex + 1
+      }
+    }
+  } else if(id){
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      for(index in database[row,3]:database[row,4]){
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+        father_t <- population$breeding[[father[1]]][[father[2]+14]][[father[3]]]
+        mother_t <- population$breeding[[mother[1]]][[mother[2]+14]][[mother[3]]]
+        child_t <- population$breeding[[database[row,1]]][[database[row,2]+14]][[index]]
+        pedigree[rindex,] <- c(child_t, father_t, mother_t)
         rindex <- rindex + 1
       }
     }

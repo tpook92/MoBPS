@@ -215,6 +215,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param selection.f.cohorts Cohorts available for selection of maternal parent
 #' @param selection.m.miesenberger Use Weighted selection index according to Miesenberger 1997 for paternal selection
 #' @param selection.f.miesenberger Use Weighted selection index according to Miesenberger 1997 for maternal selection
+#' @param miesenberger.trafo Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)
 #' @param selection.miesenberger.reliability.est If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement
 #' @param culling.gen Generations to consider to culling
 #' @param culling.database Groups to consider to culling
@@ -298,7 +299,7 @@ breeding.diploid <- function(population,
             sigma.e = NULL,
             sigma.g = 100,
             new.bv.child = NULL,
-            phenotyping.child = "zero",
+            phenotyping.child = NULL,
             relationship.matrix = "vanRaden",
             relationship.matrix.ogc = "kinship",
             computation.A = NULL,
@@ -339,7 +340,7 @@ breeding.diploid <- function(population,
             copy.individual.f = FALSE,
             dh.mating = FALSE,
             dh.sex = 0.5,
-            n.observation = 1L,
+            n.observation = NULL,
             bve.0isNA = FALSE,
             phenotype.bv = FALSE,
             standardize.bv = FALSE,
@@ -642,6 +643,7 @@ breeding.diploid <- function(population,
   if(length(new.bv.child)>0){
     phenotyping.child <- new.bv.child
   }
+
   if(length(computation.A)>0){
     relationship.matrix <- computation.A
   }
@@ -649,13 +651,7 @@ breeding.diploid <- function(population,
     relationship.matrix.ogc <- computation.A.ogc
   }
 
-  if(length(n.observation)>0){
-    n.observation <- as.integer(n.observation)
-  }
-  if(length(n.observation)<population$info$bv.nr){
-    n.observation <- rep(n.observation, length.out=population$info$bv.nr)
 
-  }
   if(length(randomSeed)>0){
     set.seed(randomSeed)
   }
@@ -794,6 +790,32 @@ breeding.diploid <- function(population,
     best1.from.group <- c(best1.from.group, best2.from.group)
     best2.from.group <- NULL
     max.offspring = c(1,1)
+  }
+
+
+  if(length(n.observation)==0){
+    if(copy.individual){
+      n.observation <- 0L
+    } else{
+      n.observation <- 1L
+    }
+
+  }
+  if(length(n.observation)>0){
+    n.observation <- as.integer(n.observation)
+  }
+  if(length(n.observation)<population$info$bv.nr){
+    n.observation <- rep(n.observation, length.out=population$info$bv.nr)
+
+  }
+
+  if(length(phenotyping.child)==0){
+    if(copy.individual){
+      phenotyping.child <- "addobs"
+    } else{
+      phenotyping.child <- "zero"
+    }
+
   }
 
 
@@ -3214,41 +3236,8 @@ breeding.diploid <- function(population,
 
 
 
-      if(report.accuracy && bven==max((1:population$info$bv.nr)[bve.keeps])){
-        if(verbose) cat("Correlation between genetic values and BVE:\n")
-        if(n.rep==0){
-          y_hat_temp <- y_hat
-          y_hat_temp[y_hat_temp==0] <- NA
-          acc <- suppressWarnings(stats::cor(y_real[bve.insert,], y_hat_temp[bve.insert,], use="pairwise.complete.obs"))
-        } else{
-          insert.temp <- numeric(length(bve.insert.copy))
 
-          if(length(stay.loop.elements)>0){
-            for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
-              inserter <- which(stay.loop.elements==loop_elements_copy[index,6])
-              insert.temp[index] <- if(length(inserter)==1){ inserter} else{NA}
-            }
-          } else{
-            for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
-              insert.temp[index] <- loop_elements_copy[index,6]
-            }
 
-          }
-          y_hat_temp <- rbind(y_hat[bve.insert,,drop=FALSE], y_hat[insert.temp,,drop=FALSE])
-          y_hat_temp[y_hat_temp==0] <- NA
-          acc <- suppressWarnings(stats::cor(rbind(y_real[bve.insert,,drop=FALSE], y_real[insert.temp,, drop=FALSE]),
-                                             y_hat_temp, use="pairwise.complete.obs"))
-        }
-        if(length(acc)==1){
-          acc <- matrix(acc,nrow=1)
-        }
-
-        if(sum(is.na(acc))>0){
-          acc[is.na(acc)] <- 0
-        }
-        if(verbose) cat(diag(acc))
-        if(verbose) cat("\n")
-      }
       for(index in (1:nrow(loop_elements))[bve.insert]){
         population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
       }
@@ -3415,6 +3404,42 @@ breeding.diploid <- function(population,
         #sorted <- sort(abs(test), index.return=TRUE)
       }
 
+    }
+
+    if(report.accuracy){
+      if(verbose) cat("Correlation between genetic values and BVE:\n")
+      if(n.rep==0){
+        y_hat_temp <- y_hat
+        y_hat_temp[y_hat_temp==0] <- NA
+        acc <- suppressWarnings(stats::cor(y_real[bve.insert,], y_hat_temp[bve.insert,], use="pairwise.complete.obs"))
+      } else{
+        insert.temp <- numeric(length(bve.insert.copy))
+
+        if(length(stay.loop.elements)>0){
+          for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
+            inserter <- which(stay.loop.elements==loop_elements_copy[index,6])
+            insert.temp[index] <- if(length(inserter)==1){ inserter} else{NA}
+          }
+        } else{
+          for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
+            insert.temp[index] <- loop_elements_copy[index,6]
+          }
+
+        }
+        y_hat_temp <- rbind(y_hat[bve.insert,,drop=FALSE], y_hat[insert.temp,,drop=FALSE])
+        y_hat_temp[y_hat_temp==0] <- NA
+        acc <- suppressWarnings(stats::cor(rbind(y_real[bve.insert,,drop=FALSE], y_real[insert.temp,, drop=FALSE]),
+                                           y_hat_temp, use="pairwise.complete.obs"))
+      }
+      if(length(acc)==1){
+        acc <- matrix(acc,nrow=1)
+      }
+
+      if(sum(is.na(acc))>0){
+        acc[is.na(acc)] <- 0
+      }
+      if(verbose) cat(diag(acc))
+      if(verbose) cat("\n")
     }
 
   }
@@ -5344,7 +5369,7 @@ breeding.diploid <- function(population,
 
         }
 
-        if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc]){
+        if(population$info$bv.calc > 0  && population$info$bv.random[population$info$bv.calc] && prod(population$info$is.combi[population$info$bv.calc:population$info$bv.nr])==0){
 
           #Means passt (Korrelation exakt wie gewuenscht)
           means <- 0.5*(population$breeding[[info.father[1]]][[6+info.father[2]]][population$info$bv.calc:population$info$bv.nr,info.father[3]] + population$breeding[[info.mother[1]]][[6+info.mother[2]]][population$info$bv.calc:population$info$bv.nr,info.mother[3]])
@@ -5419,7 +5444,7 @@ breeding.diploid <- function(population,
           }
 
         }
-        if(phenotyping.child=="obs" || phenotyping.child=="addobs"){
+        if(phenotyping.child=="obs" || phenotyping.child=="addobs" || copy.individual){
           if(sum(n.observation)>0 || copy.individual){
 
             if( length(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]]) == 0){

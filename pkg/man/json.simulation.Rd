@@ -17,7 +17,11 @@ json.simulation(
   miraculix.chol = NULL,
   skip.population = FALSE,
   time.check = FALSE,
-  time.max = 7200
+  time.max = 7200,
+  export.population = FALSE,
+  export.gen = NULL,
+  export.timepoint = NULL,
+  fixed.generation.order = NULL
 )
 }
 \arguments{
@@ -46,6 +50,14 @@ json.simulation(
 \item{time.check}{Set to TRUE to automatically check simulation run-time before executing breeding actions}
 
 \item{time.max}{Maximum length of the simulation in seconds when time.check is active}
+
+\item{export.population}{Path were to export the population to (at state selected in export.gen/timepoint)}
+
+\item{export.gen}{Last generation to simulate before exporting population to file}
+
+\item{export.timepoint}{Last timepoint to simulate before exporting population to file}
+
+\item{fixed.generation.order}{Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)}
 }
 \value{
 Population-list

@@ -32,7 +32,7 @@ breeding.diploid(
   sigma.e = NULL,
   sigma.g = 100,
   new.bv.child = NULL,
-  phenotyping.child = "zero",
+  phenotyping.child = NULL,
   relationship.matrix = "vanRaden",
   relationship.matrix.ogc = "kinship",
   computation.A = NULL,
@@ -73,7 +73,7 @@ breeding.diploid(
   copy.individual.f = FALSE,
   dh.mating = FALSE,
   dh.sex = 0.5,
-  n.observation = 1L,
+  n.observation = NULL,
   bve.0isNA = FALSE,
   phenotype.bv = FALSE,
   standardize.bv = FALSE,
@@ -667,6 +667,8 @@ breeding.diploid(
 \item{selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for maternal selection}
 
 \item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement}
+
+\item{miesenberger.trafo}{Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)}
 
 \item{multiple.bve.weights.m}{Weighting between traits when using "add" (default: 1)}
 
