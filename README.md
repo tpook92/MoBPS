@@ -23,6 +23,29 @@ A separte publication of the web-based framework is uploaded on bioRvix (https:/
 
 Updates since initial release:
 
+### Version 1.6.14 (08.01.21)
+
+New miraculix (0.9.25) version that fixes issue when saving/reloading the population-list 
+
+Added demiraculix/miraculix function to remove/add bit-wise genotype coding in the population-list
+
+Added get.distance to calculate genomic distances between subpopulations
+
+Added ID-based functionality to get.pedigree()
+
+Fixed issue in pedigree calculation when three or more independent copies of an individual were generated
+
+Added options to export intermediate population in json.simulation()
+
+Fixed issue that prediction accuracy was not reported when no BVE for last trait was executed
+
+
+### Version 1.6.05 (25.11.20)
+
+Improved efficient of genomic value calcuation
+
+Added get.effect.freq() to calculate frequency of QTL markers
+
 ### Version 1.5.41 (27.10.20)
 
 Improved generation times in single-core individual generation (~20%)
