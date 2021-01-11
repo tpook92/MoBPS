@@ -23,7 +23,7 @@ A separte publication of the web-based framework is uploaded on bioRvix (https:/
 
 Updates since initial release:
 
-### Version 1.6.14 (08.01.21)
+### Version 1.6.15 (11.01.21)
 
 Fixed issue when reading vcf-files in creating.diploid()
 
