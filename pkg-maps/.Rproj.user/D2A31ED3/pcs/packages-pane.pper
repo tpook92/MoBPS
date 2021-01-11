@@ -1,7 +1,0 @@
-{
-    "installOptions" : {
-        "installDependencies" : true,
-        "installFromRepository" : false,
-        "libraryPath" : "C:/Users/pook/Documents/R/R-3.5.1/library"
-    }
-}

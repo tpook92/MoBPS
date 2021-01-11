@@ -86,7 +86,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param trait.name Name of the trait generated
 #' @param share.genotyped Share of individuals genotyped in the founders
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
-#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
+#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
 #' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
 #' @param mean.target Target mean
@@ -180,32 +180,32 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
     chr.nr <- map[,1]
     snp.name <- map[,2]
-    if(sum(!is.na(map[,3]))>0){
+    if(sum(!is.na(map[,4]))>0){
       if(length(bp)==0){
         bp <- numeric(nrow(map))
       }
-      bp[!is.na(map[,3])] <- as.numeric(map[!is.na(map[,3]),3])
+      bp[!is.na(map[,4])] <- as.numeric(map[!is.na(map[,4]),4])
     }
-    if(sum(map[,4]==0)==nrow(map)){
+    if(sum(map[,3]==0)==nrow(map)){
       warning("0 Morgan is no legal position. Set position to NA")
-      map[map[,4]==0,4] <- NA
-    } else if(sum(map[,4]==0)>1){
+      map[map[,3]==0,3] <- NA
+    } else if(sum(map[,3]==0)>1){
       stop("0 Morgan is no legal position. Please fix!")
     }
-    if(sum(!is.na(map[,4]))==nrow(map)){
-      snp.position <- as.numeric(map[,4])
-    } else if(sum(is.na(map[,4]))==nrow(map) && length(chromosome.length)==0){
+    if(sum(!is.na(map[,3]))==nrow(map)){
+      snp.position <- as.numeric(map[,3])
+    } else if(sum(is.na(map[,3]))==nrow(map) && length(chromosome.length)==0){
       if(bpcm.conversion==0){
         if(verbose) cat("Assume 1 Morgan per 100.000.000bp - to change use bpcm.conversion\n")
         bpcm.conversion <- 1000000
       }
-      map[,4] <- as.numeric(bp) /  bpcm.conversion / 100
+      map[,3] <- as.numeric(bp) /  bpcm.conversion / 100
     }
-    if(sum(!is.na(map[,4]))==nrow(map) && length(chromosome.length)==0){
+    if(sum(!is.na(map[,3]))==nrow(map) && length(chromosome.length)==0){
       chr.opt <- unique(chr.nr)
       chromosome.length <- numeric(length(chr.opt))
       for(index in 1:length(chr.opt)){
-        chromosome.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],4])) + min(as.numeric(map[map[,1]==chr.opt[index],4]))
+        chromosome.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],3])) + min(as.numeric(map[map[,1]==chr.opt[index],3]))
       }
     }
     if(sum(!is.na(map[,5]))==nrow(map)){
@@ -398,7 +398,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       vcf_data <- vcf_file@gt[,-1]
       dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
       dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
-      dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=3,stop=3))
+      dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
 
       chr.nr <- as.numeric(vcf_file@fix[,1])
       bp <- as.numeric(vcf_file@fix[,2])
@@ -1765,7 +1765,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
-
+  if(sum(population$info$length)>1000){
+    warning(paste0("Chromosome added a size of ", population$info$length[length(population$info$length)], " Morgan!
+This will cost massiv computing time. Are you sure this is correct?
+E.g. The entire human genome has a size of ~33 Morgan."))
+  }
 
 
   class(population) <- "population"

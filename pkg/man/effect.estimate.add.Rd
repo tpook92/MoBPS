@@ -4,7 +4,7 @@
 \alias{effect.estimate.add}
 \title{Estimation of marker effects}
 \usage{
-effect.estimate.add(geno, pheno, map = NULL)
+effect.estimate.add(geno, pheno, map = NULL, scaling = TRUE)
 }
 \arguments{
 \item{geno}{genotype dataset (marker x individuals)}
@@ -12,6 +12,8 @@ effect.estimate.add(geno, pheno, map = NULL)
 \item{pheno}{phenotype dataset (each phenotype in a row)}
 
 \item{map}{genomic map}
+
+\item{scaling}{Set FALSE to not perform variance scaling}
 }
 \value{
 Empirical kinship matrix (IBD-based since Founders)

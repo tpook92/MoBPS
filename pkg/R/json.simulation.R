@@ -1050,7 +1050,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         nsnp <- chromo.length <- numeric(nchromo)
         for(index in 1:nchromo){
           nsnp[index] <- sum(map[,1]==chr.opt[index])
-          chromo.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],3])) / 100000000
+          chromo.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],4])) / 100000000
 
         }
         if(verbose) cat("Assume 100.000.000 bp/M in Ensembl Map \n")
@@ -1063,16 +1063,16 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             if(verbose) cat("Map identified as vcf-file - extract map information")
             if(requireNamespace("vcfR", quietly = TRUE)){
               vcf_file <- vcfR::read.vcfR(map_path)
-              map <- cbind(vcf_file@fix[,c(1,3,2)],NA,NA)
+              map <- cbind(vcf_file@fix[,c(1,3)],NA,vcf_file@fix[,2], NA)
             } else{
               stop("Use of vcfR without being installed!")
             }
           } else if(map_type=="map"){
             if(verbose) cat("Map identified as Ped-map-file - extract map information")
             map_file <- utils::read.table(map_path)
-            map <- cbind(map_file[,c(1,2,4,3)],NA)
-            if(sum(is.na(map[,4])==0) && sum(map[,4])==0){
-              map[,4] <- NA
+            map <- cbind(map_file[,c(1,2,3,4)],NA)
+            if(sum(is.na(map[,3]))>0 || sum(map[,3]==0)>0){
+              map[,3] <- NA
             }
           } else if(map_type=="ata"){
             map_store <- load(map_path)
@@ -1092,7 +1092,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
         for(index in 1:nchromo){
           nsnp[index] <- sum(map[,1]==chr.opt[index])
-          chromo.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],3])) / 100000000
+          chromo.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],4])) / 100000000
 
         }
         if(verbose) cat("Assume 100.000.000 bp/M in Imported Map \n")
@@ -1121,7 +1121,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           map <- rbind(map, cbind(index, paste0("Chr", index,"SNP", 1:nsnp[index]), NA, NA, NA))
         }
         if(length(bp)>0){
-          map[,3] <- bp
+          map[,4] <- bp
         } else{
           if(verbose) cat("Why is there no base-pair in auto generated map?")
         }
@@ -1529,7 +1529,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                       if(verbose) cat("Illegal Chromosom-name. Simulate major SNP-effect on chromosome 1")
                     }
                     if(!is.na(as.numeric(to_enter_name_sub[sample_index,2]))){
-                      diff_to <- - abs(as.numeric(map[,3]) - as.numeric(to_enter_name_sub[sample_index,2]))
+                      diff_to <- - abs(as.numeric(map[,4]) - as.numeric(to_enter_name_sub[sample_index,2]))
                       diff_to[map[,1]!=to_enter_sub[sample_index,2]] <- -Inf
                       take_qtl <- which.max(diff_to)
                       to_enter_sub[sample_index, 2] <- as.numeric(map[take_qtl[1], 1])
@@ -1609,8 +1609,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        verbose=FALSE,
                                        miraculix = miraculix,
                                        miraculix.dataset = miraculix.dataset,
-                                       chr.nr = map[,1], bp=map[,3], snp.name = map[,2],
-                                       freq = map[,5], snp.position = if(is.na(map[1,4])) {NULL} else {map[,4]})
+                                       chr.nr = map[,1], bp=map[,4], snp.name = map[,2],
+                                       freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {map[,3]})
 
         # Cohort names
         gender_founder <- numeric(length(founder))
@@ -3183,7 +3183,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   } else{
                     offspring.bve.parents.database <- NULL
                   }
-
                   population <- breeding.diploid(population, breeding.size=breeding.size,
                                                  bve=(bve&bve_exe), computation.A = computeA,
                                                  bve.pseudo = pseudo_bve,
@@ -3259,7 +3258,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
                   half_sib <- nodes[[groupnr]]$half_sib
                   full_sib <- nodes[[groupnr]]$full_sib
-
                   population <- breeding.diploid(population, breeding.size=breeding.size,
                                                  selection.size= selection.size,
                                                  heritability = heritability,
@@ -3674,6 +3672,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
+
 
 
 

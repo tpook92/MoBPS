@@ -211,7 +211,7 @@ creating.diploid(
 
 \item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
 
-\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, Bp-position, M-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
+\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
 
 \item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 

@@ -204,3 +204,19 @@ NULL
 #' @source Bekele 2013
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
+
+#' @name map_salmon1
+#' @title map_salmon1
+#' @description Tsai 2016 (male recombination rates)
+#' @usage map_salmon1
+#' @source Tsai 2016
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_salmon2
+#' @title map_salmon2
+#' @description Tsai 2016 (female recombination rates)
+#' @usage map_salmon2
+#' @source Tsai 2016
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
