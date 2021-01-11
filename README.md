@@ -25,6 +25,13 @@ Updates since initial release:
 
 ### Version 1.6.14 (08.01.21)
 
+Fixed issue when reading vcf-files in creating.diploid()
+
+map parameter in creating.diploid() is now using same column ordering as map files in PedMap-format
+
+
+### Version 1.6.14 (08.01.21)
+
 New miraculix (0.9.25) version that fixes issue when saving/reloading the population-list 
 
 Added demiraculix/miraculix function to remove/add bit-wise genotype coding in the population-list
