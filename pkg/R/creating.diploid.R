@@ -72,6 +72,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param name.cohort Name of the newly added cohort
 #' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
+#' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
 #' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
@@ -149,7 +150,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              mean.target=NULL,
                              var.target=NULL,
                              is.maternal = NULL,
-                             is.paternal = NULL){
+                             is.paternal = NULL,
+                             vcf.maxsnp=Inf){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -186,10 +188,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
       bp[!is.na(map[,4])] <- as.numeric(map[!is.na(map[,4]),4])
     }
-    if(sum(map[,3]==0)==nrow(map)){
+    if(sum(is.na(map[,3])) < nrow(map) && sum(map[,3]==0)==nrow(map)){
       warning("0 Morgan is no legal position. Set position to NA")
       map[map[,3]==0,3] <- NA
-    } else if(sum(map[,3]==0)>1){
+    } else if(sum(is.na(map[,3]))<nrow(map) && sum(map[,3]==0)>1){
       stop("0 Morgan is no legal position. Please fix!")
     }
     if(sum(!is.na(map[,3]))==nrow(map)){
@@ -394,21 +396,42 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(skip.rest==FALSE){
     if(length(vcf)>0){
       if(requireNamespace("vcfR", quietly = TRUE)){
-      vcf_file <- vcfR::read.vcfR(vcf)
-      vcf_data <- vcf_file@gt[,-1]
-      dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
-      dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
-      dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
+        vcf_file <- vcfR::read.vcfR(vcf)
+        vcf_data <- vcf_file@gt[,-1]
+        dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
+        dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
+        dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
 
-      chr.nr <- as.numeric(vcf_file@fix[,1])
-      bp <- as.numeric(vcf_file@fix[,2])
-      snp.name <- vcf_file@fix[,3]
-      hom0 <- vcf_file@fix[,4]
-      hom1 <- vcf_file@fix[,5]
-
+        chr.nr <- as.numeric(vcf_file@fix[,1])
+        bp <- as.numeric(vcf_file@fix[,2])
+        snp.name <- vcf_file@fix[,3]
+        hom0 <- vcf_file@fix[,4]
+        hom1 <- vcf_file@fix[,5]
       } else{
-        stop("Use of vcfR without being installed!")
+        vcf_file <- read.table(vcf)
+        vcf_data <- vcf_file[,-(1:9)]
+        dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
+        dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
+        dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
+
+        chr.nr <- as.numeric(vcf_file[,1])
+        bp <- as.numeric(vcf_file[,2])
+        snp.name <- vcf_file[,3]
+        hom0 <- vcf_file[,4]
+        hom1 <- vcf_file[,5]
+
       }
+
+      if(vcf.maxsnp< nrow(dataset)){
+        keep <- sort(sample(1:nrow(dataset), vcf.maxsnp))
+        dataset <- dataset[keep,]
+        chr.nr <- chr.nr[keep]
+        bp <- bp[keep]
+        snp.name <- snp.name[keep]
+        hom0 <- hom0[keep]
+        hom1 <- hom1[keep]
+      }
+
     }
 
 
@@ -1121,16 +1144,30 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(length(take)==1){
         origin_code <- population$info$origin.gen[take]
       } else{
-        if(length(population$info$origin.gen)<64){
-          population$info$origin.gen <- c(population$info$origin.gen, as.integer(generation))
-          origin_code <- length(population$info$origin.gen)
+        if(population$info$miraculix){
+          if(length(population$info$origin.gen)<64){
+            population$info$origin.gen <- c(population$info$origin.gen, as.integer(generation))
+            origin_code <- length(population$info$origin.gen)
+          } else{
+            warning("To many origin generation!")
+            warning("Delete second lowest origin.gen")
+            switch <- sort(population$info$origin.gen, index.return=TRUE)[[2]]
+            population$info$origin.gen[switch] <- as.integer(generation)
+            origin_code <- switch
+          }
         } else{
-          warning("To many origin generation!")
-          warning("Delete second lowest origin.gen")
-          switch <- sort(population$info$origin.gen, index.return=TRUE)[[2]]
-          population$info$origin.gen[switch] <- as.integer(generation)
-          origin_code <- switch
+          if(length(population$info$origin.gen)<32){
+            population$info$origin.gen <- c(population$info$origin.gen, as.integer(generation))
+            origin_code <- length(population$info$origin.gen)
+          } else{
+            warning("To many origin generation!")
+            warning("Delete second lowest origin.gen")
+            switch <- sort(population$info$origin.gen, index.return=TRUE)[[2]]
+            population$info$origin.gen[switch] <- as.integer(generation)
+            origin_code <- switch
+          }
         }
+
       }
     } else{
       origin_code <- generation

@@ -4,7 +4,16 @@
 \alias{OGC}
 \title{Optimal genetic contribution}
 \usage{
-OGC(A, u, Q, cAc = NA, single = TRUE, verbose = FALSE)
+OGC(
+  A,
+  u,
+  Q,
+  cAc = NA,
+  single = TRUE,
+  verbose = FALSE,
+  max_male = Inf,
+  max_female = Inf
+)
 }
 \arguments{
 \item{A}{relationship matrix}

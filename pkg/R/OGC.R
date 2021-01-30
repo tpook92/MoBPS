@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return [[1]] Contributions [[2]] expected inbreeding gain
 
 
-OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE){
+OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE, max_male=Inf, max_female=Inf){
   # bei NA wird cAc (Increase of average relationship) minimiert
 
   Opt.int <- function(A, u, Q, cAc=NA){
@@ -51,7 +51,7 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE){
       if(minA>cAc){
         if(verbose) cat(paste0("Minimal increase possible is for cAc is ",minA,"\n"))
         cAc <- minA
-        }
+      }
     }else{
       cAc <- minA
     }
@@ -83,11 +83,44 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE){
     xopt <- xopt1[[1]]
     minA1 <- xopt1[[2]]
   }
+
+  for(i in 1:length(xopt)){
+    if(sum(Q[,1])<=max_male){break}
+    neg <- which(Q[,1] > 0)
+    if(single && length(neg)>0){
+      neg <- sample(neg, 1)
+    }
+    A <- A[-neg,-neg]
+    u <- u[-neg]
+    Q <- Q[-neg,]
+    if(length(u)==2){xopt=rep(0.5,2);break}
+    xopt1 <- Opt.int(A,u,Q,cAc)
+    xopt <- xopt1[[1]]
+    minA1 <- xopt1[[2]]
+  }
+
+  for(i in 1:length(xopt)){
+    if(sum(Q[,2])<=max_female){break}
+    neg <- which(Q[,2] > 0)
+    if(single && length(neg)>0){
+      neg <- sample(neg, 1)
+    }
+    A <- A[-neg,-neg]
+    u <- u[-neg]
+    Q <- Q[-neg,]
+    if(length(u)==2){xopt=rep(0.5,2);break}
+    xopt1 <- Opt.int(A,u,Q,cAc)
+    xopt <- xopt1[[1]]
+    minA1 <- xopt1[[2]]
+  }
+
   res <- numeric(n)
   res[as.numeric(names(u))] <- xopt
   if(verbose) cat(paste0("Realized gain in inbreeding via OGC: ", minA1 ,"\n"))
   if(verbose) cat(paste0(sum(Q[,1]), " of the ", n_male, " male individuals have positive contribution.\n"))
   if(verbose) cat(paste0(sum(Q[,2]), " of the ", n_female, " female individuals have positive contribution.\n"))
-
+  if(max_female<Inf && max_male <Inf){
+    res[res!=0] <- 1
+  }
   return(list("Optimal c"=res, "c'u"=t(xopt)%*%u))
 }

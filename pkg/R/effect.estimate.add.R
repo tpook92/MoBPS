@@ -42,7 +42,7 @@ effect.estimate.add <- function(geno, pheno, map = NULL, scaling=TRUE){
     map <- cbind(1:nrow(geno), 1)
   }
   if(!is.matrix(pheno) || ncol(geno)!=nrow(pheno)){
-    pheno <- matrix(pheno, nrow=ncol(geno))
+    pheno <- matrix(pheno, nrow=ncol(geno), byrow=TRUE)
   }
 
   n <- nrow(pheno)
@@ -59,21 +59,22 @@ effect.estimate.add <- function(geno, pheno, map = NULL, scaling=TRUE){
   real.bv.add <- list()
   for(bven in 1:ncol(pheno)){
 
+    remove_na <- which(!is.na(pheno[,bven]))
+
     if(requireNamespace("EMMREML", quietly = TRUE)){
       fm <- EMMREML::emmreml(
-        pheno[,bven],
-        matrix(1,nrow=n),
-        diag(n),
-        A)
+        pheno[remove_na,bven],
+        matrix(1,nrow=length(remove_na)),
+        diag(length(remove_na)),
+        A[remove_na, remove_na])
     } else{
       stop("Usage of EMMREML without being installed!")
     }
 
-    u_hat <- alpha_to_beta(drop(fm$uhat),A,t(geno))
-
+    u_hat <- alpha_to_beta(drop(fm$uhat),A[remove_na, remove_na],t(geno[,remove_na]))
 
     if(scaling){
-      y_hat_test <- t(u_hat) %*% geno
+      y_hat_test <- t(u_hat) %*% geno[,remove_na]
       scaling_factor <- sqrt(fm$Vu) / sd(y_hat_test)
       u_hat <- u_hat * scaling_factor
     }

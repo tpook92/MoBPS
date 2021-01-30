@@ -129,8 +129,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param store.comp.times If TRUE store computation times in $info$comp.times (default: TRUE)
 #' @param store.comp.times.bve If TRUE store computation times of breeding value estimation in $info$comp.times.bve (default: TRUE)
 #' @param store.comp.times.generation If TRUE store computation times of mating simulations in $info$comp.times.generation (default: TRUE)
-#' @param ogc If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)
-#' @param ogc.cAc Increase of average relationship in ogc. Default: minimize inbreeding rate.
+#' @param ogc If TRUE use optimal genetic contribution theory to perform selection ( This requires the use of the R-package optiSel)
+#' @param ogc.target Target of OGC (default: "min.sKin" - minimize inbreeding; alt: "max.BV" / "min.BV" - maximize genetic gain; both under constrains selected below)
+#' @param ogc.uniform This corresponds to the uniform constrain in optiSel
+#' @param ogc.lb This corresponds to the lb constrain in optiSel
+#' @param ogc.ub This corresponds to the ub constrain in optiSel
+#' @param ogc.ub.sKin This corresponds to the ub.sKin constrain in optiSel
+#' @param ogc.lb.BV This corresponds to the lb.BV constrain in optiSel
+#' @param ogc.ub.BV This corresponds to the ub.BV constrain in optiSel
+#' @param ogc.eq.BV This corresponds to the eq.BV constrain in optiSel
+#' @param ogc.ub.sKin.increase This corresponds to the upper bound (current sKin + ogc.ub.sKin.increase) as ub.sKin in optiSel
+#' @param ogc.lb.BV.increase This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel
+#' @param ogc.max.BV This corresponds to the max.BV constrain in optiSel
 #' @param gene.editing.offspring If TRUE perform gene editing on newly generated individuals
 #' @param gene.editing.best If TRUE perform gene editing on selected individuals
 #' @param gene.editing.offspring.sex Which sex to perform editing on (Default c(TRUE,TRUE), mw)
@@ -366,7 +376,16 @@ breeding.diploid <- function(population,
             BGLR.save = "RKHS",
             BGLR.save.random = FALSE,
             ogc = FALSE,
-            ogc.cAc = NA,
+            ogc.target = "min.sKin",
+            ogc.uniform=NULL,
+            ogc.ub = NULL,
+            ogc.lb = NULL,
+            ogc.ub.sKin = NULL,
+            ogc.lb.BV = NULL,
+            ogc.ub.BV = NULL,
+            ogc.eq.BV = NULL,
+            ogc.ub.sKin.increase = NULL,
+            ogc.lb.BV.increase = NULL,
             emmreml.bve = FALSE,
             rrblup.bve = FALSE,
             sommer.bve = FALSE,
@@ -936,6 +955,8 @@ breeding.diploid <- function(population,
 
   if(length(population$info$origin.gen)>0){
     population$info$origin.gen <- base::as.integer(population$info$origin.gen)
+  } else if(population$info$miraculix){
+    population$info$origin.gen <- 1:32L
   } else{
     population$info$origin.gen <- 1:64L
   }
@@ -3518,6 +3539,9 @@ breeding.diploid <- function(population,
 
 
 
+  if(length(threshold.selection)==1 && is.na(threshold.selection)){
+    threshold.selection <- NULL
+  }
 
   if(length(threshold.selection)>0){
     if(threshold.sign=="<"){
@@ -3566,7 +3590,6 @@ breeding.diploid <- function(population,
 
   activ_groups_list <- list(selection.m.database, selection.f.database)
   chosen.animals.list <- list()
-  selection.size.sex <- list(selection.size[1], selection.size[2])
   selection.sex <- c(selection.m, selection.f)
   selection.miesenberger <- c(selection.m.miesenberger, selection.f.miesenberger)
   multiple.bve.weights <- list(multiple.bve.weights.m, multiple.bve.weights.f)
@@ -3945,7 +3968,7 @@ breeding.diploid <- function(population,
                 population$breeding[[possible_animals[entry,1]]][[possible_animals[entry,2]+30]][possible_animals[entry,3]] <- bve.sum[entry]
               }
             }
-            chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.highest[sex])$ix[1:sum(selection.size.sex[[sex]])] # Diese 3er werden zu 4 in Weiblich
+            chosen.animals <- sort(bve.sum, index.return=TRUE, decreasing=selection.highest[sex])$ix[1:sum(selection.size[sex])] # Diese 3er werden zu 4 in Weiblich
 
             if(sum(bve.sum[chosen.animals[length(chosen.animals)]]==bve.sum)>1){
               cutoff1 <- bve.sum[chosen.animals[length(chosen.animals)]]
@@ -4102,8 +4125,6 @@ breeding.diploid <- function(population,
         fixed.breeding <- cbind(best[[1]][fixed.assignment.m,1:3], best[[2]][fixed.assignment.f,1:3], sex.animal)
       }
       if(ogc){
-        if(verbose) cat("Inefficient implementation of OGC. Currently not available for large scale datasets.\n")
-
         animallist <- rbind(cbind(best[[1]],1), cbind(best[[2]],2))
         n.animals <- nrow(animallist)
 
@@ -4121,17 +4142,21 @@ breeding.diploid <- function(population,
           }
         }
 
-        u <- animallist[,4]
-        Q <- cbind((animallist[,6]==1), animallist[,6]==2)
+        BV <- animallist[,4]
+        Sex <- rep("male", length(BV))
+        Sex[animallist[,6]==2] <- "female"
 
-        if(miraculix){
-          Z.code <- miraculix::computeSNPS(population, animallist[,1], animallist[,2], animallist[,3], what="geno", output_compressed = TRUE)
-        } else{
-          Zt <- array(0,dim=c(sum(population$info$snp), n.animals))
-          for(index in 1:n.animals){
-            Zt[,index] <- colSums(compute.snps(population, animallist[index,1], animallist[index,2], animallist[index,3], import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE))
+        if(relationship.matrix.ogc != "kinship" || relationship.matrix.ogc != "pedigree"){
+          if(miraculix){
+            Z.code <- miraculix::computeSNPS(population, animallist[,1], animallist[,2], animallist[,3], what="geno", output_compressed = TRUE)
+          } else{
+            Zt <- array(0,dim=c(sum(population$info$snp), n.animals))
+            for(index in 1:n.animals){
+              Zt[,index] <- colSums(compute.snps(population, animallist[index,1], animallist[index,2], animallist[index,3], import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE))
+            }
           }
         }
+
 
         # Verwandtschaftsmatrix:
         if(relationship.matrix.ogc=="kinship" || relationship.matrix.ogc == "pedigree"){
@@ -4163,9 +4188,60 @@ breeding.diploid <- function(population,
         } else if(relationship.matrix.ogc=="non_stand"){
           A <- crossprod(Zt) / nrow(Zt)
         }
-        contribution <- OGC(A, u, Q, ogc.cAc, single=TRUE)
-        contribution <- list(contribution$`Optimal c`[Q[,1]], contribution$`Optimal c`[Q[,2]])
 
+        Indiv <- paste0("Indi", 1:length(BV))
+        colnames(A) <- rownames(A) <- names(BV) <- Indiv
+        cont <- cbind(1,0.5,0.5)
+        colnames(cont) <- c("age", "male", "female")
+        Born <- rep(1, length(BV))
+        Breed <- rep("Breed1", length(BV))
+        herd <- rep(NA, length(BV))
+        isCandidate <- rep(TRUE, length(BV))
+        phen <- data.frame(Indiv, Born, Breed, BV, Sex, herd, isCandidate)
+
+        sKin <- A/2
+        colnames(sKin) <- rownames(sKin) <- Indiv
+        cand <- optiSel::candes(phen = phen, sKin = sKin, cont = cont)
+        con <- list()
+        if(length(ogc.uniform)>0){
+          con$uniform = ogc.uniform
+        }
+        if(length(ogc.lb)>0){
+          con$lb = ogc.lb
+        }
+        if(length(ogc.ub)>0){
+          con$ub = ogc.ub
+        }
+        if(length(ogc.ub.sKin)>0){
+          con$ub.sKin = ogc.ub.sKin
+        }
+        if(length(ogc.lb.BV)>0){
+          con$lb.BV = ogc.lb.BV
+        }
+        if(length(ogc.ub.BV)>0){
+          con$ub.BV = ogc.ub.BV
+        }
+        if(length(ogc.eq.BV)>0){
+          con$eq.BV = ogc.eq.BV
+        }
+
+
+
+        if(length(ogc.ub.sKin.increase)>0){
+          con$ub.sKin = ogc.ub.sKin.increase + cand$current[2,4]
+        }
+        if(length(ogc.lb.BV.increase)>0){
+          con$lb.BV = ogc.lb.BV.increase + cand$current[1,4]
+        }
+
+        Offspring <- optiSel::opticont(ogc.target, cand, con, quiet = !verbose)
+
+        contribution <- list(Offspring$parent$oc[Sex=="male"], Offspring$parent$oc[Sex=="female"])
+
+        if(verbose){
+          cat(paste0(sum(contribution[[1]]>0), " male individuals with positive contribution ((", sum(contribution[[1]]>(0.001 * max(contribution[[1]]))), " with major contribution).\n"))
+          cat(paste0(sum(contribution[[2]]>0), " female individuals with positive contribution ((", sum(contribution[[2]]>(0.001 * max(contribution[[2]]))), " with major contribution)\n."))
+        }
       }
     }
 

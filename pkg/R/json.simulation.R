@@ -126,6 +126,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       litter_size <- total$litter_size
       first_pop <- subpopulations[[1]]$Name
 
+      if(length(edges)==0){
+        stop("No edges detected. No valid simulation!")
+      }
+
       major_table <- major <- list()
       n_traits <- length(traitinfo)
       map <- NULL
@@ -198,7 +202,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         selection_index_name <- NULL
       }
 
-      if(length(litter_size)>0){
+      if(length(litter_size)>0 && length(litter_size$litter_info)>0){
         repeat.mating <- matrix(NA, nrow=length(litter_size$litter_info), 2)
         for(index in 1:length(litter_size$litter_info)){
           repeat.mating[index,1] <- as.numeric(litter_size$litter_info[[index]]$name)
@@ -807,58 +811,81 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
       while(sum(repeat_node)>0){
 
-        required_nodes <- list()
-        required_nodes[[length(ids)+1]] <- "placeholder"
-        for(index in 1:length(edges)){
-          if(edges[[index]]$`Breeding Type`!="Repeat"){
-            new_node <- which(edges[[index]]$to==ids)
-            required_nodes[[new_node]] <- c(required_nodes[[new_node]], which(edges[[index]]$from==ids))
+        to_early_to_repeat <- 0
+        while(length(to_early_to_repeat)>0){
+
+          required_nodes <- list()
+          required_nodes[[length(ids)+1]] <- "placeholder"
+          for(index in 1:length(edges)){
+            if(edges[[index]]$`Breeding Type`!="Repeat"){
+              new_node <- which(edges[[index]]$to==ids)
+              required_nodes[[new_node]] <- c(required_nodes[[new_node]], which(edges[[index]]$from==ids))
+            }
+
+          }
+          n_nodes <- length(nodes)
+          n_edges <- length(edges)
+          link <- NULL
+          link2 <- NULL
+          if(length(to_early_to_repeat)==1 || to_early_to_repeat==0){
+            start <- founder
+          } else{
+            start <- intersect(founder, (1:length(ids))[-to_early_to_repeat])
           }
 
-        }
-        n_nodes <- length(nodes)
-        n_edges <- length(edges)
-        link <- NULL
-        link2 <- NULL
-        start <- founder
-        step <- start
-        step_vali <- intersect(start, which(incoming_repeat_node==1))
+          step <- start
+          step_vali <- intersect(start, which(incoming_repeat_node==1))
 
-        nodes_to_repeat <- NULL
-        edges_to_repeat <- NULL
-        prev <- NULL
+          nodes_to_repeat <- NULL
+          edges_to_repeat <- NULL
+          prev <- NULL
 
-        while(length(step)!=length(prev) || length(prev)==0){
-          prev <- step
-          for(index2 in 1:length(edges)){
-            desti <- which(edges[[index2]]$to==ids)
-            ori <- which(edges[[index2]]$from==ids)
-            if(length(intersect(ori, step))>0 & length(required_nodes[[desti]])== length(intersect(required_nodes[[desti]], step))){
-              if(repeat_node[ori]==1){
-                if(edges[[index2]]$`Breeding Type`=="Repeat"){
-                  start <- unique(c(start, desti))
-                  step <- unique(c(step, desti))
-                  if(incoming_repeat_node[desti] || length(intersect(step_vali,ori))>0){
-                    step_vali <- unique(c(step_vali, desti))
+          while(length(step)!=length(prev) || length(prev)==0){
+            prev <- step
+            for(index2 in 1:length(edges)){
+              desti <- which(edges[[index2]]$to==ids)
+              ori <- which(edges[[index2]]$from==ids)
+              if(length(intersect(ori, step))>0 & length(required_nodes[[desti]])== length(intersect(required_nodes[[desti]], step))){
+                if(repeat_node[ori]==1){
+                  if(edges[[index2]]$`Breeding Type`=="Repeat"){
+                    start <- unique(c(start, desti))
+                    step <- unique(c(step, desti))
+                    if(incoming_repeat_node[desti] || length(intersect(step_vali,ori))>0){
+                      step_vali <- unique(c(step_vali, desti))
+                    }
+                    link <- rbind(link, c(ori, desti))
+                    link2 <- unique(c(link2, index2))
                   }
-                  link <- rbind(link, c(ori, desti))
-                  link2 <- unique(c(link2, index2))
-                }
-              } else{
-                if(sum(ori==step)>0){
-                  step <- unique(c(step, desti))
+                } else{
+                  if(sum(ori==step)>0){
+                    step <- unique(c(step, desti))
 
-                  if(incoming_repeat_node[desti]==1 || length(intersect(step_vali,ori))>0){
-                    step_vali <- unique(c(step_vali, desti))
+                    if(incoming_repeat_node[desti]==1 || length(intersect(step_vali,ori))>0){
+                      step_vali <- unique(c(step_vali, desti))
+                    }
+
                   }
 
                 }
-
               }
             }
           }
+          nodes_to_repeat <- step_vali[!duplicated(c(start, step_vali))[-(1:length(start))]]
+
+
+          # check is all founder nodes for repeat nodes are available
+          to_early_to_repeat_temp <- intersect(intersect(ids[prev],ids[incoming_repeat_node==1]), ids[-link[,2]])
+          if(length(to_early_to_repeat_temp)>0){
+            for(index in 1:length(to_early_to_repeat_temp)){
+              to_early_to_repeat_temp[index] <- which(ids==to_early_to_repeat_temp[index])
+            }
+            to_early_to_repeat <- as.numeric(c(to_early_to_repeat_temp, to_early_to_repeat))
+          } else{
+            to_early_to_repeat <- NULL
+          }
+
         }
-        nodes_to_repeat <- step_vali[!duplicated(c(start, step_vali))[-(1:length(start))]]
+
         nodes_to_repeat <- sort(nodes_to_repeat)
         n_rep <- 0
         for(index in 1:length(edges)){
@@ -1936,10 +1963,42 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           nodes[[to_node]]$'Time Needed' <- c(nodes[[to_node]]$'Time Needed',edges[[index]]$'Time Needed')
           if(length(edges[[index]]$OGC)>0 && edges[[index]]$OGC=="Yes"){
             nodes[[to_node]]$OGC <- TRUE
-            if(length(edges[[index]]$'ogc_cAc')>0 || length(nodes[[to_node]]$ogc_cAc)==0){
-              nodes[[to_node]]$ogc_cAc <- as.numeric(edges[[index]]$'ogc_cAc')
-            } else{
-              nodes[[to_node]]$ogc_cAc <- NA
+            if(length(edges[[index]]$'ogc_target')>0 || length(nodes[[to_node]]$ogc_cAc)==0){
+              nodes[[to_node]]$ogc_target <- (edges[[index]]$'ogc_target')
+              nodes[[to_node]]$constrain <- numeric(7)
+
+              constrains <- list(edges[[index]]$'ogc_constrain1', edges[[index]]$'ogc_constrain2', edges[[index]]$'ogc_constrain3')
+              constrains_value <- list(edges[[index]]$'ogc_constrain1_value', edges[[index]]$'ogc_constrain2_value', edges[[index]]$'ogc_constrain3_value')
+              for(index in 1:3){
+                if(constrains[[index]]!="ub.BV"){
+                  nodes[[to_node]]$constrain[1] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="eq.BV"){
+                  nodes[[to_node]]$constrain[2] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="lb.BV"){
+                  nodes[[to_node]]$constrain[3] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="ub.sKin"){
+                  nodes[[to_node]]$constrain[4] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="uniform"){
+                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="uniform"){
+                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="uniform"){
+                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="lb.BV.increase"){
+                  nodes[[to_node]]$constrain[6] <- constrains_value[[index]]
+                }
+                if(constrains[[index]]!="ub.sKin.increase"){
+                  nodes[[to_node]]$constrain[7] <- constrains_value[[index]]
+                }
+
+              }
             }
 
           } else if(length(nodes[[to_node]]$OGC)==0){
@@ -2423,11 +2482,20 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         generation_both[[index]] <- rep(0, length(generation_group[[index]]))
         for(index2 in 1:length(generation_group[[index]])){
           if(sum(strsplit(generation_group[[index]][index2], split = "_")[[1]][1] == splits)>0){
-            if(strsplit(generation_group[[index]][index2], split = "_")[[1]][2]=="M"){
-              generation_both[[index]][index2] <- 1
-            } else if(strsplit(generation_group[[index]][index2], split = "_")[[1]][2]=="F"){
-              generation_both[[index]][index2] <- 2
+
+            test1 <- nodes[[which(ids==generation_group[[index]][index2])]]$'Breeding Type'
+            if(test1=="Reproduction" || test1 =="Selfing" || test1 == "DH-Production" || test1 =="Cloning"){
+
+              if(strsplit(generation_group[[index]][index2], split = "_")[[1]][2]=="M"){
+                generation_both[[index]][index2] <- 1
+              } else if(strsplit(generation_group[[index]][index2], split = "_")[[1]][2]=="F"){
+                generation_both[[index]][index2] <- 2
+              }
+
             }
+
+
+
           }
         }
         if(sum(generation_both[[index]]==1) != sum(generation_both[[index]]==2)){
@@ -3283,7 +3351,14 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  share.genotyped = share.genotyped,
                                                  added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
                                                  ogc = nodes[[groupnr]]$OGC,
-                                                 ogc.cAc = if(length(nodes[[groupnr]]$ogc_cAc)>0){nodes[[groupnr]]$ogc_cAc} else{NA},
+                                                 ogc.target = nodes[[groupnr]]$ogc_target,
+                                                 ogc.ub.BV = nodes[[to_node]]$constrain[1],
+                                                 ogc.eq.BV = nodes[[to_node]]$constrain[2],
+                                                 ogc.lb.BV = nodes[[to_node]]$constrain[3],
+                                                 ogc.ub.sKin = nodes[[to_node]]$constrain[4],
+                                                 ogc.uniform = nodes[[to_node]]$constrain[5],
+                                                 ogc.lb.BV.increase = nodes[[to_node]]$constrain[6],
+                                                 ogc.ub.sKin.increase = nodes[[to_node]]$constrain[7],
                                                  repeat.mating = repeat.mating * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,

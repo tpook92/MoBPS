@@ -58,7 +58,12 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
   if(length(population$info$origin.gen)>0){
     population$info$origin.gen <- as.integer(population$info$origin.gen)
   } else{
-    population$info$origin.gen <- 1:64L
+    if(population$info$miraculix){
+      population$info$origin.gen <- 1:64L
+    } else{
+      population$info$origin.gen <- 1:32L
+    }
+
   }
 
   database <- get.database(population, gen, database, cohorts)

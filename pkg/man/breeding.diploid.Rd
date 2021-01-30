@@ -99,7 +99,16 @@ breeding.diploid(
   BGLR.save = "RKHS",
   BGLR.save.random = FALSE,
   ogc = FALSE,
-  ogc.cAc = NA,
+  ogc.target = "min.sKin",
+  ogc.uniform = NULL,
+  ogc.ub = NULL,
+  ogc.lb = NULL,
+  ogc.ub.sKin = NULL,
+  ogc.lb.BV = NULL,
+  ogc.ub.BV = NULL,
+  ogc.eq.BV = NULL,
+  ogc.ub.sKin.increase = NULL,
+  ogc.lb.BV.increase = NULL,
   emmreml.bve = FALSE,
   rrblup.bve = FALSE,
   sommer.bve = FALSE,
@@ -436,9 +445,27 @@ breeding.diploid(
 
 \item{BGLR.save.random}{Add random number to store location of internal BGLR computations (only needed when simulating a lot in parallel!)}
 
-\item{ogc}{If TRUE use optimal genetic contribution theory to perform selection (Needs rework!)}
+\item{ogc}{If TRUE use optimal genetic contribution theory to perform selection ( This requires the use of the R-package optiSel)}
 
-\item{ogc.cAc}{Increase of average relationship in ogc. Default: minimize inbreeding rate.}
+\item{ogc.target}{Target of OGC (default: "min.sKin" - minimize inbreeding; alt: "max.BV" / "min.BV" - maximize genetic gain; both under constrains selected below)}
+
+\item{ogc.uniform}{This corresponds to the uniform constrain in optiSel}
+
+\item{ogc.ub}{This corresponds to the ub constrain in optiSel}
+
+\item{ogc.lb}{This corresponds to the lb constrain in optiSel}
+
+\item{ogc.ub.sKin}{This corresponds to the ub.sKin constrain in optiSel}
+
+\item{ogc.lb.BV}{This corresponds to the lb.BV constrain in optiSel}
+
+\item{ogc.ub.BV}{This corresponds to the ub.BV constrain in optiSel}
+
+\item{ogc.eq.BV}{This corresponds to the eq.BV constrain in optiSel}
+
+\item{ogc.ub.sKin.increase}{This corresponds to the upper bound (current sKin + ogc.ub.sKin.increase) as ub.sKin in optiSel}
+
+\item{ogc.lb.BV.increase}{This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel}
 
 \item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
 
@@ -733,6 +760,8 @@ breeding.diploid(
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
 
 \item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
+
+\item{ogc.max.BV}{This corresponds to the max.BV constrain in optiSel}
 }
 \value{
 Population-list
