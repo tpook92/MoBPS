@@ -23,6 +23,20 @@ A separte publication of the web-based framework is uploaded on bioRvix (https:/
 
 Updates since initial release:
 
+### Version 1.6.22 (01.02.22)
+Added OCS functionality using the R-package optiSel (Wellmann et al. 2019)
+
+Map-file / map parameter in creating.diploid() are now conform to PLINK format (3rd column: Morgan position 4th column bp position)
+
+MoBPSmaps update (0.1.10)
+
+Bug-fixe when working with more than 32 founder generations and without miraculix
+
+Repeat-edge update for json.simulation
+
+Updated Guidelines to MoBPS
+
+
 ### Version 1.6.15 (11.01.21)
 
 Fixed issue when reading vcf-files in creating.diploid()
