@@ -76,9 +76,6 @@ breeding.diploid(
   n.observation = NULL,
   bve.0isNA = FALSE,
   phenotype.bv = FALSE,
-  standardize.bv = FALSE,
-  standardize.bv.level = 100,
-  standardize.bv.gen = 1,
   delete.same.origin = FALSE,
   remove.effect.position = FALSE,
   estimate.u = FALSE,
@@ -147,6 +144,7 @@ breeding.diploid(
   best.selection.criteria.f = NULL,
   best.selection.manual.ratio.m = NULL,
   best.selection.manual.ratio.f = NULL,
+  best.selection.manual.reorder = TRUE,
   bve.class = NULL,
   parallel.generation = FALSE,
   name.cohort = NULL,
@@ -401,12 +399,6 @@ breeding.diploid(
 
 \item{phenotype.bv}{If TRUE use phenotype as estimated breeding value}
 
-\item{standardize.bv}{If TRUE standardize breeding value (additive transformation to mean standardize.bv.level)}
-
-\item{standardize.bv.level}{Level for the standardization (default: 100)}
-
-\item{standardize.bv.gen}{Generations to use in standardize.bv}
-
 \item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
 
 \item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
@@ -542,6 +534,8 @@ breeding.diploid(
 \item{best.selection.manual.ratio.m}{vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))}
 
 \item{best.selection.manual.ratio.f}{vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))}
+
+\item{best.selection.manual.reorder}{Set to FALSE to not use the order from best to worst selected individual but plain order based on database-order}
 
 \item{bve.class}{Consider only animals of those class classes in breeding value estimation (default: NULL - use all)}
 
@@ -760,8 +754,6 @@ breeding.diploid(
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
 
 \item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
-
-\item{ogc.max.BV}{This corresponds to the max.BV constrain in optiSel}
 }
 \value{
 Population-list

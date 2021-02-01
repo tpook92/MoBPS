@@ -408,7 +408,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         hom0 <- vcf_file@fix[,4]
         hom1 <- vcf_file@fix[,5]
       } else{
-        vcf_file <- read.table(vcf)
+        vcf_file <- utils::read.table(vcf)
         vcf_data <- vcf_file[,-(1:9)]
         dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
         dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))

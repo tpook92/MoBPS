@@ -28,6 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cAc target gain in inbreeding
 #' @param single If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)
 #' @param verbose Set to FALSE to not display any prints
+#' @param max_male maximum number of male with positive contributions
+#' @param max_female maximum number of females with positive contributions
 #' @return [[1]] Contributions [[2]] expected inbreeding gain
 
 

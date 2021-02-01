@@ -75,7 +75,7 @@ effect.estimate.add <- function(geno, pheno, map = NULL, scaling=TRUE){
 
     if(scaling){
       y_hat_test <- t(u_hat) %*% geno[,remove_na]
-      scaling_factor <- sqrt(fm$Vu) / sd(y_hat_test)
+      scaling_factor <- sqrt(fm$Vu) / stats::sd(y_hat_test)
       u_hat <- u_hat * scaling_factor
     }
 

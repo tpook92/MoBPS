@@ -109,7 +109,7 @@ get.distance <- function(population, type="nei", marker = "all", per.marker=FALS
       } else if(type=="nei_distance"){
         temp1 <- 1 - sqrt(p1*p2) - sqrt((1-p1) * (1-p2))
       }
-        D[index,index2] <- sum(temp1, na.rm=TRUE) / length(p1)
+        D[index,index2] <- D[index2,index] <-sum(temp1, na.rm=TRUE) / length(p1)
     }
   }
 

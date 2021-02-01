@@ -27,6 +27,10 @@ OGC(
 \item{single}{If FALSE multiple individuals can be removed at the same type (this is faster but potentially inaccurate!)}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{max_male}{maximum number of male with positive contributions}
+
+\item{max_female}{maximum number of females with positive contributions}
 }
 \value{
 [[1]] Contributions [[2]] expected inbreeding gain
