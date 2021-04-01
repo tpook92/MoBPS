@@ -16,12 +16,27 @@ The web-based interface is finally online at www.mobps.de.
 
 For testing we are providing a Guest User. This user is not allowed to use our backend server simulations, but can at least try to set up his simulations and download resulting json-files that can than be simulated via json.simulation() in the MoBPS R-package.
 
-A separte publication of the web-based framework is uploaded on bioRvix (https://www.biorxiv.org/content/10.1101/2020.07.08.193227v1) and extended documenation for the interface can be found at www.mobps.de directly.
+A separate publication of the web-based framework is also published in G3 (https://pubmed.ncbi.nlm.nih.gov/33712818/). Extended documenation for the interface can be found at www.mobps.de directly.
 
 
 # Update
 
 Updates since initial release:
+
+### Version 1.6.31 (01.04.22)
+
+Parallel generation of individuals is disabled for now.
+
+Added function to simulated LD structure for founder genotypes (founder.simulation() ) 
+
+Added functionality for population genetic analysis (effective population size (get.effective.size()), admixture plots (get.admixture()), improved LD decay (ld.decay() )
+
+Added functionality to export QTLs, QTL effects and per QTL genetic variance (get.qtl(), get.qtl.effects(), get.qtl.variance() ) 
+
+Added functionality for simulate a given pedigree (( pedigree.simulation() ))
+
+Adaptation of json.simulation to newly added modules in the web-interface
+
 
 ### Version 1.6.22 (01.02.22)
 Added OCS functionality using the R-package optiSel (Wellmann et al. 2019)
@@ -74,6 +89,8 @@ Improved generation times in single-core individual generation (~20%)
 Improved handling of epistatic / dice traits
 
 Fixed issue in add.combi() that lead to overriding on internal parameters with default values
+
+
 
 ### Version 1.5.38 (15.10.20)
 
