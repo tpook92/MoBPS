@@ -8,11 +8,15 @@ ld.decay(
   population,
   genotype.dataset = NULL,
   chromosomen = 1,
+  dist = NULL,
   step = 5,
   max = 500,
+  max.cases = 100,
   database = NULL,
   gen = NULL,
-  cohorts = NULL
+  cohorts = NULL,
+  type = "snp",
+  plot = FALSE
 )
 }
 \arguments{
@@ -22,15 +26,23 @@ ld.decay(
 
 \item{chromosomen}{Only consider a specific chromosome in calculations (default: 1)}
 
+\item{dist}{Manuel input of marker distances to analyse}
+
 \item{step}{Stepsize to calculate LD}
 
 \item{max}{Maximum distance between markers to consider for LD-plot}
+
+\item{max.cases}{Maximum number of marker pairs to consider of each distance (default: 100; randomly sampled!)}
 
 \item{database}{Groups of individuals to consider for the export}
 
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{type}{Compute LD decay according to following distance measure between markers (default: "snp", alt: "bp", "cM")}
+
+\item{plot}{Set to FALSE to not generate an LD plot}
 }
 \value{
 LD-decay plot for in gen/database/cohorts selected individuals

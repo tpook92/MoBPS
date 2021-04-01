@@ -101,7 +101,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     stop("No dataset provided in file or total \n")
   }
 
-
   {
     {
 
@@ -872,9 +871,21 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           }
           nodes_to_repeat <- step_vali[!duplicated(c(start, step_vali))[-(1:length(start))]]
 
+          incoming_repeat_node2 <- numeric(length(incoming_repeat_node))
+          for(index in 1:length(edges)){
+            if(edges[[index]]$'Breeding Type'=="Repeat"){
 
-          # check is all founder nodes for repeat nodes are available
-          to_early_to_repeat_temp <- intersect(intersect(ids[prev],ids[incoming_repeat_node==1]), ids[-link[,2]])
+              temp2 <- which(edges[[index]]$from==ids)
+              if(length(intersect(temp2, prev))>0){
+                temp1 <- which(edges[[index]]$to==ids)
+                incoming_repeat_node2[temp1] <- 1
+              }
+
+            }
+          }
+
+          # check if all founder nodes for repeat nodes are available
+          to_early_to_repeat_temp <- intersect(intersect(ids[prev],ids[incoming_repeat_node2==1]), ids[-link[,2]])
           if(length(to_early_to_repeat_temp)>0){
             for(index in 1:length(to_early_to_repeat_temp)){
               to_early_to_repeat_temp[index] <- which(ids==to_early_to_repeat_temp[index])
@@ -1217,15 +1228,16 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
         p_i <- list()
         major_sub <- list()
+        majorp <- NULL
         major_table_sub <- list()
-        subpopulation_info <- matrix(0, nrow=length(subpopulations), ncol=6)
+        subpopulation_info <- matrix(0, nrow=length(subpopulations), ncol=10)
         for(index in 1:length(subpopulations)){
-          subpopulation_info[index,] <- unlist(subpopulations[[index]])[1:6]
+          subpopulation_info[index,] <- unlist(subpopulations[[index]])[1:10]
         }
 
-        if(length(subpopulations)>1 & miraculix.dataset){
+        if( (length(subpopulations)>1 || sum(as.numeric(subpopulation_info[,9])>0) > 0) & miraculix.dataset){
           miraculix.dataset <- FALSE
-          if(verbose) cat("miraculix dataset generation only for single subpopulation.\n")
+          if(verbose) cat("miraculix dataset generation only for single subpopulation and no LD build up.\n")
         }
 
         if(length(unique(c("",path_list)))>1 && miraculix.dataset){
@@ -1452,7 +1464,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                       if(verbose) cat("Illegal Chromosom-name. Simulate major SNP-effect on chromosome 1.\n")
                     }
                     if(!is.na(as.numeric(to_enter_name[sample_index,2]))){
-                      diff_to <- - abs(as.numeric(map[,3]) - as.numeric(to_enter_name[sample_index,2]))
+                      diff_to <- - abs(as.numeric(map[,4]) - as.numeric(to_enter_name[sample_index,2]))
                       diff_to[map[,1]!=to_enter[sample_index,2]] <- -Inf
                       take_qtl <- which.max(diff_to)
                       to_enter[sample_index, 2] <- as.numeric(map[take_qtl[1], 1])
@@ -1487,11 +1499,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               for(index2 in 1:nrow(major_table[[index]])){
                 take <- which(cumsum((map[,1]==major_table[[index]][index2,2]))==major_table[[index]][index2,1])[1]
                 map[take,5] <- major_table[[index]][index2,6]
+                majorp <- c(majorp, take)
               }
             }
 
           }
         }
+        majorp <- unique(majorp)
 
 
         for(subpop in 1:length(subpopulations)){
@@ -1575,6 +1589,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               major_table_sub[[index]] <- to_enter_sub
               position_change <- cumsum(c(0, nsnp))[to_enter_sub[,2]] + to_enter_sub[,1]
               p_i[[subpop]][position_change] <- to_enter_sub[,3]
+
+              majorp <- c(majorp, position_change)
+
             }
 
           } else{
@@ -1582,6 +1599,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             takes <- which(no_data==0 & founder_pop==subpopulation_info[subpop,1])
             take <- NULL
           }
+
+          majorp <- unique(majorp)
+
           if(miraculix.dataset){
             if(length(takes)>0){
               nindi <- (starts[max(takes)+1] - starts[min(takes)])/2
@@ -1594,14 +1614,50 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             }
 
           } else{
+
+            nfinal <- 0
+            for(index2 in takes){
+              nfinal <- nfinal + (starts[index2+1]) - starts[index2]
+            }
+            if(verbose){cat(paste0("Start LD build-up for subpopulation ", subpopulation_info[subpop,1]))}
+
+            ntemp <- as.numeric(subpopulation_info[subpop,9])
+            if(ntemp>0){
+              dataset_temp <- founder.simulation(nindi = as.numeric(subpopulation_info[subpop,7]),
+                                                 nsnp = 0,
+                                                 sex.quota = as.numeric(subpopulation_info[subpop,8]),
+                                                 n.gen = ntemp,
+                                                 nfinal = nfinal, verbose=FALSE,
+                                                 map = map[,1:4],
+                                                 freq = p_i[[subpop]])
+
+              if(subpopulation_info[subpop,10]=="TRUE"){
+                for(change_p in majorp){
+                  dataset_temp[change_p,] <- stats::rbinom(ncol(dataset_temp),1, prob=p_i[[subpop]][change_p])
+                }
+              }
+
+              prior <- 0
+            }
+
+
             for(index in takes){
               # Integer * Integer > 2^32 --> NA! conversion to numerics
               take <- starts[index]:(starts[index+1]-1)
               input_type <- nodes[[founder[index]]]$`Genotype generation`
               if(input_type=="Random-sampling"){
-                dataset[,take] <- stats::rbinom(as.numeric(nrow(dataset))*as.numeric(length(take)),1, prob=p_i[[subpop]])
+                if(ntemp>0){
+                  dataset[,take] <- dataset_temp[,prior + 1:length(take)]
+                } else{
+                  dataset[,take] <- stats::rbinom(as.numeric(nrow(dataset))*as.numeric(length(take)),1, prob=p_i[[subpop]])
+                }
+
               } else if(input_type=="Fully-homozygous"){
-                dataset[,take[c(1:(length(take)/2)*2-1,1:(length(take)/2)*2)]] <- stats::rbinom(as.numeric(nrow(dataset))*as.numeric(length(take))/2,1, prob=p_i[[subpop]])
+                if(ntemp>0){
+                  dataset[,take[c(1:(length(take)/2)*2-1,1:(length(take)/2)*2)]] <- dataset_temp[,prior + 1:(length(take)/2)]
+                } else{
+                  dataset[,take[c(1:(length(take)/2)*2-1,1:(length(take)/2)*2)]] <- stats::rbinom(as.numeric(nrow(dataset))*as.numeric(length(take))/2,1, prob=p_i[[subpop]])
+                }
                 # generate half as many alleles as spots to fill - rest is autocompleted
               } else if(input_type=="Fully-heterozygous"){
                 dataset[,c(1:(length(take)/2)*2)-1] <- 0L # just for safety but not necessary
@@ -1613,6 +1669,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               } else if(input_type!="Upload Genotypes"){
                 stop("Invalid input type for founder node!")
               }
+              prior <- prior + length(take)
             }
           }
         }
@@ -1766,8 +1823,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               if(population$info$bv.calculated==FALSE){
                 population <- breeding.diploid(population, verbose=verbose)
               }
-              if(length(subpopulations[[subpop]])>7){
-                for(indexmod in 8:length(subpopulations[[subpop]])){
+              cutoffsub <- max(which(names(subpopulations[[subpop]])=="majorfreq"), which(names(subpopulations[[subpop]])=="QTL Info"))
+              if(length(subpopulations[[subpop]])>cutoffsub){
+                for(indexmod in (cutoffsub+1):length(subpopulations[[subpop]])){
                   if(subpopulations[[subpop]][[indexmod]]!=""){
                     active_trait <- as.numeric(substr(names(subpopulations[[subpop]])[[indexmod]], start=2, stop=nchar(names(subpopulations[[subpop]])[[indexmod]])))
                     valid_markers0 <- valid_markers1 <- which(p_i[[subpop]]>0 & p_i[[subpop]]<1)
@@ -3747,6 +3805,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
+
+
 
 
 

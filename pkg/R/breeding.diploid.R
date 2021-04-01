@@ -90,7 +90,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param selfing.sex Share of female individuals used for selfing (default: 0.5)
 #' @param multiple.bve.scale.m Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values
 #' @param multiple.bve.scale.f Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values
-#' @param use.last.sigma.e If TRUE use the sigma.e used in the previous simulation (default: FALSE)
 #' @param class.m Migrationlevels of male individuals to consider for mating process (default: 0)
 #' @param class.f Migrationlevels of female individuals to consider for mating process (default: 0)
 #' @param save.recombination.history If TRUE store the time point of each recombination event
@@ -334,7 +333,6 @@ breeding.diploid <- function(population,
             praeimplantation = NULL,
             heritability = NULL,
             repeatability = NULL,
-            use.last.sigma.e = FALSE,
             save.recombination.history = FALSE,
             martini.selection = FALSE,
             BGLR.bve = FALSE,
@@ -536,6 +534,9 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
 {
+  if(parallel.generation){
+    stop("Parallel generation has been enabled for now. Will come back in a later version!")
+  }
   {
 
   if(avoid.mating.halfsib){
@@ -1032,11 +1033,7 @@ breeding.diploid <- function(population,
   } else{
     sigma.e <- 100
   }
-  if(use.last.sigma.e){
-    if(length(population$info$last.sigma.e.value)>0){
-      sigma.e <- population$info$last.sigma.e.value
-    }
-  }
+
   if(length(sigma.e)==1){
     sigma.e <- rep(sigma.e, population$info$bv.nr)
   }
@@ -1470,7 +1467,7 @@ breeding.diploid <- function(population,
                                                                                  nrow = population$info$bv.nr))
           }
 
-          for(bven in setdiff(1:population$info$bv.nr, activ.trafo)){
+          for(bven in intersect(which(n.observation_temp>0), setdiff(1:population$info$bv.nr, activ.trafo))){
             if(population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]>=1){
               population$breeding[[gen]][[8+sex]][bven, nr.animal] <- (sqrt(sigma.e.rest) * rowMeans(population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[24]][,1:population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]]) +
                                                                          sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[23]] +
@@ -1478,7 +1475,7 @@ breeding.diploid <- function(population,
             }
 
           }
-          for(bven in intersect(1:population$info$bv.nr, activ.trafo)){
+          for(bven in intersect( which(n.observation_temp>0), intersect(1:population$info$bv.nr, activ.trafo))){
             if(population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]>=1){
               new_pheno <- (sqrt(sigma.e.rest) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[24]][,1:population$breeding[[gen]][[sex]][[nr.animal]][[15]][bven]])[bven,] +
                               (sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[gen]][[sex]][[nr.animal]][[23]])[bven] +
@@ -5535,9 +5532,16 @@ breeding.diploid <- function(population,
 
             for(bven in setdiff(1:population$info$bv.nr, activ.trafo)){
               if(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]>=1){
-                new.bv_approx[bven] <- (sqrt(sigma.e.rest) * rowMeans(population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]][,1:population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]]) +
-                                    sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] +
-                                    new.bv)[bven]
+
+                if(copy.individual && n.observation[bven]==0){
+                  new.bv_approx[bven] <- get.pheno(population, database = matrix(info.father[c(1,2,3,3)], nrow=1))[bven]
+                } else{
+                  new.bv_approx[bven] <- (sqrt(sigma.e.rest) * rowMeans(population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[24]][,1:population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]][bven]]) +
+                                            sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]] +
+                                            new.bv)[bven]
+                }
+
+
               }
 
             }
@@ -5548,7 +5552,12 @@ breeding.diploid <- function(population,
                   (sqrt(sigma.e.perm) * population$info$pheno.correlation %*% population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[23]])[bven] +
                   new.bv[bven]
 
-                new.bv_approx[bven] <- mean(population$info$phenotypic.transform.function[[bven]](new_pheno))
+                if(copy.individual && n.observation[bven]==0){
+                  new.bv_approx[bven] <- get.pheno(population, database = matrix(info.father[c(1,2,3,3)], nrow=1))[bven]
+                } else{
+                  new.bv_approx[bven] <- mean(population$info$phenotypic.transform.function[[bven]](new_pheno))
+                }
+
               }
             }
 

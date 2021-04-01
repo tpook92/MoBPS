@@ -60,7 +60,6 @@ breeding.diploid(
   praeimplantation = NULL,
   heritability = NULL,
   repeatability = NULL,
-  use.last.sigma.e = FALSE,
   save.recombination.history = FALSE,
   martini.selection = FALSE,
   BGLR.bve = FALSE,
@@ -366,8 +365,6 @@ breeding.diploid(
 \item{heritability}{Use sigma.e to obtain a certain heritability (default: NULL)}
 
 \item{repeatability}{Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)}
-
-\item{use.last.sigma.e}{If TRUE use the sigma.e used in the previous simulation (default: FALSE)}
 
 \item{save.recombination.history}{If TRUE store the time point of each recombination event}
 
