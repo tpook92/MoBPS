@@ -106,7 +106,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     if(length(real.bv.adds)>0){
 
 
-      if(!population$info$effect.p.add.same[bven]){
+      if(!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1]))){
         position <- population$info$effect.p.add[[bven]]
         neff <- nrow(real.bv.adds)
         take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]

@@ -50,6 +50,9 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
     }
     database <- cbind(database, start, end)
   }
+  if(length(database)>0 && ncol(database)==3){
+    database <- cbind(database, database[,3])
+  }
   if(length(cohorts)>0){
     database2 <- matrix(0L, nrow=length(cohorts), ncol=4)
     for(index in 1:length(cohorts)){
