@@ -10,7 +10,8 @@ get.geno(
   gen = NULL,
   cohorts = NULL,
   chromosomen = "all",
-  export.alleles = FALSE
+  export.alleles = FALSE,
+  non.genotyped.as.missing = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get.geno(
 \item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
+
+\item{non.genotyped.as.missing}{Set to TRUE to replace non-genotyped markers with NA}
 }
 \value{
 Genotype data for in gen/database/cohorts selected individuals

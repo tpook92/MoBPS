@@ -28,17 +28,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
+#' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @examples
 #' data(ex_pop)
 #' \donttest{get.pedmap(path=tempdir(), ex_pop, gen=2)}
 #' @return Ped and map-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all"){
+get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, non.genotyped.as.missing=FALSE){
 
 
-  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosomen=chromosomen, export.alleles=FALSE)
+  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
   if(length(path)==0){
     path <- "population"
@@ -55,6 +55,15 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
   mapfile[is.na(mapfile)] <- 0
   haplo1 <- t(haplo[,(1:(ncol(haplo)/2))*2-1])
   haplo2 <- t(haplo[,(1:(ncol(haplo)/2))*2])
+  if(non.genotyped.as.missing){
+
+    is_genotyped <- t(get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts))
+    if(sum(!is_genotyped)>0){
+      haplo1[!is_genotyped] <- "N"
+      haplo2[!is_genotyped] <- "N"
+    }
+
+  }
   ped <- cbind(haplo1, haplo2)
   ped <- ped[,c(0,ncol(haplo1))+ rep(1:ncol(haplo1), each=2)]
   ped[ped==0] <- "A"

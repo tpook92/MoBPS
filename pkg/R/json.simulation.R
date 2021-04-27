@@ -1213,6 +1213,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
     ################### Import genetic data  + major QTL import ####################
     {
+      founder_pedigree <- NULL
       if(!skip.population){
         path_list <- NULL
         phasing_list <- NULL
@@ -1508,6 +1509,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         majorp <- unique(majorp)
 
 
+        founder_pedigree <- diag((max(starts)-1) / 2)
+        prior <- 0
+
         for(subpop in 1:length(subpopulations)){
           if(sum(no_data==0 & founder_pop==subpopulation_info[subpop,1])>0){
             takes <- which(no_data==0 & founder_pop==subpopulation_info[subpop,1])
@@ -1623,13 +1627,16 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
             ntemp <- as.numeric(subpopulation_info[subpop,9])
             if(ntemp>0){
-              dataset_temp <- founder.simulation(nindi = as.numeric(subpopulation_info[subpop,7]),
-                                                 nsnp = 0,
-                                                 sex.quota = as.numeric(subpopulation_info[subpop,8]),
-                                                 n.gen = ntemp,
-                                                 nfinal = nfinal, verbose=FALSE,
-                                                 map = map[,1:4],
-                                                 freq = p_i[[subpop]])
+              dataset_temp1 <- founder.simulation(nindi = as.numeric(subpopulation_info[subpop,7]),
+                                                  nsnp = 0,
+                                                  sex.quota = as.numeric(subpopulation_info[subpop,8]),
+                                                  n.gen = ntemp,
+                                                  nfinal = nfinal, verbose=FALSE,
+                                                  map = map[,1:4],
+                                                  freq = p_i[[subpop]],
+                                                  big.output = TRUE)
+
+              dataset_temp <- dataset_temp1[[1]]
 
               if(subpopulation_info[subpop,10]=="TRUE"){
                 for(change_p in majorp){
@@ -1637,7 +1644,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                 }
               }
 
-              prior <- 0
+
             }
 
 
@@ -1645,6 +1652,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               # Integer * Integer > 2^32 --> NA! conversion to numerics
               take <- starts[index]:(starts[index+1]-1)
               input_type <- nodes[[founder[index]]]$`Genotype generation`
+
+              if(ntemp > 0){
+                founder_pedigree[take[(1:(length(take)/2)) *2]/2,take[(1:(length(take)/2)) *2]/2] <- dataset_temp[[4]][1:(length(take)/2)+prior, 1:(length(take)/2)+prior]
+              }
               if(input_type=="Random-sampling"){
                 if(ntemp>0){
                   dataset[,take] <- dataset_temp[,prior + 1:length(take)]
@@ -1695,6 +1706,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        miraculix.dataset = miraculix.dataset,
                                        chr.nr = map[,1], bp=map[,4], snp.name = map[,2],
                                        freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {map[,3]})
+
+        if(length(founder_pedigree)>0 && sum(founder_pedigree) > sum(diag(founder_pedigree))){
+          population <- add.founder.kinship(population, founder.kinship = founder_pedigree)
+        }
 
         # Cohort names
         gender_founder <- numeric(length(founder))
@@ -2023,37 +2038,34 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             nodes[[to_node]]$OGC <- TRUE
             if(length(edges[[index]]$'ogc_target')>0 || length(nodes[[to_node]]$ogc_cAc)==0){
               nodes[[to_node]]$ogc_target <- (edges[[index]]$'ogc_target')
-              nodes[[to_node]]$constrain <- numeric(7)
+              if(length( nodes[[to_node]]$constrain) == 0 ){
+                nodes[[to_node]]$constrain <- list()
+              }
+
 
               constrains <- list(edges[[index]]$'ogc_constrain1', edges[[index]]$'ogc_constrain2', edges[[index]]$'ogc_constrain3')
               constrains_value <- list(edges[[index]]$'ogc_constrain1_value', edges[[index]]$'ogc_constrain2_value', edges[[index]]$'ogc_constrain3_value')
               for(index in 1:3){
-                if(constrains[[index]]!="ub.BV"){
-                  nodes[[to_node]]$constrain[1] <- constrains_value[[index]]
+                if(constrains[[index]]=="ub.BV"){
+                  nodes[[to_node]]$constrain[[1]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="eq.BV"){
-                  nodes[[to_node]]$constrain[2] <- constrains_value[[index]]
+                if(constrains[[index]]=="eq.BV"){
+                  nodes[[to_node]]$constrain[[2]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="lb.BV"){
-                  nodes[[to_node]]$constrain[3] <- constrains_value[[index]]
+                if(constrains[[index]]=="lb.BV"){
+                  nodes[[to_node]]$constrain[[3]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="ub.sKin"){
-                  nodes[[to_node]]$constrain[4] <- constrains_value[[index]]
+                if(constrains[[index]]=="ub.sKin"){
+                  nodes[[to_node]]$constrain[[4]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="uniform"){
-                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
+                if(constrains[[index]]=="uniform"){
+                  nodes[[to_node]]$constrain[[5]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="uniform"){
-                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
+                if(constrains[[index]]=="lb.BV.increase"){
+                  nodes[[to_node]]$constrain[[6]] <- constrains_value[[index]]
                 }
-                if(constrains[[index]]!="uniform"){
-                  nodes[[to_node]]$constrain[5] <- constrains_value[[index]]
-                }
-                if(constrains[[index]]!="lb.BV.increase"){
-                  nodes[[to_node]]$constrain[6] <- constrains_value[[index]]
-                }
-                if(constrains[[index]]!="ub.sKin.increase"){
-                  nodes[[to_node]]$constrain[7] <- constrains_value[[index]]
+                if(constrains[[index]]=="ub.sKin.increase"){
+                  nodes[[to_node]]$constrain[[7]] <- constrains_value[[index]]
                 }
 
               }
@@ -3410,13 +3422,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
                                                  ogc = nodes[[groupnr]]$OGC,
                                                  ogc.target = nodes[[groupnr]]$ogc_target,
-                                                 ogc.ub.BV = nodes[[to_node]]$constrain[1],
-                                                 ogc.eq.BV = nodes[[to_node]]$constrain[2],
-                                                 ogc.lb.BV = nodes[[to_node]]$constrain[3],
-                                                 ogc.ub.sKin = nodes[[to_node]]$constrain[4],
-                                                 ogc.uniform = nodes[[to_node]]$constrain[5],
-                                                 ogc.lb.BV.increase = nodes[[to_node]]$constrain[6],
-                                                 ogc.ub.sKin.increase = nodes[[to_node]]$constrain[7],
+                                                 ogc.ub.BV = nodes[[groupnr]]$constrain[[1]],
+                                                 ogc.eq.BV = nodes[[groupnr]]$constrain[[2]],
+                                                 ogc.lb.BV = nodes[[groupnr]]$constrain[[3]],
+                                                 ogc.ub.sKin = nodes[[groupnr]]$constrain[[4]],
+                                                 ogc.uniform = nodes[[groupnr]]$constrain[[5]],
+                                                 ogc.lb.BV.increase = nodes[[groupnr]]$constrain[[6]],
+                                                 ogc.ub.sKin.increase = nodes[[groupnr]]$constrain[[7]],
                                                  repeat.mating = repeat.mating * nodes[[groupnr]]$repeat_mating,
                                                  repeat.mating.overwrite = FALSE,
                                                  max.offspring = nodes[[groupnr]]$max_offspring,
@@ -3805,6 +3817,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
+
 
 
 

@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Generation of the starting population
 #'
 #' Generation of the starting population
-#' @param pedigree Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optimal forth columns with earliest generations to generate)
+#' @param pedigree Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)
 #' @param plot Set to FALSE to not generate an overview of inbreeding and number of individuals over time
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
@@ -192,8 +192,10 @@ pedigree_position[avail,] <- cbind(1,founder_sex, 1:length(avail))
 pedigree_position[avail[founder_sex==1],3] <- 1:sum(founder_sex==1)
 pedigree_position[avail[founder_sex==2],3] <- 1:sum(founder_sex==2)
 
+empty <- 0
 
 while(length(avail)<n){
+
 
   fixed_temp <- matrix(0, nrow=n, ncol=7)
   temp1 <- temp1 + 1
@@ -209,7 +211,7 @@ while(length(avail)<n){
   for(index in (1:n)[-avail]){
     a <- which(pedigree[index,2]==p_there[,1])
     b <- which(pedigree[index,3]==p_there[,1])
-    if(length(a)==1 && length(b)==1 && pedigree[index,4]<=temp1){
+    if(length(a)==1 && length(b)==1 && pedigree[index,4]<=(temp1+empty)){
       poss[index] <- TRUE
       fixed_temp[index2,] <- c(p_there1[a,], p_there1[b,], pedigree[index,5]-1)
       if(pedigree[index,5]==1){
@@ -227,7 +229,12 @@ while(length(avail)<n){
   cat(paste0("Generation ",temp1,": ", index2-1, " individuals. (", sum(!there), " individuals remain)\n"))
   cat(paste0("of which ", indexm-1, "/", indexf-1, " are male / female.\n"))
 
-  fixed_breeding[[temp1]] <- fixed_temp[1:(index2-1),]
+  if(index2>1){
+    fixed_breeding[[temp1]] <- fixed_temp[1:(index2-1),,drop=FALSE]
+  } else{
+   temp1 <- temp1 -1
+   empty <- empty +1
+  }
 
   avail <- c(avail, which(poss))
   gen <- c(gen, rep(temp1, sum(poss)))
@@ -288,7 +295,9 @@ population <- creating.diploid(nindi = sum(gen==1), sex.s=founder_sex,
                                vcf.maxsnp=vcf.maxsnp)
 
 for(index in 2:length(fixed_breeding)){
-  population <- breeding.diploid(population, fixed.breeding = fixed_breeding[[index]], breeding.size = c(sum(fixed_breeding[[index]][,7]==0), sum(fixed_breeding[[index]][,7]==1)))
+  if(length(fixed_breeding[[index]])>0){
+    population <- breeding.diploid(population, fixed.breeding = fixed_breeding[[index]], breeding.size = c(sum(fixed_breeding[[index]][,7]==0), sum(fixed_breeding[[index]][,7]==1)))
+  }
 
 }
 

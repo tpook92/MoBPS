@@ -355,13 +355,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
   }
-  if(length(dataset)>0 && class(dataset)=="haplomatrix"){
+  if(length(dataset)>0 && class(dataset)  %in% "haplomatrix"){
     dataset <- list(dataset)
   }
-  if(length(dataset)>0 && class(dataset)=="data.frame"){
+  if(length(dataset)>0 && class(dataset)  %in% "data.frame"){
     dataset <- as.matrix(dataset)
   }
-  if(length(dataset)>0 && class(dataset)=="matrix" || length(vcf)>0){
+  if(length(dataset)>0 && class(dataset)  %in% "matrix" || length(vcf)>0){
     miraculix.dataset <- FALSE
   }
 
@@ -372,9 +372,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       for(index in 1:length(nsnp)){
         nsnp[index] <- sum(chr.nr==index)
       }
-    } else if(class(dataset)=="matrix" && nrow(dataset)>chr.nr){
+    } else if(class(dataset)  %in% "matrix" && nrow(dataset)>chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nrow(dataset)))
-    } else if(class(dataset)=="haplomatrix" && attr(dataset[[1]], "information")[2]==1){
+    } else if(class(dataset)  %in% "haplomatrix" && attr(dataset[[1]], "information")[2]==1){
       if(verbose) cat("Are you sure you want to generate a 1 SNP chromosome via miraculix?")
     }
 
@@ -658,7 +658,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
               }
             }
           } else{
-            if(class(dataset)=="haplomatrix"){
+            if(class(dataset)  %in% "haplomatrix"){
               snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
             } else{
               snpdata <- c(snpdata, nrow(dataset))
@@ -1089,32 +1089,61 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(length(is.maternal)==0){
         population$info$is.maternal <- rep(FALSE, bv.total)
       } else{
-        population$info$is.maternal <- rep(is.maternal, length.out = bv.total)
+        if(length(is.maternal)==bv.total){
+          population$info$is.maternal <- is.maternal
+        } else {
+          population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = bv.total - length(population$info$is.materal)))
+        }
+
       }
       if(length(is.paternal)==0){
         population$info$is.paternal <- rep(FALSE, bv.total)
       } else{
-        population$info$is.paternal <- rep(is.paternal, length.out = bv.total)
+        if(length(is.paternal)==bv.total){
+          population$info$is.paternal <- is.paternal
+        } else {
+          population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = bv.total - length(population$info$is.paternal)))
+        }
       }
 
+
+
       population$info$is.combi <- rep(FALSE, bv.total)
-      population$info$combi.weights  <- list()
+
 
       if(length(bve.mult.factor)==0){
         population$info$bve.mult.factor <- rep(1L, bv.total)
       } else{
-        population$info$bve.mult.factor <- bve.mult.factor
+
+        if(length(bve.mult.factor)==bv.total){
+          population$info$bve.mult.factor <- bve.mult.factor
+        } else {
+          population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = bv.total - length(population$info$bve.mult.factor)))
+        }
       }
+
       if(length(bve.poly.factor)==0){
         population$info$bve.poly.factor <- rep(1L, bv.total)
       } else{
-        population$info$bve.poly.factor <- bve.poly.factor
+
+        if(length(bve.poly.factor)==bv.total){
+          population$info$bve.poly.factor <- bve.poly.factor
+        } else {
+          population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = bv.total - length(population$info$bve.poly.factor)))
+        }
+
       }
       if(length(base.bv)==0){
         population$info$base.bv <- rep(100L, bv.total)
       } else{
-        population$info$base.bv <- base.bv
+
+        if(length(base.bv)==bv.total){
+          population$info$base.bv <- base.bv
+        } else {
+          population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = bv.total - length(population$info$base.bv)))
+        }
       }
+
 
 
     } else if(add.chromosome==TRUE){

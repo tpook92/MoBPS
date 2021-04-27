@@ -455,12 +455,21 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(is.maternal)==0){
     population$info$is.maternal <- rep(FALSE, bv.total)
   } else{
-    population$info$is.maternal <- rep(is.maternal, length.out = bv.total)
+    if(length(is.maternal)==bv.total){
+      population$info$is.maternal <- is.maternal
+    } else {
+      population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = bv.total - length(population$info$is.materal)))
+    }
+
   }
   if(length(is.paternal)==0){
     population$info$is.paternal <- rep(FALSE, bv.total)
   } else{
-    population$info$is.paternal <- rep(is.paternal, length.out = bv.total)
+    if(length(is.paternal)==bv.total){
+      population$info$is.paternal <- is.paternal
+    } else {
+      population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = bv.total - length(population$info$is.paternal)))
+    }
   }
 
 
@@ -471,17 +480,34 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(bve.mult.factor)==0){
     population$info$bve.mult.factor <- rep(1L, bv.total)
   } else{
-    population$info$bve.mult.factor <- bve.mult.factor
+
+    if(length(bve.mult.factor)==bv.total){
+      population$info$bve.mult.factor <- bve.mult.factor
+    } else {
+      population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = bv.total - length(population$info$bve.mult.factor)))
+    }
   }
+
   if(length(bve.poly.factor)==0){
     population$info$bve.poly.factor <- rep(1L, bv.total)
   } else{
-    population$info$bve.poly.factor <- bve.poly.factor
+
+    if(length(bve.poly.factor)==bv.total){
+      population$info$bve.poly.factor <- bve.poly.factor
+    } else {
+      population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = bv.total - length(population$info$bve.poly.factor)))
+    }
+
   }
   if(length(base.bv)==0){
     population$info$base.bv <- rep(100L, bv.total)
   } else{
-    population$info$base.bv <- base.bv
+
+    if(length(base.bv)==bv.total){
+      population$info$base.bv <- base.bv
+    } else {
+      population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = bv.total - length(population$info$base.bv)))
+    }
   }
 
 

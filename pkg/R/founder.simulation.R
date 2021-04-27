@@ -153,7 +153,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
 
   population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = verbose)
 
-  if(verbose){
+  if(display.progress){
     close(pb)
   }
 
@@ -183,6 +183,9 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
 
   haplo <- get.haplo(population, gen = nrow(population$info$size))
   map <- get.map(population)
+
+  storage.mode(haplo) <- "integer"
+
   if(big.output){
     pedigree <- kinship.exp.store(population, gen = nrow(population$info$size), depth.pedigree = depth.pedigree)
     return(list(haplo, map, population, pedigree))

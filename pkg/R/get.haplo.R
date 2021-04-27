@@ -28,13 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung der Haplotypen auf bestimmte Chromosomen (default: 1)
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
+#' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
 #' @examples
 #' data(ex_pop)
 #' haplo <- get.haplo(ex_pop, gen=2)
 #' @return Haplotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosomen="all", export.alleles=FALSE){
+get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosomen="all", export.alleles=FALSE, non.genotyped.as.missing=FALSE){
 
   if(length(chromosomen)==1 && chromosomen=="all"){
     subsetting <- FALSE
@@ -117,6 +118,14 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
     before <- before + nanimals*2
   }
 
+
+  if(non.genotyped.as.missing){
+    is_genotyped <- get.genotyped.snp(population, database = database)[relevant.snps,]
+    if(sum(!is_genotyped)>0){
+      data[,(1:(ncol(data)/2))*2-1][!is_genotyped] <- NA
+      data[,(1:(ncol(data)/2))*2][!is_genotyped] <- NA
+    }
+  }
 
   colnames(data) <- names
   rownames(data) <- population$info$snp.name[relevant.snps]

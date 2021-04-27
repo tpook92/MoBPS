@@ -28,13 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
+#' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
 #' @examples
 #' data(ex_pop)
 #' geno <- get.geno(ex_pop, gen=2)
 #' @return Genotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all", export.alleles=FALSE){
+get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all", export.alleles=FALSE, non.genotyped.as.missing=FALSE){
 
   if(length(chromosomen)==1 && chromosomen=="all"){
     subsetting <- FALSE
@@ -109,6 +110,13 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
       }
     }
     before <- before + nanimals
+  }
+
+  if(non.genotyped.as.missing){
+    is_genotyped <- get.genotyped.snp(population, database = database)[relevant.snps,]
+    if(sum(!is_genotyped)>0){
+      data[!is_genotyped] <- NA
+    }
   }
   colnames(data) <- names
   rownames(data) <- population$info$snp.name[relevant.snps]

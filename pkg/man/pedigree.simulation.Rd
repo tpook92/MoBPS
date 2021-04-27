@@ -78,7 +78,7 @@ pedigree.simulation(
 )
 }
 \arguments{
-\item{pedigree}{Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optimal forth columns with earliest generations to generate)}
+\item{pedigree}{Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)}
 
 \item{plot}{Set to FALSE to not generate an overview of inbreeding and number of individuals over time}
 

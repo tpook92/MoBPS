@@ -1211,9 +1211,9 @@ breeding.diploid <- function(population,
     population$info$effect.p.add.same <- rep(FALSE, population$info$bv.nr)
     if(population$info$real.bv.length[1]>1){
       for(index in 2:population$info$real.bv.length[1]){
-        if(length(population$info$effect.p.add[[index]]) == length(population$info$effect.p.add[[index-1]]) &&
+        if(length(population$info$effect.p.add)>=index && (length(population$info$effect.p.add[[index]]) == length(population$info$effect.p.add[[index-1]]) &&
            length(population$info$effect.p.add[[index]]) > 0 &&
-           prod(population$info$effect.p.add[[index]] == population$info$effect.p.add[[index-1]]) == 1){
+           prod(population$info$effect.p.add[[index]] == population$info$effect.p.add[[index-1]]) == 1)){
           population$info$effect.p.add.same[index] <- TRUE
         }
       }
@@ -1423,9 +1423,13 @@ breeding.diploid <- function(population,
     for(index in 1:nrow(genotyped.database)){
       if((genotyped.database[index,4]-genotyped.database[index,3])>=0){
         for(index2 in genotyped.database[index,3]:genotyped.database[index,4]){
-          population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[16]] <- stats::rbinom(1, 1, share.genotyped)
-          population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]] <-
-            c(population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]], genotyped.array)
+          temp1 <- stats::rbinom(1, 1, genotyped.share)
+          population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[16]] <- max(population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[16]], stats::rbinom(1, 1, genotyped.share))
+          if(temp1==1){
+            population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]] <-
+              c(population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]], genotyped.array)
+          }
+
         }
       }
     }

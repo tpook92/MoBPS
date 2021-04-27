@@ -28,13 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
+#' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @examples
 #' data(ex_pop)
 #' \donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
 #' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all"){
+get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all", non.genotyped.as.missing=FALSE){
 
   haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosomen=chromosomen, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
@@ -57,6 +58,13 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   alt <- population$info$snp.base[2,]
 
   vcfgeno <- matrix(paste0(haplo[,(1:(ncol(haplo)/2))*2], "|", haplo[,(1:(ncol(haplo)/2))*2-1]), ncol=ncol(haplo)/2)
+
+  is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts)
+
+  if(sum(!is_genotyped)>0){
+    vcfgeno[!is_genotyped] <- "./."
+  }
+
 
   ref[ref==0] <- "A"
   ref[ref==1] <- "C"

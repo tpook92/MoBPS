@@ -10,7 +10,8 @@ get.vcf(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  chromosomen = "all"
+  chromosomen = "all",
+  non.genotyped.as.missing = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get.vcf(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
+
+\item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 }
 \value{
 VCF-file for in gen/database/cohorts selected individuals
