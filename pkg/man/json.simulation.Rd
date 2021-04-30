@@ -2,7 +2,7 @@
 % Please edit documentation in R/json.simulation.R
 \name{json.simulation}
 \alias{json.simulation}
-\title{Generation of the starting population}
+\title{Simulation of a breeding program based on a JSON-file from MoBPSweb}
 \usage{
 json.simulation(
   file = NULL,
@@ -63,7 +63,7 @@ json.simulation(
 Population-list
 }
 \description{
-Generation of the starting population
+Function to simulate a breeding program based on a JSON-file from MoBPSweb
 }
 \examples{
 data(ex_json)

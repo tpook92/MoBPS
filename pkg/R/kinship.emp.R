@@ -99,9 +99,9 @@ kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, 
   return(kinship)
 }
 
-#' Empirical kinship
+#' Approximate empirical kinship
 #'
-#' Function to compute empirical kinship for a set of individuals)
+#' Function to compute empirical kinship for a set of individuals (not all pairs of individuals are evaluated)
 #' @param animals List of animals to compute kinship for
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export

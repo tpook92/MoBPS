@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.selectionbve.R
 \name{get.selectionbve}
 \alias{get.selectionbve}
-\title{Export underlying selection index}
+\title{Export derived breeding values based on the selection index}
 \usage{
 get.selectionbve(population, database = NULL, gen = NULL, cohorts = NULL)
 }
@@ -19,7 +19,7 @@ get.selectionbve(population, database = NULL, gen = NULL, cohorts = NULL)
 Last applied selection index for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export underlying selection index
+Function to export last breeding values based on the selection index
 }
 \examples{
 data(ex_pop)

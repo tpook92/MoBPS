@@ -29,7 +29,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param remutation.rate Remutation rate in each marker (default: 10^-5)
 #' @param recombination.rate Average number of recombination per 1 length unit (default: 1M)
 #' @param recom.f.indicator Use step function for recombination map (transform snp.positions if possible instead)
-#' @param recom.f.polynom Polynomical function to determine expected number of recombinations (transform snp.positions if possible instead)
 #' @param duplication.rate Share of recombination points with a duplication (default: 0 - DEACTIVATED)
 #' @param duplication.length Average length of a duplication (Exponentially distributed)
 #' @param duplication.recombination Average number of recombinations per 1 length uit of duplication (default: 1)
@@ -38,15 +37,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nr.edits Number of edits to perform per individual
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
+#' @examples
+#' data(ex_pop)
+#' child_gamete <- breeding.intern(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
+#'                                 population = ex_pop)
 #' @return Inherited parent gamete
 #' @export
-
-breeding.intern <- function(info.parent, parent,  population , mutation.rate, remutation.rate, recombination.rate,
-                            recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
-                            duplication.recombination, delete.same.origin=FALSE,
-                            gene.editing=gene.editing, nr.edits= nr.edits,
+#'
+breeding.intern <- function(info.parent, parent,  population , mutation.rate = 10^-5, remutation.rate = 10^-5, recombination.rate=1,
+                            recom.f.indicator=NULL, duplication.rate=0, duplication.length=0.01,
+                            duplication.recombination=1, delete.same.origin=FALSE,
+                            gene.editing=FALSE, nr.edits= 0,
                             gen.architecture=0,
-                            decodeOriginsU=decodeOriginsR){
+                            decodeOriginsU=MoBPS::decodeOriginsR){
   n_snps <- sum(population$info$snp)
   if(gen.architecture==0){
     length.total <- population$info$length.total
@@ -86,8 +89,6 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate, re
     # Fuer Polynom Numerische Bestimmung anstrengend?
     recom.f.indicator <- rbind(recom.f.indicator, c(length.total[n.chromosome+1],0))
     indicator.vol <- sum((recom.f.indicator[-1,1] -recom.f.indicator[-nrow(recom.f.indicator),1])*recom.f.indicator[-nrow(recom.f.indicator),2])
-#    polynom.vol <- cumprod(c(1,rep(length.total[n.chromosome+1], length(recom.f.polynom)))) *c(0,recom.f.polynom)
-#    polynom.vol <- sum(polynom.vol * c(0,(1/(1:(length(recom.f.polynom))))))
     recom.vol <- indicator.vol #+ polynom.vol
   } else{
     recom.vol <- length.total[n.chromosome+1]*recombination.rate

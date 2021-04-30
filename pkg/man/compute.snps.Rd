@@ -38,9 +38,9 @@ compute.snps(
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 
-\item{bit.storing}{Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{nbits}{Bits available in RekomBre-bit-storing}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 }
@@ -49,4 +49,8 @@ haplotypes for the selected individual
 }
 \description{
 Internal function for the computation of genotypes & haplotypes
+}
+\examples{
+data(ex_pop)
+compute.snps(ex_pop, gen=1, sex=1, nr=1)
 }

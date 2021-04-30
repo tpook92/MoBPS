@@ -21,3 +21,7 @@ Info list [[1]] phenotypes [[2]] genomic values [[3]] Z [[4/5/6]] additive/epist
 \description{
 Function to extract bv/pheno/geno of selected individuals
 }
+\examples{
+data(ex_pop)
+get.infos(ex_pop, gen=2)
+}

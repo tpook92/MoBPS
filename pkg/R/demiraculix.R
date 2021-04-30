@@ -24,6 +24,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Internal function to decode all genotypes to non-miraculix objects
 #' @param population Population list
 #' @return Population list
+#' @examples
+#' # This is only relevant with the package miraculix is installed and used
+#' population <- creating.diploid(nsnp=100, nindi=50)
+#' \donttest{population <- demiraculix(population)}
 #' @export
 
 demiraculix <- function(population){

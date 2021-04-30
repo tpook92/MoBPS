@@ -31,7 +31,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param remutation.rate windows parallel internal test
 #' @param recombination.rate windows parallel internal test
 #' @param recom.f.indicator windows parallel internal test
-#' @param recom.f.polynom windows parallel internal test
 #' @param duplication.rate windows parallel internal test
 #' @param duplication.length windows parallel internal test
 #' @param duplication.recombination windows parallel internal test
@@ -51,11 +50,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dh.sex windows parallel internal test
 #' @param n.observation windows parallel internal test
 #' @return Offspring individual
-#' @export
 
 generation.individual <- function(indexb, population, info_father_list, info_mother_list,
                                   copy.individual, mutation.rate, remutation.rate, recombination.rate,
-                                  recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                  recom.f.indicator, duplication.rate, duplication.length,
                                   duplication.recombination, delete.same.origin,
                                   gene.editing, nr.edits, gen.architecture.m, gen.architecture.f,
                                   decodeOriginsU, current.gen, save.recombination.history, new.bv.child,
@@ -76,7 +74,7 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
   } else{
     child1 <- breeding.intern(info.father, father, population,
                               mutation.rate, remutation.rate, recombination.rate,
-                              recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                              recom.f.indicator, duplication.rate, duplication.length,
                               duplication.recombination, delete.same.origin=delete.same.origin,
                               gene.editing=gene.editing, nr.edits= nr.edits,
                               gen.architecture=gen.architecture.m,
@@ -84,7 +82,7 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
 
     child2 <- breeding.intern(info.mother, mother, population,
                               mutation.rate, remutation.rate, recombination.rate,
-                              recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                              recom.f.indicator, duplication.rate, duplication.length,
                               duplication.recombination, delete.same.origin=delete.same.origin,
                               gene.editing=gene.editing , nr.edits= nr.edits,
                               gen.architecture=gen.architecture.f,

@@ -24,6 +24,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' R-Version of the internal bitwise-coding of origins
 #' @param M Origins matrix
 #' @return Bit-wise coded origins
+#' @examples
+#' codeOriginsR(cbind(1,1,1,1))
+#' @export
 
 codeOriginsR <- function(M){
   P <- as.integer(colSums(t(M-1) * c(2^26,2^25,2^3,1)))
@@ -34,9 +37,13 @@ codeOriginsR <- function(M){
 #'
 #' R-Version of the internal bitwise-decoding of origins
 #' @param P coded origins vector
-#' @param row row
+#' @param row row to decode
 #' @return de-coded origins
-
+#' @examples
+#' decodeOriginsR(0L)
+#' @export
+#'
+#'
 decodeOriginsR <- function(P, row){
   activ <- P[row]
   gen <- floor(activ/(2^26))+1

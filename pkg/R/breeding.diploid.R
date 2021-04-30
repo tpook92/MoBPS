@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param relative.selection Use best.selection.ratio instead!
 #' @param recom.f.indicator Use step function for recombination map (transform snp.positions if possible instead)
 #' @param add.gen Generation you want to add the new individuals to (default: New generation)
-#' @param recom.f.polynom Polynomical function to determine expected number of recombinations (transform snp.positions if possible instead)
 #' @param duplication.rate Share of recombination points with a duplication (default: 0 - DEACTIVATED)
 #' @param duplication.length Average length of a duplication (Exponentially distributed)
 #' @param duplication.recombination Average number of recombinations per 1 length uit of duplication (default: 1)
@@ -296,7 +295,6 @@ breeding.diploid <- function(population,
             class.f = 0,
             add.gen = 0,
             recom.f.indicator = NULL,
-            recom.f.polynom = NULL,
             duplication.rate = 0,
             duplication.length = 0.01,
             duplication.recombination = 1,
@@ -2244,7 +2242,7 @@ breeding.diploid <- function(population,
       } else{
         Zt <- Zt[-to_remove,]
       }
-      cat(paste0(sum(population$info$snp) - length(to_remove), " markers survived filtering for BVE.\n"))
+      if(verbose) cat(paste0(sum(population$info$snp) - length(to_remove), " markers survived filtering for BVE.\n"))
 
     }
 
@@ -4749,7 +4747,7 @@ breeding.diploid <- function(population,
                                            child <- generation.individual(indexb,
                                                                           population, info_father_list, info_mother_list,
                                                                           copy.individual, mutation.rate, remutation.rate, recombination.rate,
-                                                                          recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                          recom.f.indicator, duplication.rate, duplication.length,
                                                                           duplication.recombination, delete.same.origin,
                                                                           (gene.editing.offspring * gene.editing.offspring.sex[1]), nr.edits,
                                                                           gen.architecture.m, gen.architecture.f, decodeOriginsU,
@@ -4769,7 +4767,7 @@ breeding.diploid <- function(population,
           new_animal <- parallel::mclapply(activ_stuff, function(x) generation.individual(x,
                                                                                 population, info_father_list, info_mother_list,
                                                                                 copy.individual, mutation.rate, remutation.rate, recombination.rate,
-                                                                                recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                                                                recom.f.indicator, duplication.rate, duplication.length,
                                                                                 duplication.recombination, delete.same.origin,
                                                                                 (gene.editing.offspring * gene.editing.offspring.sex[1]), nr.edits,
                                                                                 gen.architecture.m, gen.architecture.f, decodeOriginsU,
@@ -5196,7 +5194,7 @@ breeding.diploid <- function(population,
       } else{
         child1 <- breeding.intern(info.father, father, population,
                                   mutation.rate, remutation.rate, recombination.rate,
-                                  recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                  recom.f.indicator, duplication.rate, duplication.length,
                                   duplication.recombination, delete.same.origin=delete.same.origin,
                                   gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
                                   gen.architecture=gen.architecture.m,
@@ -5204,7 +5202,7 @@ breeding.diploid <- function(population,
 
         child2 <- breeding.intern(info.mother, mother, population,
                                   mutation.rate, remutation.rate, recombination.rate,
-                                  recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                  recom.f.indicator, duplication.rate, duplication.length,
                                   duplication.recombination, delete.same.origin=delete.same.origin,
                                   gene.editing=(gene.editing.offspring * gene.editing.offspring.sex[1]) , nr.edits= nr.edits,
                                   gen.architecture=gen.architecture.f,
@@ -5246,7 +5244,7 @@ breeding.diploid <- function(population,
           } else{
             child1 <- breeding.intern(info.father, father, population,
                                       mutation.rate, remutation.rate, recombination.rate,
-                                      recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                      recom.f.indicator, duplication.rate, duplication.length,
                                       duplication.recombination, delete.same.origin=delete.same.origin,
                                       gene.editing=gene.editing, nr.edits= nr.edits,gen.architecture=gen.architecture.m,
                                       decodeOriginsU=decodeOriginsU)
@@ -5278,7 +5276,7 @@ breeding.diploid <- function(population,
           } else{
             child2 <- breeding.intern(info.mother, mother, population,
                                       mutation.rate, remutation.rate, recombination.rate,
-                                      recom.f.indicator, recom.f.polynom, duplication.rate, duplication.length,
+                                      recom.f.indicator, duplication.rate, duplication.length,
                                       duplication.recombination, delete.same.origin=delete.same.origin,
                                       gene.editing=gene.editing, nr.edits= nr.edits,
                                       gen.architecture=gen.architecture.f, decodeOriginsU=decodeOriginsU)

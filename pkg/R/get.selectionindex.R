@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export underlying selection index
+#' Export underlying last used selection index
 #'
-#' Function to export underlying selection index
+#' Function to export last used selection index (mostly relevant for Miesenberger 1997 stuff)
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)

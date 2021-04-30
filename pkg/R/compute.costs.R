@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param interest.rate Applied yearly interest rate
 #' @param base.gen Base generation (application of interest rate)
+#' @examples
 #' data(ex_pop)
 #' compute.costs(ex_pop, gen=1:5)
 #' @return Cost-table for selected gen/database/cohorts of a population-list

@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export underlying phenotypes
+#' Export underlying number of observations per phenotype
 #'
-#' Function to export underlying phenotypes
+#' Function to export the number of observation of each underlying phenotype
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)

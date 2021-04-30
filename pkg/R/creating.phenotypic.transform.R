@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Calculate breeding values
+#' Create a phenotypic transformation
 #'
-#' Internal function to calculate the breeding value of a given individual
+#' Function to perform create a transformation of phenotypes
 #' @param population Population list
 #' @param phenotypic.transform.function Phenotypic transformation to apply
 #' @param trait Trait for which a transformation is to be applied

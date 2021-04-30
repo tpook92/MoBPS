@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sort Set to TRUE to sort individuals according to contributes from the first dimension
 #' @param sort.cutoff Skip individuals with contributions under this threshold (and use next dimension instead)
 #' data(ex_pop)
-#' get.admixture(ex_pop, gen=4:6)
+#' get.admixture(ex_pop, gen=4:6, d=2, sort=TRUE)
 #' @return Matrix with admixture proportion
 #' @export
 

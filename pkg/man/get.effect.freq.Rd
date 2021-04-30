@@ -23,6 +23,13 @@ get.effect.freq(
 
 \item{sort}{Set to FALSE to not sort markers according to position on the genome}
 }
+\value{
+Matrix with allele frequencies in the QTLs
+}
 \description{
 Function to compute marker frequency in QTL-markers
+}
+\examples{
+data(ex_pop)
+get.effect.freq(ex_pop, gen=1)
 }

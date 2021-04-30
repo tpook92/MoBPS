@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' gen/database/cohorts conversion
+#' Detection of parental/child nodes
 #'
-#' Function to derive a database based on gen/database/cohorts
+#' Internal function to extract parental/child node of an edge
 #' @param edges Edges of the json-file generated via the web-interface
 #' @return Matrix of Parent/Child-nodes for the considered edges
 

@@ -35,9 +35,9 @@ calculate.bv(
 
 \item{store.effect.freq}{If TRUE store the allele frequency of effect markers per generation}
 
-\item{bit.storing}{Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{nbits}{Bits available in RekomBre-bit-storing}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 }
@@ -46,4 +46,8 @@ calculate.bv(
 }
 \description{
 Internal function to calculate the breeding value of a given individual
+}
+\examples{
+data(ex_pop)
+calculate.bv(ex_pop, gen=1, sex=1, nr=1, activ_bv = 1)
 }

@@ -15,3 +15,6 @@ Bit-wise coded origins
 \description{
 R-Version of the internal bitwise-coding of origins
 }
+\examples{
+codeOriginsR(cbind(1,1,1,1))
+}

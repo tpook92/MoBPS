@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.selectionindex.R
 \name{get.selectionindex}
 \alias{get.selectionindex}
-\title{Export underlying selection index}
+\title{Export underlying last used selection index}
 \usage{
 get.selectionindex(population, database = NULL, gen = NULL, cohorts = NULL)
 }
@@ -19,7 +19,7 @@ get.selectionindex(population, database = NULL, gen = NULL, cohorts = NULL)
 Last applied selection index for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export underlying selection index
+Function to export last used selection index (mostly relevant for Miesenberger 1997 stuff)
 }
 \examples{
 data(ex_pop)

@@ -21,14 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 .onAttach <- function(libname, pkgname) {
 
-  #version_t <- as.numeric(as.Date("2020-05-12"))
-  #today_t <- as.numeric(Sys.Date())
 
     packageStartupMessage(
 "#############################################################
 ############ Modular Breeding Program Simulator #############
 #############################################################
-################ Version: 1.6.35 (26-04-2021) ###############
+################ Version: 1.6.36 (29-04-2021) ###############
 ######## To update to the most recent stable version: #######
 ## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##
 #############################################################

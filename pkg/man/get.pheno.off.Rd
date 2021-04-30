@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.pheno.off.R
 \name{get.pheno.off}
 \alias{get.pheno.off}
-\title{Export underlying phenotypes}
+\title{Export underlying offspring phenotypes}
 \usage{
 get.pheno.off(population, database = NULL, gen = NULL, cohorts = NULL)
 }

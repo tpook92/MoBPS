@@ -100,9 +100,9 @@ founder.simulation(
 
 \item{position.scaling}{Manual scaling of snp.position}
 
-\item{bit.storing}{Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{nbits}{Bits available in RekomBre-bit-storing}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{randomSeed}{Set random seed of the process}
 
@@ -124,4 +124,7 @@ founder.simulation(
 }
 \description{
 Function to generate founder genotypes
+}
+\examples{
+population <- founder.simulation(nindi=100, nsnp=1000, n.gen=5)
 }

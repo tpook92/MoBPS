@@ -19,16 +19,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Add a genotyping array
+#' Add a trait as a linear combination of other traits
 #'
-#' Function to add a genotyping array for the population
+#' Function to create an additional trait that is the results of a linear combination of the other traits
 #' @param population population list
 #' @param trait trait nr. for which to implement a combination of other traits
 #' @param combi.weights Weights (only linear combinations of other traits are allowed!)
 #' @param trait.name  Name of the trait generated
 #' @return Population list
+#' @examples
+#' data(ex_pop)
+#' population <- creating.trait(ex_pop, n.additive = 100)
+#' population <- add.combi(population, trait = 3, combi.weights = c(1,5))
+#' @return Population list
 #' @export
-
+#'
 add.combi <- function(population, trait, combi.weights, trait.name = NULL){
 
   if(trait > population$info$bv.nr){

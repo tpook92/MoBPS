@@ -19,14 +19,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Add a genotyping array
+#' Add a relationship matrix for founder individuals
 #'
-#' Function to add a genotyping array for the population
+#' Function to relationship matrix for founder individuals that is used for any calculation of the pedigree
 #' @param population population list
 #' @param founder.kinship Default is to use vanRaden relationship. Alternative is to enter a pedigree-matrix (order of individuals is first male then female)
 #' @param gen Generation for which to enter the pedigree-matrix
 #' @examples
-#' 1+1 # to.be.entered
+#' data(ex_pop)
+#' population <- add.founder.kinship(ex_pop)
 #' @return Population list
 #' @export
 

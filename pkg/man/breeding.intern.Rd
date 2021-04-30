@@ -8,19 +8,18 @@ breeding.intern(
   info.parent,
   parent,
   population,
-  mutation.rate,
-  remutation.rate,
-  recombination.rate,
-  recom.f.indicator,
-  recom.f.polynom,
-  duplication.rate,
-  duplication.length,
-  duplication.recombination,
+  mutation.rate = 10^-5,
+  remutation.rate = 10^-5,
+  recombination.rate = 1,
+  recom.f.indicator = NULL,
+  duplication.rate = 0,
+  duplication.length = 0.01,
+  duplication.recombination = 1,
   delete.same.origin = FALSE,
-  gene.editing = gene.editing,
-  nr.edits = nr.edits,
+  gene.editing = FALSE,
+  nr.edits = 0,
   gen.architecture = 0,
-  decodeOriginsU = decodeOriginsR
+  decodeOriginsU = MoBPS::decodeOriginsR
 )
 }
 \arguments{
@@ -37,8 +36,6 @@ breeding.intern(
 \item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
 
 \item{recom.f.indicator}{Use step function for recombination map (transform snp.positions if possible instead)}
-
-\item{recom.f.polynom}{Polynomical function to determine expected number of recombinations (transform snp.positions if possible instead)}
 
 \item{duplication.rate}{Share of recombination points with a duplication (default: 0 - DEACTIVATED)}
 
@@ -61,4 +58,9 @@ Inherited parent gamete
 }
 \description{
 Internal function to simulate one meiosis
+}
+\examples{
+data(ex_pop)
+child_gamete <- breeding.intern(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
+                                population = ex_pop)
 }

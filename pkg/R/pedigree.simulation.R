@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Generation of the starting population
+#' Simulation of a given pedigree
 #'
-#' Generation of the starting population
+#' Function to simulate a given pedigree
 #' @param pedigree Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)
 #' @param plot Set to FALSE to not generate an overview of inbreeding and number of individuals over time
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
@@ -37,8 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param change.order If TRUE sort markers according to given marker positions
 #' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
-#' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in RekomBre-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
@@ -94,7 +94,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' @param enter.bv Internal parameter
 #' @examples
-#' population <- creating.diploid(nsnp=1000, nindi=100)
+#' pedigree <- matrix(c(1,0,0,
+#' 2,0,0,
+#' 3,0,0,
+#' 4,1,2,
+#' 5,1,3,
+#' 6,1,3,
+#' 7,1,3,
+#' 8,4,6,
+#' 9,4,7), ncol=3, byrow=TRUE)
+#' population <- pedigree.simulation(pedigree, nsnp=1000)
 #' @return Population-list
 #' @export
 
@@ -161,163 +170,167 @@ pedigree.simulation <- function(pedigree, plot=TRUE,
   }
 
 
-copies <- duplicated(pedigree[,1])
-if(sum(copies)>0){
-  pedigree <- pedigree[!copies,]
-}
-pedigree[is.na(pedigree)] <- 0
-n <- nrow(pedigree)
-is_founder <- rep(FALSE, n)
-
-for(index in 1:n){
-  if(sum(pedigree[index,2]==pedigree[,1])==0 || sum(pedigree[index,3]==pedigree[,1])==0){
-    is_founder[index] <- TRUE
+  copies <- duplicated(pedigree[,1])
+  if(sum(copies)>0){
+    pedigree <- pedigree[!copies,]
   }
-}
+  pedigree[is.na(pedigree)] <- 0
+  n <- nrow(pedigree)
+  is_founder <- rep(FALSE, n)
 
-avail <- which(is_founder)
-founder_sex <- pedigree[avail,5]
-
-cat(paste0(length(avail), " individuals were identified as founders.\n"))
-cat(paste0("of which ", sum(founder_sex==1), "/", sum(founder_sex==2), " are male / female.\n"))
-there <- rep(FALSE, n)
-gen <- rep(1, length(avail))
-
-temp1 <- 1
-
-fixed_breeding <- list()
-
-pedigree_position <- matrix(0, nrow=nrow(pedigree), ncol=3)
-pedigree_position[avail,] <- cbind(1,founder_sex, 1:length(avail))
-pedigree_position[avail[founder_sex==1],3] <- 1:sum(founder_sex==1)
-pedigree_position[avail[founder_sex==2],3] <- 1:sum(founder_sex==2)
-
-empty <- 0
-
-while(length(avail)<n){
-
-
-  fixed_temp <- matrix(0, nrow=n, ncol=7)
-  temp1 <- temp1 + 1
-  there[avail] <- TRUE
-  p_there <- pedigree[avail,1:3]
-  p_there1 <- pedigree_position[avail,]
-
-  poss <- rep(FALSE, n)
-  index2 <- 1
-  indexf <- 1
-  indexm <- 1
-
-  for(index in (1:n)[-avail]){
-    a <- which(pedigree[index,2]==p_there[,1])
-    b <- which(pedigree[index,3]==p_there[,1])
-    if(length(a)==1 && length(b)==1 && pedigree[index,4]<=(temp1+empty)){
-      poss[index] <- TRUE
-      fixed_temp[index2,] <- c(p_there1[a,], p_there1[b,], pedigree[index,5]-1)
-      if(pedigree[index,5]==1){
-        pedigree_position[index,1:3] <- c(temp1, 1, indexm)
-        indexm <- indexm + 1
-      } else{
-        pedigree_position[index,1:3] <- c(temp1, 2, indexf)
-        indexf <- indexf +1
-      }
-
-
-      index2 <- index2 +1
+  for(index in 1:n){
+    if(sum(pedigree[index,2]==pedigree[,1])==0 || sum(pedigree[index,3]==pedigree[,1])==0){
+      is_founder[index] <- TRUE
     }
   }
-  cat(paste0("Generation ",temp1,": ", index2-1, " individuals. (", sum(!there), " individuals remain)\n"))
-  cat(paste0("of which ", indexm-1, "/", indexf-1, " are male / female.\n"))
 
-  if(index2>1){
-    fixed_breeding[[temp1]] <- fixed_temp[1:(index2-1),,drop=FALSE]
+  avail <- which(is_founder)
+  founder_sex <- pedigree[avail,5]
+
+  if(verbose) cat(paste0(length(avail), " individuals were identified as founders.\n"))
+  if(verbose) cat(paste0("of which ", sum(founder_sex==1), "/", sum(founder_sex==2), " are male / female.\n"))
+  there <- rep(FALSE, n)
+  gen <- rep(1, length(avail))
+
+  temp1 <- 1
+
+  fixed_breeding <- list()
+
+  pedigree_position <- matrix(0, nrow=nrow(pedigree), ncol=3)
+  pedigree_position[avail,] <- cbind(1,founder_sex, 1:length(avail))
+  pedigree_position[avail[founder_sex==1],3] <- 1:sum(founder_sex==1)
+  pedigree_position[avail[founder_sex==2],3] <- 1:sum(founder_sex==2)
+
+  empty <- 0
+
+  while(length(avail)<n){
+
+
+    fixed_temp <- matrix(0, nrow=n, ncol=7)
+    temp1 <- temp1 + 1
+    there[avail] <- TRUE
+    p_there <- pedigree[avail,1:3]
+    p_there1 <- pedigree_position[avail,]
+
+    poss <- rep(FALSE, n)
+    index2 <- 1
+    indexf <- 1
+    indexm <- 1
+
+    for(index in (1:n)[-avail]){
+      a <- which(pedigree[index,2]==p_there[,1])
+      b <- which(pedigree[index,3]==p_there[,1])
+      if(length(a)==1 && length(b)==1 && pedigree[index,4]<=(temp1+empty)){
+        poss[index] <- TRUE
+        fixed_temp[index2,] <- c(p_there1[a,], p_there1[b,], pedigree[index,5]-1)
+        if(pedigree[index,5]==1){
+          pedigree_position[index,1:3] <- c(temp1, 1, indexm)
+          indexm <- indexm + 1
+        } else{
+          pedigree_position[index,1:3] <- c(temp1, 2, indexf)
+          indexf <- indexf +1
+        }
+
+
+        index2 <- index2 +1
+      }
+    }
+    if(verbose) cat(paste0("Generation ",temp1,": ", index2-1, " individuals. (", sum(!there), " individuals remain)\n"))
+    if(verbose) cat(paste0("of which ", indexm-1, "/", indexf-1, " are male / female.\n"))
+
+    if(index2>1){
+      fixed_breeding[[temp1]] <- fixed_temp[1:(index2-1),,drop=FALSE]
+    } else{
+     temp1 <- temp1 -1
+     empty <- empty +1
+    }
+
+    avail <- c(avail, which(poss))
+    gen <- c(gen, rep(temp1, sum(poss)))
+
+  }
+
+  population <- creating.diploid(nindi = sum(gen==1), sex.s=founder_sex,
+                                 dataset=dataset, vcf=vcf, chr.nr=chr.nr, bp=bp, snp.name=snp.name,
+                                 hom0=hom0, hom1=hom1, bpcm.conversion=bpcm.conversion,
+                                 nsnp=nsnp, freq=freq,
+                                 chromosome.length=chromosome.length,length.before=length.before,
+                                 length.behind=length.behind,
+                                 real.bv.add=real.bv.add, real.bv.mult=real.bv.mult,
+                                 real.bv.dice=real.bv.dice, snps.equidistant=snps.equidistant,
+                                 change.order=change.order, bv.total=bv.total, polygenic.variance=polygenic.variance,
+                                 bve.mult.factor=bve.mult.factor, bve.poly.factor=bve.poly.factor,
+                                 base.bv=base.bv, add.chromosome.ends=add.chromosome.ends,
+                                 new.phenotype.correlation=new.phenotype.correlation,
+                                 new.residual.correlation = new.residual.correlation,
+                                 new.breeding.correlation=new.breeding.correlation,
+                                 add.architecture=add.architecture, snp.position=snp.position,
+                                 position.scaling=position.scaling,
+                                 bit.storing=bit.storing,
+                                 nbits=nbits, randomSeed=randomSeed,
+                                 miraculix=miraculix,
+                                 miraculix.dataset=miraculix.dataset,
+                                 n.additive=n.additive,
+                                 n.dominant=n.dominant,
+                                 n.qualitative=n.qualitative,
+                                 n.quantitative=n.quantitative,
+                                 var.additive.l=var.additive.l,
+                                 var.dominant.l=var.dominant.l,
+                                 var.qualitative.l=var.qualitative.l,
+                                 var.quantitative.l=var.quantitative.l,
+                                 exclude.snps=exclude.snps,
+                                 replace.real.bv=replace.real.bv,
+                                 shuffle.traits=shuffle.traits,
+                                 shuffle.cor=shuffle.cor,
+                                 skip.rest=skip.rest,
+                                 enter.bv=enter.bv,
+                                 name.cohort=name.cohort,
+                                 template.chip=template.chip,
+                                 beta.shape1=beta.shape1,
+                                 beta.shape2=beta.shape2,
+                                 time.point=time.point,
+                                 creating.type=creating.type,
+                                 trait.name=trait.name,
+                                 share.genotyped=share.genotyped,
+                                 genotyped.s=genotyped.s,
+                                 map=map,
+                                 remove.invalid.qtl=remove.invalid.qtl,
+                                 verbose=verbose,
+                                 bv.standard=bv.standard,
+                                 mean.target=mean.target,
+                                 var.target=var.target,
+                                 is.maternal = is.maternal,
+                                 is.paternal = is.paternal,
+                                 vcf.maxsnp=vcf.maxsnp)
+
+  for(index in 2:length(fixed_breeding)){
+    if(length(fixed_breeding[[index]])>0){
+      population <- breeding.diploid(population, fixed.breeding = fixed_breeding[[index]], breeding.size = c(sum(fixed_breeding[[index]][,7]==0), sum(fixed_breeding[[index]][,7]==1)))
+    }
+
+  }
+
+
+  if(plot){
+    graphics::par(mfrow=c(1,2))
+
+    oldpar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(oldpar))
+
+    inbreeding <- numeric(length(fixed_breeding))
+    for(index in 1:length(fixed_breeding)){
+      inbreeding[index] <- kinship.emp.fast(population = population, gen=index, ibd.obs = 0, hbd.obs = population$info$size[index,1])[2]
+    }
+    plot(((inbreeding-0.5) *2), col="red", type="l", lwd=2, ylab="inbreeding", xlab="generation")
+    plot(table(gen), xlab="generation", ylab="number of individuals")
+  }
+
+  if(TRUE){
+
+    return(list(population, avail, pedigree_position))
   } else{
-   temp1 <- temp1 -1
-   empty <- empty +1
+    return(population)
   }
-
-  avail <- c(avail, which(poss))
-  gen <- c(gen, rep(temp1, sum(poss)))
-
-}
-
-population <- creating.diploid(nindi = sum(gen==1), sex.s=founder_sex,
-                               dataset=dataset, vcf=vcf, chr.nr=chr.nr, bp=bp, snp.name=snp.name,
-                               hom0=hom0, hom1=hom1, bpcm.conversion=bpcm.conversion,
-                               nsnp=nsnp, freq=freq,
-                               chromosome.length=chromosome.length,length.before=length.before,
-                               length.behind=length.behind,
-                               real.bv.add=real.bv.add, real.bv.mult=real.bv.mult,
-                               real.bv.dice=real.bv.dice, snps.equidistant=snps.equidistant,
-                               change.order=change.order, bv.total=bv.total, polygenic.variance=polygenic.variance,
-                               bve.mult.factor=bve.mult.factor, bve.poly.factor=bve.poly.factor,
-                               base.bv=base.bv, add.chromosome.ends=add.chromosome.ends,
-                               new.phenotype.correlation=new.phenotype.correlation,
-                               new.residual.correlation = new.residual.correlation,
-                               new.breeding.correlation=new.breeding.correlation,
-                               add.architecture=add.architecture, snp.position=snp.position,
-                               position.scaling=position.scaling,
-                               bit.storing=bit.storing,
-                               nbits=nbits, randomSeed=randomSeed,
-                               miraculix=miraculix,
-                               miraculix.dataset=miraculix.dataset,
-                               n.additive=n.additive,
-                               n.dominant=n.dominant,
-                               n.qualitative=n.qualitative,
-                               n.quantitative=n.quantitative,
-                               var.additive.l=var.additive.l,
-                               var.dominant.l=var.dominant.l,
-                               var.qualitative.l=var.qualitative.l,
-                               var.quantitative.l=var.quantitative.l,
-                               exclude.snps=exclude.snps,
-                               replace.real.bv=replace.real.bv,
-                               shuffle.traits=shuffle.traits,
-                               shuffle.cor=shuffle.cor,
-                               skip.rest=skip.rest,
-                               enter.bv=enter.bv,
-                               name.cohort=name.cohort,
-                               template.chip=template.chip,
-                               beta.shape1=beta.shape1,
-                               beta.shape2=beta.shape2,
-                               time.point=time.point,
-                               creating.type=creating.type,
-                               trait.name=trait.name,
-                               share.genotyped=share.genotyped,
-                               genotyped.s=genotyped.s,
-                               map=map,
-                               remove.invalid.qtl=remove.invalid.qtl,
-                               verbose=verbose,
-                               bv.standard=bv.standard,
-                               mean.target=mean.target,
-                               var.target=var.target,
-                               is.maternal = is.maternal,
-                               is.paternal = is.paternal,
-                               vcf.maxsnp=vcf.maxsnp)
-
-for(index in 2:length(fixed_breeding)){
-  if(length(fixed_breeding[[index]])>0){
-    population <- breeding.diploid(population, fixed.breeding = fixed_breeding[[index]], breeding.size = c(sum(fixed_breeding[[index]][,7]==0), sum(fixed_breeding[[index]][,7]==1)))
-  }
-
-}
-
-
-if(plot){
-  graphics::par(mfrow=c(1,2))
-  inbreeding <- numeric(length(fixed_breeding))
-  for(index in 1:length(fixed_breeding)){
-    inbreeding[index] <- kinship.emp.fast(population = population, gen=index, ibd.obs = 0, hbd.obs = population$info$size[index,1])[2]
-  }
-  plot(((inbreeding-0.5) *2), col="red", type="l", lwd=2, ylab="inbreeding", xlab="generation")
-  plot(table(gen), xlab="generation", ylab="number of individuals")
-}
-
-if(TRUE){
-
-  return(list(population, avail, pedigree_position))
-} else{
-  return(population)
-}
 
 
 }

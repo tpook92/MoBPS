@@ -40,19 +40,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param change.order If TRUE sort markers according to given marker positions
 #' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
-#' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in RekomBre-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
-#' @param n.additive Number of additive QTL
-#' @param n.dominant Number of dominante QTL
+#' @param n.additive Number of additive QTL with effect size drawn from a gaussian distribution
+#' @param n.dominant Number of dominant QTL with effect size drawn from a gaussian distribution
+#' @param n.equal.additive Number of additive QTL with equal effect size (effect.size)
+#' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
+#' @param effect.size.equal.add Effect size of the QTLs in n.equal.additive
+#' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.real.bv If TRUE delete the simulated traits added before
 #' @param shuffle.traits Combine different traits into a joined trait
@@ -121,13 +125,17 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              miraculix=TRUE,
                              miraculix.dataset=TRUE,
                              n.additive=0,
+                             n.equal.additive=0,
                              n.dominant=0,
+                             n.equal.dominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
                              var.additive.l=NULL,
                              var.dominant.l=NULL,
                              var.qualitative.l=NULL,
                              var.quantitative.l=NULL,
+                             effect.size.equal.add = 1,
+                             effect.size.equal.dom = 1,
                              exclude.snps=NULL,
                              replace.real.bv=FALSE,
                              shuffle.traits=NULL,
@@ -464,7 +472,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       var.quantitative.l <- list(var.quantitative.l)
     }
 
-    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative
+    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
     test <- list(NULL)
 
     if(length(var.additive.l) < length(trait_sum)){
@@ -483,6 +491,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     ntraits <- length(trait_sum)
     n.additive <- c(n.additive, rep(0, length.out=ntraits-length(n.additive)))
     n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
+    n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
+    n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
     n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
     n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
 
@@ -490,9 +500,11 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       ntraits <- max(length(trait_sum), length(var.additive.l),length(var.dominant.l), length(var.qualitative.l), length(var.quantitative.l) )
       n.additive <- c(n.additive, rep(0, length.out=ntraits-length(n.additive)))
       n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
+      n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
+      n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
       n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
       n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
-      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative
+      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
       if(length(var.additive.l) < length(trait_sum)){
         var.additive.l <- rep(var.additive.l, length.out=length(trait_sum))
       }
@@ -675,6 +687,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
         add_marker <- sample(effect_marker, n.additive[index_trait], replace=if(n.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
         dom_marker <- sample(effect_marker, n.dominant[index_trait], replace=if(n.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+        add_marker1 <- sample(effect_marker, n.equal.additive[index_trait], replace=if(n.equal.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+        dom_marker1 <- sample(effect_marker, n.equal.dominant[index_trait], replace=if(n.equal.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
         epi1_marker <- sample(effect_marker, n.quantitative[index_trait]*2, replace=if(n.quantitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
         epi2_marker <- sample(effect_marker, n.qualitative[index_trait]*2, replace=if(n.qualitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
 
@@ -692,6 +706,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
           real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect)
         }
+
+        if(n.equal.additive[index_trait]>0){
+          add_snp1 <- add_chromo1 <- numeric(n.equal.additive[index_trait])
+          for(index in 1:n.equal.additive[index_trait]){
+            add_chromo1[index] <- sum(add_marker1[index] > cum_snp) + 1
+            add_snp1[index] <- add_marker1[index] - c(0,cum_snp)[add_chromo1[index]]
+          }
+          add_effect1 <- effect.size.equal.add
+          real.bv.add.new <- rbind(real.bv.add.new, cbind(add_snp1, add_chromo1,  -add_effect1, 0, add_effect1))
+
+        }
+
         if(n.dominant[index_trait]>0){
           dom_snp <- dom_chromo <- numeric(n.dominant[index_trait])
           for(index in 1:n.dominant[index_trait]){
@@ -700,6 +726,17 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           }
           dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
           real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
+
+        }
+
+        if(n.equal.dominant[index_trait]>0){
+          dom_snp1 <- dom_chromo1 <- numeric(n.equal.dominant[index_trait])
+          for(index in 1:n.equal.dominant[index_trait]){
+            dom_chromo1[index] <- sum(dom_marker1[index] > cum_snp) + 1
+            dom_snp1[index] <- dom_marker1[index] - c(0,cum_snp)[dom_chromo1[index]]
+          }
+          dom_effect1 <- effect.size.equal.dom
+          real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1))
 
         }
 

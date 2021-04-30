@@ -2,7 +2,7 @@
 % Please edit documentation in R/creating.phenotypic.transform.R
 \name{creating.phenotypic.transform}
 \alias{creating.phenotypic.transform}
-\title{Calculate breeding values}
+\title{Create a phenotypic transformation}
 \usage{
 creating.phenotypic.transform(
   population,
@@ -24,5 +24,5 @@ ex_pop <- creating.phenotypic.transform(ex_pop, phenotypic.transform.function=tr
 Population-list with a new phenotypic transformation function
 }
 \description{
-Internal function to calculate the breeding value of a given individual
+Function to perform create a transformation of phenotypes
 }

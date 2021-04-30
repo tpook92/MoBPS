@@ -42,8 +42,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
 #' @param snp.position Location of each marker on the genetic map
 #' @param change.order If TRUE sort markers according to given marker positions
-#' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in RekomBre-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
@@ -61,12 +61,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
 #' @param verbose Set to FALSE to not display any prints
+#' @examples
+#' population <- founder.simulation(nindi=100, nsnp=1000, n.gen=5)
 #' @export
 #'
 
 founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100, nfinal=NULL, sex.quota.final=NULL, big.output = FALSE,
                                plot = TRUE, display.progress=TRUE, depth.pedigree = 7,
-
                                dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
                                bpcm.conversion=0,
                                freq="beta", sex.s="fixed",
@@ -157,8 +158,11 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
     close(pb)
   }
 
-  cat("Start estimation of LD decay / effective population size.\n")
+  if(verbose) {cat("Start estimation of LD decay / effective population size.\n")}
+
   if(plot){
+    oldpar <- graphics::par(no.readonly = TRUE)
+    on.exit(graphics::par(oldpar))
     graphics::par(mfrow=c(1,2))
   }
 
@@ -170,7 +174,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
     graphics::hist(p_i[p_i!=0 & p_i !=1], nclass=20, xlab="allele frequency spectrum", main="Allele frequency spectrum")
   }
 
-  cat(paste0(sum(p_i==0 | p_i==1), " of ", length(p_i), " markers are fixated.\n"))
+  if(verbose){ cat(paste0(sum(p_i==0 | p_i==1), " of ", length(p_i), " markers are fixated.\n"))}
 
   effs <- numeric(length(ldinfo[[3]]$x))
   for(index in 1:length(ldinfo[[3]]$x)){
@@ -179,7 +183,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
                                   n = nfinal)
   }
 
-  cat(paste0("Effective population size is estimated to be around ", ceiling(mean(effs[-(1:10)])), ".\n"))
+  if(verbose) {cat(paste0("Effective population size is estimated to be around ", ceiling(mean(effs[-(1:10)])), ".\n"))}
 
   haplo <- get.haplo(population, gen = nrow(population$info$size))
   map <- get.map(population)

@@ -18,13 +18,17 @@ creating.trait(
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
   n.additive = 0,
+  n.equal.additive = 0,
   n.dominant = 0,
+  n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
   var.additive.l = NULL,
   var.dominant.l = NULL,
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
+  effect.size.equal.add = 1,
+  effect.size.equal.dom = 1,
   exclude.snps = NULL,
   randomSeed = NULL,
   shuffle.traits = NULL,
@@ -65,9 +69,13 @@ creating.trait(
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
 
-\item{n.additive}{Number of additive QTL}
+\item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
-\item{n.dominant}{Number of dominante QTL}
+\item{n.equal.additive}{Number of additive QTL with equal effect size (effect.size)}
+
+\item{n.dominant}{Number of dominant QTL with effect size drawn from a gaussian distribution}
+
+\item{n.equal.dominant}{Number of n.equal.dominant QTL with equal effect size}
 
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
@@ -80,6 +88,10 @@ creating.trait(
 \item{var.qualitative.l}{Variance of qualitative epistatic QTL}
 
 \item{var.quantitative.l}{Variance of quantitative epistatic QTL}
+
+\item{effect.size.equal.add}{Effect size of the QTLs in n.equal.additive}
+
+\item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
 
 \item{exclude.snps}{Marker were no QTL are simulated on}
 

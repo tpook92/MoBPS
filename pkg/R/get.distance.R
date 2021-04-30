@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database.list List of databases to consider (use when working with more than 2 populations)
 #' @param gen.list Quick-insert for database (vector of all generations to consider)
 #' @param cohorts.list Quick-insert for database (vector of names of cohorts to consider)
-#'
 #' @examples
 #' data(ex_pop)
 #' get.distance(ex_pop, database1 = cbind(1,1), database2 = cbind(1,2))

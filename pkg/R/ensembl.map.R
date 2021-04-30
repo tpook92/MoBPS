@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.filters Export possible filters for parameter filters
 #' @param export.datasets Export possible datasets for usage in parameter dataset
 #' @examples
+#' # This will extended amount of time and is reliant on having internet connection!
 #' \donttest{map <- ensembl.map(host="www.ensembl.org", dataset="btaurus_snp",
 #'          filter=list("variation_set_name"="Illumina BovineSNP50 BeadChip",
 #'                      "chr_name"= 26))}

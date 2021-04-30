@@ -27,6 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param sort Set to FALSE to not sort markers according to position on the genome
+#' @examples
+#' data(ex_pop)
+#' get.effect.freq(ex_pop, gen=1)
+#' @return Matrix with allele frequencies in the QTLs
 #' @export
 
 get.effect.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL, sort=FALSE){

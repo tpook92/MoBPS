@@ -120,6 +120,9 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, dist =NUL
     smooth1 <- stats::ksmooth(b,a, x.points = evs, bandwidth = mean(diff(evs))*10, kernel="normal")
     smooth2 <- stats::ksmooth(b,a, x.points = evs, bandwidth = mean(diff(evs))*3, kernel="normal")
     smooth1$x[1:(length(calc)/5)] <- smooth2$x[1:(length(calc)/5)]
+    if(type=="cm"||type=="cM"){
+      type <- "Morgan"
+    }
     if(plot){
       graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosomen))
     }

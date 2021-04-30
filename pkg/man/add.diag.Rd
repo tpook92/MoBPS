@@ -13,7 +13,13 @@ add.diag(M, d)
 }
 \value{
 Matrix with increased diagonal elements
+
+Matrix with modified diagonal entries
 }
 \description{
 Function to add numeric to the diagonal of a matrix
+}
+\examples{
+A <- matrix(c(1,2,3,4), ncol=2)
+B <- add.diag(A, 5)
 }

@@ -15,3 +15,7 @@ numerical sorted vector without duplicates
 \description{
 Efficient function to perform sort(unique(v))
 }
+\examples{
+v <- c(1,1,4,5)
+sortd(v)
+}

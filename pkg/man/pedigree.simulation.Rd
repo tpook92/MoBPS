@@ -2,7 +2,7 @@
 % Please edit documentation in R/pedigree.simulation.R
 \name{pedigree.simulation}
 \alias{pedigree.simulation}
-\title{Generation of the starting population}
+\title{Simulation of a given pedigree}
 \usage{
 pedigree.simulation(
   pedigree,
@@ -144,9 +144,9 @@ pedigree.simulation(
 
 \item{position.scaling}{Manual scaling of snp.position}
 
-\item{bit.storing}{Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{nbits}{Bits available in RekomBre-bit-storing}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{randomSeed}{Set random seed of the process}
 
@@ -224,8 +224,17 @@ pedigree.simulation(
 Population-list
 }
 \description{
-Generation of the starting population
+Function to simulate a given pedigree
 }
 \examples{
-population <- creating.diploid(nsnp=1000, nindi=100)
+pedigree <- matrix(c(1,0,0,
+2,0,0,
+3,0,0,
+4,1,2,
+5,1,3,
+6,1,3,
+7,1,3,
+8,4,6,
+9,4,7), ncol=3, byrow=TRUE)
+population <- pedigree.simulation(pedigree, nsnp=1000)
 }

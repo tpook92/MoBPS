@@ -2,7 +2,7 @@
 % Please edit documentation in R/find.chromo.R
 \name{find.chromo}
 \alias{find.chromo}
-\title{Position detection}
+\title{Position detection (chromosome)}
 \usage{
 find.chromo(position, length.total)
 }

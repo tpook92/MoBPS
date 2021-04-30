@@ -2,7 +2,7 @@
 % Please edit documentation in R/add.founder.kinship.R
 \name{add.founder.kinship}
 \alias{add.founder.kinship}
-\title{Add a genotyping array}
+\title{Add a relationship matrix for founder individuals}
 \usage{
 add.founder.kinship(population, founder.kinship = "vanRaden", gen = 1)
 }
@@ -17,8 +17,9 @@ add.founder.kinship(population, founder.kinship = "vanRaden", gen = 1)
 Population list
 }
 \description{
-Function to add a genotyping array for the population
+Function to relationship matrix for founder individuals that is used for any calculation of the pedigree
 }
 \examples{
-1+1 # to.be.entered
+data(ex_pop)
+population <- add.founder.kinship(ex_pop)
 }

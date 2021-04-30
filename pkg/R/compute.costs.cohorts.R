@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Compute costs of a breeding program
+#' Compute costs of a breeding program by cohorts
 #'
-#' Function to derive the costs of a breeding program / population-list
+#' Function to derive the costs of a breeding program / population-list by cohorts
 #' @param population population-list
 #' @param json If TRUE extract which cohorts to plot according to the json-file used in json.simulation
 #' @param phenotyping.costs Costs for the generation of a phenotype
@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param interest.rate Applied yearly interest rate
 #' @param verbose Set to FALSE to not display any prints
+#' @examples
 #' data(ex_pop)
 #' compute.costs.cohorts(ex_pop, gen=1:5, genotyping.costs=25, json=FALSE)
 #' @return Cost-table for selected gen/database/cohorts of a population-list

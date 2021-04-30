@@ -46,21 +46,3 @@ get.effective.size <- function(population, gen=NULL, database=NULL, cohorts=NULL
 }
 
 
-#' Estimate effective population size
-#'
-#' Internal function to estimate the effective population size
-#' @param ld ld between markers
-#' @param dist distance between markers in Morgan
-#' @param n Population size
-#'
-
-effective.size <- function(ld, dist, n){
-
-  c <- 0
-  for(index in 2*(1:max(5,dist*2))-1){
-    c <- c + stats::dpois(index, lambda = dist)
-  }
-
-  return( ((1-c)^2 + c^2) / (( ld - 1/n) * (2 * c*(2-c))  ))
-}
-

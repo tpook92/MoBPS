@@ -31,5 +31,5 @@ Function to devide which markers are genotyped for the selected individuals
 }
 \examples{
 data(ex_pop)
-geno <- get.genotyped.snp(ex_pop, gen=2)
+genotyped.snps <- get.genotyped.snp(ex_pop, gen=2)
 }

@@ -38,7 +38,7 @@ get.admixture(
 
 \item{sort.cutoff}{Skip individuals with contributions under this threshold (and use next dimension instead)
 data(ex_pop)
-get.admixture(ex_pop, gen=4:6)}
+get.admixture(ex_pop, gen=4:6, d=2, sort=TRUE)}
 }
 \value{
 Matrix with admixture proportion

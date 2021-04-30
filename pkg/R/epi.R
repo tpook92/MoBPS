@@ -26,7 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param G kinship-matrix
 #' @param Z genomic information matrix
 #' @return Vector with single marker effects
-#' @export
 
 alpha_to_beta <- function(alpha,G,Z) {
   if (requireNamespace("MASS", quietly = TRUE)) {
@@ -43,7 +42,6 @@ alpha_to_beta <- function(alpha,G,Z) {
 #' @param Z genomic information matrix
 #' @param G kinship matrix
 #' @return Estimated breeding values
-#' @export
 
 epi <- function(y,Z, G=NULL) {
   n <- length(y)

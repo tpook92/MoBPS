@@ -30,10 +30,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
 #' @param store.effect.freq If TRUE store the allele frequency of effect markers per generation
-#' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in RekomBre-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param nbits Bits available in MoBPS-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
 #' @return [[1]] true genomic value [[2]] allele frequency at QTL markers
+#' @examples
+#' data(ex_pop)
+#' calculate.bv(ex_pop, gen=1, sex=1, nr=1, activ_bv = 1)
 #' @export
 
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,

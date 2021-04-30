@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @examples
 #' data(ex_pop)
-#' geno <- get.genotyped.snp(ex_pop, gen=2)
+#' genotyped.snps <- get.genotyped.snp(ex_pop, gen=2)
 #' @return Binary Coded is/isnot genotyped level for in gen/database/cohorts selected individuals
 #' @export
 
@@ -71,6 +71,7 @@ get.genotyped.snp <- function(population, database=NULL, gen=NULL, cohorts=NULL,
             marker[which(population$info$array.markers[[ccc]]==1)] <- TRUE
           }
           data[, before + rindex] <- marker
+          names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", index, "_", animals[1], sep="")
           rindex <- rindex + 1
         }
         before <- before + nanimals

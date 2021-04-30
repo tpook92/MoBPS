@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Perform imputing/phasing
+#' Internal function to perform imputing/phasing
 #'
-#' Perform imputing/phasing (path chosen for the web-based application)
+#' Internal function to perform imputing/phasing (path chosen for the web-based application)
 #' @param ped_path Directory of the ped-file
 #' @param map_path Directory of the map-file
 #' @param vcf_path Directory of the vcf-file (this will override any ped/map-file input)
@@ -31,8 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @return Phased vcf file in vcf_path
 #' @export
+#'
 
-# THIS FUNCTION CAN NOT BE EXPORTED IN ANY CRAN VERSION!
+
+# REMOVE EXPORT BEFORE SUBMISSION TO CRAN!
 
 pedmap.to.phasedbeaglevcf <- function(ped_path=NULL, map_path=NULL, vcf_path=NULL, beagle_jar="/home/nha/beagle.03Jul18.40b.jar",
                                       plink_dir="/home/nha/Plink/plink", db_dir="/home/nha/Plink/DB/", verbose=TRUE){

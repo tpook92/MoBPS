@@ -2,7 +2,7 @@
 % Please edit documentation in R/edges.fromto.R
 \name{edges.fromto}
 \alias{edges.fromto}
-\title{gen/database/cohorts conversion}
+\title{Detection of parental/child nodes}
 \usage{
 edges.fromto(edges)
 }
@@ -13,5 +13,5 @@ edges.fromto(edges)
 Matrix of Parent/Child-nodes for the considered edges
 }
 \description{
-Function to derive a database based on gen/database/cohorts
+Internal function to extract parental/child node of an edge
 }

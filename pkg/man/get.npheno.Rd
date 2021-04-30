@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.npheno.R
 \name{get.npheno}
 \alias{get.npheno}
-\title{Export underlying phenotypes}
+\title{Export underlying number of observations per phenotype}
 \usage{
 get.npheno(
   population,
@@ -27,7 +27,7 @@ get.npheno(
 Phenotypes for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export underlying phenotypes
+Function to export the number of observation of each underlying phenotype
 }
 \examples{
 data(ex_pop)

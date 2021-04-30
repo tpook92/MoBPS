@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export estimated breeding values
+#' Manually enter estimated breeding values
 #'
-#' Function to export estimated breeding values
+#' Function to manually enter estimated breeding values
 #' @param population Population list
 #' @param bves Matrix of breeding values to enter (one row per individual with 1 element coding individual name)
 #' @param type which time of values to input (default: "bve", alt: "bv", "pheno")

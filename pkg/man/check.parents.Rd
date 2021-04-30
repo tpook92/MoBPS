@@ -2,7 +2,7 @@
 % Please edit documentation in R/check.parents.R
 \name{check.parents}
 \alias{check.parents}
-\title{Derive pedigree}
+\title{Relatedness check between two individuals}
 \usage{
 check.parents(population, info.father, info.mother, max.rel = 2)
 }
@@ -16,12 +16,12 @@ check.parents(population, info.father, info.mother, max.rel = 2)
 \item{max.rel}{maximal allowed relationship (default: 2, alt: 1 no full-sibs, 0 no half-sibs)}
 }
 \value{
-Pedigree-file for in gen/database/cohorts selected individuals
+logical with TRUE if relatedness does not excced max.rel / FALSE otherwise.
 }
 \description{
-Derive pedigree for selected individuals
+Internal function to check the relatedness between two individuals
 }
 \examples{
 data(ex_pop)
-get.pedigree(ex_pop, gen=2)
+check.parents(ex_pop, info.father=c(4,1,1,1), info.mother=c(4,2,1,1))
 }

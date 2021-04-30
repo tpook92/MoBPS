@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export underlying phenotypes
+#' Export underlying number of used offspring for offspring phenotypes
 #'
 #' Function to export number of observations used for offspring phenotypes
 #' @param population Population list

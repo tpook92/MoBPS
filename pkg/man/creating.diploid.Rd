@@ -48,13 +48,17 @@ creating.diploid(
   miraculix = TRUE,
   miraculix.dataset = TRUE,
   n.additive = 0,
+  n.equal.additive = 0,
   n.dominant = 0,
+  n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
   var.additive.l = NULL,
   var.dominant.l = NULL,
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
+  effect.size.equal.add = 1,
+  effect.size.equal.dom = 1,
   exclude.snps = NULL,
   replace.real.bv = FALSE,
   shuffle.traits = NULL,
@@ -156,9 +160,9 @@ creating.diploid(
 
 \item{position.scaling}{Manual scaling of snp.position}
 
-\item{bit.storing}{Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{nbits}{Bits available in RekomBre-bit-storing}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{randomSeed}{Set random seed of the process}
 
@@ -166,9 +170,13 @@ creating.diploid(
 
 \item{miraculix.dataset}{Set FALSE to deactive miraculix package for dataset generation}
 
-\item{n.additive}{Number of additive QTL}
+\item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
-\item{n.dominant}{Number of dominante QTL}
+\item{n.equal.additive}{Number of additive QTL with equal effect size (effect.size)}
+
+\item{n.dominant}{Number of dominant QTL with effect size drawn from a gaussian distribution}
+
+\item{n.equal.dominant}{Number of n.equal.dominant QTL with equal effect size}
 
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
@@ -181,6 +189,10 @@ creating.diploid(
 \item{var.qualitative.l}{Variance of qualitative epistatic QTL}
 
 \item{var.quantitative.l}{Variance of quantitative epistatic QTL}
+
+\item{effect.size.equal.add}{Effect size of the QTLs in n.equal.additive}
+
+\item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
 
 \item{exclude.snps}{Marker were no QTL are simulated on}
 

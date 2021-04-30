@@ -14,7 +14,6 @@ generation.individual(
   remutation.rate,
   recombination.rate,
   recom.f.indicator,
-  recom.f.polynom,
   duplication.rate,
   duplication.length,
   duplication.recombination,
@@ -53,8 +52,6 @@ generation.individual(
 \item{recombination.rate}{windows parallel internal test}
 
 \item{recom.f.indicator}{windows parallel internal test}
-
-\item{recom.f.polynom}{windows parallel internal test}
 
 \item{duplication.rate}{windows parallel internal test}
 

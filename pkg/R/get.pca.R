@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive class
+#' Principle components analysis
 #'
-#' Function to devide the class for each individual
+#' Function to perform a principle component analysis
 #' @param path Location were to save the PCA-plot
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param coloring Coloring by "group", "sex", "plain"
 #' @param components Default: c(1,2) for the first two principle components
+#' @param plot Set to FALSE to not generate a plot
 #' @examples
 #' data(ex_pop)
 #' get.pca(ex_pop, gen=2)
@@ -36,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, coloring="group",
-                    components = c(1,2)){
+                    components = c(1,2), plot = TRUE){
 
   database <- get.database(population, gen, database, cohorts)
 
@@ -115,22 +116,25 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
   }
 
 
-
-  if(length(path)==0){
-    graphics::plot(b$vectors[,components], col=col,
-         xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
-         ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
-  } else{
-    if (requireNamespace("grDevices", quietly = TRUE)) {
-      grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
+  if(plot){
+    if(length(path)==0){
       graphics::plot(b$vectors[,components], col=col,
-           xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
-           ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
-      grDevices::dev.off()
+                     xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                     ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
     } else{
-      stop("Use of grDevices without being installed!")
+      if (requireNamespace("grDevices", quietly = TRUE)) {
+        grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
+        graphics::plot(b$vectors[,components], col=col,
+                       xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                       ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+        grDevices::dev.off()
+      } else{
+        stop("Use of grDevices without being installed!")
+      }
     }
+
   }
+
 
 
   b$vectors

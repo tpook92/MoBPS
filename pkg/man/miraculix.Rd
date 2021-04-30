@@ -15,3 +15,8 @@ Population list
 \description{
 Internal function to store genotypes bit-wise
 }
+\examples{
+# This is only relevant with the package miraculix is installed and used
+population <- creating.diploid(nsnp=100, nindi=50, miraculix=FALSE)
+\donttest{population <- miraculix(population)}
+}

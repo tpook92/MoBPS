@@ -19,15 +19,21 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Position detection (chromosome)
+
+#' Estimate effective population size
 #'
-#' Internal function for the detection on which chromosome each marker is
-#' @param position position in the genome
-#' @param length.total Length of each chromosome
-#' @return Chromosome the marker is part of
+#' Internal function to estimate the effective population size
+#' @param ld ld between markers
+#' @param dist distance between markers in Morgan
+#' @param n Population size
+#'
 
+effective.size <- function(ld, dist, n){
 
-find.chromo <- function(position, length.total){
-  chromo <- min(sum(position<=length.total), length(length.total)-1)
-  return(chromo)
+  c <- 0
+  for(index in 2*(1:max(5,dist*2))-1){
+    c <- c + stats::dpois(index, lambda = dist)
+  }
+
+  return( ((1-c)^2 + c^2) / (( ld - 1/n) * (2 * c*(2-c))  ))
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/find.snpbefore.R
 \name{find.snpbefore}
 \alias{find.snpbefore}
-\title{Position detection}
+\title{Position detection (SNPs)}
 \usage{
 find.snpbefore(position, snp.position)
 }

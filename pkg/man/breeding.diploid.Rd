@@ -23,7 +23,6 @@ breeding.diploid(
   class.f = 0,
   add.gen = 0,
   recom.f.indicator = NULL,
-  recom.f.polynom = NULL,
   duplication.rate = 0,
   duplication.length = 0.01,
   duplication.recombination = 1,
@@ -291,8 +290,6 @@ breeding.diploid(
 \item{add.gen}{Generation you want to add the new individuals to (default: New generation)}
 
 \item{recom.f.indicator}{Use step function for recombination map (transform snp.positions if possible instead)}
-
-\item{recom.f.polynom}{Polynomical function to determine expected number of recombinations (transform snp.positions if possible instead)}
 
 \item{duplication.rate}{Share of recombination points with a duplication (default: 0 - DEACTIVATED)}
 

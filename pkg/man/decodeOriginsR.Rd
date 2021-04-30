@@ -9,11 +9,14 @@ decodeOriginsR(P, row)
 \arguments{
 \item{P}{coded origins vector}
 
-\item{row}{row}
+\item{row}{row to decode}
 }
 \value{
 de-coded origins
 }
 \description{
 R-Version of the internal bitwise-decoding of origins
+}
+\examples{
+decodeOriginsR(0L)
 }

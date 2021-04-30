@@ -27,8 +27,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nr Number of the individual to edit
 #' @param nr.edits Number of edits to perform
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
-#' @param bit.storing Set to TRUE if the RekomBre (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in RekomBre-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param nbits Bits available in MoBPS-bit-storing
 #' @param population Population list
 #' @return animal after genome editing
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pedmap.to.phasedbeaglevcf.R
 \name{pedmap.to.phasedbeaglevcf}
 \alias{pedmap.to.phasedbeaglevcf}
-\title{Perform imputing/phasing}
+\title{Internal function to perform imputing/phasing}
 \usage{
 pedmap.to.phasedbeaglevcf(
   ped_path = NULL,
@@ -33,5 +33,5 @@ pedmap.to.phasedbeaglevcf(
 Phased vcf file in vcf_path
 }
 \description{
-Perform imputing/phasing (path chosen for the web-based application)
+Internal function to perform imputing/phasing (path chosen for the web-based application)
 }

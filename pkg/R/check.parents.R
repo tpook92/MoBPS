@@ -19,17 +19,17 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive pedigree
+#' Relatedness check between two individuals
 #'
-#' Derive pedigree for selected individuals
+#' Internal function to check the relatedness between two individuals
 #' @param population Population list
 #' @param info.father position of the first parent in the dataset
 #' @param info.mother position of the second parent in the dataset
 #' @param max.rel maximal allowed relationship (default: 2, alt: 1 no full-sibs, 0 no half-sibs)
 #' @examples
 #' data(ex_pop)
-#' get.pedigree(ex_pop, gen=2)
-#' @return Pedigree-file for in gen/database/cohorts selected individuals
+#' check.parents(ex_pop, info.father=c(4,1,1,1), info.mother=c(4,2,1,1))
+#' @return logical with TRUE if relatedness does not excced max.rel / FALSE otherwise.
 #' @export
 
 

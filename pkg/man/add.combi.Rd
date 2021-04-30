@@ -2,7 +2,7 @@
 % Please edit documentation in R/add.combi.R
 \name{add.combi}
 \alias{add.combi}
-\title{Add a genotyping array}
+\title{Add a trait as a linear combination of other traits}
 \usage{
 add.combi(population, trait, combi.weights, trait.name = NULL)
 }
@@ -17,7 +17,14 @@ add.combi(population, trait, combi.weights, trait.name = NULL)
 }
 \value{
 Population list
+
+Population list
 }
 \description{
-Function to add a genotyping array for the population
+Function to create an additional trait that is the results of a linear combination of the other traits
+}
+\examples{
+data(ex_pop)
+population <- creating.trait(ex_pop, n.additive = 100)
+population <- add.combi(population, trait = 3, combi.weights = c(1,5))
 }

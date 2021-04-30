@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive class
+#' Generation of a sublist
 #'
-#' Function to devide the class for each individual
+#' Internal function to write a couple of list entries in a new list
 #' @param list list you want to print details of
 #' @param skip Skip first that many list-elements
 #' @param first Only display first that many list-elements

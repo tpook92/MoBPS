@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.pca.R
 \name{get.pca}
 \alias{get.pca}
-\title{Derive class}
+\title{Principle components analysis}
 \usage{
 get.pca(
   population,
@@ -11,7 +11,8 @@ get.pca(
   gen = NULL,
   cohorts = NULL,
   coloring = "group",
-  components = c(1, 2)
+  components = c(1, 2),
+  plot = TRUE
 )
 }
 \arguments{
@@ -28,12 +29,14 @@ get.pca(
 \item{coloring}{Coloring by "group", "sex", "plain"}
 
 \item{components}{Default: c(1,2) for the first two principle components}
+
+\item{plot}{Set to FALSE to not generate a plot}
 }
 \value{
 Genotype data for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the class for each individual
+Function to perform a principle component analysis
 }
 \examples{
 data(ex_pop)

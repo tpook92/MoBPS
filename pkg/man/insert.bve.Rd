@@ -2,7 +2,7 @@
 % Please edit documentation in R/insert.bve.R
 \name{insert.bve}
 \alias{insert.bve}
-\title{Export estimated breeding values}
+\title{Manually enter estimated breeding values}
 \usage{
 insert.bve(population, bves, type = "bve", na.override = FALSE, count = 1)
 }
@@ -21,7 +21,7 @@ insert.bve(population, bves, type = "bve", na.override = FALSE, count = 1)
 Population-List with newly entered estimated breeding values
 }
 \description{
-Function to export estimated breeding values
+Function to manually enter estimated breeding values
 }
 \examples{
 data(ex_pop)

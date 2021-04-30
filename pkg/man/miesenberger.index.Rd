@@ -25,5 +25,5 @@ miesenberger.index(V, G, V1 = NULL, RG = NULL, r, w, zw = NULL)
 weights of the selection index
 }
 \description{
-Function to selection index weights according to Miesenberger 1999
+Function to selection index weights according to Miesenberger 1997
 }

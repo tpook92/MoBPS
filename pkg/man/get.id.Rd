@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.id.R
 \name{get.id}
 \alias{get.id}
-\title{Derive class}
+\title{Derive ID on an individual}
 \usage{
 get.id(population, database = NULL, gen = NULL, cohorts = NULL)
 }
@@ -19,7 +19,7 @@ get.id(population, database = NULL, gen = NULL, cohorts = NULL)
 Individual ID for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the class for each individual
+Function to derive the internal ID given to each individual
 }
 \examples{
 data(ex_pop)

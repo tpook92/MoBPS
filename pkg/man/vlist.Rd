@@ -2,7 +2,7 @@
 % Please edit documentation in R/vlist.R
 \name{vlist}
 \alias{vlist}
-\title{Derive class}
+\title{Generation of a sublist}
 \usage{
 vlist(list, skip = NULL, first = NULL, select = NULL)
 }
@@ -19,7 +19,7 @@ vlist(list, skip = NULL, first = NULL, select = NULL)
 Selected elements of a list
 }
 \description{
-Function to devide the class for each individual
+Internal function to write a couple of list entries in a new list
 }
 \examples{
 data(ex_pop)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/bv.development.box.R
 \name{bv.development.box}
 \alias{bv.development.box}
-\title{Devolopment of genetic/breeding value}
+\title{Development of genetic/breeding value using a boxplot}
 \usage{
 bv.development.box(
   population,
@@ -45,7 +45,7 @@ bv.development.box(
 Genomic values of selected gen/database/cohort
 }
 \description{
-Function to plot genetic/breeding values for multiple generation/cohorts
+Function to plot genetic/breeding values for multiple generation/cohorts using box plots
 }
 \examples{
 data(ex_pop)
