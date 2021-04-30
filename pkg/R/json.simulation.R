@@ -2038,6 +2038,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             nodes[[to_node]]$OGC <- TRUE
             if(length(edges[[index]]$'ogc_target')>0 || length(nodes[[to_node]]$ogc_cAc)==0){
               nodes[[to_node]]$ogc_target <- (edges[[index]]$'ogc_target')
+              nodes[[to_node]]$ogc_relation <- (edges[[index]]$'ogc_relation')
+              if(length(nodes[[to_node]]$ogc_relation )==0){
+                nodes[[to_node]]$ogc_relation <- "vanRaden"
+              }
+              if(length(nodes[[to_node]]$ogc_relation)  && nodes[[to_node]]$ogc_relation == "Pedigree"){
+                nodes[[to_node]]$ogc_relation <- "pedigree"
+              }
               if(length( nodes[[to_node]]$constrain) == 0 ){
                 nodes[[to_node]]$constrain <- list()
               }
@@ -2047,27 +2054,29 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               constrains_value <- list(edges[[index]]$'ogc_constrain1_value', edges[[index]]$'ogc_constrain2_value', edges[[index]]$'ogc_constrain3_value')
               for(index in 1:3){
                 if(constrains[[index]]=="ub.BV"){
-                  nodes[[to_node]]$constrain[[1]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[1]] <- as.numeric(constrains_value[[index]])
                 }
                 if(constrains[[index]]=="eq.BV"){
-                  nodes[[to_node]]$constrain[[2]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[2]] <- as.numeric(constrains_value[[index]])
                 }
                 if(constrains[[index]]=="lb.BV"){
-                  nodes[[to_node]]$constrain[[3]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[3]] <- as.numeric(constrains_value[[index]])
                 }
                 if(constrains[[index]]=="ub.sKin"){
-                  nodes[[to_node]]$constrain[[4]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[4]] <- as.numeric(constrains_value[[index]])
                 }
                 if(constrains[[index]]=="uniform"){
                   nodes[[to_node]]$constrain[[5]] <- constrains_value[[index]]
                 }
                 if(constrains[[index]]=="lb.BV.increase"){
-                  nodes[[to_node]]$constrain[[6]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[6]] <- as.numeric(constrains_value[[index]])
                 }
                 if(constrains[[index]]=="ub.sKin.increase"){
-                  nodes[[to_node]]$constrain[[7]] <- constrains_value[[index]]
+                  nodes[[to_node]]$constrain[[7]] <- as.numeric(constrains_value[[index]])
                 }
-
+                if(length( nodes[[to_node]]$constrain)>0){
+                  nodes[[to_node]]$constrain[[8]] <- "placeholder"
+                }
               }
             }
 
@@ -3422,6 +3431,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  added.genotyped = nodes[[groupnr]]$`Proportion of added genotypes`,
                                                  ogc = nodes[[groupnr]]$OGC,
                                                  ogc.target = nodes[[groupnr]]$ogc_target,
+                                                 relationship.matrix.ogc = nodes[[groupnr]]$ogc_relation,
                                                  ogc.ub.BV = nodes[[groupnr]]$constrain[[1]],
                                                  ogc.eq.BV = nodes[[groupnr]]$constrain[[2]],
                                                  ogc.lb.BV = nodes[[groupnr]]$constrain[[3]],
@@ -3817,7 +3827,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
-
 
 
 

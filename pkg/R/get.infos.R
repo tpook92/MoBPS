@@ -63,7 +63,7 @@ get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL){
   } else{
     Z <- matrix(NA, nrow=sum(population$info$snp), ncol=nrow(loop_elements))
     for(index in 1:nrow(loop_elements)){
-      Z[,index] <- colSums(compute.snps(population, loop_elements[index,1] , loop_elements[index,2] , loop_elements[index,3], decodeOriginsU=miraculix::decodeOrigins))
+      Z[,index] <- colSums(compute.snps(population, loop_elements[index,1] , loop_elements[index,2] , loop_elements[index,3], decodeOriginsU=MoBPS::decodeOriginsR))
 
     }
   }

@@ -1,7 +1,7 @@
 Package: MoBPS
 Type: Package
 Title: Modular Breeding Program Simulator
-Version: 1.6.36
+Version: 1.6.37
 Author: Torsten Pook
 Maintainer: Torsten Pook <torsten.pook@uni-goettingen.de>
 Description: Framework for the simulation framework for the simulation of complex breeding programs and compare their economic and genetic impact. The package is also used as the background simulator for our a web-based interface <http:www.mobps.de>. Associated publication: Pook et al (2020) <doi:10.1534/g3.120.401193>.
