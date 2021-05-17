@@ -30,9 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param db_dir Directory to save newly generated files (ped/map will be stored in the original folder)
 #' @param verbose Set to FALSE to not display any prints
 #' @return Phased vcf file in vcf_path
-#' @export
-#'
-
 
 # REMOVE EXPORT BEFORE SUBMISSION TO CRAN!
 

@@ -197,7 +197,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       } else{
         selection_index <- NULL
         selection_index_miesenberger_wscaling <- NULL
-        selection_index_name <- NULL
+        selection_index_miesenberger <- NULL
         selection_index_name <- NULL
       }
 
@@ -368,7 +368,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
           diag(newA) <- diag(newA) + 0.0000001 # Avoid numerical issues with inversion
           newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
-          if(verbose) cat("new suggested residual covariance matrix:\n")
+          if(verbose) cat("new suggested genetic correlation matrix:\n")
           cor_gen <- newA
           if(verbose) print(round(cor_gen, digits=3))
         }
@@ -379,12 +379,12 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           residual_var <- pheno_var - gen_var
           cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
           cor_pheno[is.na(cor_pheno)] = 0
-          if(verbose) cat("Used residual correlations:\n")
+          if(verbose) cat("Used genetic covariance:\n")
           if(verbose) print(cor_pheno)
         }
         eigen_pheno <- eigen(cor_pheno)
         if(sum(eigen_pheno$values<0)>0){
-          if(verbose) cat("Residual covariance matrix is not positive definit.\n")
+          if(verbose) cat("Residual correlation matrix is not positive definit.\n")
           if(verbose) cat("Generate projection on the set of positive definit matrices:\n")
 
           test <- eigen_pheno
@@ -398,7 +398,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
           diag(newA) <- diag(newA) + 0.0000001 # Avoid numerical issues with inversion
           newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
-          if(verbose) cat("new suggested residual covariance matrix:\n")
+          if(verbose) cat("new suggested residual correlation matrix:\n")
           cor_pheno <- newA
           if(verbose) print(round(cor_pheno, digits=3))
         }
@@ -1634,7 +1634,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                   nfinal = nfinal, verbose=FALSE,
                                                   map = map[,1:4],
                                                   freq = p_i[[subpop]],
-                                                  big.output = TRUE)
+                                                  big.output = TRUE,plot=FALSE)
 
               dataset_temp <- dataset_temp1[[1]]
 
@@ -1654,7 +1654,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               input_type <- nodes[[founder[index]]]$`Genotype generation`
 
               if(ntemp > 0){
-                founder_pedigree[take[(1:(length(take)/2)) *2]/2,take[(1:(length(take)/2)) *2]/2] <- dataset_temp[[4]][1:(length(take)/2)+prior, 1:(length(take)/2)+prior]
+                founder_pedigree[take[(1:(length(take)/2)) *2]/2,take[(1:(length(take)/2)) *2]/2] <- dataset_temp1[[4]][1:(length(take)/2)+prior, 1:(length(take)/2)+prior]
               }
               if(input_type=="Random-sampling"){
                 if(ntemp>0){
@@ -2452,13 +2452,17 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             next1 <- 1
             for(index2 in nrs){
               split1 <- strsplit(ids[index2], split = "_")[[1]][1]
+              split3 <- strsplit(ids[index2], split = "_")[[1]][3]
               if(sum( split1 == splits)>0){
                 if(strsplit(ids[index2], split = "_")[[1]][2]=="F"){
                   next
                 } else if(strsplit(ids[index2], split = "_")[[1]][2]=="M"){
                   reorder[next1] <- which(nrs==index2)
                   for(index3 in nrs){
-                    if(length(strsplit(ids[index3], split = "_")[[1]])>1 && strsplit(ids[index3], split = "_")[[1]][2]=="F" && strsplit(ids[index3], split = "_")[[1]][1]==split1){
+                    if(length(strsplit(ids[index3], split = "_")[[1]])>1 && strsplit(ids[index3], split = "_")[[1]][2]=="F" && strsplit(ids[index3], split = "_")[[1]][1]==split1 &&
+                       ((is.na(split3) && length(strsplit(ids[index3], split = "_")[[1]])<3) ||
+                        ((!is.na(split3) && length(strsplit(ids[index3], split = "_")[[1]])==3) && strsplit(ids[index3], split = "_")[[1]][3] == strsplit(ids[index2], split = "_")[[1]][3])
+                       )){
                       partner <- index3
                     }
                   }
@@ -2717,7 +2721,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               if(length(share_geno)==0) share_geno <- 1
               if(cost_geno<0) cost_geno <- 0
 
+
               pheno_class_old <- which(nodes[[prior_node]]$`Phenotyping Class`==phenotyping[[2]])
+              if(length(pheno_class_old)==0){
+                pheno_class_old <- 1
+              }
               if(pheno_class_old==pheno_class){
                 cost_pheno <- 0
               }
@@ -3360,7 +3368,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  selection.m.cohorts = cohorts.m,
                                                  selection.f.cohorts = cohorts.f,
                                                  new.class = new_mig[sex],
-                                                 selection.m.miesenberger = selection_index_miesenberger[which(selection_index_name==nodes[[groupnr]]$'Selection Index')],
+                                                 selection.m.miesenberger = if(n_traits>0){selection_index_miesenberger[which(selection_index_name==nodes[[groupnr]]$'Selection Index')]} else{FALSE} ,
                                                  multiple.bve.scale.m = selection_index_miesenberger_wscaling[which(selection_index_name==nodes[[groupnr]]$'Selection Index')],
                                                  n.observation = add.observation,
                                                  remove.effect.position = remove.effect.position,
@@ -3827,9 +3835,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
-
-
-
 
 
 

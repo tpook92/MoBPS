@@ -5,7 +5,7 @@
 \title{Generation of genomic traits}
 \usage{
 creating.trait(
-  population = NULL,
+  population,
   real.bv.add = NULL,
   real.bv.mult = NULL,
   real.bv.dice = NULL,

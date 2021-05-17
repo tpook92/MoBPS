@@ -32,26 +32,30 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 miraculix <- function(population){
 
-  if(population$info$miraculix){
-    stop("Miraculix is already active. Why do you use this function?")
-  } else{
-    population$info$miraculix <- TRUE
-  }
+  if (requireNamespace("miraculix", quietly = TRUE)) {
+    if(population$info$miraculix){
+      stop("Miraculix is already active. Why do you use this function?")
+    } else{
+      population$info$miraculix <- TRUE
+    }
 
-  for(gen in 1:length(population$breeding)){
-    for(sex in 1:2){
-      if(length(population$breeding[[gen]][[sex]])){
-        for(nr in 1:length(population$breeding[[gen]][[sex]])){
+    for(gen in 1:length(population$breeding)){
+      for(sex in 1:2){
+        if(length(population$breeding[[gen]][[sex]])){
+          for(nr in 1:length(population$breeding[[gen]][[sex]])){
 
-          if(length(population$breeding[[gen]][[sex]][[nr]][[9]])>0){
-            genotype <- cbind(population$breeding[[gen]][[sex]][[nr]][[9]], population$breeding[[gen]][[sex]][[nr]][[10]] )
-            population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::haplomatrix(genotype)
-            population$breeding[[gen]][[sex]][[nr]][[10]] <- "Placeholder_Pointer_Martin"
+            if(length(population$breeding[[gen]][[sex]][[nr]][[9]])>0){
+              genotype <- cbind(population$breeding[[gen]][[sex]][[nr]][[9]], population$breeding[[gen]][[sex]][[nr]][[10]] )
+              population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::haplomatrix(genotype)
+              population$breeding[[gen]][[sex]][[nr]][[10]] <- "Placeholder_Pointer_Martin"
+            }
           }
         }
-      }
 
+      }
     }
+  } else{
+
   }
 
   return(population)

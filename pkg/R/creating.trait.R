@@ -65,7 +65,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL,
+creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL,
                            bv.total=0, polygenic.variance=100,
                            bve.mult.factor=NULL, bve.poly.factor=NULL, base.bv=NULL,
                            new.phenotype.correlation=NULL,
@@ -272,6 +272,68 @@ creating.trait <- function(population=NULL, real.bv.add=NULL, real.bv.mult=NULL,
   if(length(real.bv.dice)>0 && !is.list(real.bv.dice)){
     real.bv.dice <- list(real.bv.dice)
   }
+
+  {
+  # Check for missingness in real.bvs and replace with reasonable inputs
+  cum_snp <- cumsum(population$info$snp)
+
+  if(length(real.bv.add)>0){
+    for(index in 1:length(real.bv.add)){
+      while(sum(is.na(real.bv.add[[index]][,1:2]))>0){
+
+        effect_marker <- (1:sum(population$info$snp))
+        if(length(exclude.snps)>0){
+          effect_marker <- effect_marker[-exclude.snps]
+        }
+
+
+        add_marker <- sample(effect_marker, nrow(real.bv.add[[index]]), replace=if(nrow(real.bv.add[[index]])>length(effect_marker)){TRUE} else{FALSE})
+        add_snp <- real.bv.add[[index]][,1]
+        add_chromo <- real.bv.add[[index]][,2]
+
+        for(index2 in (1:nrow(real.bv.add[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+          add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
+          add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
+        }
+
+        enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])
+
+        real.bv.add[[index]][enter,1:2] <- cbind(add_snp, add_chromo)[enter,]
+      }
+    }
+  }
+
+  if(length(real.bv.mult)>0){
+    for(index in 1:length(real.bv.mult)){
+      for(columns in c(0,2)){
+        while(sum(is.na(real.bv.mult[[index]][,1:2+columns]))>0){
+
+          effect_marker <- (1:sum(population$info$snp))
+          if(length(exclude.snps)>0){
+            effect_marker <- effect_marker[-exclude.snps]
+          }
+
+
+          add_marker <- sample(effect_marker, nrow(real.bv.mult[[index]]), replace=if(nrow(real.bv.mult[[index]])>length(effect_marker)){TRUE} else{FALSE})
+          add_snp <- real.bv.mult[[index]][,1]
+          add_chromo <- real.bv.mult[[index]][,2]
+
+          for(index2 in (1:nrow(real.bv.mult[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+            add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
+            add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
+          }
+
+          enter <- add_chromo==real.bv.mult[[index]][,2+columns] | is.na(real.bv.mult[[index]][,2])
+
+          real.bv.mult[[index]][enter,1:2+columns] <- cbind(add_snp, add_chromo)[enter,]
+        }
+      }
+
+    }
+  }
+  }
+
+
   so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
   if(length(trait_sum)){
     for(index_trait in 1:length(trait_sum)){

@@ -121,13 +121,13 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
 
 
   if(n.gen>1){
-    if(display.progress){
+    if(verbose && display.progress){
       pb <- utils::txtProgressBar(min = 0, max = n.gen, style = 3)
     }
 
     for(index in 1: (n.gen-1)){
 
-      if(display.progress){
+      if(verbose && display.progress){
         utils::setTxtProgressBar(pb, index)
       }
 
@@ -148,13 +148,13 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
     }
   }
 
-  if(display.progress){
+  if(verbose && display.progress){
     utils::setTxtProgressBar(pb, n.gen)
   }
 
   population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = verbose)
 
-  if(display.progress){
+  if(verbose && display.progress){
     close(pb)
   }
 
@@ -191,7 +191,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
   storage.mode(haplo) <- "integer"
 
   if(big.output){
-    pedigree <- kinship.exp.store(population, gen = nrow(population$info$size), depth.pedigree = depth.pedigree)
+    pedigree <- kinship.exp.store(population, gen = nrow(population$info$size), depth.pedigree = depth.pedigree, verbose = verbose)
     return(list(haplo, map, population, pedigree))
   } else{
     return(haplo)
