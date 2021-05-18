@@ -1503,6 +1503,18 @@ breeding.diploid <- function(population,
 
   if(length(offspring.bve.offspring.gen)>0 || length(offspring.bve.offspring.database)>0 || length(offspring.bve.offspring.cohorts)>0){
     offspring.bve.offspring.database <- get.database(population, offspring.bve.offspring.gen, offspring.bve.offspring.database, offspring.bve.offspring.cohorts)
+
+    list_of_copy <- list()
+    for(gen_check in 1:nrow(offspring.bve.parents.database)){
+      for(gen_check2 in offspring.bve.parents.database[gen_check,3]:offspring.bve.parents.database[gen_check,4]){
+        first_gen <- min(first_gen, population$breeding[[offspring.bve.parents.database[gen_check,1]]][[offspring.bve.parents.database[gen_check,2]]][[gen_check2]][[21]][,1])
+        list_of_copy[[length(list_of_copy)+1]] <- rbind(offspring.bve.parents.database[gen_check,1], offspring.bve.parents.database[gen_check,2], gen_check2 ,
+                                                        t(population$breeding[[offspring.bve.parents.database[gen_check,1]]][[offspring.bve.parents.database[gen_check,2]]][[gen_check2]][[21]]), deparse.level = 0)
+      }
+    }
+    list_of_copy <- matrix(unlist(list_of_copy), ncol=6, byrow=TRUE)
+    list_of_copy <- list_of_copy[!(list_of_copy[,1]==list_of_copy[,4] & list_of_copy[,2]==list_of_copy[,5] & list_of_copy[,3]==list_of_copy[,6]),]
+
   } else if(offspring.bve){
     if(verbose) cat("No potential offspring for phenotype import given. Consider all potential individuals.\n")
     first_gen <- min(offspring.bve.parents.database[,1])
