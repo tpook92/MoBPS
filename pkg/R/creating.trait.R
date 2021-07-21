@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param dominate.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
@@ -77,6 +78,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
                            n.equal.dominant=0,
                            n.qualitative=0,
                            n.quantitative=0,
+                           dominate.only.positive = FALSE,
                            var.additive.l=NULL,
                            var.dominant.l=NULL,
                            var.qualitative.l=NULL,
@@ -97,6 +99,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
                            is.maternal=NULL,
                            is.paternal=NULL){
 
+
   if(length(randomSeed)>0){
     set.seed(randomSeed)
   }
@@ -110,6 +113,9 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
   } else{
     var.target <- 10
   }
+
+
+  preserve.bve <- length(population)==0
 
   if(length(new.phenotype.correlation)>0){
     new.residual.correlation <- new.phenotype.correlation
@@ -440,8 +446,16 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
           dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
           dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
         }
+
         dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
-        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
+
+        if(dominate.only.positive){
+          temp1 <- dom_effect
+          temp1[temp1<0] <- 0
+        } else{
+          temp1 <- dom_effect
+        }
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect))
 
       }
 
@@ -499,7 +513,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     }
   }
 
-  perserve_bve <- length(population)==0
+
 
 
   if(length(real.bv.add)>0 && !is.list(real.bv.add)){
@@ -644,7 +658,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
 
 
-  } else if(perserve_bve){
+  } else if(preserve.bve){
     population$info$bve <- FALSE
     population$info$bv.nr <- 0
     population$info$bv.calc <- 0
@@ -735,6 +749,10 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
       population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
       population$breeding[[generation]][[22]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+      population$breeding[[generation]][[27]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
+      population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+      population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
+      population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
   }
 
   if(length(shuffle.traits)>0){

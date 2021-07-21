@@ -116,7 +116,7 @@ founder.simulation(
 
 \item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
 
-\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
+\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
 
 \item{verbose}{Set to FALSE to not display any prints}
 

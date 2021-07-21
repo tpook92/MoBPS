@@ -59,7 +59,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
 #' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
 #' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
-#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
+#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' population <- founder.simulation(nindi=100, nsnp=1000, n.gen=5)

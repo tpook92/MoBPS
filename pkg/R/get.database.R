@@ -64,7 +64,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
       database2[index,] <- c(gen,sex,first,last)
     }
     if(sum(is.na(database2))>0){
-      warning("Cohort-name is not available! \nCheck cohort names (in particular for added '_W' and '_M') / get.cohorts()!")
+      warning("Cohort-name is not available! \nCheck cohort names (in particular for added '_F' and '_M') / get.cohorts()!")
     }
     database <- rbind(database, database2)
   }

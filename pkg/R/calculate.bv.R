@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
 #' @param nbits Bits available in MoBPS-bit-storing
 #' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
+#' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @return [[1]] true genomic value [[2]] allele frequency at QTL markers
 #' @examples
 #' data(ex_pop)
@@ -41,7 +42,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,
                          decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
-                         bit.storing=FALSE, nbits=30, output_compressed=FALSE){
+                         bit.storing=FALSE, nbits=30, output_compressed=FALSE,
+                         bv.ignore.traits=NULL){
 
   # Falls noetig koennten Haplotypen hier erst bestimmt werden.
   if(population$info$miraculix){
@@ -90,8 +92,21 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
   bv_final <- numeric(length(activ_bv))
   snp.before <- population$info$cumsnp
   cindex <- 1
+  back <- 0
   for(bven in activ_bv){
 
+
+    if(length(intersect(bv.ignore.traits, bven))==1){
+      back <- back +1
+      cindex <- cindex+1
+      next
+
+      # NEED TO ADJUST effect.p.add.same or this!
+    } else{
+      back_old <- back
+      back <- 0
+
+    }
     if(population$info$is.maternal[bven]){
       geno <- geno_mother
     } else if(population$info$is.paternal[bven]){
@@ -108,8 +123,13 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     # Additive Effekte -Vektorielle loesung
     if(length(real.bv.adds)>0){
 
+      recalc <- FALSE
 
-      if(!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1]))){
+      for(temp1 in 0:back_old){
+        recalc <- recalc || (!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1])))
+      }
+
+      if(recalc){
         position <- population$info$effect.p.add[[bven]]
         neff <- nrow(real.bv.adds)
         take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]

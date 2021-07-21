@@ -82,7 +82,7 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
   titel <- t(population$info$snp.base[,relevant.snps])
 
   n.animals <- sum(database[,4] - database[,3] +1)
-  data <- matrix(0, ncol=n.animals, nrow=nsnp)
+  data <- matrix(0L, ncol=n.animals, nrow=nsnp)
   before <- 0
   names <- numeric(n.animals)
   colnames(titel) <- c("Major_Allel", "Minor_Allel")

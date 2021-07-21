@@ -53,6 +53,7 @@ creating.diploid(
   n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
+  dominate.only.positive = FALSE,
   var.additive.l = NULL,
   var.dominant.l = NULL,
   var.qualitative.l = NULL,
@@ -182,6 +183,8 @@ creating.diploid(
 
 \item{n.quantitative}{Number of quantitative epistatic QTL}
 
+\item{dominate.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
+
 \item{var.additive.l}{Variance of additive QTL}
 
 \item{var.dominant.l}{Variance of dominante QTL}
@@ -224,7 +227,7 @@ creating.diploid(
 
 \item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
 
-\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()}
+\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
 
 \item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 

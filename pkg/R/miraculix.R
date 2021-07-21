@@ -34,7 +34,8 @@ miraculix <- function(population){
 
   if (requireNamespace("miraculix", quietly = TRUE)) {
     if(population$info$miraculix){
-      stop("Miraculix is already active. Why do you use this function?")
+      warning("Miraculix is already active. Why do you use this function?")
+      return(population)
     } else{
       population$info$miraculix <- TRUE
     }
@@ -55,6 +56,7 @@ miraculix <- function(population){
       }
     }
   } else{
+    warning("miraculix is not available! No conversion possible")
 
   }
 

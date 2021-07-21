@@ -51,6 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param dominate.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
@@ -91,7 +92,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param trait.name Name of the trait generated
 #' @param share.genotyped Share of individuals genotyped in the founders
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
-#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via ensembl.map()
+#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
 #' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
 #' @param mean.target Target mean
@@ -130,6 +131,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              n.equal.dominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
+                             dominate.only.positive = FALSE,
                              var.additive.l=NULL,
                              var.dominant.l=NULL,
                              var.qualitative.l=NULL,
@@ -183,6 +185,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(new.phenotype.correlation)>0){
     new.residual.correlation <- new.phenotype.correlation
   }
+
+  if(length(population)>0 & length(chr.nr)>0 & add.chromosome==FALSE){
+    warning("chr.nr has automatically been set to NULL.\nThis parameter should only be used when modifiying the genome (e.g. adding chromosome / initial setup).")
+    chr.nr <- NULL
+  }
+  preserve.bve <- length(population)==0
 
   if(length(map)>0){
     while(ncol(map)<5){
@@ -416,7 +424,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         hom0 <- vcf_file@fix[,4]
         hom1 <- vcf_file@fix[,5]
       } else{
-        vcf_file <- utils::read.table(vcf)
+        vcf_file <- as.matrix(utils::read.table(vcf))
         vcf_data <- vcf_file[,-(1:9)]
         dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
         dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
@@ -787,7 +795,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
           }
           dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
-          real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,dom_effect,dom_effect))
+
+          if(dominate.only.positive){
+            temp1 <- dom_effect
+            temp1[temp1<0] <- 0
+          } else{
+            temp1 <- dom_effect
+          }
+          real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect))
 
         }
 
@@ -849,7 +864,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
-    perserve_bve <- length(population)==0
+
 
     if(length(population)>0 && length(population$info$bitstoring)>0){
       nbits <- population$info$bitstoring
@@ -1609,6 +1624,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        real.bv.add = real.bv.add,
                                        real.bv.mult = real.bv.mult,
                                        real.bv.dice = real.bv.dice,
+                                       base.bv = base.bv,
+                                       bve.mult.factor = bve.mult.factor,
+                                       bve.poly.factor = bve.poly.factor,
                                        freq = freq_activ,
                                        bpcm.conversion = bpcm.conversion[chr_index],
                                        remove.invalid.qtl=FALSE,
@@ -1662,6 +1680,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        real.bv.add = real.bv.add,
                                        real.bv.mult = real.bv.mult,
                                        real.bv.dice = real.bv.dice,
+                                     base.bv = base.bv,
+                                     bve.mult.factor = bve.mult.factor,
+                                     bve.poly.factor = bve.poly.factor,
                                        hom0 =population$info$snp.base[1,],
                                        hom1 =population$info$snp.base[2,],
                                        remove.invalid.qtl =FALSE,
@@ -1707,7 +1728,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
-    } else if(perserve_bve){
+    } else if(preserve.bve){
       population$info$bve <- FALSE
       population$info$bv.nr <- 0
       population$info$bv.calc <- 0

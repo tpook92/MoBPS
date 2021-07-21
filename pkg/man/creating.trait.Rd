@@ -23,6 +23,7 @@ creating.trait(
   n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
+  dominate.only.positive = FALSE,
   var.additive.l = NULL,
   var.dominant.l = NULL,
   var.qualitative.l = NULL,
@@ -80,6 +81,8 @@ creating.trait(
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
 \item{n.quantitative}{Number of quantitative epistatic QTL}
+
+\item{dominate.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
 
 \item{var.additive.l}{Variance of additive QTL}
 

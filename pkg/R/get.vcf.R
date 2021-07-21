@@ -59,10 +59,13 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
 
   vcfgeno <- matrix(paste0(haplo[,(1:(ncol(haplo)/2))*2], "|", haplo[,(1:(ncol(haplo)/2))*2-1]), ncol=ncol(haplo)/2)
 
-  is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts)
+  if(non.genotyped.as.missing){
+    is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts)
 
-  if(sum(!is_genotyped)>0){
-    vcfgeno[!is_genotyped] <- "./."
+    if(sum(!is_genotyped)>0){
+      vcfgeno[!is_genotyped] <- "./."
+    }
+
   }
 
 
@@ -78,8 +81,18 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
     "##fileformat=VCFv4.2",
     gsub("-", "", paste0("##filedate=",  Sys.Date())),
     paste0("##source='MoBPS_", utils::packageVersion("MoBPS"),"'"),
-    "##FORMAT=<ID=GT,Number=1,Type=String,Description='Genotype'>"
+    '##FILTER=<ID=PASS,Description="all filters passed">'
   )
+
+  nchr <- unique(chr.nr)
+  contigs <- numeric(length(nchr))
+  for(index in 1:length(nchr)){
+    contigs[index] <- paste0("##contig=<ID=", nchr[index],",length=", max(as.numeric(bp)[chr.nr==nchr[index]]),">")
+  }
+
+  headerfile <- rbind(headerfile, t(t(contigs)),     "##FORMAT=<ID=GT,Number=1,Type=String,Description='Genotype'>")
+
+
 
   utils::write.table(headerfile, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE)
   utils::write.table(vcfgenofull, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE, append = TRUE, sep="\t")

@@ -15,7 +15,8 @@ calculate.bv(
   store.effect.freq = FALSE,
   bit.storing = FALSE,
   nbits = 30,
-  output_compressed = FALSE
+  output_compressed = FALSE,
+  bv.ignore.traits = NULL
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ calculate.bv(
 \item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
+
+\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 }
 \value{
 [[1]] true genomic value [[2]] allele frequency at QTL markers

@@ -246,13 +246,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
 #' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @param bve.ignore.traits Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)
+#' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param genotyped.gen Generations to generate genotype data (that can be used in a BVE)
 #' @param genotyped.database Groups to generate genotype data (that can be used in a BVE)
 #' @param genotyped.cohorts Cohorts to generate genotype data (that can be used in a BVE)
 #' @param genotyped.share Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)
 #' @param genotyped.array Genotyping array used
 #' @param bve.imputation Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available
-#' @param bve.imputation.errorrate Share of errors in the imputation procedure (default: 0.01)
+#' @param bve.imputation.errorrate Share of errors in the imputation procedure (default: 0)
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param new.bv.observation.gen (OLD! use phenotyping.gen) Vector of generation from which to generate additional phenotypes
 #' @param new.bv.observation.cohorts (OLD! use phenotyping.cohorts)Vector of cohorts from which to generate additional phenotype
@@ -512,6 +513,7 @@ breeding.diploid <- function(population,
             threshold.sign=">",
             input.phenotype="own",
             bve.ignore.traits=NULL,
+            bv.ignore.traits=NULL,
             genotyped.database = NULL,
             genotyped.gen = NULL,
             genotyped.cohorts = NULL,
@@ -1233,7 +1235,8 @@ breeding.diploid <- function(population,
                                        activ_bv, import.position.calculation=import.position.calculation,
                                        decodeOriginsU=decodeOriginsU,
                                        store.effect.freq=store.effect.freq,
-                                       bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+                                       bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE,
+                                       bv.ignore.traits=bv.ignore.traits)
               population$breeding[[index]][[6+sex]][activ_bv,nr.animal] <- temp_out[[1]]
               if(store.effect.freq){
                 if(length(population$info$store.effect.freq) < index || length(population$info$store.effect.freq[[index]])==0){
@@ -1270,7 +1273,7 @@ breeding.diploid <- function(population,
         k.database <- sigma.g.database[index,]
         if(diff(k.database[3:4])>=0){
           for(kindex in k.database[3]:k.database[4]){
-            y_real[cindex,temp1] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][temp2, kindex]
+            y_real[cindex,temp2] <- population$breeding[[k.database[[1]]]][[6+k.database[[2]]]][temp2, kindex]
             cindex <- cindex +1
           }
         }
@@ -1282,7 +1285,7 @@ breeding.diploid <- function(population,
 
     }
     population$info$current.bv.correlation <- population$info$bv.correlation
-    if(sum(is.na(population$info$bv.correlation))){
+    if(sum(is.na(population$info$bv.correlation))>0){
       emp_cor <- which(is.na(population$info$bv.correlation), arr.ind=TRUE)
       for(index in 1:nrow(emp_cor)){
         population$info$current.bv.correlation[emp_cor[index,1], emp_cor[index,2]] <-
@@ -1504,6 +1507,7 @@ breeding.diploid <- function(population,
   if(length(offspring.bve.offspring.gen)>0 || length(offspring.bve.offspring.database)>0 || length(offspring.bve.offspring.cohorts)>0){
     offspring.bve.offspring.database <- get.database(population, offspring.bve.offspring.gen, offspring.bve.offspring.database, offspring.bve.offspring.cohorts)
 
+    first_gen <- min(offspring.bve.parents.database[,1])
     list_of_copy <- list()
     for(gen_check in 1:nrow(offspring.bve.parents.database)){
       for(gen_check2 in offspring.bve.parents.database[gen_check,3]:offspring.bve.parents.database[gen_check,4]){
@@ -1980,9 +1984,7 @@ breeding.diploid <- function(population,
 
     }
 
-    if(bve.imputation.errorrate>0){
-      warning("Simulation of imputing errors currently not implemented!")
-    }
+
     # sequenceZ is to not process all SNPs at the same time. Especially relevant for large scale datasets!
     if(sequenceZ){
       if(maxZtotal>0){
@@ -2256,7 +2258,66 @@ breeding.diploid <- function(population,
       }
       if(verbose) cat(paste0(sum(population$info$snp) - length(to_remove), " markers survived filtering for BVE.\n"))
 
+
     }
+
+    if(bve.imputation.errorrate>0){
+
+      if(length(to_remove)>0){
+        is_imputed <- get.genotyped.snp(population, database = cbind(loop_elements[,4], loop_elements[,5], loop_elements[,2]))[-to_remove,]==0
+      } else{
+        is_imputed <- get.genotyped.snp(population, database = cbind(loop_elements[,4], loop_elements[,5], loop_elements[,2]))==0
+      }
+
+
+      if(miraculix && exists("Z.code")){
+        if (requireNamespace("miraculix", quietly = TRUE)) {
+          temp1 <- as.matrix(Z.code)[is_imputed]
+        }
+      } else{
+        temp1 <- Zt[is_imputed]
+      }
+
+
+      temp2 <- temp1
+      zeros <- which(temp1==0)
+      ones <- which(temp1==1)
+      twos <- which(temp1==2)
+
+      if(length(zeros)>0){
+        temp1[zeros][stats::rbinom(length(zeros),1,bve.imputation.errorrate^2)==1] <- 2
+        temp1[zeros][stats::rbinom(length(zeros),1,2*bve.imputation.errorrate * (1-bve.imputation.errorrate))==1 & temp1[zeros]==0] <- 1
+      }
+
+
+      if(length(ones)>0){
+        temp1[ones][stats::rbinom(length(ones),1,bve.imputation.errorrate*(1-bve.imputation.errorrate))==1] <- 0
+        temp1[ones][stats::rbinom(length(ones),1,bve.imputation.errorrate*(1-bve.imputation.errorrate))==1 & temp1[ones]==1] <- 2
+      }
+
+
+      if(length(twos)>0){
+        temp1[twos][stats::rbinom(length(twos),1,bve.imputation.errorrate^2)==1] <- 0
+        temp1[twos][stats::rbinom(length(twos),1,2*bve.imputation.errorrate * (1-bve.imputation.errorrate))==1 & temp1[twos]==2] <- 1
+      }
+
+
+      if(miraculix && exists("Z.code")){
+        if (requireNamespace("miraculix", quietly = TRUE)) {
+
+          Z.code <- as.matrix(Z.code)
+          Z.code[is_imputed] <- temp1
+          Z.code <- miraculix::genomicmatrix(Z.code)
+        }
+      } else{
+        Zt[is_imputed] <- temp1
+      }
+
+      if(verbose) cat(paste0("A total of ", length(temp1), " entries in the genotype matrix were imputed.\n"))
+      if(verbose) cat(paste0("Accuracy of the imputation: ", mean(temp1==temp2), ".\n"))
+
+    }
+
 
     if(bve.0isNA){
       y[y==0] <- NA
@@ -4340,7 +4401,7 @@ breeding.diploid <- function(population,
           population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[15]] <- rep(0L, population$info$bv.nr)
           activ_bv <- population$info$bv.random.activ
           if(length(activ_bv)>0){
-            temp_out <- calculate.bv(population, activ[1], activ[2], activ[3], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+            temp_out <- calculate.bv(population, activ[1], activ[2], activ[3], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE, bv.ignore.traits=bv.ignore.traits)
             population$breeding[[activ[1]]][[6+activ[2]]][activ_bv,activ[3]] <- temp_out[[1]]
           }
           population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[17]] <- c(population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[17]] ,population$breeding[[activ[1]]][[6+activ[2]]][,activ[3]])
@@ -4841,7 +4902,7 @@ breeding.diploid <- function(population,
                               activ_bv <- population$info$bv.random.activ
 
                               if(length(activ_bv)>0){
-                                temp_out <- calculate.bv(population, current.gen+1, sex_running, indexb + present_before, activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+                                temp_out <- calculate.bv(population, current.gen+1, sex_running, indexb + present_before, activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE,bv.ignore.traits=bv.ignore.traits)
                                 new.bv[activ_bv] <- temp_out[[1]]
                                 if(store.effect.freq){
                                   if(length(population$info$store.effect.freq) < (current.gen+1) || length(population$info$store.effect.freq[[current.gen+1]])==0){
@@ -5427,7 +5488,7 @@ breeding.diploid <- function(population,
         activ_bv <- population$info$bv.random.activ
         if(length(activ_bv)>0){
           if(!copy.individual || store.effect.freq){
-            temp_out <- calculate.bv(population, current.gen+1, sex, current.size[sex], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+            temp_out <- calculate.bv(population, current.gen+1, sex, current.size[sex], activ_bv, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, store.effect.freq=store.effect.freq, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE, bv.ignore.traits=bv.ignore.traits)
             new.bv[activ_bv] <- temp_out[[1]]
 
             if(store.effect.freq){

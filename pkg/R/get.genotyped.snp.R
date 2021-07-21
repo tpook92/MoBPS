@@ -71,7 +71,7 @@ get.genotyped.snp <- function(population, database=NULL, gen=NULL, cohorts=NULL,
             marker[which(population$info$array.markers[[ccc]]==1)] <- TRUE
           }
           data[, before + rindex] <- marker
-          names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", index, "_", animals[1], sep="")
+          names[(before+rindex)] <- paste(if(animals[2]==1) "M" else "F", index, "_", animals[1], sep="")
           rindex <- rindex + 1
         }
         before <- before + nanimals

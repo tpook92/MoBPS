@@ -240,6 +240,7 @@ breeding.diploid(
   threshold.sign = ">",
   input.phenotype = "own",
   bve.ignore.traits = NULL,
+  bv.ignore.traits = NULL,
   genotyped.database = NULL,
   genotyped.gen = NULL,
   genotyped.cohorts = NULL,
@@ -725,6 +726,8 @@ breeding.diploid(
 
 \item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
 
+\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
+
 \item{genotyped.database}{Groups to generate genotype data (that can be used in a BVE)}
 
 \item{genotyped.gen}{Generations to generate genotype data (that can be used in a BVE)}
@@ -739,7 +742,7 @@ breeding.diploid(
 
 \item{bve.imputation}{Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available}
 
-\item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0.01)}
+\item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0)}
 
 \item{share.phenotyped}{Share of the individuals to phenotype}
 

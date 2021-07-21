@@ -57,6 +57,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             export.gen=NULL,
                             export.timepoint=NULL,
                             fixed.generation.order=NULL){
+
   if(length(log)==0 && length(file)>0){
     log <- paste0(file, ".log")
   } else if(length(log)==0 && length(file)==0){
@@ -266,7 +267,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       if(n_traits>0){
         trafos <- list()
         combi_weights <- list()
-        trait_matrix <- matrix(0, nrow=n_traits, ncol=15)
+        trait_matrix <- matrix(0, nrow=n_traits, ncol=18)
         for(index in 1:n_traits){
           trait_matrix[index,1] <- traitinfo[[index]]$`Trait Name`
           trait_matrix[index,2] <- traitinfo[[index]]$`Trait Unit`
@@ -307,6 +308,18 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             }
           } else{
             trait_matrix[index,15] <- FALSE
+          }
+
+          if(length(traitinfo[[index]]$`additive_equal`)==1){
+            trait_matrix[index,16] <- traitinfo[[index]]$`additive_equal`
+          }
+          if(length(traitinfo[[index]]$`dominant_equal`)==1){
+            trait_matrix[index,17] <- traitinfo[[index]]$`dominant_equal`
+          }
+          if(length(traitinfo[[index]]$`dominant_positive`)==1){
+            trait_matrix[index,18] <- traitinfo[[index]]$`dominant_positive`
+          } else{
+            trait_matrix[index,18]  <- FALSE
           }
 
 
@@ -1064,8 +1077,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             map <- MoBPSmaps::map_salmon1
           } else if(geninfo$`Ensembl Dataset`== "96k_AtlanticSalmon_female_Tsai"){
             map <- MoBPSmaps::map_salmon2
+          } else if(geninfo$`Ensembl Dataset`== "68k_NileTilapia_Penaloza"){
+            map <- MoBPSmaps::map_salmon2
           } else{
-            map <- ensembl.map(dataset = geninfo$'Ensembl Dataset',
+            map <- MoBPSmaps::ensembl.map(dataset = geninfo$'Ensembl Dataset',
                                filter = geninfo$'Ensembl Filter',
                                filter.values = geninfo$'Ensembl Filter Values')
           }
@@ -1740,6 +1755,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        n.dominant = as.numeric(trait_matrix[,9]),
                                        n.qualitative = as.numeric(trait_matrix[,10]),
                                        n.quantitative = as.numeric(trait_matrix[,11]),
+                                       n.equal.additive = as.numeric(trait_matrix[,16]),
+                                       n.equal.dominant = as.numeric(trait_matrix[,17]),
+                                       dominate.only.positive = as.logical(trait_matrix[,18]),
                                        shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
                                        shuffle.traits=1:n_traits,
                                        trait.name = trait_matrix[,1], verbose=verbose,
@@ -2939,10 +2957,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         expected_time[,4] <- as.numeric(expected_time[,2]) + as.numeric(expected_time[,3])
 
 
+
+        t1 <- round(sum(as.numeric(expected_time[,2])) / 60, digits=1)
+        t2 <- round(sum(as.numeric(expected_time[,3])) / 60, digits=1)
+        t <- round(sum(as.numeric(expected_time[,4])) / 60, digits=1)
         if(verbose){
-          t1 <- round(sum(as.numeric(expected_time[,2])) / 60, digits=1)
-          t2 <- round(sum(as.numeric(expected_time[,3])) / 60, digits=1)
-          t <- round(sum(as.numeric(expected_time[,4])) / 60, digits=1)
           if(t > 200){
             cat(paste0("Your simulation is expected to take ", round(t/60, digits=2), " hours on this operating system!!!\n" ))
             cat(paste0(round(t1/60, digits=2), " hours are due to breeding value estimation.\n" ))
@@ -3835,7 +3854,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
   }
-
 
 
 }
