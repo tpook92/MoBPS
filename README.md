@@ -23,7 +23,22 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
-### Version 1.6.31 (01.04.22)
+### Version 1.6.47 (30.7.21)
+
+Added functions to generate dendrograms / build phylogenetic trees (get.dendrogram() / get.dendrogram.heatmap() / get.gendrogram.trait() / get.phylogenetic.tree() )
+
+Allow for automatic imputation / imputation error simulation in BVE (bve.imputation.errorrate (default: 0))
+
+Dominante QTL can now all have the higher effect (( dominate.only.positive (default = FALSE); e.g. to generate a trait architecture that benefits from hybrid breeding programs))
+
+Added function to extract which markers are genotyped for which individual (get.genotyped.snp() )
+
+get.vcf() / get.pedmap() can generate file that include missing calls based on each marker being genotyped
+
+Advanced feature to ignore some traits (bv.ignore.traits) to speed up computations when a high number of traits is considered but only some are relevant for a given cohort
+
+
+### Version 1.6.31 (01.04.21)
 
 Parallel generation of individuals is disabled for now.
 
@@ -38,7 +53,7 @@ Added functionality for simulate a given pedigree (( pedigree.simulation() ))
 Adaptation of json.simulation to newly added modules in the web-interface
 
 
-### Version 1.6.22 (01.02.22)
+### Version 1.6.22 (01.02.21)
 Added OCS functionality using the R-package optiSel (Wellmann et al. 2019)
 
 Map-file / map parameter in creating.diploid() are now conform to PLINK format (3rd column: Morgan position 4th column bp position)
@@ -184,8 +199,6 @@ Fixed a bug when partically phenotyping individuals
 Fixed a bug when traits were deleted from the population-list in creating.trait()
 
 #### Still in work: 
-
-simulation of imputation errors for BVE
 
 Use of genotyping arrays for GWAS
 
