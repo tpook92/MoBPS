@@ -120,13 +120,15 @@ creating.trait(
 
 \item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
 
-\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
-population <- creating.diploid(nsnp=1000, nindi=100)
-population <- creating.trait(population, n.additive=100)}
+\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
 }
 \value{
 Population-list with one or more additional new traits
 }
 \description{
 Generation of the trait in a starting population
+}
+\examples{
+population <- creating.diploid(nsnp=1000, nindi=100)
+population <- creating.trait(population, n.additive=100)
 }

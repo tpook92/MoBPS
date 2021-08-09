@@ -184,6 +184,7 @@ breeding.diploid(
   depth.pedigree = 7,
   depth.pedigree.ogc = 7,
   copy.individual.keep.bve = TRUE,
+  copy.individual.keep.pheno = TRUE,
   bve.avoid.duplicates = TRUE,
   report.accuracy = TRUE,
   share.genotyped = 1,
@@ -252,7 +253,8 @@ breeding.diploid(
   share.phenotyped = 1,
   avoid.mating.fullsib = FALSE,
   avoid.mating.halfsib = FALSE,
-  max.mating.pair = Inf
+  max.mating.pair = Inf,
+  bve.per.sample.sigma.e = TRUE
 )
 }
 \arguments{
@@ -614,6 +616,8 @@ breeding.diploid(
 
 \item{copy.individual.keep.bve}{Set to FALSE to not keep estimated breeding value in case of use of copy.individuals}
 
+\item{copy.individual.keep.pheno}{Set to FALSE to not keep estimated breeding values in case of use of copy.individuals}
+
 \item{bve.avoid.duplicates}{If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)}
 
 \item{report.accuracy}{Report the accuracy of the breeding value estimation}
@@ -751,6 +755,8 @@ breeding.diploid(
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
 
 \item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
+
+\item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample}
 }
 \value{
 Population-list

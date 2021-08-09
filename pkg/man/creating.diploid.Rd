@@ -83,7 +83,8 @@ creating.diploid(
   var.target = NULL,
   is.maternal = NULL,
   is.paternal = NULL,
-  vcf.maxsnp = Inf
+  vcf.maxsnp = Inf,
+  internal = FALSE
 )
 }
 \arguments{
@@ -244,6 +245,8 @@ creating.diploid(
 \item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
+
+\item{internal}{Dont touch!}
 }
 \value{
 Population-list

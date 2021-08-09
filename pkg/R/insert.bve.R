@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param type which time of values to input (default: "bve", alt: "bv", "pheno")
 #' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
 #' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
+#' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' bv <- get.bv(ex_pop, gen=2)
@@ -35,7 +36,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Population-List with newly entered estimated breeding values
 #' @export
 
-insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count=1){
+insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count=1, count.only.increase=TRUE){
 
   add <- 2
   if(type=="bv"){
@@ -63,7 +64,13 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
       population$breeding[[gen]][[sex]][[nr]][[16]] <- count
     } else if(add==8){
       if(count > 0 ){
-        population$breeding[[gen]][[sex]][[nr]][[15]] <- (!is.na(population$breeding[[gen]][[sex+add]][,nr]))* count
+        temp1 <- (!is.na(population$breeding[[gen]][[sex+add]][,nr]))* count
+        if(count.only.increase){
+          population$breeding[[gen]][[sex]][[nr]][[15]][population$breeding[[gen]][[sex]][[nr]][[15]]<temp1] <- temp1[population$breeding[[gen]][[sex]][[nr]][[15]]<temp1]
+        } else{
+          population$breeding[[gen]][[sex]][[nr]][[15]] <- temp1
+        }
+
       }
     }
 

@@ -101,6 +101,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' @param enter.bv Internal parameter
+#' @param internal Dont touch!
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -161,7 +162,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              var.target=NULL,
                              is.maternal = NULL,
                              is.paternal = NULL,
-                             vcf.maxsnp=Inf){
+                             vcf.maxsnp=Inf,
+                             internal=FALSE){
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -1199,6 +1201,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$array.name = "Full_Array"
       population$info$array.markers = list(rep(TRUE,nsnp))
       population$info$array.is_subset = FALSE
+      population$info$default.parameter.name = NULL
+      population$info$default.parameter.value = list()
 
       if(length(is.maternal)==0){
         population$info$is.maternal <- rep(FALSE, bv.total)
@@ -1388,7 +1392,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[23]] <- NULL ## permanent environmental effects
         population$breeding[[generation]][[sex]][[counter[sex]]][[24]] <- NULL ## random environmental effects
 
-        population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- "placeholder"
+        population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- FALSE ## has BV been calculated
+        population$breeding[[generation]][[sex]][[counter[sex]]][[26]] <- NULL ## for which BV has been calculated
+
+        population$breeding[[generation]][[sex]][[counter[sex]]][[27]] <- "placeholder"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -1632,7 +1639,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        remove.invalid.qtl=FALSE,
                                        shuffle.traits = shuffle.traits,
                                        shuffle.cor = shuffle.cor,
-                                       verbose = verbose)
+                                       verbose = verbose,
+                                       internal=TRUE)
       }
     } else{
       if(min(diff(chr.nr))<0 || !miraculix.dataset){
@@ -1688,7 +1696,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        remove.invalid.qtl =FALSE,
                                      shuffle.traits = shuffle.traits,
                                      shuffle.cor = shuffle.cor,
-                                     verbose = verbose)
+                                     verbose = verbose,
+                                     internal=TRUE)
     }
 
   }
@@ -1759,6 +1768,17 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
+    if(length(shuffle.traits)==0){
+      if(length(shuffle.cor)>0){
+
+        if(ncol(shuffle.cor)==population$info$bv.calc){
+          shuffle.traits <- 1:population$info$bv.calc
+        } else{
+          shuffle.traits <- 1:ncol(shuffle.cor)
+          warning(paste0("shuffle.traits not specified! use the first ", ncol(shuffle.cor), " traits"))
+        }
+      }
+    }
     if(length(shuffle.traits)>0 ){
       if(length(shuffle.traits)==1){
         shuffle.traits <- which(population$info$bv.random==FALSE)
@@ -1958,6 +1978,11 @@ E.g. The entire human genome has a size of ~33 Morgan."))
   }
 
 
-  class(population) <- "population"
+
+  if(!internal){
+    population <- breeding.diploid(population)
+    class(population) <- "population"
+  }
+
   return(population)
 }

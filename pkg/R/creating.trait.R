@@ -60,6 +60,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
+#' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
 #' @return Population-list with one or more additional new traits
@@ -753,6 +754,18 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
       population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
       population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+  }
+
+  if(length(shuffle.traits)==0){
+    if(length(shuffle.cor)>0){
+
+      if(ncol(shuffle.cor)==population$info$bv.calc){
+        shuffle.traits <- 1:population$info$bv.calc
+      } else{
+        shuffle.traits <- 1:ncol(shuffle.cor)
+        warning(paste0("shuffle.traits not specified! use the first ", ncol(shuffle.cor), " traits"))
+      }
+    }
   }
 
   if(length(shuffle.traits)>0){

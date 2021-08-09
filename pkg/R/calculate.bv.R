@@ -93,6 +93,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
   snp.before <- population$info$cumsnp
   cindex <- 1
   back <- 0
+  first <- TRUE
   for(bven in activ_bv){
 
 
@@ -128,6 +129,11 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
       for(temp1 in 0:back_old){
         recalc <- recalc || (!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1])))
       }
+
+      if(first){
+        recalc <- TRUE
+      }
+      first <- FALSE
 
       if(recalc){
         position <- population$info$effect.p.add[[bven]]
