@@ -10,7 +10,8 @@ get.pedmap(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  non.genotyped.as.missing = FALSE
+  non.genotyped.as.missing = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get.pedmap(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
 }
 \value{
 Ped and map-file for in gen/database/cohorts selected individuals

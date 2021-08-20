@@ -11,7 +11,8 @@ get.vcf(
   gen = NULL,
   cohorts = NULL,
   chromosomen = "all",
-  non.genotyped.as.missing = FALSE
+  non.genotyped.as.missing = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.vcf(
 \item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
 }
 \value{
 VCF-file for in gen/database/cohorts selected individuals

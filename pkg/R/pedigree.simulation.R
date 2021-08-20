@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to simulate a given pedigree
 #' @param pedigree Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)
+#' @param keep.ids Set to TRUE to keep the IDs from the pedigree-file instead of the default MoBPS ids
 #' @param plot Set to FALSE to not generate an overview of inbreeding and number of individuals over time
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
@@ -109,7 +110,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-pedigree.simulation <- function(pedigree, plot=TRUE,
+pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                               dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
                                                bpcm.conversion=0,
                                                nsnp=0, freq="beta", sex.s="fixed",
@@ -323,6 +324,20 @@ pedigree.simulation <- function(pedigree, plot=TRUE,
     }
     plot(((inbreeding-0.5) *2), col="red", type="l", lwd=2, ylab="inbreeding", xlab="generation")
     plot(table(gen), xlab="generation", ylab="number of individuals")
+  }
+
+  if(keep.ids){
+
+    for(index in 1:nrow(pedigree_position)){
+      activ <- pedigree_position[index,]
+      population$breeding[[activ[1]]][[activ[2]+14]][activ[3]] <- pedigree[index,1]
+    }
+
+    if(prod(is.numeric(pedigree[,1]))==1){
+      population$info$next.animal <- max(pedigree[index,1])+1
+    }
+
+
   }
 
   if(TRUE){

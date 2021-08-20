@@ -21,13 +21,15 @@ set.class(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{new.class}{Class to change to (either single character or vector for each individual when just a single group is selected)
-data(ex_pop)
-population <- set.class(ex_pop, database=cbind(1,1), new.class = 2)}
+\item{new.class}{Class to change to (either single character or vector for each individual when just a single group is selected)}
 }
 \value{
 Population-List with newly entered class values
 }
 \description{
 Function to export estimated breeding values
+}
+\examples{
+data(ex_pop)
+population <- set.class(ex_pop, database=cbind(1,1), new.class = 2)
 }

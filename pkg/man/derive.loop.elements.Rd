@@ -35,3 +35,8 @@ Matrix of individuals in the entered database
 \description{
 Internal function to derive the position of all individuals to consider for BVE/GWAS
 }
+\examples{
+data(ex_pop)
+derive.loop.elements(ex_pop, bve.database=get.database(ex_pop, gen=2),
+bve.class=NULL, bve.avoid.duplicates=TRUE)
+}

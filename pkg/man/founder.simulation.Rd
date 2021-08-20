@@ -7,7 +7,7 @@
 founder.simulation(
   nindi = 100,
   sex.quota = 0.5,
-  nsnp = 10000,
+  nsnp = 0,
   n.gen = 100,
   nfinal = NULL,
   sex.quota.final = NULL,

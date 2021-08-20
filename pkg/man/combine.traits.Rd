@@ -29,3 +29,8 @@ Population-list
 \description{
 Function to combine traits in the BVE
 }
+\examples{
+population <- creating.diploid(nsnp=100, nindi=100, n.additive = c(50,50))
+population <- combine.traits(population, combine.traits=1:2)
+population <- breeding.diploid(population, bve=TRUE, phenotyping.gen=1, heritability=0.3)
+}

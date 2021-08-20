@@ -26,13 +26,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
 #' @examples
 #' data(ex_pop)
 #' get.recombi(ex_pop, gen=2)
 #' @return Recombination points for in gen/database/cohorts selected individuals
 #' @export
 
-get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
 
   database <- get.database(population, gen, database, cohorts)
 
@@ -77,7 +78,12 @@ get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL){
 
         }
 
-        data[[rindex]][[5]] <- colnamed
+        if(use.id){
+          data[[rindex]][[5]] <- get.id(population, database = cbind(animals[1], animals[2],index,index))
+        } else{
+          data[[rindex]][[5]] <- colnamed
+        }
+
 
 
         rindex <- rindex + 1

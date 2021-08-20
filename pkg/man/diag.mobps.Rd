@@ -16,5 +16,5 @@ Diagonal matrix
 Function to add a genotyping array for the population
 }
 \examples{
-diag(5)
+diag.mobps(5)
 }

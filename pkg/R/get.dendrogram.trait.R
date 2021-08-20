@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param traits Traits to include in the dendrogram (default: all traits)
 #' @param type Which traits values to consider (default: "pheno", alt: "bv", "bve")
+#' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100, n.additive = c(100,100,100),
 #'                shuffle.cor = matrix(c(1,0.8,0.2,0.8,1,0.2,0.2,0.2,1), ncol=3), shuffle.traits = 1:3)
 #' population <- breeding.diploid(population, phenotyping = "all", heritability = 0.5)

@@ -27,13 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param use.all.copy Set to TRUE to extract phenotyping
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
 #' @examples
 #' data(ex_pop)
 #' get.pheno(ex_pop, gen=2)
 #' @return Phenotypes for in gen/database/cohorts selected individuals
 #' @export
 
-get.pheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.all.copy = FALSE){
+get.pheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.all.copy = FALSE, use.id=FALSE){
 
   database <- get.database(population, gen, database, cohorts)
 
@@ -80,8 +81,12 @@ get.pheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.all
     }
   }
 
-  row_names <- paste("Trait", 1:population$info$bv.nr)
-  colnames(data) <- names
-  rownames(data) <- row_names
+
+  if(use.id){
+    colnames(data) <- get.id(population, database = database)
+  } else{
+    colnames(data) <- names
+  }
+
   return(data)
 }

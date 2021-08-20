@@ -9,7 +9,8 @@ get.genotyped.snp(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  export.alleles = FALSE
+  export.alleles = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ get.genotyped.snp(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
 Binary Coded is/isnot genotyped level for in gen/database/cohorts selected individuals

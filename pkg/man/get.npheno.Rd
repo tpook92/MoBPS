@@ -9,7 +9,8 @@ get.npheno(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.all.copy = FALSE
+  use.all.copy = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ get.npheno(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals

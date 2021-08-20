@@ -29,13 +29,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param chromosomen Beschraenkung der Haplotypen auf bestimmte Chromosomen (default: 1)
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
 #' @examples
 #' data(ex_pop)
 #' haplo <- get.haplo(ex_pop, gen=2)
 #' @return Haplotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosomen="all", export.alleles=FALSE, non.genotyped.as.missing=FALSE){
+get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosomen="all", export.alleles=FALSE,
+                     non.genotyped.as.missing=FALSE, use.id=FALSE){
 
   if(length(chromosomen)==1 && chromosomen=="all"){
     subsetting <- FALSE
@@ -127,7 +129,13 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
     }
   }
 
-  colnames(data) <- names
+
+  if(use.id){
+    colnames(data) <- get.id(population, database = database)
+  } else{
+    colnames(data) <- names
+  }
+
   rownames(data) <- population$info$snp.name[relevant.snps]
   if(export.alleles){
     return(list(titel,data))

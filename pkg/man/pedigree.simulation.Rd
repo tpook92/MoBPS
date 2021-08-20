@@ -6,6 +6,7 @@
 \usage{
 pedigree.simulation(
   pedigree,
+  keep.ids = FALSE,
   plot = TRUE,
   dataset = NULL,
   vcf = NULL,
@@ -79,6 +80,8 @@ pedigree.simulation(
 }
 \arguments{
 \item{pedigree}{Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)}
+
+\item{keep.ids}{Set to TRUE to keep the IDs from the pedigree-file instead of the default MoBPS ids}
 
 \item{plot}{Set to FALSE to not generate an overview of inbreeding and number of individuals over time}
 

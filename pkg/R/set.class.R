@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param new.class Class to change to (either single character or vector for each individual when just a single group is selected)
+#' @examples
 #' data(ex_pop)
 #' population <- set.class(ex_pop, database=cbind(1,1), new.class = 2)
 #' @return Population-List with newly entered class values

@@ -4,7 +4,13 @@
 \alias{get.infos}
 \title{Extract bv/pheno/geno of selected individuals}
 \usage{
-get.infos(population, database = NULL, gen = NULL, cohorts = NULL)
+get.infos(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  use.id = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.infos(population, database = NULL, gen = NULL, cohorts = NULL)
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
 Info list [[1]] phenotypes [[2]] genomic values [[3]] Z [[4/5/6]] additive/epistatic/dice marker effects

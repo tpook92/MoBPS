@@ -30,12 +30,15 @@ get.phylogenetic.tree(
 
 \item{individual.names}{Names of the individuals in the database ((default are MoBPS internal names based on position))}
 
-\item{circular}{Set to TRUE to generate a fan/circular layout tree
-get.phylogenetic.tree(ex_pop, gen=1, circular=TRUE)}
+\item{circular}{Set to TRUE to generate a fan/circular layout tree}
 }
 \value{
 Dendrogram plot for traits
 }
 \description{
 Function calculate a phylogenetic tree
+}
+\examples{
+data(ex_pop)
+get.phylogenetic.tree(ex_pop, gen=1, circular=TRUE)
 }

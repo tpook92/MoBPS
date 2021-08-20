@@ -4,7 +4,13 @@
 \alias{get.pheno.off}
 \title{Export underlying offspring phenotypes}
 \usage{
-get.pheno.off(population, database = NULL, gen = NULL, cohorts = NULL)
+get.pheno.off(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  use.id = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.pheno.off(population, database = NULL, gen = NULL, cohorts = NULL)
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
 Avg. phenotype of the offspring of in gen/database/cohorts selected individuals

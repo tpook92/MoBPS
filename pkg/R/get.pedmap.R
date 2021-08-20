@@ -29,13 +29,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @examples
 #' data(ex_pop)
 #' \donttest{get.pedmap(path=tempdir(), ex_pop, gen=2)}
 #' @return Ped and map-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, non.genotyped.as.missing=FALSE){
+get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, non.genotyped.as.missing=FALSE,
+                       use.id=FALSE){
 
 
   haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, export.alleles=FALSE)
@@ -80,7 +82,7 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
       tillnow <- tillnow + diff(family.base[index,3:4]) +1
     }
   }
-  pedi <- get.pedigree(population, database = family.base)
+  pedi <- get.pedigree(population, database = family.base, id=use.id)
   pedfile <- cbind(family, pedi[,1],pedi[,2],pedi[,3],sex.s,0,ped)
 
 

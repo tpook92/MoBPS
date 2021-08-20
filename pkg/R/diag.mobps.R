@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to add a genotyping array for the population
 #' @param elements vector with entries to put on the diagonal of a matrix
 #' @examples
-#' diag(5)
+#' diag.mobps(5)
 #' @return Diagonal matrix
 #' @export
 

@@ -34,7 +34,7 @@ ssGBLUP <- function(A11, A12, A22, G){
 
 
   A22 <- add.diag(A22, 0.001) # numeric stability
-  A22inv <- solve(A22)
+  A22inv <- chol2inv(chol(A22))
   A21 <- t(A12)
   A12A22inv <- A12 %*% A22inv
   H12 <- A12A22inv %*% G

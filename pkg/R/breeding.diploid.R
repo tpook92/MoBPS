@@ -1432,7 +1432,13 @@ breeding.diploid <- function(population,
     repeatability[repeatability<heritability] <-  heritability[repeatability<heritability]
     population$info$repeatability <- repeatability
   } else{
+
+    if(length(population$info$repeatability)==0){
+      population$info$repeatability <- heritability
+    }
+
     repeatability <- population$info$repeatability
+
   }
 
   if(length(heritability)>0 & length(repeatability)>0){
@@ -1958,7 +1964,13 @@ breeding.diploid <- function(population,
         y_real[,index] <- y_hat[,index] <- 0
       } else{
         var_residual <- (var_trait - (bve.pseudo.accuracy[index])^2 * var_trait) / (bve.pseudo.accuracy[index])^2
-        y_hat[,index] <- y_real[,index] + stats::rnorm(n.animals, sd= sqrt(var_residual))
+        y_hat[,index] <- (y_real[,index] + stats::rnorm(n.animals, sd= sqrt(var_residual)))
+
+        if(bve.pseudo.accuracy[index]<0){
+          temp1 <-  -y_hat[,index]
+          temp1 <- temp1 + max(y_hat[,index]) -max(temp1)
+          y_hat[,index] <- temp1
+        }
       }
       if(!is.matrix(y_hat)){
         y_hat <- matrix(y_hat, ncol=1)
@@ -3082,7 +3094,7 @@ breeding.diploid <- function(population,
           }
 
           if(bve.per.sample.sigma.e & max(y_obs, na.rm = TRUE)>1){
-            if(repeatability[bven]==heritability[bven]){
+            if(length(repeatability) < bven || length(heritability) <bven || repeatability[bven]==heritability[bven]){
               heri_factor <- 1 / y_obs[take,bven]
             } else{
               heri_factor <- (sigma.e.perm + sigma.e.rest / y_obs[take,bven]) / (sigma.e.perm + sigma.e.rest)
@@ -3760,6 +3772,12 @@ breeding.diploid <- function(population,
   selection.miesenberger <- c(selection.m.miesenberger, selection.f.miesenberger)
   multiple.bve.weights <- list(multiple.bve.weights.m, multiple.bve.weights.f)
   multiple.bve.scale <- c(multiple.bve.scale.m, multiple.bve.scale.f)
+
+  multiple.bve.scale[multiple.bve.scale=="bve"] <- "bve_sd"
+  multiple.bve.scale[multiple.bve.scale=="pheno"] <- "pheno_sd"
+  multiple.bve.scale[multiple.bve.scale=="bv"] <- "bv_sd"
+
+
   sd_scaling <- rep(1, population$info$bv.nr)
   if(length(fixed.breeding)==0 || length(fixed.breeding.best)>0){
     if(sum(selection.size)>0){
@@ -5937,6 +5955,10 @@ breeding.diploid <- function(population,
   if(store.comp.times){
     comp.times[7] <- as.numeric(Sys.time())
     comp.times <- c(comp.times[-1] - comp.times[-length(comp.times)], comp.times[length(comp.times)]-comp.times[1])
+
+    comp.times[comp.times<0] <- 0
+    comp.times[comp.times>10e6] <- 0
+
     population$info$comp.times <- round(rbind(population$info$comp.times, comp.times, deparse.level = 0), digits=4)
     if(nrow(population$info$comp.times)==1){
       colnames(population$info$comp.times) <- c("preparation", "new real BV", "phenotypes", "BVE","selection","generate new individuals","total")
@@ -5944,6 +5966,9 @@ breeding.diploid <- function(population,
   }
   if(store.comp.times.bve){
     comp.times.bve <- c(comp.times.bve[-1] - comp.times.bve[-length(comp.times.bve)], zcalc, z_chol, z_uhat, z_ped, z_h, comp.times.bve[length(comp.times.bve)]-comp.times.bve[1])
+    comp.times.bve[comp.times.bve<0] <- 0
+    comp.times.bve[comp.times.bve>10e6] <- 0
+
     population$info$comp.times.bve <- round(rbind(population$info$comp.times.bve, comp.times.bve, deparse.level = 0), digits=4)
     if(nrow(population$info$comp.times.bve)==1){
       colnames(population$info$comp.times.bve) <- c("y_z_import", "A genomic", "solveMixed","Gwas_stuff", "Derive Z", "A inversion", "rrBlup", "A-Pedigree","SingleStep H", "Total")

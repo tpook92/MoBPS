@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
 #' @param individual.names Names of the individuals in the database ((default are MoBPS internal names based on position))
+#' @examples
 #' data(ex_pop)
 #' get.dendrogram(ex_pop, gen=2)
 #' @return Dendrogram plot for genotypes

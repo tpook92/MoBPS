@@ -66,7 +66,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 #'
 
-founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100, nfinal=NULL, sex.quota.final=NULL, big.output = FALSE,
+founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nfinal=NULL, sex.quota.final=NULL, big.output = FALSE,
                                plot = TRUE, display.progress=TRUE, depth.pedigree = 7,
                                dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
                                bpcm.conversion=0,
@@ -94,6 +94,13 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
   if(length(sex.quota.final)==0){
     sex.quota.final <- sex.quota
   }
+
+  if(length(map)==0 && nsnp==0){
+    nsnp <- 10000
+  } else if(length(map)>0){
+    nsnp <- nrow(map)
+  }
+
 
   n_new <- 50
 
@@ -131,7 +138,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
         utils::setTxtProgressBar(pb, index)
       }
 
-      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = verbose)
+      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = verbose, display.progress=display.progress)
 
       if(index==3){
         size1 <- utils::object.size(population$breeding[[1]])
@@ -152,7 +159,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 10000, n.gen=100
     utils::setTxtProgressBar(pb, n.gen)
   }
 
-  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = verbose)
+  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = verbose, display.progress=display.progress)
 
   if(verbose && display.progress){
     close(pb)

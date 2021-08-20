@@ -33,15 +33,17 @@ get.dendrogram.heatmap(
 
 \item{traits}{Traits to include in the dendrogram (default: all traits)}
 
-\item{type}{Which traits values to consider (default: "pheno", alt: "bv", "bve")
-population <- creating.diploid(nsnp=1000, nindi=40, n.additive = c(100,100,100),
-               shuffle.cor = matrix(c(1,0.8,0.2,0.8,1,0.2,0.2,0.2,1), ncol=3), shuffle.traits = 1:3)
-population <- breeding.diploid(population, phenotyping = "all", heritability = 0.5)
-get.dendrogram.heatmap(population, gen=1, type="pheno")}
+\item{type}{Which traits values to consider (default: "pheno", alt: "bv", "bve")}
 }
 \value{
 Dendrogram plot of genotypes vs phenotypes
 }
 \description{
 Function calculate a dendogram
+}
+\examples{
+population <- creating.diploid(nsnp=1000, nindi=40, n.additive = c(100,100,100),
+               shuffle.cor = matrix(c(1,0.8,0.2,0.8,1,0.2,0.2,0.2,1), ncol=3), shuffle.traits = 1:3)
+population <- breeding.diploid(population, phenotyping = "all", heritability = 0.5)
+get.dendrogram.heatmap(population, gen=1, type="pheno")
 }

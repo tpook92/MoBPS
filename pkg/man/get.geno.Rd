@@ -11,7 +11,8 @@ get.geno(
   cohorts = NULL,
   chromosomen = "all",
   export.alleles = FALSE,
-  non.genotyped.as.missing = FALSE
+  non.genotyped.as.missing = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.geno(
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 
 \item{non.genotyped.as.missing}{Set to TRUE to replace non-genotyped markers with NA}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
 Genotype data for in gen/database/cohorts selected individuals

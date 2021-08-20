@@ -27,13 +27,15 @@ get.dendrogram(
 
 \item{method}{Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"}
 
-\item{individual.names}{Names of the individuals in the database ((default are MoBPS internal names based on position))
-data(ex_pop)
-get.dendrogram(ex_pop, gen=2)}
+\item{individual.names}{Names of the individuals in the database ((default are MoBPS internal names based on position))}
 }
 \value{
 Dendrogram plot for genotypes
 }
 \description{
 Function calculate a dendogram
+}
+\examples{
+data(ex_pop)
+get.dendrogram(ex_pop, gen=2)
 }

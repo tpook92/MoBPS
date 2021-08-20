@@ -31,6 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
 #' @param individual.names Names of the individuals in the database ((default are MoBPS internal names based on position))
 #' @param circular Set to TRUE to generate a fan/circular layout tree
+#' @examples
+#' data(ex_pop)
 #' get.phylogenetic.tree(ex_pop, gen=1, circular=TRUE)
 #' @return Dendrogram plot for traits
 #' @export

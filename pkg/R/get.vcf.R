@@ -29,13 +29,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @examples
 #' data(ex_pop)
 #' \donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
 #' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all", non.genotyped.as.missing=FALSE){
+get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all",
+                    non.genotyped.as.missing=FALSE, use.id = FALSE){
 
   haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosomen=chromosomen, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
@@ -75,7 +77,7 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   alt[alt==1] <- "C"
   options(scipen=999)
   vcfgenofull <- cbind(chr.nr, as.numeric(bp), snpname, ref, alt, ".", "PASS", ".", "GT", vcfgeno)
-  vcfgenofull <- rbind(c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", get.pedigree(population, database=database, gen=gen, cohorts = cohorts)[,1]),vcfgenofull)
+  vcfgenofull <- rbind(c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", get.pedigree(population, database=database, gen=gen, cohorts = cohorts, id=use.id)[,1]),vcfgenofull)
 
   headerfile <- rbind(
     "##fileformat=VCFv4.2",
