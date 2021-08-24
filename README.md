@@ -23,13 +23,28 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.6.54 (24.8.21)
+
+Breeding value estimation now supports difference residual variance when a sample was phenotyped multiple times
+
+kinship.exp.store() has been renamed to kinship.exp()
+
+Individual names in get.X() functions can now be the unique MoBPS IDs instead names according to generation, sex, and animal nr.
+
+founder IDs from pedigree-file can be kept when using pedigree.simulation()
+
+Added features to use phenotypes from different traits in a joint single trait BVE (e.g. for GxE effect) via combine.traits()
+
+Added set.default() to manually change default parameter input in breeding.diploid()
+
+
 ### Version 1.6.47 (30.7.21)
 
 Added functions to generate dendrograms / build phylogenetic trees (get.dendrogram() / get.dendrogram.heatmap() / get.gendrogram.trait() / get.phylogenetic.tree() )
 
 Allow for automatic imputation / imputation error simulation in BVE (bve.imputation.errorrate (default: 0))
 
-Dominante QTL can now all have the higher effect (( dominate.only.positive (default = FALSE); e.g. to generate a trait architecture that benefits from hybrid breeding programs))
+Dominante QTL can now all have the higher effect (( dominant.only.positive (default = FALSE); e.g. to generate a trait architecture that benefits from hybrid breeding programs))
 
 Added function to extract which markers are genotyped for which individual (get.genotyped.snp() )
 
