@@ -13,6 +13,9 @@ effective.size(ld, dist, n)
 
 \item{n}{Population size}
 }
+\value{
+Estimated effective population size
+}
 \description{
 Internal function to estimate the effective population size
 }

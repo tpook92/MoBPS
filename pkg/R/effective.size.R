@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param ld ld between markers
 #' @param dist distance between markers in Morgan
 #' @param n Population size
+#' @return Estimated effective population size
 #'
 
 effective.size <- function(ld, dist, n){

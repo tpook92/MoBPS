@@ -2,7 +2,7 @@
 % Please edit documentation in R/bv.development.R
 \name{bv.development}
 \alias{bv.development}
-\title{Devolopment of genetic/breeding value}
+\title{Development of genetic/breeding value}
 \usage{
 bv.development(
   population,
@@ -41,7 +41,7 @@ bv.development(
 
 \item{quantile}{Quantile of the confidence interval to draw (default: 0.05)}
 
-\item{bvrow}{Which traits to display (for multiple traits separte plots (par(mfrow)))}
+\item{bvrow}{Which traits to display (for multiple traits separate plots (par(mfrow)))}
 
 \item{ignore.zero}{Cohorts with only 0 individuals are not displayed (default: TRUE)}
 

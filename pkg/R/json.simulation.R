@@ -615,7 +615,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       for(index in 1:length(edges)){
         if(length(edges[[index]]$'Use Offspring for BVE')==0){
           if(verbose) cat("Manually entered Use offspring for BVE \n")
-          edges[[index]]$'Use Offspring for BVE' <- "No" ## Ask Thuy if implemented XXX
+          edges[[index]]$'Use Offspring for BVE' <- "No"
         }
       }
 
@@ -1081,8 +1081,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             map <- MoBPSmaps::map_salmon2
           } else{
             map <- MoBPSmaps::ensembl.map(dataset = geninfo$'Ensembl Dataset',
-                               filter = geninfo$'Ensembl Filter',
-                               filter.values = geninfo$'Ensembl Filter Values')
+                                          filter = geninfo$'Ensembl Filter',
+                                          filter.values = geninfo$'Ensembl Filter Values')
           }
         } else{
           stop("Use of Ensembl-Maps without MoBPSmaps R-package.
@@ -1757,7 +1757,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        n.quantitative = as.numeric(trait_matrix[,11]),
                                        n.equal.additive = as.numeric(trait_matrix[,16]),
                                        n.equal.dominant = as.numeric(trait_matrix[,17]),
-                                       dominate.only.positive = as.logical(trait_matrix[,18]),
+                                       dominant.only.positive = as.logical(trait_matrix[,18]),
                                        shuffle.cor = cor_gen, new.phenotype.correlation = cor_pheno,
                                        shuffle.traits=1:n_traits,
                                        trait.name = trait_matrix[,1], verbose=verbose,
@@ -2018,6 +2018,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
             clean_up <- which(duplicated(c(ids, id_bve))[-(1:length(ids))])
             id_bve <- id_bve[clean_up]
+            id_bve <- intersect(ids, id_bve)
             nodes[[to_node]]$'Manuel selected cohorts' <- id_bve
           }
 
@@ -2376,7 +2377,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
               if(sum(edges[[index]]$from==stock)==0){
+
                 possible <- possible[-there]
+
                 next
               }
 

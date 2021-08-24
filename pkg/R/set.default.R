@@ -28,6 +28,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param parameter.remove Remove a specific previously generated parameter default
 #' @param reset.all Set to TRUE to remove all prior parameter values
 #' @return Population-list with one or more additional new traits
+#' @examples
+#' data(ex_pop)
+#' population <- set.default(ex_pop, parameter.name="heritability", parameter.value=0.3)
 #' @export
 
 

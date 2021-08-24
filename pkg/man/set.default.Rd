@@ -29,3 +29,7 @@ Population-list with one or more additional new traits
 \description{
 Set default parameter values in breeding.diploid
 }
+\examples{
+data(ex_pop)
+population <- set.default(ex_pop, parameter.name="heritability", parameter.value=0.3)
+}

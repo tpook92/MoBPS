@@ -35,3 +35,7 @@ Database excluding removals
 \description{
 Function to exclude individuals from a database
 }
+\examples{
+data(ex_pop)
+database <- group.diff(ex_pop, gen=1, remove.database=cbind(1,1))
+}

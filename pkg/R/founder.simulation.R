@@ -198,7 +198,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
   storage.mode(haplo) <- "integer"
 
   if(big.output){
-    pedigree <- kinship.exp.store(population, gen = nrow(population$info$size), depth.pedigree = depth.pedigree, verbose = verbose)
+    pedigree <- kinship.exp(population, gen = nrow(population$info$size), depth.pedigree = depth.pedigree, verbose = verbose)
     return(list(haplo, map, population, pedigree))
   } else{
     return(haplo)

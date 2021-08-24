@@ -34,13 +34,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
-#' kinship <- kinship.exp.store(population=ex_pop, gen=2)
+#' kinship <- kinship.exp(population=ex_pop, gen=2)
 #' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
 #' @export
 #'
-#A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2)
 
-kinship.exp.store <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                                start.kinship=NULL,
                                elements = NULL,
                                mult = 2,

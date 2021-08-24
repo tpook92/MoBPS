@@ -30,13 +30,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param remove.gen Generations of individuals to remove from the database (same IDs!)
 #' @param remove.cohorts Cohorts of individuals to remove from the database (same IDs!)
 #' @return Database excluding removals
+#' @examples
+#' data(ex_pop)
+#' database <- group.diff(ex_pop, gen=1, remove.database=cbind(1,1))
 #' @export
 
 group.diff <- function(population, database=NULL, gen=NULL, cohorts=NULL, remove.gen = NULL, remove.database = NULL, remove.cohorts= NULL){
 
 
-  all_id <- get.id(population, gen, database, cohorts)
-  remove_id <- unique(sort(get.id(population, remove.gen, remove.database, remove.cohorts)))
+  all_id <- get.id(population, gen=gen, database=database, cohorts=cohorts)
+  remove_id <- unique(sort(get.id(population, gen=remove.gen, database=remove.database, cohorts=remove.cohorts)))
 
   old_database <- get.database(population, gen, database, cohorts)
   new_database <- matrix(0, ncol=4, nrow=length(all_id))

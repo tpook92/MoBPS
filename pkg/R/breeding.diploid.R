@@ -2421,7 +2421,7 @@ breeding.diploid <- function(population,
     # Derive relationship matrix sequenceZ and single-step only for vanRaden based genomic relationship
     if(relationship.matrix=="kinship" || relationship.matrix == "pedigree"){
       z_ped <- z_ped - as.numeric(Sys.time())
-      A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose)
+      A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose)
       z_ped <- z_ped + as.numeric(Sys.time())
     } else if(relationship.matrix=="vanRaden"){
       if(sequenceZ){
@@ -2578,7 +2578,7 @@ breeding.diploid <- function(population,
             if(verbose) cat("No genotyped individuals included. Automatically switch to pedigree BLUP instead of ssGBLUP\n")
             singlestep.active <- FALSE
             relationship.matrix <- "kinship"
-            A <- kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+            A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
             z_ped <- z_ped + as.numeric(Sys.time())
           }
         }
@@ -2587,7 +2587,7 @@ breeding.diploid <- function(population,
           if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
           z_ped <- z_ped - as.numeric(Sys.time())
 
-          A_pedigree <-  kinship.exp.store(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+          A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
           z_ped <- z_ped + as.numeric(Sys.time())
           if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
           if(miraculix){
@@ -4370,7 +4370,7 @@ breeding.diploid <- function(population,
 
         # Verwandtschaftsmatrix:
         if(relationship.matrix.ogc=="kinship" || relationship.matrix.ogc == "pedigree"){
-          A <- kinship.exp.store(population, database = animallist[,c(1,2,3,3)], depth.pedigree = depth.pedigree.ogc, verbose=verbose)
+          A <- kinship.exp(population, database = animallist[,c(1,2,3,3)], depth.pedigree = depth.pedigree.ogc, verbose=verbose)
         } else if(relationship.matrix.ogc=="vanRaden"){
           if(miraculix){
             p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?

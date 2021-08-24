@@ -19,7 +19,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Devolopment of genetic/breeding value
+#' Development of genetic/breeding value
 #'
 #' Function to plot genetic/breeding values for multiple generation/cohorts
 #' @param population population list
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param confidence Draw confidence intervals for (1- bv, 2- bve, 3- pheno; default: c(1,2,3))
 #' @param quantile Quantile of the confidence interval to draw (default: 0.05)
-#' @param bvrow Which traits to display (for multiple traits separte plots (par(mfrow)))
+#' @param bvrow Which traits to display (for multiple traits separate plots (par(mfrow)))
 #' @param ignore.zero Cohorts with only 0 individuals are not displayed (default: TRUE)
 #' @param json If TRUE extract which cohorts to plot according to the json-file used in json.simulation
 #' @param display.time.point Set TRUE to use time point of generated to sort groups

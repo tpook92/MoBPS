@@ -313,9 +313,9 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
 
 
   if(plot){
-    graphics::par(mfrow=c(1,2))
 
     oldpar <- graphics::par(no.readonly = TRUE)
+    graphics::par(mfrow=c(1,2))
     on.exit(graphics::par(oldpar))
 
     inbreeding <- numeric(length(fixed_breeding))

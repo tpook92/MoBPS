@@ -51,7 +51,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
-#' @param dominate.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
+#' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
@@ -132,7 +132,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              n.equal.dominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
-                             dominate.only.positive = FALSE,
+                             dominant.only.positive = FALSE,
                              var.additive.l=NULL,
                              var.dominant.l=NULL,
                              var.qualitative.l=NULL,
@@ -798,7 +798,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           }
           dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
 
-          if(dominate.only.positive){
+          if(dominant.only.positive){
             temp1 <- dom_effect
             temp1[temp1<0] <- 0
           } else{
