@@ -39,6 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.gen Last generation to simulate before exporting population to file
 #' @param export.timepoint Last timepoint to simulate before exporting population to file
 #' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
+#' @param mutation.rate Manually enter a mutation rate (Will come as a separate input in the webinterface soon!)
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
@@ -56,7 +57,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             export.population=FALSE,
                             export.gen=NULL,
                             export.timepoint=NULL,
-                            fixed.generation.order=NULL){
+                            fixed.generation.order=NULL,
+                            mutation.rate=NULL){
 
   if(length(log)==0 && length(file)>0){
     log <- paste0(file, ".log")
@@ -1721,6 +1723,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        miraculix.dataset = miraculix.dataset,
                                        chr.nr = map[,1], bp=map[,4], snp.name = map[,2],
                                        freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {map[,3]})
+
+        if(length(mutation.rate)>0){
+          population <- set.default(population, parameter.name ="mutation.rate", parameter.value = mutation.rate)
+          population <- set.default(population, parameter.name ="remutation.rate", parameter.value = mutation.rate)
+        }
 
         if(length(founder_pedigree)>0 && sum(founder_pedigree) > sum(diag(founder_pedigree))){
           population <- add.founder.kinship(population, founder.kinship = founder_pedigree)

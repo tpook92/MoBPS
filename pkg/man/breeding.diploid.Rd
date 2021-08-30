@@ -6,8 +6,8 @@
 \usage{
 breeding.diploid(
   population,
-  mutation.rate = 10^-5,
-  remutation.rate = 10^-5,
+  mutation.rate = 10^-8,
+  remutation.rate = 10^-8,
   recombination.rate = 1,
   selection.m = NULL,
   selection.f = NULL,
@@ -260,9 +260,9 @@ breeding.diploid(
 \arguments{
 \item{population}{Population list}
 
-\item{mutation.rate}{Mutation rate in each marker (default: 10^-5)}
+\item{mutation.rate}{Mutation rate in each marker (default: 10^-8)}
 
-\item{remutation.rate}{Remutation rate in each marker (default: 10^-5)}
+\item{remutation.rate}{Remutation rate in each marker (default: 10^-8)}
 
 \item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
 

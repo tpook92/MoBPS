@@ -24,8 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to simulate a step in a breeding scheme
 #' @param population Population list
-#' @param mutation.rate Mutation rate in each marker (default: 10^-5)
-#' @param remutation.rate Remutation rate in each marker (default: 10^-5)
+#' @param mutation.rate Mutation rate in each marker (default: 10^-8)
+#' @param remutation.rate Remutation rate in each marker (default: 10^-8)
 #' @param recombination.rate Average number of recombination per 1 length unit (default: 1M)
 #' @param selection.m Selection criteria for male individuals (Set to "random" to randomly select individuals - this happens automatically when no the input in selection.criteria has no input ((usually breeding values)))
 #' @param selection.f Selection criteria for female individuals (default: selection.m , alt: "random", function")
@@ -281,8 +281,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 breeding.diploid <- function(population,
-            mutation.rate = 10^-5,
-            remutation.rate = 10^-5,
+            mutation.rate = 10^-8,
+            remutation.rate = 10^-8,
             recombination.rate = 1,
             selection.m = NULL,
             selection.f = NULL,
@@ -2008,7 +2008,9 @@ breeding.diploid <- function(population,
   } else if(bve){
     ## "proper" breeding value estimation
 
-    if(verbose) cat("Start genomic BVE.\n")
+    if(verbose && (relationship.matrix!="kinship" && relationship.matrix !="pedigree")) cat("Start genomic BVE.\n")
+    if(verbose && (relationship.matrix=="kinship" || relationship.matrix =="pedigree")) cat("Start pedigree BVE.\n")
+
     ## Derive if individuals are using multiple times in the BVE
     ## Import Phenotypes from all copies of an individual (potentially use individual entry [[21]] for efficiency?)
     loop_elements_list <- derive.loop.elements(population=population, bve.database=bve.database,
@@ -2068,13 +2070,15 @@ breeding.diploid <- function(population,
 
 
     # sequenceZ is to not process all SNPs at the same time. Especially relevant for large scale datasets!
-    if(sequenceZ){
-      if(maxZtotal>0){
-        maxZ <- floor(maxZtotal / n.animals)
+    if((relationship.matrix!="kinship" && relationship.matrix !="pedigree")){
+      if(sequenceZ){
+        if(maxZtotal>0){
+          maxZ <- floor(maxZtotal / n.animals)
+        }
+        Zt <- array(0L,dim=c(maxZ,n.animals))
+      } else{
+        Zt <- array(0L,dim=c(sum(population$info$snp), n.animals))
       }
-      Zt <- array(0L,dim=c(maxZ,n.animals))
-    } else{
-      Zt <- array(0L,dim=c(sum(population$info$snp), n.animals))
     }
     y <- y_real <- y_real2 <- y_hat <- y_reli <- y_parent <- array(0,dim=c(n.animals,population$info$bv.nr))
     X <- matrix(1, nrow=n.animals,ncol=1)
@@ -2200,7 +2204,7 @@ breeding.diploid <- function(population,
 
     }
     # Import Z
-    if(sequenceZ==FALSE){
+    if(sequenceZ==FALSE && (relationship.matrix != "pedigree" && relationship.matrix != "kinship")){
       if(miraculix){
 
         if(store.comp.times.bve){
@@ -2335,7 +2339,7 @@ breeding.diploid <- function(population,
       to_remove <- NULL
     }
 
-    if(length(to_remove)>0 ){
+    if(length(to_remove)>0 && (relationship.matrix != "pedigree" && relationship.matrix != "kinship")){
 
 
       if(miraculix && exists("Z.code")){
@@ -2352,7 +2356,7 @@ breeding.diploid <- function(population,
 
     }
 
-    if(bve.imputation.errorrate>0){
+    if(bve.imputation.errorrate>0 && (relationship.matrix != "pedigree" && relationship.matrix != "kinship")){
 
       if(length(to_remove)>0){
         is_imputed <- get.genotyped.snp(population, database = cbind(loop_elements[,4], loop_elements[,5], loop_elements[,2]))[-to_remove,]==0
@@ -2667,14 +2671,8 @@ breeding.diploid <- function(population,
           }
         }
 
-
-
-
       }
 
-      if(store.comp.times.bve){
-        comp.times.bve[3] <- as.numeric(Sys.time())
-      }
 
     } else if(relationship.matrix=="CM"){
       #CM SCHAETZER
@@ -2699,6 +2697,10 @@ breeding.diploid <- function(population,
       p_i <- rowSums(Zt)/ncol(Zt)/2
       Ztm <- Zt - p_i * 2
       A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+    }
+
+    if(store.comp.times.bve){
+      comp.times.bve[3] <- as.numeric(Sys.time())
     }
 
     sigma.a.hat <- numeric(length(sigma.g))
@@ -3461,7 +3463,7 @@ breeding.diploid <- function(population,
       }
 
 
-      if(store.comp.times.bve==TRUE){
+      if(store.comp.times.bve){
         comp.times.bve[4] <- as.numeric(Sys.time())
       }
 
@@ -3696,6 +3698,10 @@ breeding.diploid <- function(population,
 
   if(store.comp.times.bve){
     comp.times.bve[5] <- as.numeric(Sys.time())
+  }
+
+  if(store.comp.times){
+    comp.times[5] <- as.numeric(Sys.time())
   }
 }
 
