@@ -273,6 +273,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param avoid.mating.fullsib Set to TRUE to not generate offspring of full siblings
 #' @param avoid.mating.halfsib Set to TRUE to not generate offspring from half or full siblings
 #' @param bve.per.sample.sigma.e Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample
+#' @param bve.solve Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -529,7 +530,8 @@ breeding.diploid <- function(population,
             avoid.mating.fullsib=FALSE,
             avoid.mating.halfsib=FALSE,
             max.mating.pair = Inf,
-            bve.per.sample.sigma.e=TRUE
+            bve.per.sample.sigma.e=TRUE,
+            bve.solve = "exact"
             ){
 
 
@@ -538,6 +540,19 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
 {
+
+  if(is.function(bve.solve) || bve.solve != "exact"){
+
+    if(!is.function(bve.solve) || bve.solve =="pcg"){
+      if (requireNamespace("cPCG", quietly = TRUE)) {
+        bve.solve <- cPCG::pcgsolve
+      } else{
+        stop("Selected solver not available!")
+      }
+
+    }
+
+  }
 
   if(length(population$info$default.parameter.name)>0){
 
@@ -3110,7 +3125,7 @@ breeding.diploid <- function(population,
             heri_factor <- 1
           }
 
-          if(prod(heri_factor==1)!=1){
+          if(prod(heri_factor==1)!=1 || is.function(bve.solve)){
             miraculix_possible <- FALSE
           } else{
             miraculix_possible <- TRUE
@@ -3183,12 +3198,30 @@ breeding.diploid <- function(population,
               }
             } else{
               if(bve.direct.est.now){
-                y_hat[take2,bven] <- A[take2,take] %*% (chol2inv(chol(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+
+                if(is.function(bve.solve)){
+                  y_hat[take2,bven] <- A[take2,take] %*% bve.solve(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor), b= multi[take]) + beta_hat[bven]
+                } else{
+                  y_hat[take2,bven] <- A[take2,take] %*% (chol2inv(chol(add.diag(A[take,take], sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+                }
+
               } else{
                 if(skip.copy){
-                  y_hat[,bven] <- A %*% (chol2inv(chol(add.diag(A,sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+                  if(is.function(bve.solve)){
+                    y_hat[,bven] <- A %*% bve.solve(A=add.diag(A,sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor), b=multi[take]) + beta_hat[bven]
+                  } else{
+                    y_hat[,bven] <- A %*% (chol2inv(chol(add.diag(A,sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+
+                  }
+
                 } else{
-                  y_hat[take,bven] <- A[take,take] %*% (chol2inv(chol(add.diag(A[take,take],sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+
+                  if(is.function(bve.solve)){
+                    y_hat[take,bven] <- A[take,take] %*% bve.solve(A=add.diag(A[take,take],sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor), b=multi[take]) + beta_hat[bven]
+                  } else{
+                    y_hat[take,bven] <- A[take,take] %*% (chol2inv(chol(add.diag(A[take,take],sigma.e.hat[bven] / sigma.a.hat[bven] * heri_factor))) %*% multi[take]) + beta_hat[bven]
+                  }
+
 
                 }
               }
@@ -3750,6 +3783,13 @@ breeding.diploid <- function(population,
     }
     if(selection.criteria[2]=="pheno"){
       addsel[2] = 8
+    }
+
+    if(selection.criteria[1]=="offpheno"){
+      addsel[1] = 26
+    }
+    if(selection.criteria[2]=="offpheno"){
+      addsel[2] = 26
     }
 
     if(add.class.cohorts && length(selection.m.cohorts)>0){

@@ -21,8 +21,7 @@ json.simulation(
   export.population = FALSE,
   export.gen = NULL,
   export.timepoint = NULL,
-  fixed.generation.order = NULL,
-  mutation.rate = NULL
+  fixed.generation.order = NULL
 )
 }
 \arguments{
@@ -59,8 +58,6 @@ json.simulation(
 \item{export.timepoint}{Last timepoint to simulate before exporting population to file}
 
 \item{fixed.generation.order}{Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)}
-
-\item{mutation.rate}{Manually enter a mutation rate (Will come as a separate input in the webinterface soon!)}
 }
 \value{
 Population-list

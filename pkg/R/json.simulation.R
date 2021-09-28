@@ -39,7 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.gen Last generation to simulate before exporting population to file
 #' @param export.timepoint Last timepoint to simulate before exporting population to file
 #' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
-#' @param mutation.rate Manually enter a mutation rate (Will come as a separate input in the webinterface soon!)
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
@@ -57,8 +56,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             export.population=FALSE,
                             export.gen=NULL,
                             export.timepoint=NULL,
-                            fixed.generation.order=NULL,
-                            mutation.rate=NULL){
+                            fixed.generation.order=NULL){
 
   if(length(log)==0 && length(file)>0){
     log <- paste0(file, ".log")
@@ -132,6 +130,13 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         stop("No edges detected. No valid simulation!")
       }
 
+      if(length(geninfo$mutation_rate)>0){
+        mutation.rate <- as.numeric(geninfo$mutation_rate)
+      } else{
+        mutation.rate <- 1e-08
+      }
+
+
       major_table <- major <- list()
       n_traits <- length(traitinfo)
       map <- NULL
@@ -155,6 +160,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
       fixed_costs <- as.numeric(total$Economy$`Fixed Cost`)
+
       fixed_annual_costs <- 0
       geninfo$`Time Unit`
       interest_rate <- 1+ as.numeric(total$Economy$`Interest Rate`)/100
@@ -2031,6 +2037,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
           nodes[[to_node]]$'threshold' <- edges[[index]]$'threshold'
+          nodes[[to_node]]$'bve_solve' <- edges[[index]]$'BVE Method_solver'
           nodes[[to_node]]$'threshold_sign' <- edges[[index]]$'threshold_sign'
           nodes[[to_node]]$'Depth of Pedigree' <- edges[[index]]$'Depth of Pedigree'
         }
@@ -3211,7 +3218,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                 }
 
                 if(bve.breeding.type){
-                  activemmreml <-activesommer <- activemultisommer <- activbglr <- activerrblup <-FALSE
+                  activemmreml <-activesommer <- activemultisommer <- activbglr <- activerrblup <- FALSE
+
+                  bve_solve <- "exact"
+
                   singlestep.active <- FALSE
                   depth <- 0
                   parent_average <- FALSE
@@ -3236,6 +3246,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   if(length(nodes[[groupnr]]$'threshold')>0){
                     threshold <- as.numeric(nodes[[groupnr]]$'threshold')
                   }
+
+                  if(length(nodes[[groupnr]]$'bve_solve')>0){
+                    bve_solve <- (nodes[[groupnr]]$'bve_solve')
+                  }
+
                   if(length(nodes[[groupnr]]$'threshold_sign')>0){
                     threshold_sign <- nodes[[groupnr]]$'threshold_sign'
                   }
@@ -3368,7 +3383,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                     offspring.bve.parents.database <- NULL
                   }
                   population <- breeding.diploid(population, breeding.size=breeding.size,
-                                                 bve=(bve&bve_exe), computation.A = computeA,
+                                                 bve=(bve&bve_exe),
+                                                 bve.solve = bve_solve,
+                                                 computation.A = computeA,
                                                  bve.pseudo = pseudo_bve,
                                                  bve.pseudo.accuracy = pseudo_acc,
                                                  offspring.bve.parents.database=offspring.bve.parents.database,

@@ -90,7 +90,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
   }
 
   bv_final <- numeric(length(activ_bv))
-  snp.before <- population$info$cumsnp
+  snp.before <- c(0,population$info$cumsnp)
   cindex <- 1
   back <- 0
   first <- TRUE
@@ -174,6 +174,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         }
         bv <- bv + real.bv.dices[[2]][[index]][activ_p]
       }
+
     }
     bv_final[cindex] <- bv
     cindex <- cindex + 1

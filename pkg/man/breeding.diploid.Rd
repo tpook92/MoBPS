@@ -254,7 +254,8 @@ breeding.diploid(
   avoid.mating.fullsib = FALSE,
   avoid.mating.halfsib = FALSE,
   max.mating.pair = Inf,
-  bve.per.sample.sigma.e = TRUE
+  bve.per.sample.sigma.e = TRUE,
+  bve.solve = "exact"
 )
 }
 \arguments{
@@ -757,6 +758,8 @@ breeding.diploid(
 \item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
 
 \item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample}
+
+\item{bve.solve}{Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)}
 }
 \value{
 Population-list
