@@ -12,7 +12,9 @@ get.pca(
   cohorts = NULL,
   coloring = "group",
   components = c(1, 2),
-  plot = TRUE
+  plot = TRUE,
+  pch = 1,
+  export.color = FALSE
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ get.pca(
 \item{components}{Default: c(1,2) for the first two principle components}
 
 \item{plot}{Set to FALSE to not generate a plot}
+
+\item{pch}{Point type in the PCA plot}
+
+\item{export.color}{Set to TRUE to export the per point coloring}
 }
 \value{
 Genotype data for in gen/database/cohorts selected individuals

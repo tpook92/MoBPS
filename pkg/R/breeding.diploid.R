@@ -543,7 +543,7 @@ breeding.diploid <- function(population,
 
   if(is.function(bve.solve) || bve.solve != "exact"){
 
-    if(!is.function(bve.solve) || bve.solve =="pcg"){
+    if(!is.function(bve.solve) && bve.solve =="pcg"){
       if (requireNamespace("cPCG", quietly = TRUE)) {
         bve.solve <- cPCG::pcgsolve
       } else{
@@ -2611,7 +2611,22 @@ breeding.diploid <- function(population,
           if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
           if(miraculix){
             if (requireNamespace("miraculix", quietly = TRUE)) {
-              Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
+
+              # Avoid having the full genotype matrix in memory without bitwise storage!
+              if(bve.imputation.errorrate>0){
+                Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code)[,genotype.included])
+                if(length(to_remove)>0){
+                  Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                }
+
+              } else{
+                Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
+                if(length(to_remove)>0){
+                  Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                }
+              }
+
+
               p_i <- miraculix::allele_freq(Z.code.small)
               A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
               rm(Z.code.small)

@@ -3248,7 +3248,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   }
 
                   if(length(nodes[[groupnr]]$'bve_solve')>0){
-                    bve_solve <- (nodes[[groupnr]]$'bve_solve')
+                    if(nodes[[groupnr]]$'bve_solve'=="PCG"){
+                      bve_solve <- "pcg"
+                    }
+
                   }
 
                   if(length(nodes[[groupnr]]$'threshold_sign')>0){

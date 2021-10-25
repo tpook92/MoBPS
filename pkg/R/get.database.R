@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param avoid.merging Set to TRUE to avoid different cohorts to be merged in a joint group when possible
 #' @examples
 #' data(ex_pop)
 #' get.database(ex_pop, gen=2)
@@ -33,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
+get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE){
 
   if(length(gen)>0){
     database_gen <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
@@ -91,13 +92,16 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL){
         } else{
           checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
         }
-        for(index2 in checks){
-          if(database[index,3] <= (database[index2,4]+1)){
-            database[index2,4] <- max(database[index2,4], database[index,4])
-            database[index,] <- 0
-          }
+        if(!avoid.merging){
+          for(index2 in checks){
+            if(database[index,3] <= (database[index2,4]+1)){
+              database[index2,4] <- max(database[index2,4], database[index,4])
+              database[index,] <- 0
+            }
 
+          }
         }
+
       }
 
     }

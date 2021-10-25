@@ -4,7 +4,13 @@
 \alias{get.database}
 \title{gen/database/cohorts conversion}
 \usage{
-get.database(population, gen = NULL, database = NULL, cohorts = NULL)
+get.database(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  avoid.merging = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.database(population, gen = NULL, database = NULL, cohorts = NULL)
 \item{database}{Groups of individuals to consider for the export}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{avoid.merging}{Set to TRUE to avoid different cohorts to be merged in a joint group when possible}
 }
 \value{
 Combine gen/database/cohorts to a joined database

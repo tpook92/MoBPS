@@ -29,7 +29,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param coloring Coloring by "group", "sex", "plain"
 #' @param components Default: c(1,2) for the first two principle components
+#' @param pch Point type in the PCA plot
 #' @param plot Set to FALSE to not generate a plot
+#' @param export.color Set to TRUE to export the per point coloring
 #' @examples
 #' data(ex_pop)
 #' get.pca(ex_pop, gen=2)
@@ -37,9 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, coloring="group",
-                    components = c(1,2), plot = TRUE){
+                    components = c(1,2), plot = TRUE, pch=1, export.color=FALSE){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, avoid.merging= if(coloring=="group"){TRUE} else{FALSE})
 
   geno <- get.geno(population, database = database)
 
@@ -60,9 +62,9 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
       for(index in 1:nrow(database)){
         add <- database[index,4] - database[index,3] +1
         if(database[index,2]==2){
-          col[start:(start+add)] <- "red"
+          col[start:(start+add)] <- 2
         } else{
-          col[start:(start+add)] <- "blue"
+          col[start:(start+add)] <- 1
         }
 
         start <- start + add
@@ -118,13 +120,13 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
 
   if(plot){
     if(length(path)==0){
-      graphics::plot(b$vectors[,components], col=col,
+      graphics::plot(b$vectors[,components], col=col, pch = pch,
                      xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
                      ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
     } else{
       if (requireNamespace("grDevices", quietly = TRUE)) {
         grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
-        graphics::plot(b$vectors[,components], col=col,
+        graphics::plot(b$vectors[,components], col=col,  pch = pch,
                        xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
                        ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
         grDevices::dev.off()
@@ -136,6 +138,11 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
   }
 
 
+  if(export.color){
+    return(list(  b$vectors , col))
+  } else{
+    b$vectors
+  }
 
-  b$vectors
+
 }

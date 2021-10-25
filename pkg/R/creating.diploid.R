@@ -373,13 +373,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
   }
-  if(length(dataset)>0 && class(dataset)  %in% "haplomatrix"){
+  if(length(dataset)>0 && sum(class(dataset) %in% "haplomatrix")>=1){
     dataset <- list(dataset)
   }
-  if(length(dataset)>0 && class(dataset)  %in% "data.frame"){
+  if(length(dataset)>0 && sum(class(dataset) %in% "data.frame")>=1){
     dataset <- as.matrix(dataset)
   }
-  if(length(dataset)>0 && class(dataset)  %in% "matrix" || length(vcf)>0){
+  if(length(dataset)>0 && sum(class(dataset) %in% "matrix")>=1 || length(vcf)>0){
     miraculix.dataset <- FALSE
   }
 
