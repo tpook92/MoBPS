@@ -23,7 +23,16 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
-### Version 1.6.54 (24.8.21)
+### Version 1.6.63 (25.10.21)
+
+Default mutation rate has been changed to 10^-8 (mutation.rate in breeding.diploid())
+
+Added option to use a PCG solver to solve the mixed model in the breeding value estimation ((bve.solve = "pcg"))
+
+Added option to selected based on avg. offspring phenotype (selection.criteria = "offpheno")
+
+
+### Version 1.6.54 (24.08.21)
 
 Breeding value estimation now supports difference residual variance when a sample was phenotyped multiple times
 
@@ -38,7 +47,7 @@ Added features to use phenotypes from different traits in a joint single trait B
 Added set.default() to manually change default parameter input in breeding.diploid()
 
 
-### Version 1.6.47 (30.7.21)
+### Version 1.6.47 (30.07.21)
 
 Added functions to generate dendrograms / build phylogenetic trees (get.dendrogram() / get.dendrogram.heatmap() / get.gendrogram.trait() / get.phylogenetic.tree() )
 
