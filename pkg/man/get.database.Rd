@@ -9,7 +9,10 @@ get.database(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  avoid.merging = FALSE
+  avoid.merging = FALSE,
+  id = NULL,
+  id.all.copy = FALSE,
+  id.last = FALSE
 )
 }
 \arguments{
@@ -22,6 +25,12 @@ get.database(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{avoid.merging}{Set to TRUE to avoid different cohorts to be merged in a joint group when possible}
+
+\item{id}{Individual IDs to search/collect in the database}
+
+\item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
+
+\item{id.last}{Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)}
 }
 \value{
 Combine gen/database/cohorts to a joined database

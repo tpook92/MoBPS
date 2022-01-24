@@ -139,7 +139,7 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
 
 
   if(export.color){
-    return(list(  b$vectors , col))
+    return(list(  b$vectors , col, round(b$values[components]/sum(b$values)*100, digits=2)))
   } else{
     b$vectors
   }

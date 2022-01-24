@@ -9,7 +9,7 @@ get.haplo(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  chromosomen = "all",
+  chromosome = "all",
   export.alleles = FALSE,
   non.genotyped.as.missing = FALSE,
   use.id = FALSE
@@ -24,7 +24,7 @@ get.haplo(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{chromosomen}{Beschraenkung der Haplotypen auf bestimmte Chromosomen (default: 1)}
+\item{chromosome}{Limit the genotype output to a selected chromosome (default: "all")}
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 

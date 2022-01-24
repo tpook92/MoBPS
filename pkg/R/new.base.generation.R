@@ -120,10 +120,10 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
     }
   }
   if(delete.breeding.totals){
-    population$info$breeding.totals <- NULL
+    population$info$breeding.totals <- list()
   }
   if(delete.bve.data){
-    population$info$bve.data <- NULL
+    population$info$bve.data <- list()
   }
   return(population)
 }

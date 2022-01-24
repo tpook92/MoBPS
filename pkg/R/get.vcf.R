@@ -27,19 +27,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param chromosomen Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)
+#' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @examples
 #' data(ex_pop)
-#' \donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
+#' data(ex_pop)
+#' \donttest{
+#' file_path <- tempdir()
+#' get.vcf(path=file_path, ex_pop, gen=2)
+#' file.remove(paste0(file_path, ".vcf"))
+#' }
 #' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosomen="all",
+get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosome="all",
                     non.genotyped.as.missing=FALSE, use.id = FALSE){
 
-  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosomen=chromosomen, export.alleles=FALSE)
+  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosome=chromosome, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
   if(length(path)==0){
     path <- "population.vcf"
@@ -59,7 +64,7 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   ref <- population$info$snp.base[1,]
   alt <- population$info$snp.base[2,]
 
-  vcfgeno <- matrix(paste0(haplo[,(1:(ncol(haplo)/2))*2], "|", haplo[,(1:(ncol(haplo)/2))*2-1]), ncol=ncol(haplo)/2)
+  vcfgeno <- matrix(paste0(haplo[,(1:(ncol(haplo)/2))*2-1], "|", haplo[,(1:(ncol(haplo)/2))*2]), ncol=ncol(haplo)/2)
 
   if(non.genotyped.as.missing){
     is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts)

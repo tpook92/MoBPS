@@ -60,6 +60,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
+#' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))
+
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
@@ -98,7 +100,8 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
                            var.target=NULL,
                            verbose=TRUE,
                            is.maternal=NULL,
-                           is.paternal=NULL){
+                           is.paternal=NULL,
+                           fixed.effects=NULL){
 
 
   if(length(randomSeed)>0){
@@ -340,6 +343,9 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
   }
   }
 
+  if(length(dominant.only.positive)<length(trait_sum)){
+    dominant.only.positive <- rep(dominant.only.positive, length.out = length(trait_sum))
+  }
 
   so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
   if(length(trait_sum)){
@@ -450,7 +456,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
         dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
 
-        if(dominant.only.positive){
+        if(dominant.only.positive[index_trait]){
           temp1 <- dom_effect
           temp1[temp1<0] <- 0
         } else{
@@ -897,6 +903,20 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     }
   }
 
+
+  if(length(fixed.effects)==0){
+    fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=0)
+    temp1 <- TRUE
+  } else{
+    temp1 <- FALSE
+  }
+
+  if(length(population$info$fixed.effects)>0 & temp1){
+    fixed.effects[1:nrow(population$info$fixed.effects), 1:ncol(population$info$fixed.effects)] <- population$info$fixed.effects
+  }
+  population$info$fixed.effects <- fixed.effects
+
+
   # Add traits with no generated phenotypes
   temp1 <- rep(0, population$info$bv.nr)
   for(gen in 1:length(population$breeding)){
@@ -904,6 +924,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       if(length(population$breeding[[gen]][[sex]])>0){
         for(index in 1:length(population$breeding[[gen]][[sex]])){
           population$breeding[[gen]][[sex]][[index]][[15]] <- temp1
+          population$breeding[[gen]][[sex]][[index]][[28]] <- c(population$breeding[[gen]][[sex]][[index]][[28]], rep(0, ncol(population$info$fixed.effects) - length(population$breeding[[gen]][[sex]][[index]][[28]])))
         }
       }
     }

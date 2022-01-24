@@ -100,8 +100,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
+#' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))
 #' @param enter.bv Internal parameter
 #' @param internal Dont touch!
+#' @param internal.geno Dont touch!
+#' @param internal.dataset Dont touch!
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -163,7 +166,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              is.maternal = NULL,
                              is.paternal = NULL,
                              vcf.maxsnp=Inf,
-                             internal=FALSE){
+                             fixed.effects = NULL,
+                             internal=FALSE,
+                             internal.geno=TRUE,
+                             internal.dataset = NULL){
+
+
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -176,12 +184,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   if(length(mean.target)>0){
     bv.standard <- TRUE
   } else{
-    mean.target <- 100
+    mean.target <- NA
   }
   if(length(var.target)>0){
     bv.standard <- TRUE
   } else{
-    var.target <- 10
+    var.target <- NA
   }
 
   if(length(new.phenotype.correlation)>0){
@@ -672,6 +680,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
+    if(length(dominant.only.positive)<length(trait_sum)){
+      dominant.only.positive <- rep(dominant.only.positive, length.out = length(trait_sum))
+    }
     so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
     if(length(trait_sum)>0){
       for(index_trait in 1:length(trait_sum)){
@@ -742,7 +753,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
               }
             }
           } else{
-            if(class(dataset)  %in% "haplomatrix"){
+            if(sum(class(dataset)  %in% "haplomatrix")>0){
               snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
             } else{
               snpdata <- c(snpdata, nrow(dataset))
@@ -798,7 +809,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           }
           dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
 
-          if(dominant.only.positive){
+          if(dominant.only.positive[index_trait]){
             temp1 <- dom_effect
             temp1[temp1<0] <- 0
           } else{
@@ -1072,9 +1083,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     start1 <- 1
     for(index in 1:length(nsnp)){
       if(length(chromosome.length)>=index){
-        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[index] * 100000000 / nsnp[index])
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling((1:nsnp[index]-0.5) * chromosome.length[index] * 100000000 / nsnp[index])
       } else{
-        bp[start1:(start1+nsnp[index]-1)] <- ceiling(1:nsnp[index] * chromosome.length[1] * 100000000 / nsnp[index])
+        bp[start1:(start1+nsnp[index]-1)] <- ceiling((1:nsnp[index]-0.5) * chromosome.length[1] * 100000000 / nsnp[index])
       }
 
       start1 <- start1 + nsnp[index]
@@ -1345,6 +1356,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
     }
 
+    if(internal.geno && length(internal.dataset)){
+      dataset <- internal.dataset
+    }
+
     if(add.chromosome==FALSE){
 
       for(index in 1:length(sex.s)){
@@ -1365,19 +1380,22 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex])
         population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
 
-        if(miraculix && miraculix.dataset){
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]],indiv = index))
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-        } else if(miraculix){
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(dataset[,(index*2-c(1,0))])
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-        } else if(bit.storing){
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- bit.storing(dataset[,(index*2-1)], nbits)
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- bit.storing(dataset[,(index*2)], nbits)
-        } else{
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- dataset[,(index*2-1)]
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- dataset[,(index*2)]
+        if(internal.geno){
+          if(miraculix && miraculix.dataset){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]],indiv = index))
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
+          } else if(miraculix){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(dataset[,(index*2-c(1,0))])
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
+          } else if(bit.storing){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- bit.storing(dataset[,(index*2-1)], nbits)
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- bit.storing(dataset[,(index*2)], nbits)
+          } else{
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- dataset[,(index*2-1)]
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- dataset[,(index*2)]
+          }
         }
+
 
         population$breeding[[generation]][[sex]][[counter[sex]]][[11]] <- NULL
         population$breeding[[generation]][[sex]][[counter[sex]]][[12]] <- NULL
@@ -1395,7 +1413,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- FALSE ## has BV been calculated
         population$breeding[[generation]][[sex]][[counter[sex]]][[26]] <- NULL ## for which BV has been calculated
 
-        population$breeding[[generation]][[sex]][[counter[sex]]][[27]] <- "placeholder"
+        population$breeding[[generation]][[sex]][[counter[sex]]][[27]] <- list() ## List containing each individual phenotypic observation
+
+        population$breeding[[generation]][[sex]][[counter[sex]]][[28]] <- numeric(0)
+        population$breeding[[generation]][[sex]][[counter[sex]]][[29]] <- "placeholder"
         population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
         counter[sex] <- counter[sex] + 1L
       }
@@ -1491,28 +1512,38 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         }
         population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex])
         population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
-        if(miraculix && miraculix.dataset){
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], index)))
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-        } else if(miraculix){
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),dataset[,(index*2-c(1,0))]))
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-        } else if(bit.storing){
-          if(leftover==0){
-            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], bit.storing(dataset[,(index*2-1)]),nbits)
-            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], bit.storing(dataset[,(index*2)]), nbits)
+
+        if(internal.geno){
+          if(miraculix && miraculix.dataset){
+            if(length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])==0){
+              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], index))
+              population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
+            } else{
+              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], index)))
+              population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
+            }
+
+          } else if(miraculix){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),dataset[,(index*2-c(1,0))]))
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
+          } else if(bit.storing){
+            if(leftover==0){
+              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], bit.storing(dataset[,(index*2-1)]),nbits)
+              population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], bit.storing(dataset[,(index*2)]), nbits)
+            } else{
+              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])],
+                                                                                 bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2-1)]),nbits))
+              population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])],
+                                                                                  bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2)]),nbits))
+
+            }
           } else{
-            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])],
-                                                                                     bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2-1)]),nbits))
-            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])],
-                                                                                      bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2)]),nbits))
+            population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], dataset[,(index*2-1)])
+            population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], dataset[,(index*2)])
 
           }
-        } else{
-          population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], dataset[,(index*2-1)])
-          population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], dataset[,(index*2)])
-
         }
+
 
         counter[sex] <- counter[sex] + 1
       }
@@ -1529,8 +1560,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
         population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0,
                                                                     time.point, creating.type),
-                                                                  c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
-                                                                    time.point, creating.type))
+                                         c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
+                                           time.point, creating.type))
 
         if(verbose) cat("Both sexes in the cohort. Added _M, _F to cohort names!\n")
 
@@ -1564,6 +1595,28 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   } else{
     if(length(population)==0 || add.chromosome==TRUE){
+
+      if(miraculix && miraculix.dataset && length(chr.opt)>1 && (snps.equidistant ||  sum(diff(position)<0) <= (length(chr.opt)-1))){
+
+        total_snp <- sum(nsnp)
+
+        dataset_full <- matrix(0, ncol=nindi*2, nrow=total_snp)
+        prior <- 0
+        for(snp_index in 1:length(dataset)){
+
+
+          dataset_temp <- as.matrix(dataset[[snp_index]])
+          dataset_full[1:nrow(dataset_temp)+prior,] <- dataset_temp
+          prior <- prior + nrow(dataset_temp)
+
+        }
+
+        dataset_full <- list(miraculix::haplomatrix(dataset_full))
+
+      } else{
+        dataset_full <- NULL
+      }
+
       for(chr_index in 1:length(chr.opt)){
         index <- chr.opt[chr_index]
         activ <- which(chr.nr==index)
@@ -1607,6 +1660,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         real.bv.mult_temp <- NULL
         real.bv.dice_temp <- NULL
 
+
         population <- creating.diploid(population=population, dataset=dataset_activ,
                                        nsnp=nsnp[chr_index], nindi=nindi,
                                        add.chromosome=add.chromosome, chr.nr = chr_activ,
@@ -1640,7 +1694,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                        shuffle.traits = shuffle.traits,
                                        shuffle.cor = shuffle.cor,
                                        verbose = verbose,
-                                       internal=TRUE)
+                                       internal=TRUE,
+                                 internal.geno=if(chr_index == length(chr.opt) || !(miraculix && miraculix.dataset)){TRUE} else {FALSE},
+                                 internal.dataset = dataset_full)
       }
     } else{
       if(min(diff(chr.nr))<0 || !miraculix.dataset){
@@ -1677,23 +1733,23 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       skip.rest <- TRUE
 
       population <- creating.diploid(population=population, dataset=dataset,
-                                       class = class,
-                                       generation = generation,
-                                       add.chromosome.ends = add.chromosome.ends,
-                                       miraculix = miraculix,
-                                       skip.rest = skip.rest,
-                                       sex.s = sex.s,
-                                       genotyped.s = genotyped.s,
-                                       name.cohort = name.cohort,
-                                       real.bv.add = real.bv.add,
-                                       real.bv.mult = real.bv.mult,
-                                       real.bv.dice = real.bv.dice,
+                                     class = class,
+                                     generation = generation,
+                                     add.chromosome.ends = add.chromosome.ends,
+                                     miraculix = miraculix,
+                                     skip.rest = skip.rest,
+                                     sex.s = sex.s,
+                                     genotyped.s = genotyped.s,
+                                     name.cohort = name.cohort,
+                                     real.bv.add = real.bv.add,
+                                     real.bv.mult = real.bv.mult,
+                                     real.bv.dice = real.bv.dice,
                                      base.bv = base.bv,
                                      bve.mult.factor = bve.mult.factor,
                                      bve.poly.factor = bve.poly.factor,
-                                       hom0 =population$info$snp.base[1,],
-                                       hom1 =population$info$snp.base[2,],
-                                       remove.invalid.qtl =FALSE,
+                                     hom0 =population$info$snp.base[1,],
+                                     hom1 =population$info$snp.base[2,],
+                                     remove.invalid.qtl =FALSE,
                                      shuffle.traits = shuffle.traits,
                                      shuffle.cor = shuffle.cor,
                                      verbose = verbose,
@@ -1964,6 +2020,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   }
 
 
+
+
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target)
 
@@ -1980,8 +2038,17 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
   if(!internal){
+
+    if(length(fixed.effects)==0){
+      fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=0)
+    }
+    population$info$fixed.effects <- fixed.effects
+
     population <- breeding.diploid(population)
     class(population) <- "population"
+
+
+
   }
 
   return(population)

@@ -200,7 +200,7 @@ breeding.diploid(
   offspring.bve.offspring.cohorts = NULL,
   culling.gen = NULL,
   culling.database = NULL,
-  culling.cohort = NULL,
+  culling.cohorts = NULL,
   culling.time = Inf,
   culling.name = "Not_named",
   culling.bv1 = 0,
@@ -211,6 +211,7 @@ breeding.diploid(
   culling.single = TRUE,
   culling.all.copy = TRUE,
   calculate.reliability = FALSE,
+  estimate.reliability = FALSE,
   selection.m.gen = NULL,
   selection.f.gen = NULL,
   selection.m.database = NULL,
@@ -219,7 +220,7 @@ breeding.diploid(
   selection.f.cohorts = NULL,
   selection.m.miesenberger = FALSE,
   selection.f.miesenberger = NULL,
-  selection.miesenberger.reliability.est = "estimated",
+  selection.miesenberger.reliability.est = "derived",
   miesenberger.trafo = 0,
   multiple.bve.weights.m = 1,
   multiple.bve.weights.f = NULL,
@@ -255,7 +256,12 @@ breeding.diploid(
   avoid.mating.halfsib = FALSE,
   max.mating.pair = Inf,
   bve.per.sample.sigma.e = TRUE,
-  bve.solve = "exact"
+  bve.solve = "exact",
+  fixed.effects.p = NULL,
+  fixed.effects.freq = NULL,
+  bve.exclude.fixed.effects = NULL,
+  bve.beta.hat.approx = TRUE,
+  export.selected = FALSE
 )
 }
 \arguments{
@@ -649,7 +655,7 @@ breeding.diploid(
 
 \item{culling.database}{Groups to consider to culling}
 
-\item{culling.cohort}{Cohort to consider to culling}
+\item{culling.cohorts}{Cohorts to consider to culling}
 
 \item{culling.time}{Age of the individuals at culling}
 
@@ -671,6 +677,8 @@ breeding.diploid(
 
 \item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
 
+\item{estimate.reliability}{Set TRUE to estimate the reliablity in the BVE by calculating the correlation between estimated and real breeding values}
+
 \item{selection.m.gen}{Generations available for selection of paternal parent}
 
 \item{selection.f.gen}{Generations available for selection of maternal parent}
@@ -687,7 +695,7 @@ breeding.diploid(
 
 \item{selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for maternal selection}
 
-\item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default:"estimated" (SD BVE / SD Pheno), alt: "heritability", "derived" (cor(BVE,BV)^2) as replacement}
+\item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default: "derived" (cor(BVE,BV)^2) , alt: "heritability", "estimated" (SD BVE / SD Pheno) as replacement}
 
 \item{miesenberger.trafo}{Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)}
 
@@ -760,6 +768,16 @@ breeding.diploid(
 \item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample}
 
 \item{bve.solve}{Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)}
+
+\item{fixed.effects.p}{Parametrization for the fixed effects (default: c(0,0..,0), if multiple different parametrizations are possible use a matrix with one parametrization per row)}
+
+\item{fixed.effects.freq}{Frequency of each different parametrization of the fixed effects}
+
+\item{bve.exclude.fixed.effects}{Vector of fixed effects to ignore in the BVE (default: NULL)}
+
+\item{bve.beta.hat.approx}{Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.}
+
+\item{export.selected}{Set to TRUE to export the list of selected individuals}
 }
 \value{
 Population-list

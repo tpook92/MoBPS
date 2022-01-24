@@ -7,7 +7,7 @@
 ld.decay(
   population,
   genotype.dataset = NULL,
-  chromosomen = 1,
+  chromosome = 1,
   dist = NULL,
   step = 5,
   max = 500,
@@ -24,7 +24,7 @@ ld.decay(
 
 \item{genotype.dataset}{Genotype dataset (default: NULL - just to save computation time when get.geno was already run)}
 
-\item{chromosomen}{Only consider a specific chromosome in calculations (default: 1)}
+\item{chromosome}{Only consider a specific chromosome in calculations (default: 1)}
 
 \item{dist}{Manuel input of marker distances to analyse}
 

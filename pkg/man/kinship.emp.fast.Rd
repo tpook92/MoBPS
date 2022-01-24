@@ -10,7 +10,6 @@ kinship.emp.fast(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  sym = FALSE,
   ibd.obs = 50,
   hbd.obs = 10
 )
@@ -25,8 +24,6 @@ kinship.emp.fast(
 \item{database}{Groups of individuals to consider for the export}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
-
-\item{sym}{If True derive matrix entries below principle-diagonal}
 
 \item{ibd.obs}{Number of Individual pairs to sample for IBD estimation}
 

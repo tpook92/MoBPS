@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param chromosomen Only consider a specific chromosome in calculations (default: 1)
+#' @param chromosome Only consider a specific chromosome in calculations (default: 1)
 #' @param type Compute LD decay according to following distance measure between markers (default: "snp", alt: "bp", "cM")
 #' @param plot Set to FALSE to not generate an LD plot
 #' @examples
@@ -40,11 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return LD-decay plot for in gen/database/cohorts selected individuals
 #' @export
 
-ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, dist =NULL,  step=5, max=500, max.cases = 100, database=NULL, gen=NULL, cohorts= NULL,
+ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL,  step=5, max=500, max.cases = 100, database=NULL, gen=NULL, cohorts= NULL,
                      type="snp", plot=FALSE){
-  max <- min(population$info$snp[chromosomen]-1, max)
+  max <- min(population$info$snp[chromosome]-1, max)
   if(length(genotype.dataset)==0){
-    dataset <- t(get.geno(population, chromosomen = chromosomen, gen=gen, database=database,cohorts=cohorts))
+    dataset <- t(get.geno(population, chromosome = chromosome, gen=gen, database=database,cohorts=cohorts))
   } else{
     dataset <- t(genotype.dataset)
   }
@@ -64,7 +64,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, dist =NUL
   for(index in 1:length(calc)){
 
 
-    cases <- 1:(population$info$snp[chromosomen]-calc[index])
+    cases <- 1:(population$info$snp[chromosome]-calc[index])
     if(length(cases)> max.cases){
       cases <- sample(cases, max.cases)
     }
@@ -101,7 +101,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, dist =NUL
 
 
     if(plot){
-      graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosomen))
+      graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
       graphics::lines(smooth1, col="red", lwd=2)
     }
 
@@ -124,7 +124,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosomen=1, dist =NUL
       type <- "Morgan"
     }
     if(plot){
-      graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosomen))
+      graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
     }
 
 

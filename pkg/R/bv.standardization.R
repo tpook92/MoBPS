@@ -47,33 +47,42 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
   modi1 <- rep(1, n_traits)
   modi2 <- population$info$base.bv
 
-  if(length(mean.target)<n_traits) mean.target <- rep(mean.target, length.out = n_traits)
-  if(length(var.target)<n_traits) var.target <- rep(var.target, length.out = n_traits)
+  if(length(mean.target)<n_traits){
+    mean.target <- rep(mean.target, length.out = n_traits)
+    mean.target <- c(mean.target, rep(NA, length(mean.target)-n_traits))
+  }
+  if(length(var.target)<n_traits){
+    var.target <- rep(var.target, length.out = n_traits)
+    var.target <- c(var.target, rep(NA, length(var.target)-n_traits))
+  }
   if(length(gen)==0 && length(database)==0 && length(cohorts)==0){
     gen <- nrow(population$info$size)
   }
   database <- get.database(population, gen, database, cohorts)
   ## Variance Standardization
   for(index in 1:n_traits){
-    new_var <- var.target[index]
+    if(!is.na(var.target[index])){
+      new_var <- var.target[index]
 
-    if(population$info$bv.calculated==FALSE){
-      population <- breeding.diploid(population, verbose=verbose)
+      if(population$info$bv.calculated==FALSE){
+        population <- breeding.diploid(population, verbose=verbose)
+      }
+
+      var_test <- stats::var(get.bv(population, database= database)[index,])
+      test1 <- TRUE
+      if(length(population$info$real.bv.add[[index]])>0){
+        population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
+        test1 <- FALSE
+      }
+      if(length(population$info$real.bv.mult[[index]])>0){
+        population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
+        test1 <- FALSE
+      }
+      modi1[index] <- sqrt(new_var / var_test)
+
+      if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
     }
 
-    var_test <- stats::var(get.bv(population, database= database)[index,])
-    test1 <- TRUE
-    if(length(population$info$real.bv.add[[index]])>0){
-      population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
-      test1 <- FALSE
-    }
-    if(length(population$info$real.bv.mult[[index]])>0){
-      population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
-      test1 <- FALSE
-    }
-    modi1[index] <- sqrt(new_var / var_test)
-
-    if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
 
   }
 
@@ -88,13 +97,16 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
   ## Mean Standardization
   for(index in 1:n_traits){
 
-    if(population$info$bv.calculated==FALSE){
-      population <- breeding.diploid(population, verbose=FALSE)
+    if(!is.na(mean.target[index])){
+      if(population$info$bv.calculated==FALSE){
+        population <- breeding.diploid(population, verbose=FALSE)
+      }
+
+      mean_test <- mean(get.bv(population, database = database)[index,])
+
+      population$info$base.bv[index] <- mean.target[index] + population$info$base.bv[index] - mean_test
     }
 
-    mean_test <- mean(get.bv(population, database = database)[index,])
-
-    population$info$base.bv[index] <- mean.target[index] + population$info$base.bv[index] - mean_test
 
   }
 

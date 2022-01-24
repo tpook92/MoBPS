@@ -37,5 +37,10 @@ Generate a ped and map file (PLINK format) for selected groups and chromosome
 }
 \examples{
 data(ex_pop)
-\donttest{get.pedmap(path=tempdir(), ex_pop, gen=2)}
+\donttest{
+file_path <- tempdir()
+get.pedmap(path=file_path, ex_pop, gen=2)
+file.remove(paste0(file_path, ".ped"))
+file.remove(paste0(file_path, ".map"))
+}
 }

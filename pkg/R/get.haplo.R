@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param chromosomen Beschraenkung der Haplotypen auf bestimmte Chromosomen (default: 1)
+#' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
@@ -36,12 +36,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Haplotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosomen="all", export.alleles=FALSE,
+get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosome="all", export.alleles=FALSE,
                      non.genotyped.as.missing=FALSE, use.id=FALSE){
 
-  if(length(chromosomen)==1 && chromosomen=="all"){
+  if(length(chromosome)==1 && chromosome=="all"){
     subsetting <- FALSE
-    chromosomen <- 1:length(population$info$snp)
+    chromosome <- 1:length(population$info$snp)
   } else{
     subsetting <- TRUE
   }
@@ -75,7 +75,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
   end.chromo <- population$info$cumsnp
 
   relevant.snps <- NULL
-  for(index in chromosomen){
+  for(index in chromosome){
     relevant.snps <- c(relevant.snps, start.chromo[index]:end.chromo[index])
   }
   nsnp <- length(relevant.snps)

@@ -42,7 +42,8 @@ creating.trait(
   var.target = NULL,
   verbose = TRUE,
   is.maternal = NULL,
-  is.paternal = NULL
+  is.paternal = NULL,
+  fixed.effects = NULL
 )
 }
 \arguments{
@@ -121,6 +122,8 @@ creating.trait(
 \item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
 
 \item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
+
+\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))}
 }
 \value{
 Population-list with one or more additional new traits

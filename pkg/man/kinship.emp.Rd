@@ -10,7 +10,8 @@ kinship.emp(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  sym = FALSE
+  sym = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ kinship.emp(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{sym}{If True derive matrix entries below principle-diagonal}
+
+\item{use.id}{Set TRUE to use animal IDs for column/row-names in the output matrix}
 }
 \value{
 Empirical kinship matrix (IBD-based since Founders)

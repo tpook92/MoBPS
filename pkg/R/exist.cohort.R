@@ -19,20 +19,25 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-.onAttach <- function(libname, pkgname) {
-
-
-    packageStartupMessage(
-paste0("#############################################################
-############ Modular Breeding Program Simulator #############
-#############################################################
-################ Version: ", utils::sessionInfo()$otherPkgs$MoBPS$Version, " (",utils::sessionInfo()$otherPkgs$MoBPS$Date,") ###############
-######## To update to the most recent stable version: #######
-## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##
-#############################################################
-################ Web-interface: www.mobps.de ################
-### Extended documentation: www.github.com/tpook92/MoBPS ####
-#############################################################"))
-
-
+#' Function to extract if a cohort exists
+#'
+#' Function to extract if a cohort exists
+#' @param population Population list
+#' @param cohort Cohort to check if it is contained in the population list
+#' @examples
+#' data(ex_pop)
+#' exist.cohort(ex_pop, cohort = "StrangeName_42")
+#' exist.cohort(ex_pop, cohort = "Cohort_1_M")
+#' @return TRUE/FALSE
+#' @export
+#'
+exist.cohort <- function(population, cohort){
+  cohorts  <- get.cohorts(population)
+  if(sum(cohorts==cohort)==1){
+    return(TRUE)
+  } else if(sum(cohorts==cohort)==0){
+    return(FALSE)
+  } else{
+    stop("Cohort issue!")
+  }
 }

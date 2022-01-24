@@ -10,7 +10,7 @@ get.vcf(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  chromosomen = "all",
+  chromosome = "all",
   non.genotyped.as.missing = FALSE,
   use.id = FALSE
 )
@@ -26,7 +26,7 @@ get.vcf(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{chromosomen}{Beschraenkung des Genotypen auf bestimmte Chromosomen (default: 1)}
+\item{chromosome}{Limit the genotype output to a selected chromosome (default: "all")}
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 
@@ -40,5 +40,10 @@ Generate a vcf-file for selected groups and chromosome
 }
 \examples{
 data(ex_pop)
-\donttest{get.vcf(path=tempdir(), ex_pop, gen=2)}
+data(ex_pop)
+\donttest{
+file_path <- tempdir()
+get.vcf(path=file_path, ex_pop, gen=2)
+file.remove(paste0(file_path, ".vcf"))
+}
 }

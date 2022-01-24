@@ -32,7 +32,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @examples
 #' data(ex_pop)
-#' \donttest{get.pedmap(path=tempdir(), ex_pop, gen=2)}
+#' \donttest{
+#' file_path <- tempdir()
+#' get.pedmap(path=file_path, ex_pop, gen=2)
+#' file.remove(paste0(file_path, ".ped"))
+#' file.remove(paste0(file_path, ".map"))
+#' }
 #' @return Ped and map-file for in gen/database/cohorts selected individuals
 #' @export
 

@@ -325,7 +325,12 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             trait_matrix[index,17] <- traitinfo[[index]]$`dominant_equal`
           }
           if(length(traitinfo[[index]]$`dominant_positive`)==1){
-            trait_matrix[index,18] <- traitinfo[[index]]$`dominant_positive`
+            if(traitinfo[[index]]$`dominant_positive` == FALSE || traitinfo[[index]]$`dominant_positive`==0){
+              trait_matrix[index,18] <- FALSE
+            } else {
+              trait_matrix[index,18] <- TRUE
+            }
+
           } else{
             trait_matrix[index,18]  <- FALSE
           }
@@ -373,6 +378,9 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           }
         }
 
+        cor_gen[is.na(cor_gen)] <- 0
+        cor_pheno[is.na(cor_pheno)] <- 0
+
         eigen_gen <- eigen(cor_gen)
         if(sum(eigen_gen$values<0)>0){
           if(verbose) cat("Genetic covariance matrix is not positive definit.\n")
@@ -400,7 +408,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           residual_var <- pheno_var - gen_var
           cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
           cor_pheno[is.na(cor_pheno)] = 0
-          if(verbose) cat("Used genetic covariance:\n")
+          if(verbose) cat("Used residual covariance:\n")
           if(verbose) print(cor_pheno)
         }
         eigen_pheno <- eigen(cor_pheno)
@@ -1974,6 +1982,17 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               nodes[[to_node]]$require <- c(nodes[[to_node]]$require, temp2)
             }
           }
+          if(length(edges[[index]]$'reliability')>0 && edges[[index]]$'reliability'=="Yes"){
+            nodes[[to_node]]$'reliability' <- TRUE
+          } else if(length( nodes[[to_node]]$'reliability')==0){
+            nodes[[to_node]]$'reliability' <- FALSE
+          }
+          if(length(edges[[index]]$'est_reliability')>0 && edges[[index]]$'est_reliability'=="Yes"){
+            nodes[[to_node]]$'est_reliability' <- TRUE
+          } else if(length( nodes[[to_node]]$'est_reliability')==0){
+            nodes[[to_node]]$'est_reliability' <- FALSE
+          }
+
           nodes[[to_node]]$'Relationship Matrix' <- edges[[index]]$'Relationship Matrix'
           nodes[[to_node]]$skip <- edges[[index]]$skip
           nodes[[to_node]]$'BVE Method' <- edges[[index]]$'BVE Method'
@@ -2107,10 +2126,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                 if(constrains[[index]]=="ub.sKin.increase"){
                   nodes[[to_node]]$constrain[[7]] <- as.numeric(constrains_value[[index]])
                 }
-                if(length( nodes[[to_node]]$constrain)>0){
-                  nodes[[to_node]]$constrain[[8]] <- "placeholder"
-                }
               }
+
+              nodes[[to_node]]$constrain[[8]] <- "placeholder"
+
             }
 
           } else if(length(nodes[[to_node]]$OGC)==0){
@@ -2425,7 +2444,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           # Remove group for which not all testers are generated
 
           if(length(possible)==0){
-            stop("invalite breeding program")
+            stop("invalide breeding program")
           }
 
 
@@ -3153,6 +3172,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
                 bve.breeding.type <- nodes[[groupnr]]$`Breeding Type`=="Selection" || nodes[[groupnr]]$`Breeding Type`=="Aging" || nodes[[groupnr]]$`Breeding Type`=="Split"
+
                 if(length(nodes[[groupnr]]$'Cohorts used in BVE') || bve.breeding.type){
                   if(length(nodes[[groupnr]]$'Cohorts used in BVE')==0 || nodes[[groupnr]]$'Cohorts used in BVE'=="Only this cohort" || nodes[[groupnr]]$`Selection Type`=="Pseudo-BVE"){
                     bve.database <- involved_groups[,1:2, drop=FALSE]
@@ -3385,11 +3405,18 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   } else{
                     offspring.bve.parents.database <- NULL
                   }
+
+                  calc_reli <- nodes[[groupnr]]$'reliability'
+                  est_reli <- nodes[[groupnr]]$'est_reliability'
+
+
                   population <- breeding.diploid(population, breeding.size=breeding.size,
                                                  bve=(bve&bve_exe),
                                                  bve.solve = bve_solve,
                                                  computation.A = computeA,
                                                  bve.pseudo = pseudo_bve,
+                                                 calculate.reliability = calc_reli,
+                                                 estimate.reliability = est_reli,
                                                  bve.pseudo.accuracy = pseudo_acc,
                                                  offspring.bve.parents.database=offspring.bve.parents.database,
                                                  BGLR.bve = activbglr,
@@ -3756,7 +3783,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
               active_single <- active_single & (death_counter != (-1))
               if(sum(active_single)>0){
                 population <- breeding.diploid(population,
-                                               culling.cohort = cohort_index,
+                                               culling.cohorts = cohort_index,
                                                culling.time = as.numeric(culling_reason[culling_index,2]),
                                                culling.name = culling_reason[culling_index,1],
                                                culling.bv1 = as.numeric(culling_reason[culling_index,6]),

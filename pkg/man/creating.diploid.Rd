@@ -84,7 +84,10 @@ creating.diploid(
   is.maternal = NULL,
   is.paternal = NULL,
   vcf.maxsnp = Inf,
-  internal = FALSE
+  fixed.effects = NULL,
+  internal = FALSE,
+  internal.geno = TRUE,
+  internal.dataset = NULL
 )
 }
 \arguments{
@@ -246,7 +249,13 @@ creating.diploid(
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
 
+\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))}
+
 \item{internal}{Dont touch!}
+
+\item{internal.geno}{Dont touch!}
+
+\item{internal.dataset}{Dont touch!}
 }
 \value{
 Population-list

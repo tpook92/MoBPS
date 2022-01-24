@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param start.kinship Relationship matrix of the individuals in the first considered generation
 #' @param elements Vector of individuals from the database to include in pedigree matrix
-#' @param mult Multiplicator of kinship matrix (default: 2)
+#' @param mult Multiplicator of kinship matrix (default: 1; set to 2 for a pedigree relationship matrix)
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
@@ -42,7 +42,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                                start.kinship=NULL,
                                elements = NULL,
-                               mult = 2,
+                               mult = 1,
                                storage.save=1.5,
                                verbose=TRUE){
 
@@ -252,4 +252,41 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
   return(kinship.relevant)
 
+}
+
+
+#' Derive pedigree relationship matrix
+#'
+#' Function to derive pedigree matrix
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param depth.pedigree Depth of the pedigree in generations
+#' @param start.kinship Relationship matrix of the individuals in the first considered generation
+#' @param elements Vector of individuals from the database to include in pedigree matrix
+#' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @param verbose Set to FALSE to not display any prints
+#' @examples
+#' data(ex_pop)
+#' pedigree_matrix <- pedigree.matrix(population=ex_pop, gen=2)
+#' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
+#' @export
+#'
+
+pedigree.matrix <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+                        start.kinship=NULL,
+                        elements = NULL,
+                        storage.save=1.5,
+                        verbose=TRUE){
+
+  A <- kinship.exp(population = population, gen=gen, database=database,
+                   cohorts=cohorts, depth.pedigree=depth.pedigree,
+                   start.kinship=start.kinship,
+                   elements=elements,
+                   storage.save=storage.save,
+                   verbose=verbose,
+                   mult=2)
+
+  return(A)
 }
