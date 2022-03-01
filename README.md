@@ -23,6 +23,24 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.8.01 (01.03.22)
+
+Rework of sigma.e / heritability estimation. 
+
+sigma.e now correctly means residual standard deviations - not variance...
+
+Updated documentation
+
+### Version 1.7.13 (24.01.22)
+
+Added fixed effects 
+
+get.database() now accepts individual IDs as input
+
+Added kinship.emp.fast.between() for calculation of kinship between gen/database/cohorts of individuals
+
+Added get.pheno.single() to allow for the export of individual phenotypes instead of only the mean phenotype for an individual
+
 ### Version 1.6.63 (25.10.21)
 
 Default mutation rate has been changed to 10^-8 (mutation.rate in breeding.diploid())
