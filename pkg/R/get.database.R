@@ -122,7 +122,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   if(length(cohorts)>0){
     database2 <- matrix(0L, nrow=length(cohorts), ncol=4)
     for(index in 1:length(cohorts)){
-      row <- which(population$info$cohorts==cohorts[index])[1]
+      row <- which(population$info$cohorts[,1]==cohorts[index])[1]
       if(is.na(row)){
         warning(paste0("Cohort ", cohorts[index], " is not available when constructing the individuals database!"))
       }

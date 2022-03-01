@@ -44,6 +44,7 @@ breeding.diploid(
   max.litter = Inf,
   store.breeding.totals = FALSE,
   forecast.sigma.g = TRUE,
+  variance.correction = "none",
   multiple.bve = "add",
   store.bve.data = FALSE,
   fixed.assignment = FALSE,
@@ -124,7 +125,6 @@ breeding.diploid(
   gen.architecture.m = 0,
   gen.architecture.f = NULL,
   add.architecture = NULL,
-  ncore = 1,
   ncore.generation = 1,
   Z.integer = FALSE,
   store.effect.freq = FALSE,
@@ -163,6 +163,7 @@ breeding.diploid(
   phenotyping.gen = NULL,
   phenotyping.cohorts = NULL,
   phenotyping.database = NULL,
+  phenotyping.class = NULL,
   bve.gen = NULL,
   bve.cohorts = NULL,
   bve.database = NULL,
@@ -261,7 +262,8 @@ breeding.diploid(
   fixed.effects.freq = NULL,
   bve.exclude.fixed.effects = NULL,
   bve.beta.hat.approx = TRUE,
-  export.selected = FALSE
+  export.selected = FALSE,
+  bve.array = NULL
 )
 }
 \arguments{
@@ -311,9 +313,9 @@ breeding.diploid(
 
 \item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
 
-\item{sigma.e}{Enviromental variance (default: 100)}
+\item{sigma.e}{Enviromental standard deviation (default: 10)}
 
-\item{sigma.g}{Genetic variance (default: 100 - only used if not computed via estimate.sigma.g^2 in der Zuchtwertschaetzung (Default: 100)}
+\item{sigma.g}{Genetic variance (default: 100 - this is only used for non-QTL based traits!)}
 
 \item{new.bv.child}{(OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
@@ -342,6 +344,8 @@ breeding.diploid(
 \item{store.breeding.totals}{If TRUE store information on selected animals in $info$breeding.totals}
 
 \item{forecast.sigma.g}{Set FALSE to not estimate sigma.g (Default: TRUE)}
+
+\item{variance.correction}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
 
 \item{multiple.bve}{Way to handle multiple traits in bv/selection (default: "add", alt: "ranking")}
 
@@ -503,8 +507,6 @@ breeding.diploid(
 
 \item{add.architecture}{List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)}
 
-\item{ncore}{Cores used for parallel computing in compute.snps}
-
 \item{ncore.generation}{Number of cores to use in parallel generation}
 
 \item{Z.integer}{If TRUE save Z as a integer in parallel computing}
@@ -581,23 +583,25 @@ breeding.diploid(
 
 \item{phenotyping.database}{Matrix of groups from which to generate additional phenotypes}
 
+\item{phenotyping.class}{Classes of individuals for which to generate phenotypes (default: NULL --> all classes)}
+
 \item{bve.gen}{Generations of individuals to consider in breeding value estimation (default: NULL)}
 
 \item{bve.cohorts}{Cohorts of individuals to consider in breeding value estimation (default: NULL)}
 
 \item{bve.database}{Groups of individuals to consider in breeding value estimation (default: NULL)}
 
-\item{sigma.e.gen}{Generations to consider when estimating sigma.e when using hertability}
+\item{sigma.e.gen}{Generations to consider when estimating sigma.e when using heritability}
 
-\item{sigma.e.cohorts}{Cohorts to consider when estimating sigma.e when using hertability}
+\item{sigma.e.cohorts}{Cohorts to consider when estimating sigma.e when using heritability}
 
-\item{sigma.e.database}{Groups to consider when estimating sigma.e when using hertability}
+\item{sigma.e.database}{Groups to consider when estimating sigma.e when using heritability}
 
-\item{sigma.g.gen}{Generations to consider when estimating sigma.g}
+\item{sigma.g.gen}{Generations to consider when estimating sigma.g - this is only used for non-QTL based traits!}
 
-\item{sigma.g.cohorts}{Cohorts to consider when estimating sigma.g}
+\item{sigma.g.cohorts}{Cohorts to consider when estimating sigma.g - this is only used for non-QTL based traits!}
 
-\item{sigma.g.database}{Groups to consider when estimating sigma.g}
+\item{sigma.g.database}{Groups to consider when estimating sigma.g - this is only used for non-QTL based traits!}
 
 \item{gwas.gen}{Generations to consider in GWAS analysis}
 
@@ -778,6 +782,8 @@ breeding.diploid(
 \item{bve.beta.hat.approx}{Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.}
 
 \item{export.selected}{Set to TRUE to export the list of selected individuals}
+
+\item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on availabled used ones)}
 }
 \value{
 Population-list

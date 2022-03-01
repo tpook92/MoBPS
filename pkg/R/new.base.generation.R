@@ -54,38 +54,39 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
     base.gen <- length(population$breeding)
   }
 
-  take <- which(population$info$origin.gen==base.gen)
-  if(length(take)==1){
-    origin_code <- population$info$origin.gen[take]
-  } else{
-    if(population$info$miraculix){
-      if(length(population$info$origin.gen)<64){
-        population$info$origin.gen <- c(population$info$origin.gen, as.integer(base.gen))
-        origin_code <- length(population$info$origin.gen)
-      } else{
-        warning("To many origin generation!")
-        warning("Delete second lowest origin.gen")
-        switch_gen <- sort(population$info$origin.gen, index.return=TRUE)$ix[2]
-        population$info$origin.gen[switch_gen] <- as.integer(base.gen)
-        origin_code <- switch_gen
-      }
+  for(gen in base.gen){
+    take <- which(population$info$origin.gen==gen)
+    if(length(take)==1){
+      origin_code <- population$info$origin.gen[take]
     } else{
-      if(length(population$info$origin.gen)<32){
-        population$info$origin.gen <- c(population$info$origin.gen, as.integer(base.gen))
-        origin_code <- length(population$info$origin.gen)
+      if(population$info$miraculix){
+        if(length(population$info$origin.gen)<64){
+          population$info$origin.gen <- c(population$info$origin.gen, as.integer(gen))
+          origin_code <- length(population$info$origin.gen)
+        } else{
+          warning("To many origin generation!")
+          warning("Delete second lowest origin.gen")
+          switch_gen <- sort(population$info$origin.gen, index.return=TRUE)$ix[2]
+          population$info$origin.gen[switch_gen] <- as.integer(gen)
+          origin_code <- switch_gen
+        }
       } else{
-        warning("To many origin generation!")
-        warning("Delete second lowest origin.gen")
-        switch_gen <- sort(population$info$origin.gen, index.return=TRUE)$ix[2]
-        population$info$origin.gen[switch_gen] <- as.integer(base.gen)
-        origin_code <- switch_gen
+        if(length(population$info$origin.gen)<32){
+          population$info$origin.gen <- c(population$info$origin.gen, as.integer(gen))
+          origin_code <- length(population$info$origin.gen)
+        } else{
+          warning("To many origin generation!")
+          warning("Delete second lowest origin.gen")
+          switch_gen <- sort(population$info$origin.gen, index.return=TRUE)$ix[2]
+          population$info$origin.gen[switch_gen] <- as.integer(gen)
+          origin_code <- switch_gen
+        }
       }
     }
-  }
 
 
 
-  for(gen in base.gen){
+
     for(sex in 1:2){
       if(length(population$breeding[[gen]][[sex]])>0){
         for(nr in 1:length(population$breeding[[gen]][[sex]])){

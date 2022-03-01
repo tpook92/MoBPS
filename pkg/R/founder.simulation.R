@@ -174,11 +174,19 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
   }
 
   geno <- get.geno(population, gen = nrow(population$info$size))
+
+
   ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", plot = plot)
   p_i <- rowMeans(geno)/2
 
   if(plot){
-    graphics::hist(p_i[p_i!=0 & p_i !=1], nclass=20, xlab="allele frequency spectrum", main="Allele frequency spectrum")
+
+    tryCatch(  {
+      graphics::hist(p_i[p_i!=0 & p_i !=1], nclass=20, xlab="allele frequency spectrum", main="Allele frequency spectrum")
+    },
+    error = function(e) {})
+
+
   }
 
   if(verbose){ cat(paste0(sum(p_i==0 | p_i==1), " of ", length(p_i), " markers are fixated.\n"))}

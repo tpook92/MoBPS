@@ -101,8 +101,14 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
 
 
     if(plot){
-      graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
-      graphics::lines(smooth1, col="red", lwd=2)
+
+      tryCatch(  {
+        graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
+        graphics::lines(smooth1, col="red", lwd=2)
+      },
+      error = function(e) {})
+
+
     }
 
 
