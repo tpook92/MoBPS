@@ -84,10 +84,12 @@ creating.diploid(
   is.maternal = NULL,
   is.paternal = NULL,
   vcf.maxsnp = Inf,
+  vcf.chromosomes = NULL,
   fixed.effects = NULL,
   internal = FALSE,
   internal.geno = TRUE,
-  internal.dataset = NULL
+  internal.dataset = NULL,
+  vcf.VA = TRUE
 )
 }
 \arguments{
@@ -111,7 +113,7 @@ creating.diploid(
 
 \item{nindi}{number of inidividuals to generate in a random dataset}
 
-\item{freq}{frequency of allele 1 when randomly generating a dataset}
+\item{freq}{frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)}
 
 \item{population}{Population list}
 
@@ -249,6 +251,8 @@ creating.diploid(
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
 
+\item{vcf.chromosomes}{Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)}
+
 \item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))}
 
 \item{internal}{Dont touch!}
@@ -256,6 +260,8 @@ creating.diploid(
 \item{internal.geno}{Dont touch!}
 
 \item{internal.dataset}{Dont touch!}
+
+\item{vcf.VA}{Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)}
 }
 \value{
 Population-list

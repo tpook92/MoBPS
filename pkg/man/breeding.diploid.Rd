@@ -38,6 +38,9 @@ breeding.diploid(
   computation.A.ogc = NULL,
   delete.haplotypes = NULL,
   delete.individuals = NULL,
+  delete.gen = NULL,
+  delete.sex = 1:2,
+  delete.same.origin = FALSE,
   fixed.breeding = NULL,
   fixed.breeding.best = NULL,
   max.offspring = Inf,
@@ -75,7 +78,6 @@ breeding.diploid(
   n.observation = NULL,
   bve.0isNA = FALSE,
   phenotype.bv = FALSE,
-  delete.same.origin = FALSE,
   remove.effect.position = FALSE,
   estimate.u = FALSE,
   new.phenotype.correlation = NULL,
@@ -119,7 +121,6 @@ breeding.diploid(
   sequenceZ = FALSE,
   maxZ = 5000,
   maxZtotal = 0,
-  delete.sex = 1:2,
   gwas.group.standard = FALSE,
   y.gwas.used = "pheno",
   gen.architecture.m = 0,
@@ -193,6 +194,12 @@ breeding.diploid(
   remove.non.genotyped = TRUE,
   added.genotyped = 0,
   fast.uhat = TRUE,
+  offpheno.parents.gen = NULL,
+  offpheno.parents.database = NULL,
+  offpheno.parents.cohorts = NULL,
+  offpheno.offspring.gen = NULL,
+  offpheno.offspring.database = NULL,
+  offpheno.offspring.cohorts = NULL,
   offspring.bve.parents.gen = NULL,
   offspring.bve.parents.database = NULL,
   offspring.bve.parents.cohorts = NULL,
@@ -241,7 +248,8 @@ breeding.diploid(
   mas.effects = NULL,
   threshold.selection = NULL,
   threshold.sign = ">",
-  input.phenotype = "own",
+  bve.input.phenotype = "own",
+  input.phenotype = NULL,
   bve.ignore.traits = NULL,
   bv.ignore.traits = NULL,
   genotyped.database = NULL,
@@ -333,6 +341,12 @@ breeding.diploid(
 
 \item{delete.individuals}{Generations for with individuals are completley deleted (only use if storage problem!)}
 
+\item{delete.gen}{Generations to entirely delete (only use if storage problem!!)}
+
+\item{delete.sex}{Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)}
+
+\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
+
 \item{fixed.breeding}{Set of targeted matings to perform}
 
 \item{fixed.breeding.best}{Perform targeted matings in the group of selected individuals}
@@ -406,8 +420,6 @@ breeding.diploid(
 \item{bve.0isNA}{Individuals with phenotype 0 are used as NA in breeding value estimation}
 
 \item{phenotype.bv}{If TRUE use phenotype as estimated breeding value}
-
-\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
 
 \item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
 
@@ -494,8 +506,6 @@ breeding.diploid(
 \item{maxZ}{Number of SNPs to consider in each part of sequenceZ}
 
 \item{maxZtotal}{Number of matrix entries to consider jointly (maxZ = maxZtotal/number of animals)}
-
-\item{delete.sex}{Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)}
 
 \item{gwas.group.standard}{If TRUE standardize phenotypes by group mean}
 
@@ -643,17 +653,29 @@ breeding.diploid(
 
 \item{fast.uhat}{Set to FALSE to  derive inverse of A in rrBLUP}
 
-\item{offspring.bve.parents.gen}{Generations to consider to derive phenotype from offspring phenotypes}
+\item{offpheno.parents.gen}{Generations to consider to derive phenotype from offspring phenotypes}
 
-\item{offspring.bve.parents.database}{Groups to consider to derive phenotype from offspring phenotypes}
+\item{offpheno.parents.database}{Groups to consider to derive phenotype from offspring phenotypes}
 
-\item{offspring.bve.parents.cohorts}{Cohorts to consider to derive phenotype from offspring phenotypes}
+\item{offpheno.parents.cohorts}{Cohorts to consider to derive phenotype from offspring phenotypes}
 
-\item{offspring.bve.offspring.gen}{Active generations for import of offspring phenotypes}
+\item{offpheno.offspring.gen}{Active generations for import of offspring phenotypes}
 
-\item{offspring.bve.offspring.database}{Active groups for import of offspring phenotypes}
+\item{offpheno.offspring.database}{Active groups for import of offspring phenotypes}
 
-\item{offspring.bve.offspring.cohorts}{Active cohorts for import of offspring phenotypes}
+\item{offpheno.offspring.cohorts}{Active cohorts for import of offspring phenotypes}
+
+\item{offspring.bve.parents.gen}{(OLD! use offpheno.parents.gen) Generations to consider to derive phenotype from offspring phenotypes}
+
+\item{offspring.bve.parents.database}{(OLD! use offpheno.parents.database) Groups to consider to derive phenotype from offspring phenotypes}
+
+\item{offspring.bve.parents.cohorts}{(OLD! use offpheno.parents.cohorts) Cohorts to consider to derive phenotype from offspring phenotypes}
+
+\item{offspring.bve.offspring.gen}{(OLD! use offpheno.offspring.gen) Active generations for import of offspring phenotypes}
+
+\item{offspring.bve.offspring.database}{(OLD! use offpheno.offspring.database) Active groups for import of offspring phenotypes}
+
+\item{offspring.bve.offspring.cohorts}{(OLD! use offpheno.offspring.cohorts) Active cohorts for import of offspring phenotypes}
 
 \item{culling.gen}{Generations to consider to culling}
 
@@ -739,7 +761,9 @@ breeding.diploid(
 
 \item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
 
-\item{input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
+\item{bve.input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
+
+\item{input.phenotype}{(OLD! use bve.input.phenotype) Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
 
 \item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
 

@@ -50,11 +50,17 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
   if(length(path)==0){
     path <- "population"
   }
-  chr.nr <- sum(population$info$snp)
+  chr.nr <- numeric(sum(population$info$snp))
   start <- 1
   for(index in 1:length(population$info$snp)){
     if(population$info$snp[index]>0){
-      chr.nr[start:(start+population$info$snp[index]-1)] <- index
+
+      if(length(population$info$chromosome.name)>=index){
+        chr.nr[start:(start+population$info$snp[index]-1)] <- population$info$chromosome.name[index]
+      } else{
+        chr.nr[start:(start+population$info$snp[index]-1)] <- index
+      }
+
       start <- start + population$info$snp[index]
     }
   }

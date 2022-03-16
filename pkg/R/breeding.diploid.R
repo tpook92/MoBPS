@@ -70,6 +70,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param relationship.matrix.ogc Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param delete.haplotypes Generations for with haplotypes of founders can be deleted (only use if storage problem!)
 #' @param delete.individuals Generations for with individuals are completley deleted (only use if storage problem!)
+#' @param delete.gen Generations to entirely delete (only use if storage problem!!)
+#' @param delete.sex Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)
+#' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
 #' @param praeimplantation Only use matings the lead to a specific genotype in a specific marker
 #' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!)
@@ -113,7 +116,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.observation Number of phenotypes generated per individuals (influences enviromental variance)
 #' @param bve.0isNA Individuals with phenotype 0 are used as NA in breeding value estimation
 #' @param phenotype.bv If TRUE use phenotype as estimated breeding value
-#' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
 #' @param estimate.u If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)
 #' @param gwas.u If TRUE estimate u via GWAS (relevant for gene editing)
 #' @param approx.residuals If FALSE calculate the variance for each marker separatly instead of using a set variance (doesnt change order - only p-values)
@@ -152,7 +154,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sequenceZ Split genomic matric into parts (relevent if high memory usage)
 #' @param maxZ Number of SNPs to consider in each part of sequenceZ
 #' @param maxZtotal Number of matrix entries to consider jointly (maxZ = maxZtotal/number of animals)
-#' @param delete.sex Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)
 #' @param gen.architecture.m Genetic architecture for male animal (default: 0 - no transformation)
 #' @param gen.architecture.f Genetic architecture for female animal (default: gen.architecture.m - no transformation)
 #' @param add.architecture List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)
@@ -207,12 +208,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param singlestep.active Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)
 #' @param remove.non.genotyped Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well
 #' @param fast.uhat Set to FALSE to  derive inverse of A in rrBLUP
-#' @param offspring.bve.parents.gen Generations to consider to derive phenotype from offspring phenotypes
-#' @param offspring.bve.parents.database Groups to consider to derive phenotype from offspring phenotypes
-#' @param offspring.bve.parents.cohorts Cohorts to consider to derive phenotype from offspring phenotypes
-#' @param offspring.bve.offspring.gen Active generations for import of offspring phenotypes
-#' @param offspring.bve.offspring.database Active groups for import of offspring phenotypes
-#' @param offspring.bve.offspring.cohorts Active cohorts for import of offspring phenotypes
+#' @param offpheno.parents.gen Generations to consider to derive phenotype from offspring phenotypes
+#' @param offpheno.parents.database Groups to consider to derive phenotype from offspring phenotypes
+#' @param offpheno.parents.cohorts Cohorts to consider to derive phenotype from offspring phenotypes
+#' @param offpheno.offspring.gen Active generations for import of offspring phenotypes
+#' @param offpheno.offspring.database Active groups for import of offspring phenotypes
+#' @param offpheno.offspring.cohorts Active cohorts for import of offspring phenotypes
 #' @param sommer.multi.bve Set TRUE to use a mulit-trait model in the R-package sommer for BVE
 #' @param calculate.reliability Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE
 #' @param estimate.reliability Set TRUE to estimate the reliablity in the BVE by calculating the correlation between estimated and real breeding values
@@ -248,7 +249,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mas.effects Effects assigned to the MAS markers (Default: estimated via lm())
 #' @param threshold.selection Minimum value in the selection index selected individuals have to have
 #' @param threshold.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
-#' @param input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
+#' @param bve.input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @param bve.ignore.traits Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param genotyped.gen Generations to generate genotype data (that can be used in a BVE)
@@ -273,6 +274,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param computation.A (OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")
 #' @param computation.A.ogc (OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param new.phenotype.correlation (OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance
+#' @param offspring.bve.parents.gen (OLD! use offpheno.parents.gen) Generations to consider to derive phenotype from offspring phenotypes
+#' @param offspring.bve.parents.database (OLD! use offpheno.parents.database) Groups to consider to derive phenotype from offspring phenotypes
+#' @param offspring.bve.parents.cohorts (OLD! use offpheno.parents.cohorts) Cohorts to consider to derive phenotype from offspring phenotypes
+#' @param offspring.bve.offspring.gen (OLD! use offpheno.offspring.gen) Active generations for import of offspring phenotypes
+#' @param offspring.bve.offspring.database (OLD! use offpheno.offspring.database) Active groups for import of offspring phenotypes
+#' @param offspring.bve.offspring.cohorts (OLD! use offpheno.offspring.cohorts) Active cohorts for import of offspring phenotypes
+#' @param input.phenotype (OLD! use bve.input.phenotype) Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @param avoid.mating.fullsib Set to TRUE to not generate offspring of full siblings
 #' @param avoid.mating.halfsib Set to TRUE to not generate offspring from half or full siblings
 #' @param bve.per.sample.sigma.e Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample
@@ -322,6 +330,9 @@ breeding.diploid <- function(population,
             computation.A.ogc = NULL,
             delete.haplotypes = NULL,
             delete.individuals = NULL,
+            delete.gen = NULL,
+            delete.sex = 1:2,
+            delete.same.origin = FALSE,
             fixed.breeding = NULL,
             fixed.breeding.best = NULL,
             max.offspring = Inf,
@@ -359,7 +370,7 @@ breeding.diploid <- function(population,
             n.observation = NULL,
             bve.0isNA = FALSE,
             phenotype.bv = FALSE,
-            delete.same.origin = FALSE,
+
             remove.effect.position = FALSE,
             estimate.u = FALSE,
             new.phenotype.correlation = NULL,
@@ -403,7 +414,7 @@ breeding.diploid <- function(population,
             sequenceZ = FALSE,
             maxZ = 5000,
             maxZtotal = 0,
-            delete.sex = 1:2,
+
             gwas.group.standard = FALSE,
             y.gwas.used = "pheno",
             gen.architecture.m = 0,
@@ -477,6 +488,14 @@ breeding.diploid <- function(population,
             remove.non.genotyped = TRUE,
             added.genotyped = 0,
             fast.uhat = TRUE,
+
+            offpheno.parents.gen = NULL,
+            offpheno.parents.database = NULL,
+            offpheno.parents.cohorts = NULL,
+            offpheno.offspring.gen = NULL,
+            offpheno.offspring.database = NULL,
+            offpheno.offspring.cohorts = NULL,
+
             offspring.bve.parents.gen = NULL,
             offspring.bve.parents.database = NULL,
             offspring.bve.parents.cohorts = NULL,
@@ -525,7 +544,8 @@ breeding.diploid <- function(population,
             mas.effects=NULL,
             threshold.selection=NULL,
             threshold.sign=">",
-            input.phenotype="own",
+            bve.input.phenotype="own",
+            input.phenotype=NULL,
             bve.ignore.traits=NULL,
             bv.ignore.traits=NULL,
             genotyped.database = NULL,
@@ -557,6 +577,49 @@ breeding.diploid <- function(population,
   #######################################################################
 {
 
+
+  if(length(bve.array)>0){
+    temp1 <- which(population$info$array.name == bve.array)
+    if(length(temp1)==1){
+      bve.array <- temp1
+    }
+    if(!is.numeric(bve.array)){
+      stop("Input for bve.array can not be assigned! Check your input!")
+    }
+  }
+
+  if((genotyped.array)!=1){
+    temp1 <- which(population$info$array.name == genotyped.array)
+    if(length(temp1)==1){
+      genotyped.array <- temp1
+    }
+    if(!is.numeric(genotyped.array)){
+      stop("Input for genotyped.array can not be assigned! Check your input!")
+    }
+  }
+
+  if(length(input.phenotype)==0){
+    input.phenotype <- bve.input.phenotype
+  }
+
+  if(length(offpheno.parents.gen)>0){
+    offspring.bve.parents.gen <- offpheno.parents.gen
+  }
+  if(length(offpheno.parents.database)>0){
+    offspring.bve.parents.database <- offpheno.parents.database
+  }
+  if(length(offpheno.parents.cohorts)>0){
+    offspring.bve.parents.cohorts <- offpheno.parents.cohorts
+  }
+  if(length(offpheno.offspring.gen)>0){
+    offspring.bve.offspring.gen <- offpheno.offspring.gen
+  }
+  if(length(offpheno.offspring.database)>0){
+    offspring.bve.offspring.database <- offpheno.offspring.database
+  }
+  if(length(offpheno.offspring.cohorts)>0){
+    offspring.bve.offspring.cohorts <- offpheno.offspring.cohorts
+  }
 
   if(bve.imputation.errorrate>0 & sequenceZ){
     stop("imputation errors are not supported by sequenceZ")
@@ -3347,6 +3410,9 @@ breeding.diploid <- function(population,
           # sigma.a.hat / sigma.e2.hat are modified to avoid h=0, h=1 cases (numeric instability)
 
 
+          if(input.phenotype!="own"){
+            warning("Direct BVE method is not really designed to be used when using offspring phentypes!\n Check variance components / accuracies! \n Consider using rrblup.bve=TRUE")
+          }
           if(ncol(X_fixed)>=1 && prod(X_fixed==X_fixed[1,1])!=1){
             warning("Direct BVE method does not support the use of fixed effects!\nAssume all fixed effects to be known!")
 
@@ -6371,7 +6437,7 @@ breeding.diploid <- function(population,
   ########################## Final housekeeping #########################
   #######################################################################
 {
-  delete.haplotypes <- delete.haplotypes[delete.haplotypes>1]
+  delete.haplotypes <- delete.haplotypes
   if(length(delete.haplotypes)>0){
     for(gen_r in delete.haplotypes){
       for(sex in 1:2){
@@ -6385,7 +6451,7 @@ breeding.diploid <- function(population,
       }
     }
   }
-  delete.individuals <- delete.individuals[delete.individuals>1]
+  delete.individuals <- delete.individuals
   if(length(delete.individuals)>0){
     for(gen_r in delete.individuals){
       for(sex in delete.sex){
@@ -6397,6 +6463,18 @@ breeding.diploid <- function(population,
       }
     }
   }
+
+  delete.gen <- delete.gen
+  if(length(delete.gen)>0){
+    for(gen_r in delete.gen){
+      population$breeding[[gen_r]][[sex]]<- "deleted"
+    }
+  }
+
+
+
+  # Add delete.gen for complete removal of a generation including [[3]] - [[X]] inputs
+
   if(store.breeding.totals){
     cur <- length(population$info$breeding.totals) + 1L
     population$info$breeding.totals[[cur]] <- list()

@@ -1,7 +1,7 @@
 Package: MoBPS
 Type: Package
 Title: Modular Breeding Program Simulator
-Version: 1.8.01
+Version: 1.8.03
 Author: Torsten Pook
 Maintainer: Torsten Pook <torsten.pook@uni-goettingen.de>
 Description: Framework for the simulation framework for the simulation of complex breeding programs and compare their economic and genetic impact. The package is also used as the background simulator for our a web-based interface <http:www.mobps.de>. Associated publication: Pook et al. (2020) <doi:10.1534/g3.120.401193>.
@@ -9,8 +9,8 @@ Depends: R (>= 3.0),
 Imports: graphics, stats, utils
 License: GPL ( >= 3)
 LazyData: TRUE
-Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer, optiSel, alstructure, NAM, gplots, phylogram, cPCG
+Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer, optiSel, alstructure, NAM, gplots, phylogram, cPCG, VariantAnnotation, GenomicRanges, IRanges, MatrixGenerics, Rsamtools
 Enhances: miraculix (>= 0.9.10), RandomFieldsUtils (>= 0.5.9), MoBPSmaps
 Additional_repositories: https://tpook92.github.io/drat/
 RoxygenNote: 7.1.1
-Date: 2022-03-01
+Date: 2022-03-16

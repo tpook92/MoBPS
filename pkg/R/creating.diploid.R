@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
 #' @param nindi number of inidividuals to generate in a random dataset
-#' @param freq frequency of allele 1 when randomly generating a dataset
+#' @param freq frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)
 #' @param population Population list
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
@@ -78,6 +78,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
 #' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
+#' @param vcf.chromosomes Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)
+#' @param vcf.VA Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)
 #' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
@@ -166,13 +168,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              is.maternal = NULL,
                              is.paternal = NULL,
                              vcf.maxsnp=Inf,
+                             vcf.chromosomes = NULL,
                              fixed.effects = NULL,
                              internal=FALSE,
                              internal.geno=TRUE,
-                             internal.dataset = NULL){
+                             internal.dataset = NULL,
+                             vcf.VA = TRUE){
 
 
 
+  if(length(freq)==1 && freq=="same" && length(population$info$creating.freq)>0 ){
+    freq <- population$info$creating.freq
+  }
   if(length(randomSeed)>0){
     set.seed(randomSeed)
   }
@@ -391,7 +398,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     miraculix.dataset <- FALSE
   }
 
-  if(length(chr.nr)==1 && chr.nr>1){
+  if(length(chr.nr)==1 && is.numeric(chr.nr)){
     if(length(nsnp)==1  && nsnp > chr.nr){
       chr.nr <- sort(rep(1:chr.nr, length.out=nsnp))
       nsnp <- numeric(max(chr.nr))
@@ -419,34 +426,134 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
   }
 
+  write_vcf_header <- FALSE
   if(skip.rest==FALSE){
     if(length(vcf)>0){
-      if(requireNamespace("vcfR", quietly = TRUE)){
+
+      exitVariantAnnotation <- 1
+      if(requireNamespace("VariantAnnotation", quietly = TRUE) & vcf.VA){
+
+        ### read (tabixed) vcf by VariantAnnotation  ---------------------------
+
+        if(grepl("\\.gz$",vcf,perl = TRUE) && (file.exists(paste0(vcf,".tbi")) || file.exists(sub("\\.gz$",".tbi",vcf,perl = TRUE)))){
+          tmp.fl <- Rsamtools::TabixFile(vcf)
+        }else{
+          tmp.fl <- vcf
+        }
+        tmp.header <- VariantAnnotation::scanVcfHeader(tmp.fl)
+        write_vcf_header <- TRUE
+        if(is.na(VariantAnnotation::geno(tmp.header)["GT","Description"])){
+          warning("VariantAnnotation::readVcf() could not read GT field description from vcf header\n",
+                  "- trying to import using vcfR::read.vcfR() without chromosome subset and header caption opportunity\n",
+                  "- check your vcf header for single quotes instead of double quotes around GT FORMAT description and consider changing manually or using `bcftools reheader`")
+        } else{
+
+          #### subset by chromosome -------------------------------------------
+          if(!is.null(vcf.chromosomes) && class(tmp.fl) == "TabixFile"){
+            if(any(!vcf.chromosomes %in% rownames(VariantAnnotation::meta(tmp.header)$contig))){
+              stop("Trying to subset vcf by chromosome, but some chromosome names were not found in the vcf header!\n",
+                   "Potentionally, you don't have full contig info in your vcf header, try e.g. updating your sequence dictionary by \n",
+                   "`bcftools reheader -f /path/to/reference.fa.fai /path/to/your/vcf.gz > new.vcf.gz && bcftools index -tf new.vcf.gz` !\n")
+            }
+            tmp.ranges <- GenomicRanges::GRanges(seqnames = vcf.chromosomes,
+                                                 ranges = IRanges::IRanges(
+                                                   start = rep(1,length(vcf.chromosomes)),
+                                                   end = as.integer(VariantAnnotation::meta(tmp.header)$contig[vcf.chromosomes,])
+                                                 ))
+            tmp.params <- VariantAnnotation::ScanVcfParam(geno = c("GT"),
+                                                          which = tmp.ranges)
+          }else if(!is.null(vcf.chromosomes) && class(tmp.fl) != "TabixFile"){
+            stop("Trying to subset vcf by chromosome, but vcf does not seem to be bgzipped and tabix indexed!")
+          }else{
+            tmp.params <- VariantAnnotation::ScanVcfParam(geno = "GT") # geno = "GT"
+          }
+
+          ## read vcf
+          vcf_file <- VariantAnnotation::readVcf(tmp.fl, param = tmp.params) ## needed later, or can be removed??????
+          #vcf_file <- VariantAnnotation::readVcf(tmp.fl) ## needed later, or can be removed??????
+
+          dataset <- matrix(0L, nrow = dim(vcf_file)[1], ncol = dim(vcf_file)[2]*2)
+          suppressWarnings({
+            dataset[,c(TRUE,FALSE)] <- as.integer(substr(VariantAnnotation::geno(vcf_file)$GT, start=1,stop=1))
+            dataset[,c(FALSE,TRUE)] <- as.integer(substr(VariantAnnotation::geno(vcf_file)$GT, start=3,stop=3))
+          })
+          colnames(dataset) <- c(paste0(VariantAnnotation::samples(VariantAnnotation::header(vcf_file)),"_1"),
+                                 paste0(VariantAnnotation::samples(VariantAnnotation::header(vcf_file)),"_2"))
+
+          chr.nr <- as.character(MatrixGenerics::rowRanges(vcf_file)@seqnames)
+          bp <- as.integer(MatrixGenerics::rowRanges(vcf_file)@ranges@start)
+          snp.name <- names(MatrixGenerics::rowRanges(vcf_file))
+
+          ## remove multivariate variants
+          if(length(unlist(VariantAnnotation::fixed(vcf_file)$ALT)) > dim(vcf_file)[1] ){
+            tmp.nalt <- VariantAnnotation::fixed(vcf_file)$ALT
+            tmp.nalt <- which(lengths(tmp.nalt) > 1)
+
+            warning('Currently only bivariate variants are supported. Removing ',length(tmp.nalt),' multivariate variants from vcf import!')
+            dataset <- dataset[tmp.nalt * -1,]
+            chr.nr <- chr.nr[tmp.nalt * -1]
+            bp <- bp[tmp.nalt * -1]
+            snp.name <- snp.name[tmp.nalt * -1]
+            hom0 <- as.character(unlist(VariantAnnotation::ref(vcf_file)[tmp.nalt * -1]))
+            hom1 <- as.character(unlist(VariantAnnotation::alt(vcf_file)[tmp.nalt * -1]))
+
+
+            if(length(hom0) != length(bp)){
+              hom0 <- as.character(unlist(VariantAnnotation::ref(vcf_file)[tmp.nalt * -1]))
+            }
+            if(length(hom1) != length(bp)){
+              hom1 <- as.character(unlist(VariantAnnotation::alt(vcf_file)[tmp.nalt * -1]))
+            }
+
+          } else{
+            hom0 <- as.character(unlist(VariantAnnotation::ref(vcf_file)))
+            hom1 <- as.character(unlist(VariantAnnotation::alt(vcf_file)))
+
+            if(length(hom0) != length(bp)){
+              hom0 <- as.character((VariantAnnotation::ref(vcf_file)))
+            }
+            if(length(hom1) != length(bp)){
+              hom1 <- as.character((VariantAnnotation::alt(vcf_file)))
+            }
+          }
+
+          ## remove not needed objects to save space (header will be needed later!)
+          #suppressWarnings(rm(vcf_file,tmp.nalt,tmp.params,tmp.ranges,tmp.fl))
+          exitVariantAnnotation <- 0
+        }
+      }
+      if(exitVariantAnnotation != 0 && requireNamespace("vcfR", quietly = TRUE)){
         vcf_file <- vcfR::read.vcfR(vcf)
         vcf_data <- vcf_file@gt[,-1]
         dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
         dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
         dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
 
-        chr.nr <- as.numeric(vcf_file@fix[,1])
+        chr.nr <- vcf_file@fix[,1]
         bp <- as.numeric(vcf_file@fix[,2])
         snp.name <- vcf_file@fix[,3]
         hom0 <- vcf_file@fix[,4]
         hom1 <- vcf_file@fix[,5]
-      } else{
+        #rm(vcf_file,vcf_data)
+
+      } else if(exitVariantAnnotation != 0 ){
+
         vcf_file <- as.matrix(utils::read.table(vcf))
         vcf_data <- vcf_file[,-(1:9)]
         dataset <- matrix(0L, nrow=nrow(vcf_data), ncol=ncol(vcf_data)*2)
         dataset[,(1:ncol(vcf_data))*2-1] <- as.integer(substr(vcf_data, start=1,stop=1))
         dataset[,(1:ncol(vcf_data))*2] <- as.integer(substr(vcf_data, start=3,stop=3))
 
-        chr.nr <- as.numeric(vcf_file[,1])
+        chr.nr <- vcf_file[,1]
         bp <- as.numeric(vcf_file[,2])
         snp.name <- vcf_file[,3]
         hom0 <- vcf_file[,4]
         hom1 <- vcf_file[,5]
 
+        ## remove not needed objects to save space
+        #rm(vcf_file,vcf_data)
       }
+
 
       if(vcf.maxsnp< nrow(dataset)){
         keep <- sort(sample(1:nrow(dataset), vcf.maxsnp))
@@ -1214,6 +1321,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$array.is_subset = FALSE
       population$info$default.parameter.name = NULL
       population$info$default.parameter.value = list()
+      population$info$chromosome.name <- chr.opt
 
       if(length(is.maternal)==0){
         population$info$is.maternal <- rep(FALSE, bv.total)
@@ -1290,6 +1398,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       population$info$bp <- c(population$info$bp, bp)
       population$info$snp.name <- c(population$info$snp.name, snp.name)
 
+      population$info$chromosome.name <- c(population$info$chromosome.name, chr.opt)
       if(length(population$info$array.name)>1){
         stop("New chromosomes can not be added after more than one array is entered!")
       } else{
@@ -1699,7 +1808,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                                  internal.dataset = dataset_full)
       }
     } else{
-      if(min(diff(chr.nr))<0 || !miraculix.dataset){
+      if(min(diff(as.integer(as.factor(chr.nr))))<0 || !miraculix.dataset){
         dataset_temp <- dataset
         till <- 0
         for(chr_index in 1:length(chr.opt)){
@@ -1968,6 +2077,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
   }
 
+
+  if(write_vcf_header){
+    population$info$vcf_header <- list()
+    population$info$vcf_header[[1]] <- tmp.header
+  }
+
+
   if(bv.total){
     population$info$trait.name <- trait.name
     if(length(trait.name)<bv.total){
@@ -2038,6 +2154,11 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
   if(!internal){
+
+
+    if(length(population$info$creating.freq)==0){
+      population$info$creating.freq <- freq
+    }
 
     if(length(fixed.effects)==0){
       fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=0)

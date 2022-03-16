@@ -51,11 +51,17 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   } else{
     path <- paste0(path,".vcf")
   }
-  chr.nr <- sum(population$info$snp)
+  chr.nr <- numeric(sum(population$info$snp))
   start <- 1
   for(index in 1:length(population$info$snp)){
     if(population$info$snp[index]>0){
-      chr.nr[start:(start+population$info$snp[index]-1)] <- index
+
+      if(length(population$info$chromosome.name)>=index){
+        chr.nr[start:(start+population$info$snp[index]-1)] <- population$info$chromosome.name[index]
+      } else{
+        chr.nr[start:(start+population$info$snp[index]-1)] <- index
+      }
+
       start <- start + population$info$snp[index]
     }
   }
@@ -87,19 +93,25 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   headerfile <- rbind(
     "##fileformat=VCFv4.2",
     gsub("-", "", paste0("##filedate=",  Sys.Date())),
-    paste0("##source='MoBPS_", utils::packageVersion("MoBPS"),"'"),
+    paste0('##source="MoBPS_', utils::packageVersion("MoBPS"),'"'),
     '##FILTER=<ID=PASS,Description="all filters passed">'
   )
 
   nchr <- unique(chr.nr)
-  contigs <- numeric(length(nchr))
-  for(index in 1:length(nchr)){
-    contigs[index] <- paste0("##contig=<ID=", nchr[index],",length=", max(as.numeric(bp)[chr.nr==nchr[index]]),">")
+
+  if(length(population$info$vcf_header)>0){
+    contigs <- character(length(population$info$vcf_header[[1]]@header@listData$contig@rownames))
+    for(index in 1:length(contigs)){
+      contigs[index] <- paste0('##contig=<ID=', population$info$vcf_header[[1]]@header@listData$contig@rownames[index],',length=', population$info$vcf_header[[1]]@header@listData$contig@listData$length[index],'>')
+    }
+  }else{
+    warning("No vcf header present - using last SNP position as end of chromosome for contig dictionary. This may require manual changes for future use of the vcf!")
+    contigs <- character(length(nchr))
+    for(index in 1:length(nchr)){
+      contigs[index] <- paste0('##contig=<ID=', nchr[index],',length=', max(as.numeric(bp)[chr.nr==nchr[index]]),'>')
+    }
   }
-
-  headerfile <- rbind(headerfile, t(t(contigs)),     "##FORMAT=<ID=GT,Number=1,Type=String,Description='Genotype'>")
-
-
+  headerfile <- rbind(headerfile, t(t(contigs)),     '##FORMAT=<ID=GT,Number=1,Type=String,Description="Genotype">')
 
   utils::write.table(headerfile, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE)
   utils::write.table(vcfgenofull, file=path, quote=FALSE, col.names = FALSE, row.names = FALSE, append = TRUE, sep="\t")
