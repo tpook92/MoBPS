@@ -23,6 +23,21 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.8.04 (23.03.22)
+
+Addex export.relationship.matrix to export the relationship matrix from the breeding value estimation
+
+Switched order of parameter so population is now first parameter in kinship.emp
+
+Fixed a typo that did not allow for non-integer chromosome names in some variants
+
+### Version 1.8.03 (16.03.22)
+
+Renamed offspring.bve - parameters to offpheno
+
+Renamed input.phenotype to bve.input.phenotype
+
+Added VariantAnnotation R-package for import of VCF files (deactive via vcf.VA = FALSE)
 ### Version 1.8.01 (01.03.22)
 
 Rework of sigma.e / heritability estimation. 
