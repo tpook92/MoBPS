@@ -22,8 +22,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Empirical kinship
 #'
 #' Function to compute empirical kinship for a set of individuals)
-#' @param animals List of animals to compute kinship for
 #' @param population Population list
+#' @param animals List of animals to compute kinship for
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
-kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, use.id=FALSE){
+kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, use.id=FALSE){
 
 
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
@@ -114,8 +114,8 @@ kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, 
 #' Approximate empirical kinship
 #'
 #' Function to compute empirical kinship for a set of individuals (not all pairs of individuals are evaluated)
-#' @param animals List of animals to compute kinship for
 #' @param population Population list
+#' @param animals List of animals to compute kinship for
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
@@ -127,7 +127,7 @@ kinship.emp <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, 
 #' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
 #' @export
 #'
-kinship.emp.fast <- function(animals=NULL, population=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=50, hbd.obs=10){
+kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=50, hbd.obs=10){
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
     database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
     animals <- list()

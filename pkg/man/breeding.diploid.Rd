@@ -271,6 +271,7 @@ breeding.diploid(
   bve.exclude.fixed.effects = NULL,
   bve.beta.hat.approx = TRUE,
   export.selected = FALSE,
+  export.relationship.matrix = FALSE,
   bve.array = NULL
 )
 }
@@ -806,6 +807,8 @@ breeding.diploid(
 \item{bve.beta.hat.approx}{Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.}
 
 \item{export.selected}{Set to TRUE to export the list of selected individuals}
+
+\item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
 
 \item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on availabled used ones)}
 }

@@ -220,3 +220,52 @@ NULL
 #' @source Tsai 2016
 #' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
 NULL
+
+#' @name map_tilapia1
+#' @title map_tilapia1
+#' @description Ensembl
+#' @usage map_tilapia1
+#' @source Penaloza 2020
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_barley1
+#' @title map_barley1
+#' @description Ensembl
+#' @usage map_barley1
+#' @source Bayer 2017
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_rice1
+#' @title map_rice1
+#' @description Ensembl
+#' @usage map_rice1
+#' @source Morales 2020
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_soybean1
+#' @title map_soybean1
+#' @description Ensembl
+#' @usage map_soybean1
+#' @source Song 2016
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_oilseed1
+#' @title map_oilseed1
+#' @description Ensembl
+#' @usage map_oilseed1
+#' @source Mason 2017
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+
+#' @name map_seabream1
+#' @title map_seabream1
+#' @description Ensembl
+#' @usage map_seabream1
+#' @source Palaiokostas 2016
+#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+NULL
+

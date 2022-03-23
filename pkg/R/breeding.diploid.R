@@ -290,6 +290,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.exclude.fixed.effects Vector of fixed effects to ignore in the BVE (default: NULL)
 #' @param bve.beta.hat.approx Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.
 #' @param export.selected Set to TRUE to export the list of selected individuals
+#' @param export.relationship.matrix Export the relationship matrix used in the breeding value estimation
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -567,6 +568,7 @@ breeding.diploid <- function(population,
             bve.exclude.fixed.effects = NULL,
             bve.beta.hat.approx = TRUE,
             export.selected = FALSE,
+            export.relationship.matrix = FALSE,
             bve.array = NULL
             ){
 
@@ -576,6 +578,10 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
 {
+
+  if(export.relationship.matrix){
+    bve <- TRUE
+  }
 
 
   if(length(bve.array)>0){
@@ -3164,6 +3170,16 @@ breeding.diploid <- function(population,
     }
 
 
+    if(export.relationship.matrix){
+
+      sexa <- loop_elements[,5]
+      sexa[sexa==1] <- "M"
+      sexa[sexa==2] <- "F"
+      names_temp <- paste0(sexa,loop_elements[,2], "_", loop_elements[,4])
+
+      colnames(A) <- rownames(A) <- names_temp
+      return(A)
+    }
 
     for(bven in (1:population$info$bv.nr)[bve.keeps]){
 
