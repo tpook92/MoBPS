@@ -1,6 +1,6 @@
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
-A manuscript for the package is published in G3 Genes Genomes Genetics (https://www.g3journal.org/content/early/2020/03/30/g3.120.401193)
+A manuscript for the package is published in G3 Genes Genomes Genetics (https://academic.oup.com/g3journal/article/10/6/1915/6026363)
  
 The package is designed in a way to allow for a maximum of flexibility and possible extensions in basically any step of the simulation. In case you feel like a specific functionally or option is missing in the program just contact me (torsten.pook@uni-goettingen.de). 
 I would highly appreciate detailled explanation of the genetics/breeding you are trying to model to make it easier for me to add in the options needed in an efficient manner. 
