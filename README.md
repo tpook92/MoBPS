@@ -23,6 +23,20 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.8.08 (29.03.22)
+
+Added single sex mode (one.sex.mode = TRUE in creating.diploid)
+
+Added feature to remove genotyping state (genotyped.remove.gen/database/cohorts in breeding.diploid)
+
+Removed change.order parameter - SNPs are now always automatically ordered when bp position is given
+
+Fixed some minor bugs and convinency issues like #4 and get.map() Morgan - positions
+
+Added material from the MoBPS Workshop
+
+Updated documentation
+
 ### Version 1.8.04 (23.03.22)
 
 Addex export.relationship.matrix to export the relationship matrix from the breeding value estimation
