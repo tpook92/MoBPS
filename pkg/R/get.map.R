@@ -25,26 +25,33 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to derive the genomic map for a given population list
 #' @param population Population list
 #' @param use.snp.nr Set to TRUE to display SNP number and not SNP name
+#' @param morgan.position.per.chromosome Set to FALSE to Morgan position continuously over the genome
 #' @examples
 #' data(ex_pop)
 #' map <- get.map(ex_pop)
 #' @return Genomic map of the population list
 #' @export
 
-get.map <- function(population, use.snp.nr=FALSE){
-  chr.nr <- snp.nr <- numeric(sum(population$info$snp))
+get.map <- function(population, use.snp.nr=FALSE, morgan.position.per.chromosome = TRUE){
+  chr.nr <- snp.nr <- cm.positions <-numeric(sum(population$info$snp))
   start <- 1
   for(index in 1:length(population$info$snp)){
     if(population$info$snp[index]>0){
       chr.nr[start:(start+population$info$snp[index]-1)] <- index
       snp.nr[start:(start+population$info$snp[index]-1)] <- 1:population$info$snp[index]
+      cm.positions[start:(start+population$info$snp[index]-1)] <- population$info$position[[index]]
       start <- start + population$info$snp[index]
     }
   }
+
+  if(morgan.position.per.chromosome==FALSE){
+    cm.positions <- population$info$snp.position
+  }
+
   if(use.snp.nr){
-    mapfile <- cbind(chr.nr, snp.nr, 0 , as.numeric(population$info$bp))
+    mapfile <- cbind(chr.nr, snp.nr, cm.positions , as.numeric(population$info$bp))
   } else{
-    mapfile <- cbind(chr.nr, population$info$snp.name, 0 , as.numeric(population$info$bp))
+    mapfile <- cbind(chr.nr, population$info$snp.name, cm.positions , as.numeric(population$info$bp))
   }
 
   mapfile[is.na(mapfile)] <- 0

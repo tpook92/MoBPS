@@ -4,12 +4,14 @@
 \alias{get.map}
 \title{Map generation}
 \usage{
-get.map(population, use.snp.nr = FALSE)
+get.map(population, use.snp.nr = FALSE, morgan.position.per.chromosome = TRUE)
 }
 \arguments{
 \item{population}{Population list}
 
 \item{use.snp.nr}{Set to TRUE to display SNP number and not SNP name}
+
+\item{morgan.position.per.chromosome}{Set to FALSE to Morgan position continuously over the genome}
 }
 \value{
 Genomic map of the population list

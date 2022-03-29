@@ -33,7 +33,7 @@ breeding.diploid(
   new.bv.child = NULL,
   phenotyping.child = NULL,
   relationship.matrix = "vanRaden",
-  relationship.matrix.ogc = "kinship",
+  relationship.matrix.ogc = "pedigree",
   computation.A = NULL,
   computation.A.ogc = NULL,
   delete.haplotypes = NULL,
@@ -272,7 +272,11 @@ breeding.diploid(
   bve.beta.hat.approx = TRUE,
   export.selected = FALSE,
   export.relationship.matrix = FALSE,
-  bve.array = NULL
+  bve.array = NULL,
+  genotyped.remove.gen = NULL,
+  genotyped.remove.database = NULL,
+  genotyped.remove.cohorts = NULL,
+  genotyped.remove.all.copy = TRUE
 )
 }
 \arguments{
@@ -330,13 +334,13 @@ breeding.diploid(
 
 \item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
-\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
 
-\item{relationship.matrix.ogc}{Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
+\item{relationship.matrix.ogc}{Method to calculate relationship matrix for OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
-\item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")}
+\item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
 
-\item{computation.A.ogc}{(OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
+\item{computation.A.ogc}{(OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
 \item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted (only use if storage problem!)}
 
@@ -376,7 +380,7 @@ breeding.diploid(
 
 \item{selection.criteria}{What to use in the selection proces (default: "bve", alt: "bv", "pheno")}
 
-\item{same.sex.activ}{If TRUE allow matings of individuals of same sex}
+\item{same.sex.activ}{If TRUE allow matings of individuals of same sex (Sex here is a general term with the first sex referring to the first parent, second sex second parent)}
 
 \item{same.sex.sex}{Probability to use female individuals as parents (default: 0.5)}
 
@@ -811,6 +815,14 @@ breeding.diploid(
 \item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
 
 \item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on availabled used ones)}
+
+\item{genotyped.remove.gen}{Generations from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
+
+\item{genotyped.remove.database}{Groups from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
+
+\item{genotyped.remove.cohorts}{Cohorts from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
+
+\item{genotyped.remove.all.copy}{Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)}
 }
 \value{
 Population-list

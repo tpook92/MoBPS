@@ -50,8 +50,8 @@ get.bve <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FA
       before <- before + nanimals
     }
   }
-  row_names <- paste("Trait", 1:population$info$bv.nr)
-  rownames(data) <- row_names
+
+  rownames(data) <- population$info$trait.name
 
   if(use.id){
     colnames(data) <- get.id(population, database = database)

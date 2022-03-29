@@ -52,8 +52,7 @@ get.pheno.off <- function(population, database=NULL, gen=NULL, cohorts=NULL, use
 
   }
 
-  row_names <- paste("Trait", 1:population$info$bv.nr)
-  rownames(data) <- row_names
+  rownames(data) <- population$info$trait.name
 
   if(use.id){
     colnames(data) <- get.id(population, database = database)

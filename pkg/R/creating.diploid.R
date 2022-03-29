@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Generation of the starting population
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
-#' @param nindi number of inidividuals to generate in a random dataset
+#' @param nindi number of individuals to generate in a random dataset (you can also provide number males / females in a vector)
 #' @param freq frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)
 #' @param population Population list
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
@@ -37,7 +37,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param length.behind Length after the last SNP of the dataset (default: 5)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
 #' @param snp.position Location of each marker on the genetic map
-#' @param change.order If TRUE sort markers according to given marker positions
 #' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
@@ -104,6 +103,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))
 #' @param enter.bv Internal parameter
+#' @param one.sex.mode Activating this will ignore all sex specific parameters and handle each individual as part of the first sex
 #' @param internal Dont touch!
 #' @param internal.geno Dont touch!
 #' @param internal.dataset Dont touch!
@@ -119,7 +119,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              add.chromosome=FALSE, generation=1, class=0L,
                              sex.quota = 0.5, chromosome.length=NULL,length.before=5, length.behind=5,
                              real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
-                             change.order=FALSE, bv.total=0, polygenic.variance=100,
+                             bv.total=0, polygenic.variance=100,
                              bve.mult.factor=NULL, bve.poly.factor=NULL,
                              base.bv=NULL, add.chromosome.ends=TRUE,
                              new.phenotype.correlation=NULL,
@@ -173,10 +173,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              internal=FALSE,
                              internal.geno=TRUE,
                              internal.dataset = NULL,
-                             vcf.VA = TRUE){
+                             vcf.VA = TRUE,
+                             one.sex.mode = FALSE){
 
 
+  if(one.sex.mode){
+    sex.quota <- 0
+  }
 
+  if(length(nindi)==2){
+    sex.quota <- nindi[2] / sum(nindi)
+    nindi <- sum(nindi)
+  }
   if(length(freq)==1 && freq=="same" && length(population$info$creating.freq)>0 ){
     freq <- population$info$creating.freq
   }
@@ -235,6 +243,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         bpcm.conversion <- 1000000
       }
       map[,3] <- as.numeric(bp) /  bpcm.conversion / 100
+      if(sum(!is.na(map[,3]))==nrow(map)){
+        snp.position <- as.numeric(map[,3])
+      }
+
     }
     if(sum(!is.na(map[,3]))==nrow(map) && length(chromosome.length)==0){
       chr.opt <- unique(chr.nr)
@@ -277,7 +289,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
   }
 
   if(add.chromosome == FALSE & length(population)>0){
-    if(length(dataset)==0 & nindi > 0){
+    if(length(dataset)<=1 & nindi > 0){
       nsnp <- sum(population$info$snp)
     }
   }
@@ -1103,40 +1115,61 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
+    change.order <- TRUE
 
     if(change.order && length(snp.position)>0){
-      if(miraculix && miraculix.dataset){
-        stop("Change order has to be executed before dataset generation // is not possible for imported datasets")
-      }
+
       if(length(chr.nr)>0 && length(unique(chr.nr))>0){
         dataset_temp <- dataset
         snp.position_temp <- snp.position
         bp_temp <- bp
         snp.name_temp <- snp.name
         chr.nr_temp <- chr.nr
+        so_far <- 0
         for(index in unique(chr.nr)){
-          consider <- which(chr.nr==index)
-          order <- sort(snp.position_temp, index.return=TRUE)$ix
-          snp.position <- snp.position_temp[consider][order]
-          chr.nr <- chr.nr_temp[consider][order]
-          if(length(bp)==length(snp.position)){
-            bp <- bp_temp[consider][order]
+
+          consider <- which(chr.nr_temp==index)
+          nsnp_temp <- length(consider)
+          order <- sort(snp.position_temp[consider], index.return=TRUE)$ix
+
+          if(miraculix && miraculix.dataset && sum(diff(order)<0)>0){
+            stop("Change order has to be executed before dataset generation // is not possible for imported datasets")
           }
-          if(length(snp.name)==length(snp.position)){
-            snp.name <- snp.name_temp[consider][order]
+          if(!miraculix || !miraculix.dataset){
+            snp.position[1:nsnp_temp + so_far] <- snp.position_temp[consider][order]
+            chr.nr[1:nsnp_temp + so_far] <- chr.nr_temp[consider][order]
+            dataset[1:nsnp_temp + so_far,] <- dataset_temp[consider,][order,]
+            if(length(bp)==length(snp.position)){
+              bp[1:nsnp_temp + so_far] <- bp_temp[consider][order]
+            }
+            if(length(snp.name)==length(snp.position)){
+              snp.name[1:nsnp_temp + so_far] <- snp.name_temp[consider][order]
+            }
           }
+
+
+
+          so_far <- so_far + nsnp_temp
 
         }
       } else{
         order <- sort(snp.position,index.return=TRUE)$ix
-        snp.position <- snp.position[order]
-        dataset <- dataset[order,]
-        if(length(bp)==length(snp.position)){
-          bp <- bp[order]
+
+        if(miraculix && miraculix.dataset && sum(diff(order)<0)>0){
+          stop("Change order has to be executed before dataset generation // is not possible for imported datasets")
         }
-        if(length(snp.name)==length(snp.position)){
-          snp.name <- snp.name[order]
+
+        if(!miraculix || !miraculix.dataset){
+          snp.position <- snp.position[order]
+          dataset <- dataset[order,]
+          if(length(bp)==length(snp.position)){
+            bp <- bp[order]
+          }
+          if(length(snp.name)==length(snp.position)){
+            snp.name <- snp.name[order]
+          }
         }
+
       }
 
     }
@@ -2145,6 +2178,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
+
   if(sum(population$info$length)>1000){
     warning(paste0("Chromosome added a size of ", population$info$length[length(population$info$length)], " Morgan!
 This will cost massiv computing time. Are you sure this is correct?
@@ -2170,6 +2204,12 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
 
+  }
+
+  if(one.sex.mode){
+    population$info$one.sex.mode <- TRUE
+  } else if(length(population$info$one.sex.mode)==0){
+    population$info$one.sex.mode <- FALSE
   }
 
   return(population)

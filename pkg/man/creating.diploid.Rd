@@ -29,7 +29,6 @@ creating.diploid(
   real.bv.mult = NULL,
   real.bv.dice = NULL,
   snps.equidistant = NULL,
-  change.order = FALSE,
   bv.total = 0,
   polygenic.variance = 100,
   bve.mult.factor = NULL,
@@ -89,7 +88,8 @@ creating.diploid(
   internal = FALSE,
   internal.geno = TRUE,
   internal.dataset = NULL,
-  vcf.VA = TRUE
+  vcf.VA = TRUE,
+  one.sex.mode = FALSE
 )
 }
 \arguments{
@@ -111,7 +111,7 @@ creating.diploid(
 
 \item{nsnp}{number of markers to generate in a random dataset}
 
-\item{nindi}{number of inidividuals to generate in a random dataset}
+\item{nindi}{number of individuals to generate in a random dataset (you can also provide number males / females in a vector)}
 
 \item{freq}{frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)}
 
@@ -140,8 +140,6 @@ creating.diploid(
 \item{real.bv.dice}{Multi-marker effects}
 
 \item{snps.equidistant}{Use equidistant markers (computationally faster! ; default: TRUE)}
-
-\item{change.order}{If TRUE sort markers according to given marker positions}
 
 \item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
@@ -262,6 +260,8 @@ creating.diploid(
 \item{internal.dataset}{Dont touch!}
 
 \item{vcf.VA}{Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)}
+
+\item{one.sex.mode}{Activating this will ignore all sex specific parameters and handle each individual as part of the first sex}
 }
 \value{
 Population-list

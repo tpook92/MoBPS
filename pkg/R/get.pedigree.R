@@ -226,7 +226,7 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
         grandm1_t <- paste(if(grandm1[2]==1) "M" else "F", grandm1[3], "_", grandm1[1], sep="")
         grandf2_t <- paste(if(grandf2[2]==1) "M" else "F", grandf2[3], "_", grandf2[1], sep="")
         grandm2_t <- paste(if(grandm2[2]==1) "M" else "F", grandm2[3], "_", grandm2[1], sep="")
-        child_t <- paste(if(database[row,2]==1) "M" else "F", index, "_", gen, sep="")
+        child_t <- paste(if(database[row,2]==1) "M" else "F", index, "_", database[row,1], sep="")
 
         if(shares){
           if(length(grandf1share)==0){
@@ -363,7 +363,7 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
         grandm1_t <- paste(if(grandm1[2]==1) "M" else "F", grandm1[3], "_", grandm1[1], sep="")
         grandf2_t <- paste(if(grandf2[2]==1) "M" else "F", grandf2[3], "_", grandf2[1], sep="")
         grandm2_t <- paste(if(grandm2[2]==1) "M" else "F", grandm2[3], "_", grandm2[1], sep="")
-        child_t <- paste(if(database[row,2]==1) "M" else "F", index, "_", gen, sep="")
+        child_t <- paste(if(database[row,2]==1) "M" else "F", index, "_", database[row,1], sep="")
 
         father_t <- paste(if(father[2]==1) "M" else "F", father[3], "_", father[1], sep="")
         mother_t <- paste(if(mother[2]==1) "M" else "F", mother[3], "_", mother[1], sep="")

@@ -127,7 +127,7 @@ kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, 
 #' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
 #' @export
 #'
-kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=50, hbd.obs=10){
+kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=50, hbd.obs=25){
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
     database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
     animals <- list()

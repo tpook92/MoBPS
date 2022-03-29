@@ -1108,7 +1108,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         }
 
 
-        if(length(geninfo$'Max Number of SNPs')>0 && as.numeric(geninfo$'Max Number of SNPs')<nrow(map)){
+        if(length(geninfo$'Max Number of SNPs')>0 && is.numeric(geninfo$'Max Number of SNPs') && as.numeric(geninfo$'Max Number of SNPs')<nrow(map)){
           map <- map[sort(sample(1:nrow(map), as.numeric(geninfo$'Max Number of SNPs'))),]
         }
 

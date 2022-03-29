@@ -130,7 +130,13 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
       type <- "Morgan"
     }
     if(plot){
-      graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
+
+      tryCatch(  {
+        graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
+      },
+      error = function(e) {})
+
+
     }
 
 

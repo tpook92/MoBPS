@@ -973,7 +973,8 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
   }
 
 
-
+  # Calculation of initial genomic values
+  population <- breeding.diploid(population, verbose=FALSE)
 
   return(population)
 }

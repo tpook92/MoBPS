@@ -66,8 +66,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param phenotyping Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
 #' @param phenotyping.child Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)
 #' @param phenotyping.class Classes of individuals for which to generate phenotypes (default: NULL --> all classes)
-#' @param relationship.matrix Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")
-#' @param relationship.matrix.ogc Method to calculate relationship matrix for OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
+#' @param relationship.matrix Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")
+#' @param relationship.matrix.ogc Method to calculate relationship matrix for OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param delete.haplotypes Generations for with haplotypes of founders can be deleted (only use if storage problem!)
 #' @param delete.individuals Generations for with individuals are completley deleted (only use if storage problem!)
 #' @param delete.gen Generations to entirely delete (only use if storage problem!!)
@@ -88,7 +88,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param store.bve.data If TRUE store information of bve in $info$bve.data
 #' @param fixed.assignment Set TRUE for targeted mating of best-best individual till worst-worst (of selected). set to "bestworst" for best-worst mating
 #' @param selection.highest If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))
-#' @param same.sex.activ If TRUE allow matings of individuals of same sex
+#' @param same.sex.activ If TRUE allow matings of individuals of same sex (Sex here is a general term with the first sex referring to the first parent, second sex second parent)
 #' @param same.sex.sex Probability to use female individuals as parents (default: 0.5)
 #' @param same.sex.selfing Set to TRUE to allow for selfing when using same.sex matings
 #' @param selfing.mating If TRUE generate new individuals via selfing
@@ -257,6 +257,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param genotyped.cohorts Cohorts to generate genotype data (that can be used in a BVE)
 #' @param genotyped.share Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)
 #' @param genotyped.array Genotyping array used
+#' @param genotyped.remove.gen Generations from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)
+#' @param genotyped.remove.database Groups from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)
+#' @param genotyped.remove.cohorts Cohorts from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)
+#' @param genotyped.remove.all.copy Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)
 #' @param bve.imputation Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available
 #' @param bve.imputation.errorrate Share of errors in the imputation procedure (default: 0)
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
@@ -271,8 +275,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param reduce.group (OLD! - use culling modules) Groups of animals for reduce to a new size (by changing class to -1)
 #' @param reduce.group.selection (OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")
 #' @param new.bv.child (OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)
-#' @param computation.A (OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "kinship", "CE", "non_stand", "CE2", "CM")
-#' @param computation.A.ogc (OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "kinship", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
+#' @param computation.A (OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")
+#' @param computation.A.ogc (OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param new.phenotype.correlation (OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance
 #' @param offspring.bve.parents.gen (OLD! use offpheno.parents.gen) Generations to consider to derive phenotype from offspring phenotypes
 #' @param offspring.bve.parents.database (OLD! use offpheno.parents.database) Groups to consider to derive phenotype from offspring phenotypes
@@ -326,7 +330,7 @@ breeding.diploid <- function(population,
             new.bv.child = NULL,
             phenotyping.child = NULL,
             relationship.matrix = "vanRaden",
-            relationship.matrix.ogc = "kinship",
+            relationship.matrix.ogc = "pedigree",
             computation.A = NULL,
             computation.A.ogc = NULL,
             delete.haplotypes = NULL,
@@ -569,8 +573,13 @@ breeding.diploid <- function(population,
             bve.beta.hat.approx = TRUE,
             export.selected = FALSE,
             export.relationship.matrix = FALSE,
-            bve.array = NULL
-            ){
+            bve.array = NULL,
+            genotyped.remove.gen = NULL,
+            genotyped.remove.database = NULL,
+            genotyped.remove.cohorts = NULL,
+            genotyped.remove.all.copy = TRUE
+          ){
+
 
 
   #######################################################################
@@ -578,6 +587,13 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
 {
+
+
+  if(length(population$info$one.sex.mode)>0 && population$info$one.sex.mode){
+    breeding.sex <- 0
+  } else{
+    population$info$one.sex.mode <- FALSE
+  }
 
   if(export.relationship.matrix){
     bve <- TRUE
@@ -644,15 +660,11 @@ breeding.diploid <- function(population,
   }
 
   if(length(population$info$default.parameter.name)>0){
-
     for(index in 1:length(population$info$default.parameter.name)){
-
       assign(population$info$default.parameter.name[index], value = population$info$default.parameter.value[[index]])
-
     }
-
-
   }
+
   if(parallel.generation){
     stop("Parallel generation has been enabled for now. Will come back in a later version!")
   }
@@ -765,6 +777,8 @@ breeding.diploid <- function(population,
   } else if(sum(selection.criteria=="random")>0){
     if(selection.criteria[1]=="random"){
       selection.m = "random"
+    } else{
+      selection.m = "function"
     }
     if(length(selection.criteria)==2 && selection.criteria[2]=="random" && length(selection.m)==0){
       selection.f = "random"
@@ -811,6 +825,8 @@ breeding.diploid <- function(population,
   # Fill databases
 
   genotyped.database <- get.database(population, genotyped.gen, genotyped.database, genotyped.cohorts)
+
+  genotyped.remove.database <- get.database(population, genotyped.remove.gen, genotyped.remove.database, genotyped.remove.cohorts)
 
   bve.gen.input <- bve.gen
   bve.database.input <- bve.database
@@ -897,9 +913,16 @@ breeding.diploid <- function(population,
       warning("No heritability given for sigma.e.gen/database/cohort. Automatically use last available")
       heritability <- population$info$last.sigma.e.heritability
     } else{
-      stop("No heritability given for sigma.e.gen/database/cohort.")
+      if(population$info$bv.nr>0){
+        stop("No heritability given for sigma.e.gen/database/cohort.")
+      }
+
     }
 
+  }
+
+  if(length(heritability)>population$info$bv.nr){
+    stop(paste0("There are only ", population$info$bv.nr), " traits! Check your heritability input!")
   }
   sigma.e.database <- get.database(population, sigma.e.gen, sigma.e.database, sigma.e.cohorts) # NOT DONE
 
@@ -968,7 +991,12 @@ breeding.diploid <- function(population,
       if(verbose) cat("No individuals for selection provided (female side). Use last available.\n")
       selection.f.database <- cbind(max(which(population$info$size[,2]>0)),2)
     } else{
-      if(verbose) cat("No individuals for selection provided (female side). Non available.\n")
+      if(population$info$one.sex.mode){
+        if(verbose) cat("No individuals as second parent were provided! \n")
+      } else{
+        if(verbose) cat("No individuals for selection provided (female side). Non available.\n")
+      }
+
     }
 
   }
@@ -1653,7 +1681,7 @@ breeding.diploid <- function(population,
 
               n1 <- sum(sigma.e.database[1:(nrow(sigma.e.database)/2),4] - sigma.e.database[1:(nrow(sigma.e.database)/2),3 ] +1)
               test <- stats::t.test(y_real[1:n1,bven], y_real[-(1:n1),bven])
-              if(test$p.value<0.0001){
+              if(test$p.value<1e-10){
                 warning("Fitting of sigma.e does not account for population structure when estimating sigma.g. Consider using variance.correction for this fitting estimation")
               }
 
@@ -1729,6 +1757,29 @@ breeding.diploid <- function(population,
           if(temp1==1){
             population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]] <-
               c(population$breeding[[genotyped.database[index,1]]][[genotyped.database[index,2]]][[index2]][[22]], genotyped.array)
+          }
+
+        }
+      }
+    }
+  }
+
+  if(length(genotyped.remove.database)>0){
+    for(index in 1:nrow(genotyped.remove.database)){
+      if((genotyped.remove.database[index,4]-genotyped.remove.database[index,3])>=0){
+        for(index2 in genotyped.remove.database[index,3]:genotyped.remove.database[index,4]){
+
+          activ <- c(genotyped.remove.database[index,1:2], index2)
+          if(genotyped.remove.all.copy){
+            activ <- population$breeding[[activ[1]]][[activ[2]]][[activ[3]]][[21]]
+          } else{
+            activ <- t(activ)
+          }
+
+          for(index3 in 1:nrow(activ)){
+
+            population$breeding[[activ[index3,1]]][[activ[index3,2]]][[activ[index3,3]]][[16]] <- 0
+            population$breeding[[activ[index3,1]]][[activ[index3,2]]][[activ[index3,3]]][[22]] <- numeric(0)
           }
 
         }
@@ -2365,6 +2416,9 @@ breeding.diploid <- function(population,
         loop_elements_list[[2]] <- loop_elements_list[[2]][-remove.loop.elements]
       }
 
+      if(length(remove.loop.elements)>0){
+        warning("Use of GBLUP although some individuals are not genotyped. Non-genotyped individuals have been automatically removed from the BVE.\nConsider use ssGBLUP (singlestep.active = TRUE) oder pBLUP (relationship.matrix ='pedigree') ")
+      }
 
 
       loop_elements <- loop_elements_list[[1]]
@@ -3428,6 +3482,10 @@ breeding.diploid <- function(population,
 
           if(input.phenotype!="own"){
             warning("Direct BVE method is not really designed to be used when using offspring phentypes!\n Check variance components / accuracies! \n Consider using rrblup.bve=TRUE")
+          }
+
+          if(population$info$phenotypic.transform[bven]){
+            warning("Direct BVE method is not really designed when using a phenotypic transformation!\n Check variance components / accuracies! \n Consider using rrblup.bve=TRUE")
           }
           if(ncol(X_fixed)>=1 && prod(X_fixed==X_fixed[1,1])!=1){
             warning("Direct BVE method does not support the use of fixed effects!\nAssume all fixed effects to be known!")
@@ -5299,7 +5357,7 @@ breeding.diploid <- function(population,
     if(nrow(best[[1]])==0){
       if(same.sex.activ==FALSE || same.sex.sex > 0){
         if(verbose){
-          if(!dh.mating && !selfing.mating) {cat("No male individuals provided for reproduction. Automatically allow female X female matings.\n")}
+          if(!dh.mating && !selfing.mating) {cat("No male / first parents (selection.m.gen/database/cohorts) provided for reproduction. Automatically allow female X female (second parent x second parent) matings.\n")}
         }
       }
       same.sex.activ <- TRUE
@@ -5307,7 +5365,7 @@ breeding.diploid <- function(population,
     } else if(nrow(best[[2]])==0){
       if(same.sex.activ==FALSE || same.sex.sex < 1){
         if(verbose){
-          if(!dh.mating && !selfing.mating) cat("No female individuals provided for reproduction. Automatically allow male X male matings.\n")
+          if(!dh.mating && !selfing.mating) cat("No females / second parents (selection.f.gen/database/cohorts) provided for reproduction. Automatically allow male X male (first parent x first parent) matings.\n")
         }
       }
       same.sex.activ <- TRUE

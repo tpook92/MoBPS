@@ -81,6 +81,7 @@ get.pheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.all
     }
   }
 
+  rownames(data) <- population$info$trait.name
 
   if(use.id){
     colnames(data) <- get.id(population, database = database)

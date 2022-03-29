@@ -41,7 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param length.behind Length after the last SNP of the dataset (default: 5)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
 #' @param snp.position Location of each marker on the genetic map
-#' @param change.order If TRUE sort markers according to given marker positions
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
 #' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
@@ -73,7 +72,6 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                freq="beta", sex.s="fixed",
                                chromosome.length=NULL,length.before=5, length.behind=5,
                                snps.equidistant=NULL,
-                               change.order=FALSE,
                                snp.position=NULL,
                                position.scaling=FALSE,
                                bit.storing=FALSE,
@@ -112,7 +110,6 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                  chromosome.length = chromosome.length,
                                  length.before = length.before, length.behind = length.behind,
                                  snps.equidistant = snps.equidistant,
-                                 change.order = change.order,
                                  snp.position = snp.position,
                                  bit.storing = bit.storing,
                                  nbits = nbits, randomSeed = randomSeed,
@@ -122,7 +119,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                  beta.shape1 = beta.shape1,
                                  beta.shape2 = beta.shape2,
                                  map = map,
-                                 verbose=verbose,
+                                 verbose=FALSE,
                                  vcf.maxsnp = vcf.maxsnp)
 
 
@@ -138,7 +135,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
         utils::setTxtProgressBar(pb, index)
       }
 
-      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = verbose, display.progress=display.progress)
+      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = FALSE, display.progress=display.progress)
 
       if(index==3){
         size1 <- utils::object.size(population$breeding[[1]])
@@ -159,7 +156,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
     utils::setTxtProgressBar(pb, n.gen)
   }
 
-  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = verbose, display.progress=display.progress)
+  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = FALSE, display.progress=display.progress)
 
   if(verbose && display.progress){
     close(pb)
@@ -169,7 +166,11 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
 
   if(plot){
     oldpar <- graphics::par(no.readonly = TRUE)
-    on.exit(graphics::par(oldpar))
+    on.exit(    tryCatch(  {
+      graphics::par(oldpar)
+    },
+    error = function(e) {}))
+    #on.exit(graphics::par(oldpar))
     graphics::par(mfrow=c(1,2))
   }
 

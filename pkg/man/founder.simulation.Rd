@@ -29,7 +29,6 @@ founder.simulation(
   length.before = 5,
   length.behind = 5,
   snps.equidistant = NULL,
-  change.order = FALSE,
   snp.position = NULL,
   position.scaling = FALSE,
   bit.storing = FALSE,
@@ -93,8 +92,6 @@ founder.simulation(
 \item{length.behind}{Length after the last SNP of the dataset (default: 5)}
 
 \item{snps.equidistant}{Use equidistant markers (computationally faster! ; default: TRUE)}
-
-\item{change.order}{If TRUE sort markers according to given marker positions}
 
 \item{snp.position}{Location of each marker on the genetic map}
 

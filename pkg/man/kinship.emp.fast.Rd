@@ -11,7 +11,7 @@ kinship.emp.fast(
   database = NULL,
   cohorts = NULL,
   ibd.obs = 50,
-  hbd.obs = 10
+  hbd.obs = 25
 )
 }
 \arguments{
