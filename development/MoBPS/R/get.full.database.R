@@ -19,33 +19,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Extraction of individual sex
-#'
-#' Function to extract the sex of selected individuals
-#' @param population Population list
-#' @param database Groups of individuals to consider for the export
-#' @param gen Quick-insert for database (vector of all generations to export)
-#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
-#' @param male.female.coding Set to TRUE to display male/female instead of 1/2
-#' @export
-#'
-
-
-get.sex <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=F, male.female.coding = F){
-  database <- get.database(population, gen, database, cohorts)
-  sex <- get.full.database(population = population, database = database)[,2]
-  ids <- get.id(population = population, database = database, use.id = use.id)
-  names(sex)<- ids
-
-  if(male.female.coding){
-    sex[sex == 1] <- "male"
-    sex[sex == 2] <- "female"
-  }
-
-  return(sex)
-}
-
 #' Generation of a database with one row per individual
 #'
 #' Function to generate a database with one row per individual
