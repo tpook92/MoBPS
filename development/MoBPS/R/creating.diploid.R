@@ -111,6 +111,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param internal.dataset Dont touch!
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
+#' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -182,8 +183,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              store.comp.times = TRUE,
                              bv.ignore.traits = NULL,
                              litter.effect.covariance = NULL,
-                             pen.effect.covariance = NULL){
+                             pen.effect.covariance = NULL,
+                             size.scaling = 1){
 
+
+  if(size.scaling!=1 & nindi>0){
+    nindi = ceiling(nindi * size.scaling)
+  }
 
   times_comp <- numeric(6)
   # Basic checks & map setup
@@ -232,6 +238,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       warning("chr.nr has automatically been set to NULL.\nThis parameter should only be used when modifiying the genome (e.g. adding chromosome / initial setup).")
       chr.nr <- NULL
     }
+
     preserve.bve <- length(population)==0
 
     if(length(map)>0){
@@ -1477,6 +1484,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$info$default.parameter.name = NULL
         population$info$default.parameter.value = list()
         population$info$chromosome.name <- chr.opt
+        population$info$size.scaling = size.scaling
 
         population$info$pen.size <- cbind(1,1)
 
@@ -2127,6 +2135,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
 
 
+      if(bv.total>0){
+        population$info$trait.name <- trait.name
+        if(length(trait.name)<bv.total){
+          population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+        }
+      }
+
+
       if(length(shuffle.traits)==0){
         if(length(shuffle.cor)>0){
 
@@ -2278,12 +2294,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     }
 
 
-    if(bv.total){
-      population$info$trait.name <- trait.name
-      if(length(trait.name)<bv.total){
-        population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
-      }
-    }
+
     if(length(population$info$real.bv.add)==0){
       population$info$real.bv.add <- list()
       population$info$real.bv.mult <- list()
@@ -2393,7 +2404,7 @@ E.g. The entire human genome has a size of ~33 Morgan."))
       }
 
     }
-    population <- breeding.diploid(population)
+    population <- breeding.diploid(population, verbose = verbose)
     class(population) <- "population"
 
 

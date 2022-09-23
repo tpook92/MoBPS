@@ -304,6 +304,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param intern.func AA
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
 #' @param parallel.intern Internal parameter for the parallelization
+#' @param mixblup.bve Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)
+#' @param mixblup.pedfile Set to FALSE to manually generate your MiXBLUP pedfile
+#' @param mixblup.parfile Set to FALSE to manually generate your MiXBLUP parfile
+#' @param mixblup.datafile Set to FALSE to manually write your MiXBLUP datafile
+#' @param mixblup.inputfile Set to FALSE to manually write your MiXBLUP inputfile
+#' @param mixblup.path Provide path to MiXBLUP.exe (default is your working directory: Windows: MixBLUP; Linux ./MixBLUP.exe)
+#' @param mixblup.files Directory to generate all files generated when using MiXBLUP (default: MiXBLUP_files/ )
+#' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -591,79 +599,91 @@ breeding.diploid <- function(population,
                              pen.size.overwrite = TRUE,
                              intern.func = 0,
                              generation.cores = NULL,
-                             parallel.intern = FALSE
+                             parallel.intern = FALSE,
+
+                             mixblup.bve = FALSE,
+                             mixblup.pedfile=TRUE,
+                             mixblup.parfile=TRUE,
+                             mixblup.datafile=TRUE,
+                             mixblup.inputfile=TRUE,
+                             mixblup.genofile=TRUE,
+                             mixblup.path=NULL,
+                             mixblup.path.pedfile=NULL,
+                             mixblup.path.parfile=NULL,
+                             mixblup.path.datafile=NULL,
+                             mixblup.path.inputfile=NULL,
+                             mixblup.path.genofile=NULL,
+                             mixblup.files="MiXBLUP_files",
+                             mixblup.verbose = TRUE,
+                             storage.save=1.5,
+                             size.scaling = NULL
 ){
 
 
-  if(parallel.intern){
-    generation.cores <- 1
-  } else if(length(generation.cores)==1 && is.numeric(generation.cores)){
-    population$info$generation.cores <- generation.cores
-    if(verbose) cat("New default for number of cores for generation of individuals set")
-
-  } else if(length(population$info$generation.cores)>0 ){
-    generation.cores <- population$info$generation.cores
-  } else{
-    generation.cores <- 1
+  if(length(size.scaling)>0){
+    population$info$size.scaling = size.scaling
+  }
+  if(length(population$info$size.scaling)==0){
+    population$info$size.scaling = 1
   }
 
-  if(copy.individual || copy.individual.f || copy.individual.m){
-    generation.cores <- 1
+  if(population$info$size.scaling != 1){
+    breeding.size = ceiling(breeding.size * population$info$size.scaling)
+    selection.size = ceiling(selection.size * population$info$size.scaling)
   }
 
+  ###
+  # preparations for MiXBLUP
+  ###
 
-  if(generation.cores > 1){
-    population_parallel <- population
-  }
-
-  if(generation.cores>1){
-
-    if (requireNamespace("miraculix", quietly = TRUE)) {
-
-      # This is not how CRAN wants it but not sure how else to do it with RandomFieldsUtils...
-      library(RandomFieldsUtils)
-      if(RandomFieldsUtils::RFoptions()$basic$cores>1){
-        warning("RFoptions cores has been set to 1")
-        RandomFieldsUtils::RFoptions(cores=1)
+  if(mixblup.bve){
+    if(length(mixblup.path)==0){
+      if(Sys.info()[['sysname']]=="Windows"){
+        mixblup.path = "MiXBLUP.exe"
+      } else{
+        mixblup.path = "./MiXBLUP.exe"
       }
     }
 
-
-  }
-
-
-  if(intern.func==0){
-    breeding.intern.activ <- breeding.intern
-  } else if(intern.func==1){
-    breeding.intern.activ <- breeding.intern1
-  } else if(intern.func==2){
-    breeding.intern.activ <- breeding.intern2
-  }
-
-
-
-  if(length(pen.assignments)==0 && length(population$info$pen.effect.covariance)>0 && sum(abs(population$info$pen.effect.covariance))>0){
-    pen.assignments <- TRUE
-  } else{
-    pen.assignments <- FALSE
-  }
-
-  if(length(pen.size)==0){
-    pen.size <- population$info$pen.size
-  } else{
-    if(length(pen.size)==1){
-      pen.size <- cbind(pen.size, 1)
-    }
-    if(!is.matrix(pen.size)){
-      pen.size <- cbind(pen.size, 1/length(pen.size))
+    if(sum(dir() == mixblup.files)==0){
+      if(verbose){ cat(paste0("Create temporary folder for MiXBLUP files: ",   mixblup.files))}
+      dir.create(mixblup.files)
     }
 
-    if(verbose & pen.size.overwrite){
-      warning("New standard for litter size / repeat.mating.copy set. This will be the new default for all downstream generation of offspring via copy/combine.")
-      population$info$pen.size <- pen.size
+    if(length(mixblup.path.pedfile)>0){
+      mixblup.pedfile = FALSE
+    }
+    if(length(mixblup.path.parfile)>0){
+      mixblup.parfile = FALSE
+    }
+    if(length(mixblup.path.datafile)>0){
+      mixblup.datafile = FALSE
+    }
+    if(length(mixblup.path.inputfile)>0){
+      mixblup.inputfile = FALSE
+    }
+    if(length(mixblup.path.genofile)>0){
+      mixblup.genofile = FALSE
+    }
+
+    if(mixblup.inputfile){
+      mixblup.path.inputfile = paste0(mixblup.files, "/", "InpMiXBLUP.txt")
+    }
+    if(mixblup.datafile){
+      mixblup.path.datafile = paste0(mixblup.files, "/", "data.txt")
+    }
+    if(mixblup.pedfile){
+      mixblup.path.pedfile = paste0(mixblup.files, "/", "pedigree.txt")
+    }
+    if(mixblup.parfile){
+      mixblup.path.parfile = paste0(mixblup.files, "/", "parfile.txt")
+    }
+    if(mixblup.genofile){
+      mixblup.path.genofile = paste0(mixblup.files, "/", "genofile.txt")
     }
 
   }
+
 
 
   #######################################################################
@@ -671,6 +691,78 @@ breeding.diploid <- function(population,
   # Initialisize parameters that were not initialized in early versions #
   #######################################################################
   {
+
+
+    if(parallel.intern){
+      generation.cores <- 1
+    } else if(length(generation.cores)==1 && is.numeric(generation.cores)){
+      population$info$generation.cores <- generation.cores
+      if(verbose) cat("New default for number of cores for generation of individuals set.\n")
+
+    } else if(length(population$info$generation.cores)>0 ){
+      generation.cores <- population$info$generation.cores
+    } else{
+      generation.cores <- 1
+    }
+
+    if(copy.individual || copy.individual.f || copy.individual.m){
+      generation.cores <- 1
+    }
+
+
+    if(generation.cores > 1){
+      population_parallel <- population
+    }
+
+    if(generation.cores>1){
+
+      if (requireNamespace("miraculix", quietly = TRUE)) {
+
+        # This is not how CRAN wants it but not sure how else to do it with RandomFieldsUtils...
+        library(RandomFieldsUtils)
+        if(RandomFieldsUtils::RFoptions()$basic$cores>1){
+          warning("RFoptions cores has been set to 1")
+          RandomFieldsUtils::RFoptions(cores=1)
+        }
+      }
+
+
+    }
+
+
+    if(intern.func==0){
+      breeding.intern.activ <- breeding.intern
+    } else if(intern.func==1){
+      breeding.intern.activ <- breeding.intern1
+    } else if(intern.func==2){
+      breeding.intern.activ <- breeding.intern2
+    }
+
+
+
+    if(length(pen.assignments)==0 && length(population$info$pen.effect.covariance)>0 && sum(abs(population$info$pen.effect.covariance))>0){
+      pen.assignments <- TRUE
+    } else{
+      pen.assignments <- FALSE
+    }
+
+    if(length(pen.size)==0){
+      pen.size <- population$info$pen.size
+    } else{
+      if(length(pen.size)==1){
+        pen.size <- cbind(pen.size, 1)
+      }
+      if(!is.matrix(pen.size)){
+        pen.size <- cbind(pen.size, 1/length(pen.size))
+      }
+
+      if(verbose & pen.size.overwrite){
+        warning("New standard for litter size / repeat.mating.copy set. This will be the new default for all downstream generation of offspring via copy/combine.")
+        population$info$pen.size <- pen.size
+      }
+
+    }
+
 
     if(length(forecast.sigma.g)==0){
       if(length(sigma.g)!=0){
@@ -1602,6 +1694,9 @@ breeding.diploid <- function(population,
           if(nanimals >0){
             for(nr.animal in 1:nanimals){
               activ_bv <- population$info$bv.random.activ
+              if(length(population$info$bv.calculated.partly)>0){
+                activ_bv <- setdiff(activ_bv, population$info$bv.calculated.partly)
+              }
               if(length(activ_bv)>0){
                 temp_out <- calculate.bv(population, index, sex, nr.animal,
                                          activ_bv, import.position.calculation=import.position.calculation,
@@ -2490,6 +2585,9 @@ breeding.diploid <- function(population,
     } else if(bve){
       ## "proper" breeding value estimation
 
+
+      dense = NULL # File used for MixBLUP
+
       if(verbose && (relationship.matrix!="kinship" && relationship.matrix !="pedigree")) cat("Start genomic BVE.\n")
       if(verbose && (relationship.matrix=="kinship" || relationship.matrix =="pedigree")) cat("Start pedigree BVE.\n")
 
@@ -2642,6 +2740,7 @@ breeding.diploid <- function(population,
           y_parent[index,] <- mean(population$breeding[[father[1]]][[8+father[2]]][,father[3]],population$breeding[[mother[1]]][[8+mother[2]]][,mother[3]])
         }
       }
+
       if(n.rep>0){
         for(index in 1:n.rep){
           kindex <- loop_elements_copy[index,2]
@@ -2784,6 +2883,8 @@ breeding.diploid <- function(population,
 
 
       }
+
+
       # Import Z
       if(sequenceZ==FALSE && (relationship.matrix != "pedigree" && relationship.matrix != "kinship")){
         if(miraculix){
@@ -2851,6 +2952,7 @@ breeding.diploid <- function(population,
         to_remove <- c(to_remove, which(!keeps))
 
       }
+
       if(remove.effect.position){
         to_remove <- c(to_remove, population$info$effect.p)
       }
@@ -2959,10 +3061,24 @@ breeding.diploid <- function(population,
       }
 
       if(!mas.bve){
+
+
         # Derive relationship matrix sequenceZ and single-step only for vanRaden based genomic relationship
         if(relationship.matrix=="kinship" || relationship.matrix == "pedigree"){
           z_ped <- z_ped - as.numeric(Sys.time())
-          A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose)
+
+          if(!mixblup.bve){
+
+            A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult=2, verbose=verbose,
+                             storage.save = storage.save)
+
+          } else if(mixblup.pedfile){
+            write.pedigree.mixblup(population, path = mixblup.path.pedfile, database = bve.database,
+                                   depth.pedigree=depth.pedigree, storage.save = storage.save, verbose=verbose)
+
+          }
+
+
           z_ped <- z_ped + as.numeric(Sys.time())
         } else if(relationship.matrix=="vanRaden"){
 
@@ -2979,9 +3095,18 @@ breeding.diploid <- function(population,
               if(verbose) cat("No genotyped individuals included. Automatically switch to pedigree BLUP instead of ssGBLUP\n")
               singlestep.active <- FALSE
               relationship.matrix <- "kinship"
-              A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+              if(!mixblup.bve){
+                A <- kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+              }
               z_ped <- z_ped + as.numeric(Sys.time())
             }
+          }
+
+          if(mixblup.bve && (TRUE || singlestep.active)){
+
+            z_ped <- z_ped - as.numeric(Sys.time())
+            write.pedigree.mixblup(population, path = mixblup.path.pedfile, database = bve.database, depth.pedigree=depth.pedigree, storage.save = storage.save)
+            z_ped <- z_ped + as.numeric(Sys.time())
           }
 
           if(sequenceZ){
@@ -3106,103 +3231,154 @@ breeding.diploid <- function(population,
 
           }
 
-          if(singlestep.active){
-            if(verbose) cat("Start derive Single-step relationship matrix \n")
-            if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
-            z_ped <- z_ped - as.numeric(Sys.time())
 
-            A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
-            z_ped <- z_ped + as.numeric(Sys.time())
-            if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
+            if(singlestep.active){
+              if(verbose) cat("Start derive Single-step relationship matrix \n")
+              if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
+              z_ped <- z_ped - as.numeric(Sys.time())
 
-            if(verbose) cat("Start deriving of H matrix for", length(genotype.included), "genotyped and", nrow(A_pedigree)-length(genotype.included), "non-genotyped individuals.\n")
+              A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+              z_ped <- z_ped + as.numeric(Sys.time())
+              if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
 
-            if(miraculix){
-              if (requireNamespace("miraculix", quietly = TRUE)) {
-                # Avoid having the full genotype matrix in memory without bitwise storage!
-                if(bve.imputation.errorrate>0){
-                  Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code)[,genotype.included])
-                  if(length(to_remove)>0){
-                    Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+              if(verbose) cat("Start deriving of H matrix for", length(genotype.included), "genotyped and", nrow(A_pedigree)-length(genotype.included), "non-genotyped individuals.\n")
+
+              if(miraculix){
+                if (requireNamespace("miraculix", quietly = TRUE)) {
+                  # Avoid having the full genotype matrix in memory without bitwise storage!
+                  if(bve.imputation.errorrate>0){
+                    Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code)[,genotype.included])
+                    if(length(to_remove)>0){
+                      Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                    }
+                  } else{
+                    Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
+                    if(length(to_remove)>0){
+                      Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                    }
                   }
+
+                  if(mixblup.bve){
+
+
+                    geno = as.matrix(Z.code.small)
+                    dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+                    for(index in 1:nrow(dense)){
+                      dense[index,2] <- paste0(geno[,index], collapse = "")
+                    }
+
+
+                  } else{
+                    p_i <- miraculix::allele_freq(Z.code.small)
+                    A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
+                  }
+
+                  rm(Z.code.small)
+                }
+              } else if(miraculix.mult){
+                if (requireNamespace("miraculix", quietly = TRUE)) {
+                  p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+                  Zt_miraculix <- miraculix::genomicmatrix(Zt[,genotype.included])
+                  if(mixblup.bve){
+                    dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+                    for(index in 1:nrow(dense)){
+                      dense[index,2] <- paste0(Zt_miraculix[,index], collapse = "")
+                    }
+                  } else{
+                    A_geno <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+                  }
+
+                  rm(Zt_miraculix)
+                }
+              } else{
+                if(mixblup.bve){
+                  geno = Zt[,genotype.included]
+                  dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+                  for(index in 1:nrow(dense)){
+                    dense[index,2] <- paste0(geno[,index], collapse = "")
+                  }
+                  rm(geno)
                 } else{
-                  Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
-                  if(length(to_remove)>0){
-                    Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
-                  }
+                  p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+                  Ztm <- Zt[,genotype.included] - p_i * 2
+                  A_geno <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
                 }
 
-                p_i <- miraculix::allele_freq(Z.code.small)
-                A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
-                rm(Z.code.small)
               }
-            } else if(miraculix.mult){
-              if (requireNamespace("miraculix", quietly = TRUE)) {
-                p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
-                Zt_miraculix <- miraculix::genomicmatrix(Zt[,genotype.included])
-                A_geno <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
-                rm(Zt_miraculix)
+
+              if(!mixblup.bve){
+                z_h <- z_h - as.numeric(Sys.time())
+
+                reorder <- c((1:n.animals)[-genotype.included], genotype.included)
+
+                test1 <- as.numeric(A_geno)
+                test2 <- as.numeric(A_pedigree[genotype.included, genotype.included])
+                a_step <- mean(test2) - mean(test1)
+                A_geno <- A_geno * (1-a_step/2) + a_step # Modification according to Vitezica 2011
+
+                A <- ssGBLUP(A11 = A_pedigree[-genotype.included, -genotype.included],
+                             A12 = A_pedigree[-genotype.included, genotype.included],
+                             A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
+
+                #rm(A_geno)
+                #rm(A_pedigree)
+
+                rest <- (1:n.animals)[-genotype.included]
+                A[c(genotype.included, rest), c(genotype.included, rest)] <- A[c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)) ), c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)))]
+                z_h <- z_h + as.numeric(Sys.time())
+                if(verbose) cat(paste0("Derived H matrix in  ", round(z_h, digits=2), " seconds.\n"))
+
               }
-            } else{
-              p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
-              Ztm <- Zt[,genotype.included] - p_i * 2
-              A_geno <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+
+            } else if(relationship.matrix=="vanRaden" & !sequenceZ){
+              if(miraculix){
+                if (requireNamespace("miraculix", quietly = TRUE)) {
+
+                  if(mixblup.bve){
+
+                    geno = as.matrix(Z.code)
+                    dense <- cbind(get.id(population, database = bve.database), 0)
+                    for(index in 1:nrow(dense)){
+                      dense[index,2] <- paste0(geno[,index], collapse = "")
+                    }
+                    rm(geno)
+
+                  } else{
+                    p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
+                    A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
+                  }
+
+                }
+              } else if(miraculix.mult){
+                if (requireNamespace("miraculix", quietly = TRUE)) {
+                  if(mixblup.bve){
+                    dense <- cbind(get.id(population, database = bve.database), 0)
+                    for(index in 1:nrow(dense)){
+                      dense[index,2] <- paste0(Zt[,index], collapse = "")
+                    }
+                  } else{
+                    p_i <- rowSums(Zt)/ncol(Zt)/2
+                    Zt_miraculix <- miraculix::genomicmatrix(Zt)
+                    A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+                  }
+
+                }
+              } else{
+                if(mixblup.bve){
+                  dense <- cbind(get.id(population, database = bve.database), 0)
+                  for(index in 1:nrow(dense)){
+                    dense[index,2] <- paste0(Zt[,index], collapse = "")
+                  }
+                } else{
+                  p_i <- rowSums(Zt)/ncol(Zt)/2
+                  Ztm <- Zt - p_i * 2
+                  A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
+                }
+
+              }
             }
 
-            z_h <- z_h - as.numeric(Sys.time())
 
-            reorder <- c((1:n.animals)[-genotype.included], genotype.included)
-
-            '#
-          H_order <- A <- ssGBLUP(A11= A_pedigree[-genotype.included, -genotype.included],
-                                  A12 = A_pedigree[-genotype.included, genotype.included],
-                                  A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
-
-          A[genotype.included, genotype.included] <- H_order[(ncol(H_order)-length(genotype.included)+1):ncol(H_order), (ncol(H_order)-length(genotype.included)+1):ncol(H_order)]
-          A[-genotype.included, -genotype.included] <- H_order[1:(ncol(H_order)-length(genotype.included)), 1:(ncol(H_order)-length(genotype.included))]
-          A[-genotype.included, genotype.included] <- H_order[1:(ncol(H_order)-length(genotype.included)), (ncol(H_order)-length(genotype.included)+1):ncol(H_order)]
-          A[genotype.included, -genotype.included] <- H_order[(ncol(H_order)-length(genotype.included)+1):ncol(H_order), 1:(ncol(H_order)-length(genotype.included))]
-
-          rm(A_geno)
-          rm(H_order)
-          rm(A_pedigree)
-          '#
-
-            test1 <- as.numeric(A_geno)
-            test2 <- as.numeric(A_pedigree[genotype.included, genotype.included])
-            a_step <- mean(test2) - mean(test1)
-            A_geno <- A_geno * (1-a_step/2) + a_step # Modification according to Vitezica 2011
-
-            A <- ssGBLUP(A11= A_pedigree[-genotype.included, -genotype.included],
-                         A12 = A_pedigree[-genotype.included, genotype.included],
-                         A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
-
-            #rm(A_geno)
-            #rm(A_pedigree)
-
-            rest <- (1:n.animals)[-genotype.included]
-            A[c(genotype.included, rest), c(genotype.included, rest)] <- A[c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)) ), c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)))]
-            z_h <- z_h + as.numeric(Sys.time())
-            if(verbose) cat(paste0("Derived H matrix in  ", round(z_h, digits=2), " seconds.\n"))
-
-          } else if(relationship.matrix=="vanRaden" & !sequenceZ){
-            if(miraculix){
-              if (requireNamespace("miraculix", quietly = TRUE)) {
-                p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
-                A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
-              }
-            } else if(miraculix.mult){
-              if (requireNamespace("miraculix", quietly = TRUE)) {
-                p_i <- rowSums(Zt)/ncol(Zt)/2
-                Zt_miraculix <- miraculix::genomicmatrix(Zt)
-                A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
-              }
-            } else{
-              p_i <- rowSums(Zt)/ncol(Zt)/2
-              Ztm <- Zt - p_i * 2
-              A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
-            }
-          }
         } else if(relationship.matrix=="CM"){
           #CM SCHAETZER
           Ztm <- rbind(Zt==0, Zt==1, Zt==2)
@@ -3230,9 +3406,7 @@ breeding.diploid <- function(population,
       }
 
 
-      if(store.comp.times.bve){
-        comp.times.bve[3] <- as.numeric(Sys.time())
-      }
+
 
       sigma.a2.hat <- numeric(length(sigma.g))
       sigma.e2.hat <- sigma.e2
@@ -3352,6 +3526,100 @@ breeding.diploid <- function(population,
 
         colnames(A) <- rownames(A) <- names_temp
         return(A)
+      }
+
+      ## MiXBLUP setup
+      {
+        if(mixblup.bve && mixblup.parfile){
+
+          if(verbose) cat(paste0("Start writting parfile at ", mixblup.path.parfile,"\n"))
+
+          gen_cor = cov(y_real2, use = "pairwise.complete.obs")[bve.keeps,bve.keeps]
+          if(length(gen_cor)==1){
+            gen_cor = as.matrix(gen_cor)
+          }
+
+          rownames(gen_cor) <- paste0("phen", 1:length(bve.keeps),"(animal)")
+          utils::write.table(file=mixblup.path.parfile, "G", row.names = FALSE, col.names = FALSE , quote=FALSE)
+          for(index in 1:nrow(gen_cor)){
+            utils::write.table(file=mixblup.path.parfile, gen_cor[index,1:index, drop=FALSE], row.names = TRUE, col.names = FALSE , quote=FALSE, append=TRUE)
+          }
+          utils::write.table(file=mixblup.path.parfile, "", row.names = FALSE, col.names = FALSE , quote=FALSE, append=TRUE)
+
+          res_cor <- cov(y-y_real2, use = "pairwise.complete.obs")[bve.keeps,bve.keeps]
+          if(length(res_cor)==1){
+            res_cor = as.matrix(res_cor)
+          }
+          rownames(res_cor) <- paste0("phen", 1:length(bve.keeps),"(animal)")
+          utils::write.table(file=mixblup.path.parfile, "Res", row.names = FALSE, col.names = FALSE , quote=FALSE, append = TRUE)
+          for(index in 1:nrow(res_cor)){
+            utils::write.table(file=mixblup.path.parfile, res_cor[index,1:index, drop=FALSE], row.names = TRUE, col.names = FALSE , quote=FALSE, append=TRUE)
+          }
+        }
+
+        if(mixblup.bve && mixblup.datafile){
+          if(verbose) cat(paste0("Start writting datafile at ", mixblup.path.datafile,"\n"))
+          pheno_table = cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]], 1, y)
+          utils::write.table(file=mixblup.path.datafile, pheno_table, row.names = FALSE, col.names = FALSE , quote=FALSE)
+        }
+
+        if(mixblup.bve && mixblup.genofile && length(dense)>0){
+
+          if (requireNamespace("fwrite", quietly = TRUE)) {
+            data.table::fwrite(file=mixblup.path.genofile, dense, sep = " ", col.names = FALSE)
+          } else{
+            utils::write.table(file=mixblup.path.genofile, dense, col.names = FALSE, row.names = FALSE, quote = FALSE)
+          }
+
+        }
+
+        if(mixblup.bve && mixblup.inputfile){
+          if(verbose) cat(paste0("Start writting input file at ", mixblup.path.inputfile,"\n"))
+
+          utils::write.table(file=mixblup.path.inputfile, paste0("TITLE MoBPS v", utils::sessionInfo()$otherPkgs$MoBPS$Version, " at " ,Sys.time()),  row.names = FALSE, col.names = FALSE, quote=FALSE)
+          utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          datafile_temp <- cbind(c("DATAFILE", "animal", "mean", paste0("phen", 1:length(bve.keeps))), c(mixblup.path.datafile, "I" ,"I", rep("T", length(bve.keeps))))
+          utils::write.table(file=mixblup.path.inputfile, datafile_temp, append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+          utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          if(length(dense)>0){
+            utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat", "!SINGLESTEP", "!DENSE", 2, "!MAF", 0.01),
+                        append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file = mixblup.path.inputfile, cbind("animal", "I"),
+                        append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file = mixblup.path.inputfile, cbind("!METHOD", "VanRaden"),
+                        append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file = mixblup.path.inputfile, cbind("!Lambda", "1.0"),
+                        append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file = mixblup.path.inputfile, cbind("!Beta", 0.05),
+                        append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          }
+
+          if(TRUE || length(dense)==0 || singlestep.active==TRUE){
+            utils::write.table(file=mixblup.path.inputfile, cbind("PEDFILE", mixblup.path.pedfile,  "!CalcInbr",  "!Groups", "1.0"), append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file=mixblup.path.inputfile, cbind(c("animal", "sire", "dam"), c("I", "I", "I")), append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+            utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          }
+
+          utils::write.table(file=mixblup.path.inputfile, cbind("PARFILE", mixblup.path.parfile), append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+          utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          utils::write.table(file=mixblup.path.inputfile, "MODEL", append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE )
+          for(index in 1:length(bve.keeps)){
+            utils::write.table(file=mixblup.path.inputfile, paste0("phen", index, " ~ mean !RANDOM G(animal)"), append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          }
+
+          utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          utils::write.table(file=mixblup.path.inputfile, "SOLVING", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          utils::write.table(file=mixblup.path.inputfile, "!MAXIT 50", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+        }
+      }
+
+      if(store.comp.times.bve){
+        comp.times.bve[3] <- as.numeric(Sys.time())
       }
 
       for(bven in (1:population$info$bv.nr)[bve.keeps]){
@@ -3614,6 +3882,65 @@ breeding.diploid <- function(population,
               if(estimate.u){
                 if(verbose) cat("U estimation not available in sommer")
               }
+            }
+          } else if(mixblup.bve){
+
+
+            if(store.comp.times.bve){
+              before <- as.numeric(Sys.time())
+            }
+
+            check <- sum(is.na(y))
+
+            if(verbose) cat(paste0(length(y[,bven]) - check, " phenotyped individuals in BVE (Trait: ", population$info$trait.name[bven],").\n"))
+            if(verbose) cat(paste0(length(y[,bven]), " individuals considered in BVE.\n"))
+            if(check >= (length(y[,bven])-1)){
+              if(verbose) cat(paste0("No phenotyped individuals for multi-trait mixed model\n"))
+              if(verbose) cat(paste0("Skip this BVE.\n"))
+              next
+            }
+
+
+            if(bven==max((1:population$info$bv.nr)[bve.keeps])){
+
+              if(verbose) cat(paste0("Start MiXBLUP BVE\n"))
+
+              tick_mix = Sys.time()
+              system(paste0(mixblup.path, " ", mixblup.path.inputfile), intern=verbose&&mixblup.verbose,
+                     ignore.stdout=!(verbose&&mixblup.verbose), ignore.stderr=!(verbose&&mixblup.verbose))
+
+              tack_mix = Sys.time()
+              if(verbose) cat(paste0("Finished MiXBLUP BVE\nEstimate took ", round(tack_mix-tick_mix, digits = 2), " seconds.\n"))
+
+              estimated_bve <- as.matrix(read.table("Solani.txt"))
+              fixed_eff <- utils::read.table("Solfix.txt", header=TRUE)[,5]
+
+              for(index in 1:length(bve.keeps)){
+                estimated_bve[,index+3] <- estimated_bve[,index+3] + fixed_eff[index]
+              }
+
+              sorting <- sort(estimated_bve[,1], index.return=TRUE)
+              estimated_bve <- estimated_bve[sorting$ix,,drop=FALSE]
+
+              #### THIS IS EXTREMLY INEFFICIENT AND NEEDS REWORK!
+              matching = get.id(population, database = bve.database)[loop_elements_list[[2]]]
+
+              if(prod(matching==estimated_bve[1:length(matching) + which(matching[1]==estimated_bve[,1])-1,1])){
+                takes = 1:length(matching) + which(matching[1]==estimated_bve[,1])-1
+              } else{
+                takes = numeric(length(matching))
+                for(index5 in 1:length(matching)){
+                  takes[index5] = which(estimated_bve[,1]==matching[index5])
+                }
+              }
+
+              y_hat = estimated_bve[takes,4:ncol(estimated_bve),drop=FALSE]
+
+              if(store.comp.times.bve){
+                after <- as.numeric(Sys.time())
+                z_chol <- after - before
+              }
+
             }
           } else if(sigma.e2[bven]>0 || sum(is.na(y[,bven]>0))){
             # sigma.a2.hat / sigma.e2.hat are modified to avoid h=0, h=1 cases (numeric instability)
@@ -4151,16 +4478,6 @@ breeding.diploid <- function(population,
 
         }
 
-
-        for(index in (1:nrow(loop_elements))[bve.insert]){
-          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
-        }
-        if(calculate.reliability || estimate.reliability){
-          for(index in (1:nrow(loop_elements))[bve.insert]){
-            population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_reli[index,bve.keeps]
-          }
-        }
-
         if(n.rep>0){
           for(index in (1:nrow(loop_elements_copy))[bve.insert.copy]){
             if(length(stay.loop.elements)>0){
@@ -4318,6 +4635,15 @@ breeding.diploid <- function(population,
           #sorted <- sort(abs(test), index.return=TRUE)
         }
 
+      }
+
+      for(index in (1:nrow(loop_elements))[bve.insert]){
+        population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
+      }
+      if(calculate.reliability || estimate.reliability){
+        for(index in (1:nrow(loop_elements))[bve.insert]){
+          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_reli[index,bve.keeps]
+        }
       }
 
       if(report.accuracy){

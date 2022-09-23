@@ -118,6 +118,11 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     var.target <- 10
   }
 
+  if(replace.traits==FALSE & length(population$info$bv.nr)>0){
+    prior_traits = population$info$bv.nr
+  } else{
+    prior_traits = 0
+  }
 
   preserve.bve <- length(population)==0
 
@@ -552,6 +557,10 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
   population$info$bve <- FALSE
   population$info$bv.calculated <- FALSE
+  if(!replace.traits && prior_traits>0){
+    population$info$bv.calculated.partly <- 1:prior_traits
+  }
+
   population$info$breeding.totals <- list()
   population$info$bve.data <- list()
   population$info$bv.nr <- 1 # default um fallunterscheidung zu vermeiden
@@ -746,20 +755,47 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
   for(generation in 1:nrow(population$info$size)){
     counter <- population$info$size[generation,] + 1
-    population$breeding[[generation]][[3]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # estimated breeding value
-      population$breeding[[generation]][[4]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # real genomic value
-      population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[9]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-1) # phenotype
-      population$breeding[[generation]][[10]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[19]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Reliabilities
-      population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
-      population$breeding[[generation]][[22]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[27]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
-      population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-      population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
-      population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+
+    to_add = population$info$bv.nr - if(length(population$breeding[[generation]][[3]])>0){nrow(population$breeding[[generation]][[3]])} else {0}
+
+    population$breeding[[generation]][[3]] <- rbind( population$breeding[[generation]][[3]],
+                                                     matrix(0, nrow= to_add, ncol=counter[1]-1)) # estimated breeding value
+      population$breeding[[generation]][[4]] <- rbind( population$breeding[[generation]][[4]],
+                                                       matrix(0, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[7]] <- rbind( population$breeding[[generation]][[7]],
+                                                       matrix(0, nrow= to_add, ncol=counter[1]-1)) # real genomic value
+      population$breeding[[generation]][[8]] <- rbind( population$breeding[[generation]][[8]],
+                                                       matrix(0, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[9]] <- rbind( population$breeding[[generation]][[9]],
+                                                       matrix(NA, nrow= to_add, ncol=counter[1]-1)) # phenotype
+      population$breeding[[generation]][[10]] <- rbind( population$breeding[[generation]][[10]],
+                                                        matrix(NA, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[19]] <- rbind( population$breeding[[generation]][[19]],
+                                                        matrix(0, nrow= to_add, ncol=counter[1]-1)) # Reliabilities
+      population$breeding[[generation]][[20]] <- rbind( population$breeding[[generation]][[20]],
+                                                        matrix(0, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[21]] <- rbind( population$breeding[[generation]][[21]],
+                                                        matrix(0, nrow= to_add, ncol=counter[1]-1)) # Last applied selection index
+      population$breeding[[generation]][[22]] <- rbind( population$breeding[[generation]][[22]],
+                                                        matrix(0, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[27]] <- rbind( population$breeding[[generation]][[27]],
+                                                        matrix(0, nrow= to_add, ncol=counter[1]-1)) # offspring phenotype
+      population$breeding[[generation]][[28]] <- rbind( population$breeding[[generation]][[28]],
+                                                        matrix(0, nrow= to_add, ncol=counter[2]-1))
+      population$breeding[[generation]][[29]] <- rbind( population$breeding[[generation]][[29]],
+                                                        matrix(0, nrow= to_add, ncol=counter[1]-1)) # number of offspring used
+      population$breeding[[generation]][[30]] <- rbind( population$breeding[[generation]][[30]],
+                                                        matrix(0, nrow= to_add, ncol=counter[2]-1))
+  }
+
+  if(bv.total>0){
+    if(length(population$info$trait.name)>0 & replace.traits==FALSE){
+      trait.name <- c(population$info$trait.name, trait.name)
+    }
+    population$info$trait.name <- trait.name
+    if(length(trait.name)<bv.total){
+      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+    }
   }
 
   if(length(shuffle.traits)==0){
@@ -799,6 +835,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
     }
     population$info$bv.calculated <- FALSE
+    population$info$bv.calculated.partly <- NULL
 
     LT <- chol(shuffle.cor)
     if(nrow(LT)!=length(shuffle.traits)){
@@ -893,15 +930,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
   }
 
-  if(bv.total){
-    if(length(population$info$trait.name)>0 & replace.traits==FALSE){
-      trait.name <- c(population$info$trait.name, trait.name)
-    }
-    population$info$trait.name <- trait.name
-    if(length(trait.name)<bv.total){
-      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
-    }
-  }
+
 
 
   if(length(fixed.effects)==0){

@@ -285,7 +285,21 @@ breeding.diploid(
   pen.size.overwrite = TRUE,
   intern.func = 0,
   generation.cores = NULL,
-  parallel.intern = FALSE
+  parallel.intern = FALSE,
+  mixblup.bve = FALSE,
+  mixblup.pedfile = TRUE,
+  mixblup.parfile = TRUE,
+  mixblup.datafile = TRUE,
+  mixblup.inputfile = TRUE,
+  mixblup.genofile = TRUE,
+  mixblup.path = NULL,
+  mixblup.path.pedfile = NULL,
+  mixblup.path.parfile = NULL,
+  mixblup.path.datafile = NULL,
+  mixblup.path.inputfile = NULL,
+  mixblup.path.genofile = NULL,
+  mixblup.files = "MiXBLUP_files",
+  storage.save = 1.5
 )
 }
 \arguments{
@@ -850,6 +864,20 @@ breeding.diploid(
 \item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
 
 \item{parallel.intern}{Internal parameter for the parallelization}
+
+\item{mixblup.bve}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
+
+\item{mixblup.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
+
+\item{mixblup.parfile}{Set to FALSE to manually generate your MiXBLUP parfile}
+
+\item{mixblup.datafile}{Set to FALSE to manually write your MiXBLUP datafile}
+
+\item{mixblup.inputfile}{Set to FALSE to manually write your MiXBLUP inputfile}
+
+\item{mixblup.path}{Provide path to MiXBLUP.exe (default is your working directory: Windows: MixBLUP; Linux ./MixBLUP.exe)}
+
+\item{mixblup.files}{Directory to generate all files generated when using MiXBLUP (default: MiXBLUP_files/ )}
 }
 \value{
 Population-list
