@@ -112,6 +112,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
 #' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
+#' @param founder.pool AAA
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -184,7 +185,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              bv.ignore.traits = NULL,
                              litter.effect.covariance = NULL,
                              pen.effect.covariance = NULL,
-                             size.scaling = 1){
+                             size.scaling = 1,
+                             founder.pool = 1){
 
 
   if(size.scaling!=1 & nindi>0){
@@ -1740,6 +1742,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
           population$breeding[[generation]][[35]] <- rep(0,counter[1]-1) # Pen nr male
           population$breeding[[generation]][[36]] <- rep(0,counter[2]-1) # Pen nr female
+
+          population$breeding[[generation]][[37]] <- rep(founder.pool, counter[1]-1)
+          population$breeding[[generation]][[38]] <- rep(founder.pool, counter[2]-1)
           # calculate Real-ZW
         } else{
           population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -1782,6 +1787,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$breeding[[generation]][[35]] <- c(population$breeding[[generation]][[35]], rep(0 ,counter[1]-counter.start[1])) # Migrationslevel
           population$breeding[[generation]][[36]] <- c(population$breeding[[generation]][[36]], rep(0 ,counter[2]-counter.start[2]))
 
+          population$breeding[[generation]][[37]] <- c(population$breeding[[generation]][[37]], rep(founder.pool, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[38]] <- c(population$breeding[[generation]][[38]], rep(founder.pool, counter[2]-counter.start[2]))
         }
 
         population$info$sex <- c(population$info$sex, sex.s)
