@@ -13,7 +13,8 @@ bv.standardization(
   cohorts = NULL,
   adapt.bve = FALSE,
   adapt.pheno = FALSE,
-  verbose = FALSE
+  verbose = FALSE,
+  set.zero = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ bv.standardization(
 \item{adapt.pheno}{Modify previous phenotypes by scaling (default: FALSE)}
 
 \item{verbose}{Set to TRUE to display prints}
+
+\item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
 }
 \value{
 Population-list with scaled QTL-effects

@@ -72,7 +72,7 @@ creating.diploid(
   time.point = 0,
   creating.type = 0,
   trait.name = NULL,
-  share.genotyped = 1,
+  share.genotyped = 0,
   genotyped.s = NULL,
   map = NULL,
   remove.invalid.qtl = TRUE,
@@ -93,7 +93,11 @@ creating.diploid(
   store.comp.times = TRUE,
   bv.ignore.traits = NULL,
   litter.effect.covariance = NULL,
-  pen.effect.covariance = NULL
+  pen.effect.covariance = NULL,
+  size.scaling = 1,
+  founder.pool = 1,
+  trait.pool = 0,
+  set.zero = FALSE
 )
 }
 \arguments{
@@ -274,6 +278,14 @@ creating.diploid(
 \item{litter.effect.covariance}{Covariance matrix of the litter effect (default: no effects)}
 
 \item{pen.effect.covariance}{Covariance matrix of the pen effect (default: no effects)}
+
+\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
+
+\item{founder.pool}{AAA}
+
+\item{trait.pool}{Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)}
+
+\item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
 }
 \value{
 Population-list

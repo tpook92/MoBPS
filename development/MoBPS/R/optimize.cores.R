@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param plot Set to FALSE to not generate a plot of computing times per core
 #' @examples
-#' population = optimize.cores()
+#' population = optimize.cores(max.cores=2, test.size=1000)
 #' @return Population-list with one or more additional new traits
 #' @export
 
@@ -42,7 +42,7 @@ optimize.cores <- function(population = NULL, test.size = 2500, max.cores = 10, 
   t = numeric(max.cores)
 
   for(index in 1:max.cores){
-    if(verbose){cat(paste0("Test cores: ", index))}
+    if(verbose){cat(paste0("Test cores: ", index,"\n"))}
     t[index] = system.time({breeding.diploid(population, breeding.size = test.size, generation.cores = index, verbose=FALSE)})[3]
   }
 

@@ -23,6 +23,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' write.pedigree.mixblup
 #' @param population Population list
+#' @param path AA
+#' @param gen AA
+#' @param database AA
+#' @param cohorts AA
+#' @param id AA
+#' @param depth.pedigree AA
+#' @param storage.save AA
+#' @param verbose AA
 #' @return write.pedigree.mixblup
 #' @examples
 #' write.pedigree.mixblup
@@ -101,6 +109,7 @@ write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, co
   pedigree_table <- get.pedigree(population, database = pedigree.database, id=TRUE)
 
   add <- pedigree_table[which(!duplicated(as.character(pedigree_table))[-(1:nrow(pedigree_table))]) + nrow(pedigree_table)]
+  add = add[add!=0]
 
   pedigree_table = pedigree_table[!duplicated(pedigree_table[,1]),]
 

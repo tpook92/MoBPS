@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param adapt.bve Modify previous breeding value estimations by scaling (default: FALSE)
 #' @param adapt.pheno Modify previous phenotypes by scaling (default: FALSE)
 #' @param verbose Set to TRUE to display prints
+#' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100, n.additive=100)
 #' population <- bv.standardization(population, mean.target=200, var.target=5)
@@ -40,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL,
-                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE){
+                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE, set.zero = FALSE){
 
   n_traits <- population$info$bv.nr
 
@@ -72,10 +73,16 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
       test1 <- TRUE
       if(length(population$info$real.bv.add[[index]])>0){
         population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
+        if(set.zero){
+          population$info$real.bv.add[[index]][,3:5] = population$info$real.bv.add[[index]][,3:5] - population$info$real.bv.add[[index]][,3]
+        }
         test1 <- FALSE
       }
       if(length(population$info$real.bv.mult[[index]])>0){
         population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
+        if(set.zero){
+          population$info$real.bv.mult[[index]][,5:13] = population$info$real.bv.mult[[index]][,5:13] - population$info$real.bv.mult[[index]][,5]
+        }
         test1 <- FALSE
       }
       modi1[index] <- sqrt(new_var / var_test)

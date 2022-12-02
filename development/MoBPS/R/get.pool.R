@@ -38,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids = NULL,
                      plot = FALSE){
   database <- get.database(population, gen = gen, database = database,
-                           cohorts = cohorts, ids = ids)
+                           cohorts = cohorts, id = ids)
 
   recombi = get.recombi(population, database = database)
 
@@ -66,12 +66,12 @@ get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids
     } else{
       lab = paste0("I", sort(rep(1:(ncol(segments)/2), 2)) , "H", 1:2)
     }
-    axis(2, at=0.5+ seq(0, ncol(segments)-1, by=1), labels = lab)
+    graphics::axis(2, at=0.5+ seq(0, ncol(segments)-1, by=1), labels = lab)
     for(ind in 1:(ncol(segments)/2)){
       for(pair in 1:2){
         switch = c(1,which(c(0,diff(segments[,pair + ind*2-2]))!=0), nrow(segments)+1)
         for(index1 in 1:(length(switch)-1)){
-          polygon(c(switch[index1], switch[index1+1], switch[index1+1], switch[index1]), c(pair-1+ ind*2-2, pair-1+ ind*2-2, pair+ ind*2-2, pair+ ind*2-2),
+          graphics::polygon(c(switch[index1], switch[index1+1], switch[index1+1], switch[index1]), c(pair-1+ ind*2-2, pair-1+ ind*2-2, pair+ ind*2-2, pair+ ind*2-2),
                   lty=0, col=segments[switch[index1],pair+ ind*2-2])
         }
       }
@@ -79,7 +79,5 @@ get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids
 
   }
 
-
+  return(segments)
 }
-
-polygon()

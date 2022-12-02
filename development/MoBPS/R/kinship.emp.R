@@ -100,9 +100,9 @@ kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, 
 
   }
   if(sym==TRUE){
-    for(i in 1:n){
-      for(j in 1:i){
-        kinship[i,j] <- kinship[j,i]
+    if (sym == TRUE) {
+      for (i in 1:n) {
+        kinship[i, 1:i] <- kinship[1:i, i]
       }
     }
   }

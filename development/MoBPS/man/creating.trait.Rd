@@ -43,7 +43,9 @@ creating.trait(
   verbose = TRUE,
   is.maternal = NULL,
   is.paternal = NULL,
-  fixed.effects = NULL
+  fixed.effects = NULL,
+  trait.pool = 0,
+  set.zero = FALSE
 )
 }
 \arguments{
@@ -124,6 +126,10 @@ creating.trait(
 \item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
 
 \item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))}
+
+\item{trait.pool}{Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)}
+
+\item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
 }
 \value{
 Population-list with one or more additional new traits

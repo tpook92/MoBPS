@@ -83,9 +83,10 @@ get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohor
       }
     }
 
+    geno_dend
   }
 
-  geno_dend
+
 }
 
 

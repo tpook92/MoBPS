@@ -13,12 +13,12 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 
 ### add parameter options for Cloning, Selfing, DH-Production
-
-total <- jsonlite::read_json(path="C:/Users/pook/Downloads/Simple_Cattle (12).json")
 total=ex_json
-fast.mode <- FALSE
-rep.max <- 100
-size.scaling <- 0.2
+total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/LIC PT Scheme 111022_error_gen7.json")
+
+fast.mode <- TRUE
+rep.max <- 1
+size.scaling <- 0.05
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -1838,8 +1838,10 @@ fixed.generation.order <- NULL
           } else{
             to_enter <- rbind(NULL)
           }
-          if(length(to_enter)>0 || length(population$info$real.bv.add[[index]])>0){
-            population$info$real.bv.add[[index]] <- rbind(to_enter, population$info$real.bv.add[[index]])
+          if(length(to_enter)>0 && length(population$info$real.bv.add[[index]])>0){
+
+
+            population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0), population$info$real.bv.add[[index]])
 
             if(population$info$real.bv.length[1]<index && length(to_enter)>0){
               population$info$real.bv.length[1] <- index

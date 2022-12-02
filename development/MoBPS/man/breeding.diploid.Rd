@@ -16,6 +16,8 @@ breeding.diploid(
   selection.size = 0,
   ignore.best = 0,
   breeding.size = 0,
+  breeding.size.litter = NULL,
+  repeat.mating.s = NULL,
   breeding.sex = NULL,
   breeding.sex.random = FALSE,
   relative.selection = FALSE,
@@ -189,8 +191,8 @@ breeding.diploid(
   copy.individual.keep.pheno = TRUE,
   bve.avoid.duplicates = TRUE,
   report.accuracy = TRUE,
-  share.genotyped = 1,
-  singlestep.active = FALSE,
+  share.genotyped = 0,
+  singlestep.active = TRUE,
   remove.non.genotyped = TRUE,
   added.genotyped = 0,
   fast.uhat = TRUE,
@@ -246,6 +248,10 @@ breeding.diploid(
   mas.markers = NULL,
   mas.number = 5,
   mas.effects = NULL,
+  threshold.selection.index = NULL,
+  threshold.selection.value = NULL,
+  threshold.selection.sign = ">",
+  threshold.selection.criteria = "bve",
   threshold.selection = NULL,
   threshold.sign = ">",
   bve.input.phenotype = "own",
@@ -272,6 +278,7 @@ breeding.diploid(
   bve.beta.hat.approx = TRUE,
   export.selected = FALSE,
   export.relationship.matrix = FALSE,
+  import.relationship.matrix = NULL,
   bve.array = NULL,
   genotyped.remove.gen = NULL,
   genotyped.remove.database = NULL,
@@ -299,7 +306,21 @@ breeding.diploid(
   mixblup.path.inputfile = NULL,
   mixblup.path.genofile = NULL,
   mixblup.files = "MiXBLUP_files",
-  storage.save = 1.5
+  mixblup.verbose = TRUE,
+  storage.save = 1.5,
+  size.scaling = NULL,
+  mixblup.lambda = 1,
+  mixblup.alpha = NULL,
+  mixblup.beta = NULL,
+  mixblup.omega = NULL,
+  store.sparse = FALSE,
+  remove.duplicates = TRUE,
+  mixblup.apy = FALSE,
+  mixblup.apy.core = NULL,
+  repeat.mating.trait = 1,
+  repeat.mating.max = NULL,
+  selection.m.random.prob = NULL,
+  selection.f.random.prob = NULL
 )
 }
 \arguments{
@@ -325,6 +346,10 @@ breeding.diploid(
 
 \item{breeding.size}{Number of individuals to generate}
 
+\item{breeding.size.litter}{Number of litters to generate}
+
+\item{repeat.mating.s}{Use this parameter to manually provide the size of each litter generated}
+
 \item{breeding.sex}{Share of female animals (if single value is used for breeding size; default: 0.5)}
 
 \item{breeding.sex.random}{If TRUE randomly chose sex of new individuals (default: FALSE - use expected values)}
@@ -345,7 +370,7 @@ breeding.diploid(
 
 \item{duplication.recombination}{Average number of recombinations per 1 length uit of duplication (default: 1)}
 
-\item{new.class}{Migration level of newly generated individuals (default: 0)}
+\item{new.class}{Migration level of newly generated individuals (default: 0 / use vector for different classes for different sexes)}
 
 \item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
 
@@ -671,13 +696,13 @@ breeding.diploid(
 
 \item{report.accuracy}{Report the accuracy of the breeding value estimation}
 
-\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped}
+\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped (Default: 0)}
 
 \item{singlestep.active}{Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)}
 
 \item{remove.non.genotyped}{Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well}
 
-\item{added.genotyped}{Share of individuals that is additionally genotyped (only for copy.individuals)}
+\item{added.genotyped}{Share of individuals that is additionally genotyped (only for copy.individuals, default: 0)}
 
 \item{fast.uhat}{Set to FALSE to  derive inverse of A in rrBLUP}
 
@@ -785,6 +810,14 @@ breeding.diploid(
 
 \item{mas.effects}{Effects assigned to the MAS markers (Default: estimated via lm())}
 
+\item{threshold.selection.index}{Selection index on which to access (matrix which one index per row)}
+
+\item{threshold.selection.value}{Minimum value in the selection index selected individuals have to have}
+
+\item{threshold.selection.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
+
+\item{threshold.selection.criteria}{Criterium on which to evalute the index (default: "bve", alt: "bv", "pheno")}
+
 \item{threshold.selection}{Minimum value in the selection index selected individuals have to have}
 
 \item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
@@ -837,6 +870,8 @@ breeding.diploid(
 
 \item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
 
+\item{import.relationship.matrix}{Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)}
+
 \item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on availabled used ones)}
 
 \item{genotyped.remove.gen}{Generations from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
@@ -875,9 +910,51 @@ breeding.diploid(
 
 \item{mixblup.inputfile}{Set to FALSE to manually write your MiXBLUP inputfile}
 
+\item{mixblup.genofile}{Set to FALSE to manually write the MiXBLUP genotypefile}
+
 \item{mixblup.path}{Provide path to MiXBLUP.exe (default is your working directory: Windows: MixBLUP; Linux ./MixBLUP.exe)}
 
+\item{mixblup.path.pedfile}{Path from where to import the MiXBLUP pedfile}
+
+\item{mixblup.path.parfile}{Path from where to import the MiXBLUP parfile}
+
+\item{mixblup.path.datafile}{Path from where to import the MiXBLUP datafile}
+
+\item{mixblup.path.inputfile}{Path from where to import the MiXBLUP inputfile}
+
+\item{mixblup.path.genofile}{Path from where to import the MiXBLUP genofile}
+
 \item{mixblup.files}{Directory to generate all files generated when using MiXBLUP (default: MiXBLUP_files/ )}
+
+\item{mixblup.verbose}{Set to TRUE to display MiXBLUP prints}
+
+\item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
+
+\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
+
+\item{mixblup.lambda}{Lambda parameter in MiXBLUP}
+
+\item{mixblup.alpha}{Alpha parameter in MiXBLUP (default: 1, with alpha + beta = 1)}
+
+\item{mixblup.beta}{Beta parameter in MiXBLUP (default: 0, with alpha + beta = 1)}
+
+\item{mixblup.omega}{Omega parameter in MiXBLUP}
+
+\item{store.sparse}{Set to TRUE to store the pedigree relationship matrix as a sparse matrix}
+
+\item{remove.duplicates}{Set to FALSE to select the sample individual multiple times when the database for selection contains it multiple times}
+
+\item{mixblup.apy}{Set to TRUE to use APY inverse in MiXBLUP (default: FALSE)}
+
+\item{mixblup.apy.core}{Number of core animals in the APY algorithm (default: 5000)}
+
+\item{repeat.mating.trait}{Trait that should be linked to the litter size}
+
+\item{repeat.mating.max}{Maximum number of individuals in a litter}
+
+\item{selection.m.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
+
+\item{selection.f.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
 }
 \value{
 Population-list

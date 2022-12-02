@@ -18,6 +18,22 @@ write.pedigree.mixblup(
 }
 \arguments{
 \item{population}{Population list}
+
+\item{path}{AA}
+
+\item{gen}{AA}
+
+\item{database}{AA}
+
+\item{cohorts}{AA}
+
+\item{id}{AA}
+
+\item{depth.pedigree}{AA}
+
+\item{storage.save}{AA}
+
+\item{verbose}{AA}
 }
 \value{
 write.pedigree.mixblup
