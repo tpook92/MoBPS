@@ -23,6 +23,28 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.10.06 (05.12.22)
+
+Added MiXBLUP implementation for breeding value estimation
+
+Added tracking of founder pools 
+
+Added size.scaling to creating.diploid / breeding.diploid
+
+Added function to optimize the number of cores used for generation of individuals (optimize.cores() )
+
+Added function to visualize the pedigree (get.pedigree.visual)
+
+Added functionality for the generation of subpopulation specific traits including merging of traits
+
+Added function to calculate the empirical inbreeding (inbreeding.emp)
+
+### Version 1.9.20 (02.09.22)
+
+Added multi-core generation of new individuals
+
+Added pen & litter effects
+
 ### Version 1.8.08 (29.03.22)
 
 Added single sex mode (one.sex.mode = TRUE in creating.diploid)
