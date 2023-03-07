@@ -19,7 +19,8 @@ breeding.intern1(
   gene.editing = FALSE,
   nr.edits = 0,
   gen.architecture = 0,
-  decodeOriginsU = MoBPS::decodeOriginsR
+  decodeOriginsU = MoBPS::decodeOriginsR,
+  recombination.function = MoBPS::recombination.function.haldane
 )
 }
 \arguments{

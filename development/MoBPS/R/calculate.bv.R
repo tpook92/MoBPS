@@ -48,7 +48,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
 
 
   multi_pool =   population$info$founder_multi
-
+  pool_effects = population$info$pool_effects & multi_pool
 
   bv_final <- numeric(length(activ_bv))
   snp.before <- c(0,population$info$cumsnp)
@@ -152,6 +152,9 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         real.bv.adds <- population$info$real.bv.add[[bven]]
         if(multi_pool){
           real.bv.adds = real.bv.adds[real.bv.adds[,7]==activ_pool,]
+          if(ncol(real.bv.adds)>7){
+            real.bv.adds = real.bv.adds[!real.bv.adds[,8],]
+          }
         }
 
         # Additive Effekte -Vektorielle loesung
@@ -236,9 +239,39 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         }
 
       }
+
+      if(pool_effects){
+        real.bv.adds_pool <- population$info$real.bv.add[[bven]]
+
+        real.bv.adds_pool = real.bv.adds_pool[real.bv.adds_pool[,8]==TRUE,]
+        pools_active = unique(as.numeric(pool))
+
+        for(indexp in pools_active){
+          real.bv.adds_pool_temp = real.bv.adds_pool[real.bv.adds_pool[,7]==indexp,]
+          if(population$info$miraculix){
+            pool_count = rowSums(pool==indexp)
+          } else{
+            pool_count = colSums(pool==indexp)
+          }
+
+
+          position <- real.bv.adds_pool_temp[,6]
+          neff <- nrow(real.bv.adds_pool_temp)
+          take <- (pool_count[position] + 2L ) * neff + 1:neff
+
+          ## ^ seems to be extremely inefficient!
+          if(population$info$bve.poly.factor[bven]==1){
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds_pool_temp[take]))
+          } else{
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds_pool_temp[take])^population$info$bve.poly.factor[bven])
+          }
+        }
+      }
+
       bv_final[cindex] <- bv
       cindex <- cindex + 1
     }
+
 
     if(store.effect.freq){
       freq_list <- cbind(geno[population$info$effect.p]==0, geno[population$info$effect.p]==1, geno[population$info$effect.p]==2)

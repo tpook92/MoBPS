@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
 #' @param delete.bve.data Deleta all previous bve data (default: FALSE)
 #' @param add.chromosome.ends Add chromosome ends as recombination points
+#' @param founder.pool AAA
 #' @examples
 #' data(ex_pop)
 #' ex_pop <- new.base.generation(ex_pop, base.gen=2)
@@ -35,7 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=FALSE, delete.breeding.totals=FALSE,
-                                delete.bve.data=FALSE, add.chromosome.ends=TRUE){
+                                delete.bve.data=FALSE, add.chromosome.ends=TRUE,
+                                founder.pool = 1){
 
   if (requireNamespace("miraculix", quietly = TRUE)) {
     codeOriginsU <- miraculix::codeOrigins
@@ -109,12 +111,18 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
           population$breeding[[gen]][[sex]][[nr]][[5]] <- codeOriginsU(matrix(c(origin_code, sex, nr, 1),nrow=(length(population$breeding[[gen]][[sex]][[nr]][[1]])-1), ncol=4, byrow=TRUE))
 
           population$breeding[[gen]][[sex]][[nr]][[6]] <- codeOriginsU(matrix(c(origin_code, sex, nr, 2),nrow=(length(population$breeding[[gen]][[sex]][[nr]][[2]])-1), ncol=4, byrow=TRUE))
+
+          population$breeding[[gen]][[36+sex]][nr] <- founder.pool
         }
 
       }
 
     }
   }
+
+  population$info$founder_pools = unique(c(population$info$founder_pools, founder.pool))
+  population$info$founder_multi = if(length(population$info$founder_pools)>1){TRUE} else{FALSE}
+
   if(delete.previous.gen){
     for(index in 1:(min(base.gen)-1)){
       population$breeding[[index]] <- "deleted"

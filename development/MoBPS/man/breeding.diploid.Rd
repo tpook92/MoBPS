@@ -307,6 +307,8 @@ breeding.diploid(
   mixblup.path.genofile = NULL,
   mixblup.files = "MiXBLUP_files",
   mixblup.verbose = TRUE,
+  mixblup.genetic.cov = NULL,
+  mixblup.residual.cov = NULL,
   storage.save = 1.5,
   size.scaling = NULL,
   mixblup.lambda = 1,
@@ -320,7 +322,12 @@ breeding.diploid(
   repeat.mating.trait = 1,
   repeat.mating.max = NULL,
   selection.m.random.prob = NULL,
-  selection.f.random.prob = NULL
+  selection.f.random.prob = NULL,
+  recombination.function = NULL,
+  recombination.minimum.distance = NULL,
+  recombination.distance.penalty = NULL,
+  recombination.distance.penalty.2 = NULL,
+  mas.geno = NULL
 )
 }
 \arguments{
@@ -928,6 +935,10 @@ breeding.diploid(
 
 \item{mixblup.verbose}{Set to TRUE to display MiXBLUP prints}
 
+\item{mixblup.genetic.cov}{Provide genetic covariance matrix to be used in MiXBLUP (lower-triangle is sufficent)}
+
+\item{mixblup.residual.cov}{Provide residual covariance matrix to be used in MiXBLUP (lower-triangle is sufficent)}
+
 \item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
 
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
@@ -955,6 +966,20 @@ breeding.diploid(
 \item{selection.m.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
 
 \item{selection.f.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
+
+\item{recombination.function}{AAA}
+
+\item{recombination.minimum.distance}{AAA}
+
+\item{recombination.distance.penalty}{AAA}
+
+\item{recombination.distance.penalty.2}{AAA}
+
+\item{min.coanc.mating}{Set TRUE to activate the use of min coancestry mating via optiSel}
+
+\item{min.coanc.mating.solver}{Function with the solver for optiSel (default: use of lpsymphony::lpsymphony_solve_LP if available, else "default" optiSel solver)}
+
+\item{relationship.matrix.min.coanc}{Method to calculate relationship matrix for min coancestry (Default: "pedigree")}
 }
 \value{
 Population-list

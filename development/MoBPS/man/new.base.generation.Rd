@@ -10,7 +10,8 @@ new.base.generation(
   delete.previous.gen = FALSE,
   delete.breeding.totals = FALSE,
   delete.bve.data = FALSE,
-  add.chromosome.ends = TRUE
+  add.chromosome.ends = TRUE,
+  founder.pool = 1
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ new.base.generation(
 \item{delete.bve.data}{Deleta all previous bve data (default: FALSE)}
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
+
+\item{founder.pool}{AAA}
 }
 \value{
 Population-List with mutated marker for the selected individual

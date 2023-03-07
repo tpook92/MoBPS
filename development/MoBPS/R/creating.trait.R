@@ -104,8 +104,90 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
                            is.paternal=NULL,
                            fixed.effects=NULL,
                            trait.pool = 0,
-                           set.zero = FALSE){
+                           set.zero = FALSE,
+                           gxe.correlation = NULL,
+                           location.name = NULL,
+                           n.locations = NULL,
+                           gxe.max = 0.85,
+                           gxe.min = 0.7,
+                           gxe.combine = TRUE){
 
+
+  {
+    if(length(n.locations)>0 && length(gxe.correlation)==0){
+      gxe.correlation = matrix(runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
+      for(i in 2:nrow(gxe.correlation)) {
+        for(j in 1:(i-1)) {
+          gxe.correlation[i,j]=gxe.correlation[j,i]
+        }
+      }
+      diag(gxe.correlation) = 1
+      gxe.correlation = matrix.posdef(A = gxe.correlation)
+
+      if(verbose){
+        cat("Generated GxE matrix")
+        print(round(gxe.correlation, digits = 3))
+      }
+
+    }
+
+    if(length(location.name)==0 && length(gxe.correlation)>0){
+      location.name = paste0("Location ", 1:ncol(gxe.correlation))
+    }
+
+
+    trait_location = NULL
+    trait_nr = NULL
+    if(length(gxe.correlation)>0){
+
+      if(length(population)>0 && population$info$bv.nr >0){
+        stop("GxE module is only intended for the use when no traits where previously generated")
+      }
+
+      if(length(real.bv.add)>0 || length(real.bv.mult)>0 || length(real.bv.dice)>0){
+        stop("GxE module is only intended for the use with predefined MoBPS trait architectures")
+      }
+
+      # Determine total number of traits
+
+      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+      n.traits <- length(trait_sum)
+
+      n.additive <- rep(c(n.additive, rep(0, length.out=n.traits-length(n.additive))), n.locations)
+      n.dominant <- rep(c(n.dominant, rep(0, length.out=n.traits-length(n.dominant))), n.locations)
+      n.equal.additive <- rep(c(n.equal.additive, rep(0, length.out=n.traits-length(n.equal.additive))), n.locations)
+      n.equal.dominant <- rep(c(n.equal.dominant, rep(0, length.out=n.traits-length(n.equal.dominant))), n.locations)
+      n.qualitative <- rep(c(n.qualitative, rep(0, length.out=n.traits-length(n.qualitative))), n.locations)
+      n.quantitative <- rep(c(n.quantitative, rep(0, length.out=n.traits-length(n.quantitative))), n.locations)
+
+      if(length(trait.name) < n.traits){
+        trait.name = c(trait.name, paste0("Trait ", (length(trait.name)+1):n.traits))
+      }
+
+      # GxE will always result in a multi-trait model
+
+      if(length(shuffle.cor)==0){
+        shuffle.cor = diag(1, n.traits)
+        shuffle.traits = 1:n.traits
+      }
+      n.locations = ncol(gxe.correlation)
+      if(length(shuffle.cor)>0){
+
+        shuffle.cor =   gxe.correlation  %x% shuffle.cor
+        if(length(shuffle.traits)>0){
+          shuffle.traits = rep(shuffle.traits, n.locations) + sort(rep(1:n.locations*n.traits - n.traits, length(shuffle.traits)))
+        }
+      }
+
+      if(length(trait.name) < (n.traits * n.locations)){
+        trait.name = paste0(rep(trait.name, n.locations) ," x ", rep(location.name, each = n.traits))
+      }
+
+      trait_location = rep(1:n.locations, each = n.traits)
+      trait_nr =  rep(1:n.traits, n.locations)
+
+    }
+  }
 
   if(length(randomSeed)>0){
     set.seed(randomSeed)
@@ -259,6 +341,10 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
       if(ncol(real.bv.add[[index3]])==6){
         real.bv.add[[index3]] = cbind(real.bv.add[[index3]], trait.pool_temp[index3])
+      }
+
+      if(ncol(real.bv.add[[index3]])==7){
+        real.bv.add[[index3]] = cbind(real.bv.add[[index3]], FALSE)
       }
     }
   }
@@ -481,7 +567,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
           add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
         }
         add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
-        real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait])
+        real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait], FALSE)
       }
 
       if(n.equal.additive[index_trait]>0){
@@ -491,7 +577,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
           add_snp1[index] <- add_marker1[index] - c(0,cum_snp)[add_chromo1[index]]
         }
         add_effect1 <- effect.size.equal.add
-        real.bv.add.new <- rbind(real.bv.add.new, cbind(add_snp1, add_chromo1,  -add_effect1, 0, add_effect1, add_marker, trait.pool[index_trait]))
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(add_snp1, add_chromo1,  -add_effect1, 0, add_effect1, add_marker, trait.pool[index_trait], FALSE))
 
       }
 
@@ -510,7 +596,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
         } else{
           temp1 <- dom_effect
         }
-        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect, dom_marker, trait.pool[index_trait]))
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect, dom_marker, trait.pool[index_trait], FALSE))
 
       }
 
@@ -521,7 +607,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
           dom_snp1[index] <- dom_marker1[index] - c(0,cum_snp)[dom_chromo1[index]]
         }
         dom_effect1 <- effect.size.equal.dom
-        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1, dom_marker1, trait.pool[index_trait]))
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1, dom_marker1, trait.pool[index_trait], FALSE))
 
       }
 
@@ -615,6 +701,8 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
   population$info$phenotypic.transform <- rep(FALSE, bv.total)
   population$info$phenotypic.transform.function <- list()
+
+
 
   store1 <- population$info$is.maternal
   store2 <- population$info$is.paternal
@@ -930,7 +1018,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
         row <- 1
         for(index2 in shuffle.traits){
           if(length(store.add[[index2]])>0){
-            new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1)))
+            new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1,1)))
             zeros <- rowSums(abs(new.add[,3:5,drop=FALSE] ))
             new.add <- new.add[zeros>0,,drop=FALSE]
           }
@@ -1083,9 +1171,21 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target, set.zero = set.zero)
   }
 
-
   # Calculation of initial genomic values
   population <- breeding.diploid(population, verbose=FALSE)
+
+  if(length(trait_location)>0){
+    population$info$trait.location = trait_location
+    population$info$trait.nr = trait_nr
+  }
+
+  if(gxe.combine & length(trait_nr)>0){
+
+    traits = unique(trait_nr)
+    for(index in traits){
+      population <- combine.traits(population, combine.traits = which(trait_nr == index))
+    }
+  }
 
   return(population)
 }

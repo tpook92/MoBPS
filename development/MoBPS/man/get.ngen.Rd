@@ -10,10 +10,10 @@ get.ngen(population)
 \item{population}{Population list}
 }
 \value{
-Population-list with one or more additional new traits
+Numeric value
 }
 \description{
-Set default parameter values in breeding.diploid
+Function to calculate the number of generations in the population list
 }
 \examples{
 data(ex_pop)

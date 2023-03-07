@@ -45,7 +45,12 @@ creating.trait(
   is.paternal = NULL,
   fixed.effects = NULL,
   trait.pool = 0,
-  set.zero = FALSE
+  set.zero = FALSE,
+  gxe.correlation = NULL,
+  location.name = NULL,
+  n.locations = NULL,
+  gxe.max = 0.85,
+  gxe.min = 0.7
 )
 }
 \arguments{

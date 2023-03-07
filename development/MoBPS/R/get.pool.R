@@ -76,6 +76,10 @@ get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids
         }
       }
     }
+    if(population$info$chromosome>1){
+      abline(v=population$info$cumsnp[-length(population$info$cumsnp)], lty=3, lwd = 3, col = "grey")
+    }
+
 
   }
 

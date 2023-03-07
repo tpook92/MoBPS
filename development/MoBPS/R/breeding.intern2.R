@@ -49,7 +49,8 @@ breeding.intern2 <- function(info.parent, parent,  population , mutation.rate = 
                             duplication.recombination=1, delete.same.origin=FALSE,
                             gene.editing=FALSE, nr.edits= 0,
                             gen.architecture=0,
-                            decodeOriginsU=MoBPS::decodeOriginsR){
+                            decodeOriginsU=MoBPS::decodeOriginsR,
+                            recombination.function=MoBPS::recombination.function.haldane){
   n_snps <- sum(population$info$snp)
   if(gen.architecture==0){
     length.total <- population$info$length.total
@@ -109,8 +110,8 @@ breeding.intern2 <- function(info.parent, parent,  population , mutation.rate = 
       }
     }
   } else{
-    porc <- stats::runif(noc,0,length.total[n.chromosome+1]) #Position der Rekombinationspunkte
-  }
+    porc <- recombination.function(noc, length.total[n.chromosome+1]) #Position der Rekombinationspunkte
+    }
 
 
 

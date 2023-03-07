@@ -14,11 +14,11 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/LIC PT Scheme 111022_error_gen7.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Sijne3000notworking.json")
 
-fast.mode <- TRUE
+fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 0.05
+size.scaling <- 0.02
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -245,7 +245,7 @@ fixed.generation.order <- NULL
         if(length(traitinfo[[index]]$is_combi)==1){
           trait_matrix[index,15] <- traitinfo[[index]]$is_combi
           if(traitinfo[[index]]$is_combi){
-            combi_weights[[index]] <- unlist(as.numeric(traitinfo[[index]]$combi_weights))
+            combi_weights[[index]] <- as.numeric(unlist(traitinfo[[index]]$combi_weights))
           }
         } else{
           trait_matrix[index,15] <- FALSE
@@ -303,6 +303,22 @@ fixed.generation.order <- NULL
       nr <- 1
       vector_pheno <- as.numeric(unlist(total$`Phenotypic Correlation`))
       vector_gen <- as.numeric(unlist(total$`Genetic Correlation`))
+
+      if(length(vector_pheno)< (n_traits*(n_traits+1)/2) || length(vector_pheno)< (n_traits*(n_traits+1)/2)){
+        for(index1 in 1:length(total$`Phenotypic Correlation`)){
+          for(index2 in 1:length(total$`Phenotypic Correlation`[[index1]])){
+            if(length(total$`Phenotypic Correlation`[[index1]][[index2]])==0){
+              total$`Phenotypic Correlation`[[index1]][[index2]] = 0
+            }
+            if(length(total$`Genetic Correlation`[[index1]][[index2]])==0){
+              total$`Genetic Correlation`[[index1]][[index2]] = 0
+            }
+          }
+        }
+        vector_pheno <- as.numeric(unlist(total$`Phenotypic Correlation`))
+        vector_gen <- as.numeric(unlist(total$`Genetic Correlation`))
+      }
+
       for(index1 in 1:n_traits){
         for(index2 in 1:index1){
           cor_pheno[index2,index1] <- cor_pheno[index1,index2] <- vector_pheno[nr]
@@ -336,10 +352,28 @@ fixed.generation.order <- NULL
       }
 
       if(length(total$`PhenotypicResidual`)>0 && total$`PhenotypicResidual`){
-        gen_var <- (diag(trait_matrix[,4])) %*% cor_gen %*% (diag(trait_matrix[,4]))
+
+        if(length(trait_matrix[,4])==1){
+          gen_var <- (matrix(as.numeric(trait_matrix[,4]))) %*% cor_gen %*% (matrix(as.numeric(trait_matrix[,4])))
+        } else{
+          gen_var <- (diag(as.numeric(trait_matrix[,4]))) %*% cor_gen %*% (diag(as.numeric(trait_matrix[,4])))
+        }
+
+        if(length(pheno_var)==1){
+          pheno_var<-  (matrix(pheno_var)) %*% cor_pheno %*% (matrix(pheno_var))
+        } else{
+          pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
+        }
+
+
         pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
         residual_var <- pheno_var - gen_var
-        cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
+        if(length(residual_var)==1){
+          cor_pheno <- sqrt(matrix(matrix(1/residual_var))) %*% residual_var %*%  sqrt(matrix(matrix(1/residual_var)))
+        } else{
+          cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
+        }
+
         cor_pheno[is.na(cor_pheno)] = 0
         if(verbose) cat("Used residual covariance:\n")
         if(verbose) print(cor_pheno)
@@ -628,6 +662,7 @@ fixed.generation.order <- NULL
     for(index in length(edges):1){
       if(sum(edges[[index]]$to==ids)==0 || sum(edges[[index]]$from==ids)==0){
         if(verbose) cat("Remove illegal edge. Connected Node not present\n")
+        print(c(index, edges[[index]]$from, edges[[index]]$to ))
         edges[[index]] <- NULL
       }
     }
