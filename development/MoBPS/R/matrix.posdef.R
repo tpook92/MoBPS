@@ -22,11 +22,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Projection positive definit
 #'
 #' Function to project a matrix in the space of positive definit matrices
-#' @param A
-#' @param verbose
+#' @param A Input matrix to project
+#' @param verbose Set to FALSE to not display any prints
 #' @param matrix.name This is just for internal prints
 #' @param epsilon This factor is added to the diagonal to avoid numerical issues with semi-definit matrices
-#' @examples
 #' @return Positive definit matrix
 #' @export
 

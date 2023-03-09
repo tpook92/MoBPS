@@ -112,9 +112,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
 #' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
-#' @param founder.pool AAA
+#' @param founder.pool Founder pool an individual is assign to (default: 1)
 #' @param trait.pool Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
+#' @param gxe.correlation Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)
+#' @param gxe.max Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)
+#' @param gxe.min Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)
+#' @param n.locations Number of locations / environments to consider for the GxE model
+#' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
+#' @param location.name Same of the different locations / environments used
+#' @param change.order Markers are automatically sorted according to their snp.position unless this is set to FALSE (default: TRUE)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -196,13 +203,14 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                              n.locations = NULL,
                              gxe.max = 0.85,
                              gxe.min = 0.7,
-                             gxe.combine = TRUE){
+                             gxe.combine = TRUE,
+                             change.order = TRUE){
 
 
   # GxE Trait generation module
   {
   if(length(n.locations)>0 && length(gxe.correlation)==0){
-    gxe.correlation = matrix(runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
+    gxe.correlation = matrix(stats::runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
     for(i in 2:nrow(gxe.correlation)) {
       for(j in 1:(i-1)) {
         gxe.correlation[i,j]=gxe.correlation[j,i]
@@ -346,6 +354,8 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
       chr.nr <- map[,1]
       snp.name <- map[,2]
+      chr.opt <- unique(chr.nr)
+
       if(sum(!is.na(map[,4]))>0){
         if(length(bp)==0){
           bp <- numeric(nrow(map))
@@ -372,7 +382,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
       }
       if(sum(!is.na(map[,3]))==nrow(map) && length(chromosome.length)==0){
-        chr.opt <- unique(chr.nr)
+
         chromosome.length <- numeric(length(chr.opt))
         for(index in 1:length(chr.opt)){
           chromosome.length[index] <- max(as.numeric(map[map[,1]==chr.opt[index],3])) + min(as.numeric(map[map[,1]==chr.opt[index],3]))
@@ -386,7 +396,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         warning(paste0("Set number of SNPs to", nrow(map), "!\n"))
 
       }
-      nsnp <- nrow(map)
+
+      nsnp = numeric(length(chr.opt))
+      for(index in 1:length(chr.opt)){
+        nsnp[index] = sum(chr.nr==chr.opt[index])
+      }
+      #nsnp <- nrow(map)
 
     }
     if(length(chromosome.length)==0 || (length(chromosome.length)==1 && chromosome.length==0)){
@@ -530,6 +545,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
     if(length(dataset)>0 && sum(class(dataset) %in% "matrix")>=1){
 
+
       diffs <- sum(diff(snp.position)<0)
       if(length(chr.nr)==1){
         comp <- chr.nr
@@ -566,7 +582,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
             dataset[[tt]] <- miraculix::haplomatrix(dataset_temp[chr.nr==tt,])
           }
         } else{
-          if(verbose & miraculix.dataset & length(chr.nr)>0){warning("Automatic miraculix sorting failed! Deactivate miraculix for dataset generation")}
+          if(verbose & miraculix.dataset & length(chr.nr)>0){
+            warning("Automatic miraculix sorting failed! Deactivate miraculix for dataset generation")
+          }
           miraculix.dataset <- FALSE
         }
       } else{
@@ -590,6 +608,13 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         for(index in 1:length(nsnp)){
           nsnp[index] <- sum(chr.nr==index)
         }
+      } else if(length(nsnp)>1 && length(nsnp)==chr.nr){
+        chr.nr_temp = numeric(sum(nsnp))
+        chr.nr_temp[1:nsnp[1]] = 1
+        for(index in 2:length(nsnp)){
+          chr.nr_temp[1:nsnp[index] + sum(nsnp[1:(index-1)])] = index
+        }
+        chr.nr = chr.nr_temp
       } else if(class(dataset)  %in% "matrix" && nrow(dataset)>chr.nr){
         chr.nr <- sort(rep(1:chr.nr, length.out=nrow(dataset)))
       } else if(class(dataset)  %in% "haplomatrix" && attr(dataset[[1]], "information")[2]==1){
@@ -743,12 +768,37 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           hom0 <- vcf_file[,4]
           hom1 <- vcf_file[,5]
 
-          ## remove not needed objects to save space
-          #rm(vcf_file,vcf_data)
+
+
+        }
+
+        if(length(population)>0){
+          change = which(!(hom0 == population$info$snp.base[1,]) & (hom1 == population$info$snp.base[1,]))
+          if(length(change)>0){
+            if(verbose) cat(paste0("Reference allele is different in ", length(change), " SNPs. Automaticially fixed!"))
+            dataset[change,] = 1 - dataset[change,]
+          }
+          if(sum(!(hom0 == population$info$snp.base[1,]))>length(change)){
+            warning(paste0("Reference allele is different in ", sum(!(hom0 == population$info$snp.base[1,])) - length(change), " SNPs. No fix possible!"))
+          }
+          hom0 <- population$info$snp.base[1,]
+          hom1 <- population$info$snp.base[2,]
         }
 
         if(length(population)>0){
           # this information is only required for the first input file!
+
+          if(change.order && length(snp.position)>0 && length(unique(chr.nr))>1 && !add.chromosome){
+
+
+            max_add = max(snp.position) + 1
+            uni_chr = unique(chr.nr)
+            for(index in 1:length(uni_chr)){
+              snp.position[chr.nr==uni_chr[index]] = snp.position[chr.nr==uni_chr[index]] + max_add * (index-1)
+              # this position is never used down-stream . this is just for sorting them
+            }
+
+          }
           chr.nr <- rep(1, length(chr.nr)) # everything is generated jointly!
 
           # Run checks if things match!
@@ -784,7 +834,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           }
 
           nsnp_temp <- nsnp
-          if(nsnp_temp==0){
+          if(sum(nsnp_temp)==0){
             nsnp_temp <- nrow(dataset)
           }
           if(diffs<comp & miraculix.dataset){
@@ -794,7 +844,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
               dataset[[tt]] <- miraculix::haplomatrix(dataset_temp[chr.nr==tt,])
             }
           } else{
-            if(verbose && miraculix.dataset && length(population)==0){warning("Automatic miraculix sorting failed! Deactivate miraculix for dataset generation")}
+            if(verbose && miraculix.dataset && length(population)==0){
+              warning("Automatic miraculix sorting failed! Deactivate miraculix for dataset generation")
+            }
             miraculix.dataset <- FALSE
 
 
@@ -880,6 +932,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         if(length(var.quantitative.l) < length(trait_sum)){
           var.quantitative.l <- rep(var.quantitative.l, length.out=length(trait_sum))
         }
+      }
+
+      if(is.list(real.bv.dice) && length(unlist(real.bv.dice))==0){
+        real.bv.dice = NULL
       }
 
       if(length(real.bv.dice)>0){
@@ -1373,7 +1429,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       }
 
 
-      change.order <- TRUE
+
 
       if(change.order && length(snp.position)>0){
 
@@ -1540,12 +1596,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       storage.mode(dataset) <- "integer"
     }
 
-    if(length(snp.position)>0 && snp.position[1]<=0 && (length(snps.equidistant)==0 || snps.equidistant!=TRUE)){
+    if((length(population)==0 || (length(population)>0 & add.chromosome)) && (length(snp.position)>0 && snp.position[1]<=0 && (length(snps.equidistant)==0 || snps.equidistant!=TRUE))){
       snp.position[1] <- snp.position[2]/2
       warning(paste("Illegal position for SNP 1 - changed to",snp.position[1]))
     }
     mindex <- max(which(chr.opt[1]==chr.nr))
-    if(length(snp.position)>1 && snp.position[mindex]>=chromosome.length[1] && (length(snps.equidistant)==0 || snps.equidistant!=TRUE)){
+    if((length(population)==0 || (length(population)>0 & add.chromosome)) && (length(snp.position)>1 && snp.position[mindex]>=chromosome.length[1] && (length(snps.equidistant)==0 || snps.equidistant!=TRUE))){
       snp.position[mindex] <- mean(c(snp.position[mindex-1], chromosome.length[1]))
       warning(paste("Illegal position for last SNP - changed to",snp.position[mindex]))
     }
@@ -1700,7 +1756,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
-      } else if(add.chromosome==TRUE){
+      } else if(add.chromosome){
         if(length(chr.opt)>1){
           stop("You can only add a single chromosome using add.chromosome!")
         }
@@ -1732,7 +1788,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(generation!=1){
         take <- which(population$info$origin.gen==generation)
         if(length(take)==1){
-          origin_code <- population$info$origin.gen[take]
+          if(population$info$miraculix){
+            origin_code <- take
+          } else{
+            origin_code <- population$info$origin.gen[take]
+          }
+
         } else{
           if(population$info$miraculix){
             if(length(population$info$origin.gen)<64){
@@ -1763,8 +1824,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         origin_code <- generation
       }
 
-      counter <- c(length(population$breeding[[generation]][[1]]),length(population$breeding[[generation]][[2]]))+1L # maennlich/weibliche Tiere bisher
-      counter.start <- counter
+
 
       if(length(population)==1){
         population$breeding <- list()
@@ -1791,6 +1851,9 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
       if(internal.geno && length(internal.dataset)){
         dataset <- internal.dataset
       }
+
+      counter <- c(length(population$breeding[[generation]][[1]]),length(population$breeding[[generation]][[2]]))+1L # maennlich/weibliche Tiere bisher
+      counter.start <- counter
 
       if(add.chromosome==FALSE){
 

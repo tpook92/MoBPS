@@ -119,12 +119,32 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   if(length(database)>0 && ncol(database)==3){
     database <- cbind(database, database[,3])
   }
+
+
+
   if(length(cohorts)>0){
-    database2 <- matrix(0L, nrow=length(cohorts), ncol=4)
-    for(index in 1:length(cohorts)){
+    database2 <- matrix(NA, nrow=length(cohorts)*3, ncol=4)
+    added = 0
+    remove = NULL
+    ncoh = length(cohorts)
+    for(index in 1:(length(cohorts)*3)){
+      if(length(cohorts)< index){
+        break
+      }
       row <- which(population$info$cohorts[,1]==cohorts[index])[1]
       if(is.na(row)){
-        warning(paste0("Cohort ", cohorts[index], " is not available when constructing the individuals database!"))
+
+
+        candidates = paste0(cohorts[index], c("_M", "_F"))
+        if(sum(population$info$cohorts[,1]==candidates[1])>0 && sum(population$info$cohorts[,1]==candidates[2])>0){
+          cohorts = c(cohorts, candidates)
+          added = added + 2
+          remove = c(remove, index)
+          warning(paste0("Cohort ", cohorts[index], " is not available. Instead use ",  cohorts[index], "_M & ",  cohorts[index], "_F!"))
+        } else{
+          warning(paste0("Cohort ", cohorts[index], " is not available when constructing the individuals database!"))
+        }
+
       }
       gen <- as.numeric(population$info$cohorts[row,2])
       sex <- 1 + (as.numeric(population$info$cohorts[row,4])>0)
@@ -132,6 +152,11 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
       last <- first + as.numeric(population$info$cohorts[row,2 + sex]) - 1
       database2[index,] <- c(gen,sex,first,last)
     }
+    database2 = database2[1:(ncoh + added),,drop=FALSE]
+    if(length(remove)>0){
+      database2 = database2[-remove,, drop=FALSE]
+    }
+
     if(sum(is.na(database2))>0){
       warning("Cohort-name is not available! \nCheck cohort names (in particular for added '_F' and '_M') / get.cohorts()!")
       database2 <- database2[!is.na(database2[,1]), ,drop=FALSE]
@@ -147,10 +172,12 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     database <- database[order,,drop=FALSE]
     first_same <- 1
     first_index <- 1
+    not_first = FALSE
     for(index in 2:nrow(database)){
-      if(database[first_index,1]!=database[index,1]){
+      if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
         first_index <- which(database[index,1]==database[,1])[1]
         first_same <- database[first_index,1]
+        not_first = FALSE
       } else{
         if(database[(index-1),1]!=0){
           if(database[index-1,1]==database[index,1] & database[index-1,2] == database[index,2]){
@@ -159,13 +186,20 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
             checks <- NULL
           }
         } else{
-          checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
+          if(not_first){
+            checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
+          } else{
+            checks <- first_index
+
+          }
         }
         if(!avoid.merging){
           for(index2 in checks){
             if(database[index,3] <= (database[index2,4]+1)){
               database[index2,4] <- max(database[index2,4], database[index,4])
               database[index,] <- 0
+            } else{
+              not_first = TRUE
             }
 
           }

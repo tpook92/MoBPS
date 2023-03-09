@@ -27,10 +27,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mutation.rate Mutation rate in each marker (default: 10^-8)
 #' @param remutation.rate Remutation rate in each marker (default: 10^-8)
 #' @param recombination.rate Average number of recombination per 1 length unit (default: 1M)
-#' @param recombination.function AAA
-#' @param recombination.minimum.distance AAA
-#' @param recombination.distance.penalty AAA
-#' @param recombination.distance.penalty.2 AAA
+#' @param recombination.function Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())
+#' @param recombination.minimum.distance Minimum distance between two points of recombination (default: 0)
+#' @param recombination.distance.penalty Reduced probability for recombination events closer than this value - linear penalty (default: 0)
+#' @param recombination.distance.penalty.2 Reduced probability for recombination events closer than this value - quadratic penalty (default: 0)
 #' @param selection.m Selection criteria for male individuals (Set to "random" to randomly select individuals - this happens automatically when no the input in selection.criteria has no input ((usually breeding values)))
 #' @param selection.f Selection criteria for female individuals (default: selection.m , alt: "random", function")
 #' @param selection.function.matrix Manuel generation of a temporary selection function (Use BVs instead!)
@@ -252,6 +252,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mas.markers Vector containing markers to be used in marker assisted selection
 #' @param mas.number If no markers are provided this nr of markers is selected (if single marker QTL are present highest effect markers are prioritized)
 #' @param mas.effects Effects assigned to the MAS markers (Default: estimated via lm())
+#' @param mas.geno Genotype dataset used in MAS (default: NULL, automatic internal calculation)
 #' @param threshold.selection.index Selection index on which to access (matrix which one index per row)
 #' @param threshold.selection.value Minimum value in the selection index selected individuals have to have
 #' @param threshold.selection.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
@@ -306,10 +307,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.selected Set to TRUE to export the list of selected individuals
 #' @param export.relationship.matrix Export the relationship matrix used in the breeding value estimation
 #' @param pen.assignments This is a placeholder to deactivate this module for now
-#' @param pen.size AA
-#' @param pen.by.sex AA
-#' @param pen.by.litter AA
-#' @param pen.size.overwrite AA
+#' @param pen.size Pen size. When different types of pen are used: use a matrix with two columns coding Number of individuals per pen, Probability for each pen size
+#' @param pen.by.sex Only individuals of the same sex are put in the same pen (default: TRUE)
+#' @param pen.by.litter Only individuals of the same litter are put in the same pen (default: FALSE)
+#' @param pen.size.overwrite Set to FALSE to not use the input for pen.size for down-stream use of breeding.diploid (default: TRUE)
 #' @param intern.func AA
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
 #' @param parallel.intern Internal parameter for the parallelization
@@ -345,9 +346,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
 #' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
 #' @param remove.duplicates Set to FALSE to select the sample individual multiple times when the database for selection contains it multiple times
-#' @param min.coanc.mating Set TRUE to activate the use of min coancestry mating via optiSel
-#' @param min.coanc.mating.solver Function with the solver for optiSel (default: use of lpsymphony::lpsymphony_solve_LP if available, else "default" optiSel solver)
-#' @param relationship.matrix.min.coanc  Method to calculate relationship matrix for min coancestry (Default: "pedigree")
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -682,6 +680,12 @@ breeding.diploid <- function(population,
                              recombination.distance.penalty.2 = NULL,
                              mas.geno = NULL){
 
+  # Implement ?
+  # @param min.coanc.mating Set TRUE to activate the use of min coancestry mating via optiSel
+  # @param min.coanc.mating.solver Function with the solver for optiSel (default: use of lpsymphony::lpsymphony_solve_LP if available, else "default" optiSel solver)
+  # @param relationship.matrix.min.coanc  Method to calculate relationship matrix for min coancestry (Default: "pedigree")
+
+
   if(length(recombination.minimum.distance)>0){
     recombination.function = function(noc, length.genome){
       if(noc==0){
@@ -694,7 +698,7 @@ breeding.diploid <- function(population,
       rep = 0
       while(index <= noc){
         rep = rep+1
-        new_rec = runif(1, 0, length.genome)
+        new_rec = stats::runif(1, 0, length.genome)
 
         if(min(abs(new_rec - rec[1:index]))> min_distance){
           rec[index] = new_rec
@@ -724,10 +728,10 @@ breeding.diploid <- function(population,
       rep = 0
       while(index <= noc){
         rep = rep+1
-        new_rec = runif(1, 0, length.genome)
+        new_rec = stats::runif(1, 0, length.genome)
 
         dist = min(abs(new_rec - rec[1:index]))
-        if(dist > min_distance || rbinom(1,1,dist/min_distance) == 1){
+        if(dist > min_distance || stats::rbinom(1,1,dist/min_distance) == 1){
           rec[index] = new_rec
           index = index + 1
         }
@@ -756,10 +760,10 @@ breeding.diploid <- function(population,
       rep = 0
       while(index <= noc){
         rep = rep+1
-        new_rec = runif(1, 0, length.genome)
+        new_rec = stats::runif(1, 0, length.genome)
 
         dist = min(abs(new_rec - rec[1:index]))
-        if(dist > min_distance || rbinom(1,1,(dist/min_distance)^2) == 1){
+        if(dist > min_distance || stats::rbinom(1,1,(dist/min_distance)^2) == 1){
           rec[index] = new_rec
           index = index + 1
         }
@@ -3949,7 +3953,7 @@ breeding.diploid <- function(population,
 
 
 
-          if (requireNamespace("fwrite", quietly = TRUE)) {
+          if (requireNamespace("data.table", quietly = TRUE)) {
             data.table::fwrite(file=mixblup.path.genofile, dense, sep = " ", col.names = FALSE)
           } else{
             utils::write.table(file=mixblup.path.genofile, dense, col.names = FALSE, row.names = FALSE, quote = FALSE)

@@ -81,12 +81,12 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
       if(na.override){
         for(index2 in 1:nrow(database_activ)){
           nr <- database_activ[index2,3]
-          population$breeding[[groups[index,1]]][[groups[index,2]+add]][,nr] <- bves_activ[,index]
+          population$breeding[[groups[index,1]]][[groups[index,2]+add]][,nr] <- bves_activ[,index2]
         }
       } else{
         for(index2 in 1:nrow(database_activ)){
           nr <- database_activ[index2,3]
-          population$breeding[[groups[index,1]]][[groups[index,2]+add]][,nr][!is.na(bves_activ[,index]) ]  <- as.numeric(bves_activ[,index])[!is.na(bves_activ[,index]) ]
+          population$breeding[[groups[index,1]]][[groups[index,2]+add]][,nr][!is.na(bves_activ[,index2]) ]  <- as.numeric(bves_activ[,index2])[!is.na(bves_activ[,index2]) ]
         }
       }
 

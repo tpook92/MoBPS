@@ -7,6 +7,10 @@
 matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 1e-07)
 }
 \arguments{
+\item{A}{Input matrix to project}
+
+\item{verbose}{Set to FALSE to not display any prints}
+
 \item{matrix.name}{This is just for internal prints}
 
 \item{epsilon}{This factor is added to the diagonal to avoid numerical issues with semi-definit matrices}

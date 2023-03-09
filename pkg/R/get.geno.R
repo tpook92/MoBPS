@@ -141,7 +141,7 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
     data[!is_genotyped] <- NA
   }
   if(remove.missing){
-    data <- data[rowMeans(is.na(data))<1,]
+    data <- data[rowMeans(is.na(data))<1,,drop=FALSE]
   }
 
 

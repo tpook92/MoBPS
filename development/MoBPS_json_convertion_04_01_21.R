@@ -18,7 +18,7 @@ total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Sijne3000notworkin
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 0.02
+size.scaling <- 1
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -1876,7 +1876,7 @@ fixed.generation.order <- NULL
           if(length(to_enter)>0 && length(population$info$real.bv.add[[index]])>0){
 
 
-            population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0), population$info$real.bv.add[[index]])
+            population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0, 0), population$info$real.bv.add[[index]])
 
             if(population$info$real.bv.length[1]<index && length(to_enter)>0){
               population$info$real.bv.length[1] <- index

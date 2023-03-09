@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nr.edits Number of edits to perform per individual
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
+#' @param recombination.function Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())
 #' @examples
 #' data(ex_pop)
 #' child_gamete <- breeding.intern(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
@@ -49,7 +50,8 @@ breeding.intern2 <- function(info.parent, parent,  population , mutation.rate = 
                             duplication.recombination=1, delete.same.origin=FALSE,
                             gene.editing=FALSE, nr.edits= 0,
                             gen.architecture=0,
-                            decodeOriginsU=MoBPS::decodeOriginsR){
+                            decodeOriginsU=MoBPS::decodeOriginsR,
+                            recombination.function=MoBPS::recombination.function.haldane){
   n_snps <- sum(population$info$snp)
   if(gen.architecture==0){
     length.total <- population$info$length.total
@@ -109,8 +111,8 @@ breeding.intern2 <- function(info.parent, parent,  population , mutation.rate = 
       }
     }
   } else{
-    porc <- stats::runif(noc,0,length.total[n.chromosome+1]) #Position der Rekombinationspunkte
-  }
+    porc <- recombination.function(noc, length.total[n.chromosome+1]) #Position der Rekombinationspunkte
+    }
 
 
 

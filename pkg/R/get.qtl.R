@@ -58,7 +58,7 @@ get.qtl.effects <- function(population){
 
   for(index in 1:length(adds)){
     if(length(adds[[index]])>0){
-      colnames(adds[[index]]) <- c("SNP", "Chromo", "Effect AA", "Effect AB", "Effect BB")
+      colnames(adds[[index]]) <- c("SNP", "Chromo", "Effect AA", "Effect AB", "Effect BB", "Overall position", "Pool", "Pool-based Effect")
     }
   }
   for(index in 1:length(mults)){

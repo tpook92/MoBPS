@@ -23,7 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to put together indices for GxE / multi trait
 #' @param population Population list
-#' @param trait Which traits to include in the index (all weight with factor 1)
+#' @param traits Which traits to include in the index (all weight with factor 1)
 #' @param locations Which locations to include in the index (all weight weight factor 1)
 #' @param trait.weights Vector with a weight per trait
 #' @param location.weights Vector weight a weight per location

@@ -893,13 +893,13 @@ breeding.diploid(
 
 \item{pen.assignments}{This is a placeholder to deactivate this module for now}
 
-\item{pen.size}{AA}
+\item{pen.size}{Pen size. When different types of pen are used: use a matrix with two columns coding Number of individuals per pen, Probability for each pen size}
 
-\item{pen.by.sex}{AA}
+\item{pen.by.sex}{Only individuals of the same sex are put in the same pen (default: TRUE)}
 
-\item{pen.by.litter}{AA}
+\item{pen.by.litter}{Only individuals of the same litter are put in the same pen (default: FALSE)}
 
-\item{pen.size.overwrite}{AA}
+\item{pen.size.overwrite}{Set to FALSE to not use the input for pen.size for down-stream use of breeding.diploid (default: TRUE)}
 
 \item{intern.func}{AA}
 
@@ -967,19 +967,15 @@ breeding.diploid(
 
 \item{selection.f.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
 
-\item{recombination.function}{AAA}
+\item{recombination.function}{Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())}
 
-\item{recombination.minimum.distance}{AAA}
+\item{recombination.minimum.distance}{Minimum distance between two points of recombination (default: 0)}
 
-\item{recombination.distance.penalty}{AAA}
+\item{recombination.distance.penalty}{Reduced probability for recombination events closer than this value - linear penalty (default: 0)}
 
-\item{recombination.distance.penalty.2}{AAA}
+\item{recombination.distance.penalty.2}{Reduced probability for recombination events closer than this value - quadratic penalty (default: 0)}
 
-\item{min.coanc.mating}{Set TRUE to activate the use of min coancestry mating via optiSel}
-
-\item{min.coanc.mating.solver}{Function with the solver for optiSel (default: use of lpsymphony::lpsymphony_solve_LP if available, else "default" optiSel solver)}
-
-\item{relationship.matrix.min.coanc}{Method to calculate relationship matrix for min coancestry (Default: "pedigree")}
+\item{mas.geno}{Genotype dataset used in MAS (default: NULL, automatic internal calculation)}
 }
 \value{
 Population-list

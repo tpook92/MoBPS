@@ -116,7 +116,7 @@ write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, co
   if(verbose) cat(paste0("Pedigree contains ", nrow(pedigree_table) + length(add), " animals with ", length(add), " animals without known parents\n"))
   if(verbose) cat(paste0("Start writting: ", path,"\n"))
 
-  if (requireNamespace("fwrite", quietly = TRUE)) {
+  if (requireNamespace("data.table", quietly = TRUE)) {
     if(length(add)>0){
       data.table::fwrite(file=path, cbind(add,0,0), col.names = FALSE)
       data.table::fwrite(file=path, pedigree_table, col.names = FALSE, append = TRUE)

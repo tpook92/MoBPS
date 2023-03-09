@@ -1946,7 +1946,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             if(length(to_enter)>0 && length(population$info$real.bv.add[[index]])>0){
 
 
-              population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0), population$info$real.bv.add[[index]])
+              population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0, 0), population$info$real.bv.add[[index]])
 
               if(population$info$real.bv.length[1]<index && length(to_enter)>0){
                 population$info$real.bv.length[1] <- index

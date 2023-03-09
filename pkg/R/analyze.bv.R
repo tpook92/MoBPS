@@ -52,12 +52,12 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
     cor_matrix <- matrix(0, nrow=6, ncol=length(bvrow))
     var_vector <- numeric(length(bvrow))
     for(index in 1:length(bvrow)){
-      cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,])
-      cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,])
-      cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,])
-      cor_matrix[4,index] <- stats::cor(bv[index,], offpheno[index,])
-      cor_matrix[5,index] <- stats::cor(bve[index,], offpheno[index,])
-      cor_matrix[6,index] <- stats::cor(pheno[index,], offpheno[index,])
+      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,]))
+      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,]))
+      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,]))
+      suppressWarnings(cor_matrix[4,index] <- stats::cor(bv[index,], offpheno[index,]))
+      suppressWarnings(cor_matrix[5,index] <- stats::cor(bve[index,], offpheno[index,]))
+      suppressWarnings(cor_matrix[6,index] <- stats::cor(pheno[index,], offpheno[index,]))
       var_vector[index] <- stats::var(bv[index,])
     }
     names(var_vector) <- population$info$trait.name
@@ -68,9 +68,9 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
     cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))
     var_vector <- numeric(length(bvrow))
     for(index in 1:length(bvrow)){
-      cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,])
-      cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,])
-      cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,])
+      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,]))
+      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,]))
+      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,]))
       var_vector[index] <- stats::var(bv[index,])
     }
     names(var_vector) <- population$info$trait.name

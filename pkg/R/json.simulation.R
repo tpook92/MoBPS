@@ -315,7 +315,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           if(length(traitinfo[[index]]$is_combi)==1){
             trait_matrix[index,15] <- traitinfo[[index]]$is_combi
             if(traitinfo[[index]]$is_combi){
-              combi_weights[[index]] <- unlist(as.numeric(traitinfo[[index]]$combi_weights))
+              combi_weights[[index]] <- as.numeric(unlist(traitinfo[[index]]$combi_weights))
             }
           } else{
             trait_matrix[index,15] <- FALSE
@@ -373,6 +373,22 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         nr <- 1
         vector_pheno <- as.numeric(unlist(total$`Phenotypic Correlation`))
         vector_gen <- as.numeric(unlist(total$`Genetic Correlation`))
+
+        if(length(vector_pheno)< (n_traits*(n_traits+1)/2) || length(vector_pheno)< (n_traits*(n_traits+1)/2)){
+          for(index1 in 1:length(total$`Phenotypic Correlation`)){
+            for(index2 in 1:length(total$`Phenotypic Correlation`[[index1]])){
+              if(length(total$`Phenotypic Correlation`[[index1]][[index2]])==0){
+                total$`Phenotypic Correlation`[[index1]][[index2]] = 0
+              }
+              if(length(total$`Genetic Correlation`[[index1]][[index2]])==0){
+                total$`Genetic Correlation`[[index1]][[index2]] = 0
+              }
+            }
+          }
+          vector_pheno <- as.numeric(unlist(total$`Phenotypic Correlation`))
+          vector_gen <- as.numeric(unlist(total$`Genetic Correlation`))
+        }
+
         for(index1 in 1:n_traits){
           for(index2 in 1:index1){
             cor_pheno[index2,index1] <- cor_pheno[index1,index2] <- vector_pheno[nr]
@@ -406,10 +422,28 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         }
 
         if(length(total$`PhenotypicResidual`)>0 && total$`PhenotypicResidual`){
-          gen_var <- (diag(trait_matrix[,4])) %*% cor_gen %*% (diag(trait_matrix[,4]))
+
+          if(length(trait_matrix[,4])==1){
+            gen_var <- (matrix(as.numeric(trait_matrix[,4]))) %*% cor_gen %*% (matrix(as.numeric(trait_matrix[,4])))
+          } else{
+            gen_var <- (diag(as.numeric(trait_matrix[,4]))) %*% cor_gen %*% (diag(as.numeric(trait_matrix[,4])))
+          }
+
+          if(length(pheno_var)==1){
+            pheno_var<-  (matrix(pheno_var)) %*% cor_pheno %*% (matrix(pheno_var))
+          } else{
+            pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
+          }
+
+
           pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
           residual_var <- pheno_var - gen_var
-          cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
+          if(length(residual_var)==1){
+            cor_pheno <- sqrt(matrix(matrix(1/residual_var))) %*% residual_var %*%  sqrt(matrix(matrix(1/residual_var)))
+          } else{
+            cor_pheno <- sqrt(diag(diag(1/residual_var))) %*% residual_var %*%  sqrt(diag(diag(1/residual_var)))
+          }
+
           cor_pheno[is.na(cor_pheno)] = 0
           if(verbose) cat("Used residual covariance:\n")
           if(verbose) print(cor_pheno)
@@ -698,6 +732,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
       for(index in length(edges):1){
         if(sum(edges[[index]]$to==ids)==0 || sum(edges[[index]]$from==ids)==0){
           if(verbose) cat("Remove illegal edge. Connected Node not present\n")
+          print(c(index, edges[[index]]$from, edges[[index]]$to ))
           edges[[index]] <- NULL
         }
       }
@@ -1908,8 +1943,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
             } else{
               to_enter <- rbind(NULL)
             }
-            if(length(to_enter)>0 || length(population$info$real.bv.add[[index]])>0){
-              population$info$real.bv.add[[index]] <- rbind(to_enter, population$info$real.bv.add[[index]])
+            if(length(to_enter)>0 && length(population$info$real.bv.add[[index]])>0){
+
+
+              population$info$real.bv.add[[index]] <- rbind(cbind(to_enter, c(0,population$info$cumsnp)[to_enter[,2]] + to_enter[,1], 0, 0), population$info$real.bv.add[[index]])
 
               if(population$info$real.bv.length[1]<index && length(to_enter)>0){
                 population$info$real.bv.length[1] <- index

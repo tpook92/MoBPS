@@ -45,7 +45,7 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
   for(index in 1:nrow(bve.database)){
     if(length(bve.class)>0){
       for(mig in bve.class){
-        max.animals <- max.animals + sum(population$breeding[[bve.database[index,1]]][[bve.database[index,2]+4]][bve.database[3]:bve.database[4]]==mig)
+        max.animals <- max.animals + sum(population$breeding[[bve.database[index,1]]][[bve.database[index,2]+4]][bve.database[index,3]:bve.database[index,4]]==mig)
       }
     } else{
       max.animals <- max.animals + diff(bve.database[index,3:4]) +1

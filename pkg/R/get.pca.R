@@ -77,6 +77,15 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
         col[start:(start+add-1)] <- index
         start <- start + add
       }
+    } else if(coloring=="gen"){
+      col <- numeric(ncol(A))
+      start <- 1
+      uni_gen = unique(database[,1])
+      for(index in 1:nrow(database)){
+        add <- database[index,4] - database[index,3] +1
+        col[start:(start+add-1)] <- which(uni_gen==database[index,1])
+        start <- start + add
+      }
     } else if(coloring=="class"){
       col <- numeric(ncol(A))
       start <- 1

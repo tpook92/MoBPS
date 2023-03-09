@@ -15,13 +15,13 @@ get.index(
 \arguments{
 \item{population}{Population list}
 
+\item{traits}{Which traits to include in the index (all weight with factor 1)}
+
 \item{locations}{Which locations to include in the index (all weight weight factor 1)}
 
 \item{trait.weights}{Vector with a weight per trait}
 
 \item{location.weights}{Vector weight a weight per location}
-
-\item{trait}{Which traits to include in the index (all weight with factor 1)}
 }
 \value{
 Index

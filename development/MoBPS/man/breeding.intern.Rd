@@ -53,6 +53,8 @@ breeding.intern(
 \item{gen.architecture}{Used underlying genetic architecture (genome length in M)}
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
+
+\item{recombination.function}{Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())}
 }
 \value{
 Inherited parent gamete

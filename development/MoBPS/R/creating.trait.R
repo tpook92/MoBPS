@@ -63,6 +63,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))
 #' @param trait.pool Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
+#' @param gxe.correlation Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)
+#' @param gxe.max Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)
+#' @param gxe.min Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)
+#' @param n.locations Number of locations / environments to consider for the GxE model
+#' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
+#' @param location.name Same of the different locations / environments used
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
@@ -115,7 +121,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
 
   {
     if(length(n.locations)>0 && length(gxe.correlation)==0){
-      gxe.correlation = matrix(runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
+      gxe.correlation = matrix(stats::runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
       for(i in 2:nrow(gxe.correlation)) {
         for(j in 1:(i-1)) {
           gxe.correlation[i,j]=gxe.correlation[j,i]
@@ -278,6 +284,9 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     }
   }
 
+  if(is.list(real.bv.dice) && length(unlist(real.bv.dice))==0){
+    real.bv.dice = NULL
+  }
 
   if(length(real.bv.dice)>0){
     if(is.list(real.bv.dice)){

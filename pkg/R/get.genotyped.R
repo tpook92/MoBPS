@@ -42,7 +42,7 @@ get.genotyped <- function(population, database=NULL, gen=NULL, cohorts=NULL, use
 
   for(row in 1:nrow(database)){
     animals <- database[row,]
-    if(diff(database[row,3:4])>0){
+    if(diff(database[row,3:4])>(-1)){
       for(index in database[row,3]:database[row,4]){
         genotyped[rindex] <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[16]]
         colnamed[rindex] <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")

@@ -47,6 +47,9 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
 
 
 
+  multi_pool =   population$info$founder_multi
+  pool_effects = population$info$pool_effects & multi_pool
+
   bv_final <- numeric(length(activ_bv))
   snp.before <- c(0,population$info$cumsnp)
   cindex <- 1
@@ -59,12 +62,22 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
     if(population$info$miraculix){
       if (requireNamespace("miraculix", quietly = TRUE)) {
         geno_self <- miraculix::computeSNPS(population, gen, sex, nr, what="geno")
+
+        if(multi_pool){
+          haplo_self <- miraculix::computeSNPS(population, gen, sex, nr, what="haplo")
+          pool_self = (get.pool(population, database = cbind(gen, sex, nr,nr)))
+        }
+
       } else{
         stop("Usage of miraculix without being installed!")
       }
     } else{
       hap <- compute.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
       geno_self <- colSums(hap)
+      if(multi_pool){
+        haplo_self <- hap
+        pool_self = t(get.pool(population, database = cbind(gen, sex, nr,nr)))
+      }
     }
 
     if(sum(population$info$is.maternal)>0){
@@ -99,6 +112,10 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
       }
     }
 
+    activ_pools = 0
+    if(multi_pool){
+      activ_pools = unique(c(0, pool_self))
+    }
 
     for(bven in activ_bv){
 
@@ -120,42 +137,82 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         geno <- geno_father
       } else{
         geno <- geno_self
+        if(multi_pool){
+          haplo = haplo_self
+          pool = pool_self
+          geno_store = geno
+        }
       }
 
 
 
       bv <- population$info$base.bv[bven] # Mittelwert
 
-      real.bv.adds <- population$info$real.bv.add[[bven]]
-      # Additive Effekte -Vektorielle loesung
-      if(length(real.bv.adds)>0){
-
-        recalc <- FALSE
-
-        for(temp1 in 0:back_old){
-          recalc <- recalc || (!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1])))
+      for(activ_pool in activ_pools){
+        real.bv.adds <- population$info$real.bv.add[[bven]]
+        if(multi_pool){
+          real.bv.adds = real.bv.adds[real.bv.adds[,7]==activ_pool,]
+          if(ncol(real.bv.adds)>7){
+            real.bv.adds = real.bv.adds[!real.bv.adds[,8],]
+          }
         }
 
-        if(first){
-          recalc <- TRUE
+        # Additive Effekte -Vektorielle loesung
+        if(length(real.bv.adds)>0){
+
+          recalc <- FALSE
+
+          if(!multi_pool){
+            for(temp1 in 0:back_old){
+              recalc <- recalc || (!population$info$effect.p.add.same[bven] || population$info$is.maternal[bven]  || population$info$is.paternal[bven] || (bven>1 && (population$info$is.maternal[bven-1]  || population$info$is.paternal[bven-1])))
+            }
+          } else{
+            recalc = TRUE
+          }
+          if(multi_pool){
+            if(activ_pool==0){
+              geno = geno_store
+            } else{
+              haplo_temp = haplo
+              haplo_temp[pool!=activ_pool]==0
+              if(population$info$miraculix){
+                geno = rowSums(haplo_temp)
+              } else{
+                geno = colSums(haplo_temp)
+              }
+
+            }
+
+          }
+
+
+          if(first){
+            recalc <- TRUE
+          }
+          first <- FALSE
+
+          if(recalc){
+            position <- real.bv.adds[,6]
+            neff <- nrow(real.bv.adds)
+            if(multi_pool){
+              take <- (geno[position] + 2L ) * neff + 1:neff
+            } else{
+              take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]
+            }
+
+          }
+
+
+          ## ^ seems to be extremely inefficient!
+          if(population$info$bve.poly.factor[bven]==1){
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))
+          } else{
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take])^population$info$bve.poly.factor[bven])
+          }
+
         }
-        first <- FALSE
-
-        if(recalc){
-          position <- population$info$effect.p.add[[bven]]
-          neff <- nrow(real.bv.adds)
-          take <- (geno[position] + 2L ) * neff + population$info$neff[[bven]]
-        }
-
-
-        ## ^ seems to be extremely inefficient!
-        if(population$info$bve.poly.factor[bven]==1){
-          bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take]))
-        } else{
-          bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds[take])^population$info$bve.poly.factor[bven])
-        }
-
       }
+
 
 
       real.bv.mults <- population$info$real.bv.mult[[bven]]
@@ -182,9 +239,39 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         }
 
       }
+
+      if(pool_effects){
+        real.bv.adds_pool <- population$info$real.bv.add[[bven]]
+
+        real.bv.adds_pool = real.bv.adds_pool[real.bv.adds_pool[,8]==TRUE,]
+        pools_active = unique(as.numeric(pool))
+
+        for(indexp in pools_active){
+          real.bv.adds_pool_temp = real.bv.adds_pool[real.bv.adds_pool[,7]==indexp,]
+          if(population$info$miraculix){
+            pool_count = rowSums(pool==indexp)
+          } else{
+            pool_count = colSums(pool==indexp)
+          }
+
+
+          position <- real.bv.adds_pool_temp[,6]
+          neff <- nrow(real.bv.adds_pool_temp)
+          take <- (pool_count[position] + 2L ) * neff + 1:neff
+
+          ## ^ seems to be extremely inefficient!
+          if(population$info$bve.poly.factor[bven]==1){
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds_pool_temp[take]))
+          } else{
+            bv <- bv + population$info$bve.mult.factor[bven] * sum((real.bv.adds_pool_temp[take])^population$info$bve.poly.factor[bven])
+          }
+        }
+      }
+
       bv_final[cindex] <- bv
       cindex <- cindex + 1
     }
+
 
     if(store.effect.freq){
       freq_list <- cbind(geno[population$info$effect.p]==0, geno[population$info$effect.p]==1, geno[population$info$effect.p]==2)
