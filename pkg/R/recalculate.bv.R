@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
+#' @param store.comp.times If TRUE store computation times in $info$comp.times.general (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' population <- recalculate.bv(ex_pop, gen=2)
@@ -34,7 +35,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 #'
 #'
-recalculate.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bv.ignore.traits=NULL){
+recalculate.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bv.ignore.traits=NULL,
+                           store.comp.times = TRUE){
+
+  if(store.comp.times){
+    tick <- as.numeric(Sys.time())
+  }
 
   database <- get.database(population, gen=gen, database = database, cohorts=cohorts)
   store.effect.freq <- FALSE
@@ -92,6 +98,20 @@ recalculate.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bv
       }
     }
 
+  }
+
+  if(store.comp.times){
+    tock <- as.numeric(Sys.time())
+
+
+    comp.times <- c(0, tock - tick, 0,0,0,0, tock - tick)
+    comp.times[comp.times<0] <- 0
+    comp.times[comp.times>10e6] <- 0
+
+    population$info$comp.times.general<- round(rbind(population$info$comp.times.general, comp.times, deparse.level = 0), digits=4)
+    if(nrow(population$info$comp.times.general)==1){
+      colnames(population$info$comp.times.general) <- c("preparation", "new real BV", "phenotypes", "BVE","selection","generate new individuals","total")
+    }
   }
  return(population)
 }

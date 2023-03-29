@@ -3,521 +3,73 @@
 \name{breeding.diploid}
 \alias{breeding.diploid}
 \title{Breeding function}
-\usage{
-breeding.diploid(
-  population,
-  mutation.rate = 10^-8,
-  remutation.rate = 10^-8,
-  recombination.rate = 1,
-  selection.m = NULL,
-  selection.f = NULL,
-  new.selection.calculation = TRUE,
-  selection.function.matrix = NULL,
-  selection.size = 0,
-  ignore.best = 0,
-  breeding.size = 0,
-  breeding.size.litter = NULL,
-  repeat.mating.s = NULL,
-  breeding.sex = NULL,
-  breeding.sex.random = FALSE,
-  relative.selection = FALSE,
-  class.m = 0,
-  class.f = 0,
-  add.gen = 0,
-  recom.f.indicator = NULL,
-  duplication.rate = 0,
-  duplication.length = 0.01,
-  duplication.recombination = 1,
-  new.class = 0L,
-  bve = FALSE,
-  sigma.e = NULL,
-  sigma.g = NULL,
-  new.bv.child = NULL,
-  phenotyping.child = NULL,
-  relationship.matrix = "vanRaden",
-  relationship.matrix.ogc = "pedigree",
-  computation.A = NULL,
-  computation.A.ogc = NULL,
-  delete.haplotypes = NULL,
-  delete.individuals = NULL,
-  delete.gen = NULL,
-  delete.sex = 1:2,
-  delete.same.origin = FALSE,
-  fixed.breeding = NULL,
-  fixed.breeding.best = NULL,
-  max.offspring = Inf,
-  max.litter = Inf,
-  store.breeding.totals = FALSE,
-  forecast.sigma.g = NULL,
-  variance.correction = "none",
-  multiple.bve = "add",
-  store.bve.data = FALSE,
-  fixed.assignment = FALSE,
-  reduce.group = NULL,
-  reduce.group.selection = "random",
-  selection.highest = c(TRUE, TRUE),
-  selection.criteria = NULL,
-  same.sex.activ = FALSE,
-  same.sex.sex = 0.5,
-  same.sex.selfing = FALSE,
-  selfing.mating = FALSE,
-  selfing.sex = 0.5,
-  praeimplantation = NULL,
-  heritability = NULL,
-  repeatability = NULL,
-  save.recombination.history = FALSE,
-  martini.selection = FALSE,
-  BGLR.bve = FALSE,
-  BGLR.model = "RKHS",
-  BGLR.burnin = 500,
-  BGLR.iteration = 5000,
-  BGLR.print = FALSE,
-  copy.individual = FALSE,
-  copy.individual.m = FALSE,
-  copy.individual.f = FALSE,
-  dh.mating = FALSE,
-  dh.sex = 0.5,
-  n.observation = NULL,
-  bve.0isNA = FALSE,
-  phenotype.bv = FALSE,
-  remove.effect.position = FALSE,
-  estimate.u = FALSE,
-  new.phenotype.correlation = NULL,
-  new.residual.correlation = NULL,
-  new.breeding.correlation = NULL,
-  estimate.add.gen.var = FALSE,
-  estimate.pheno.var = FALSE,
-  best1.from.group = NULL,
-  best2.from.group = NULL,
-  best1.from.cohort = NULL,
-  best2.from.cohort = NULL,
-  add.class.cohorts = TRUE,
-  store.comp.times = TRUE,
-  store.comp.times.bve = TRUE,
-  store.comp.times.generation = TRUE,
-  import.position.calculation = NULL,
-  BGLR.save = "RKHS",
-  BGLR.save.random = FALSE,
-  ogc = FALSE,
-  ogc.target = "min.sKin",
-  ogc.uniform = NULL,
-  ogc.ub = NULL,
-  ogc.lb = NULL,
-  ogc.ub.sKin = NULL,
-  ogc.lb.BV = NULL,
-  ogc.ub.BV = NULL,
-  ogc.eq.BV = NULL,
-  ogc.ub.sKin.increase = NULL,
-  ogc.lb.BV.increase = NULL,
-  emmreml.bve = FALSE,
-  rrblup.bve = FALSE,
-  sommer.bve = FALSE,
-  sommer.multi.bve = FALSE,
-  nr.edits = 0,
-  gene.editing.offspring = FALSE,
-  gene.editing.best = FALSE,
-  gene.editing.offspring.sex = c(TRUE, TRUE),
-  gene.editing.best.sex = c(TRUE, TRUE),
-  gwas.u = FALSE,
-  approx.residuals = TRUE,
-  sequenceZ = FALSE,
-  maxZ = 5000,
-  maxZtotal = 0,
-  gwas.group.standard = FALSE,
-  y.gwas.used = "pheno",
-  gen.architecture.m = 0,
-  gen.architecture.f = NULL,
-  add.architecture = NULL,
-  ncore.generation = 1,
-  Z.integer = FALSE,
-  store.effect.freq = FALSE,
-  backend = "doParallel",
-  randomSeed = NULL,
-  randomSeed.generation = NULL,
-  Rprof = FALSE,
-  miraculix = NULL,
-  miraculix.cores = 1,
-  miraculix.mult = NULL,
-  miraculix.chol = TRUE,
-  best.selection.ratio.m = 1,
-  best.selection.ratio.f = NULL,
-  best.selection.criteria.m = "bv",
-  best.selection.criteria.f = NULL,
-  best.selection.manual.ratio.m = NULL,
-  best.selection.manual.ratio.f = NULL,
-  best.selection.manual.reorder = TRUE,
-  bve.class = NULL,
-  parallel.generation = FALSE,
-  name.cohort = NULL,
-  display.progress = TRUE,
-  combine = FALSE,
-  repeat.mating = NULL,
-  repeat.mating.copy = NULL,
-  repeat.mating.fixed = NULL,
-  repeat.mating.overwrite = TRUE,
-  time.point = 0,
-  creating.type = 0,
-  multiple.observation = FALSE,
-  new.bv.observation = NULL,
-  new.bv.observation.gen = NULL,
-  new.bv.observation.cohorts = NULL,
-  new.bv.observation.database = NULL,
-  phenotyping = NULL,
-  phenotyping.gen = NULL,
-  phenotyping.cohorts = NULL,
-  phenotyping.database = NULL,
-  phenotyping.class = NULL,
-  bve.gen = NULL,
-  bve.cohorts = NULL,
-  bve.database = NULL,
-  sigma.e.gen = NULL,
-  sigma.e.cohorts = NULL,
-  sigma.e.database = NULL,
-  sigma.g.gen = NULL,
-  sigma.g.cohorts = NULL,
-  sigma.g.database = NULL,
-  gwas.gen = NULL,
-  gwas.cohorts = NULL,
-  gwas.database = NULL,
-  bve.insert.gen = NULL,
-  bve.insert.cohorts = NULL,
-  bve.insert.database = NULL,
-  reduced.selection.panel.m = NULL,
-  reduced.selection.panel.f = NULL,
-  breeding.all.combination = FALSE,
-  depth.pedigree = 7,
-  depth.pedigree.ogc = 7,
-  copy.individual.keep.bve = TRUE,
-  copy.individual.keep.pheno = TRUE,
-  bve.avoid.duplicates = TRUE,
-  report.accuracy = TRUE,
-  share.genotyped = 0,
-  singlestep.active = TRUE,
-  remove.non.genotyped = TRUE,
-  added.genotyped = 0,
-  fast.uhat = TRUE,
-  offpheno.parents.gen = NULL,
-  offpheno.parents.database = NULL,
-  offpheno.parents.cohorts = NULL,
-  offpheno.offspring.gen = NULL,
-  offpheno.offspring.database = NULL,
-  offpheno.offspring.cohorts = NULL,
-  offspring.bve.parents.gen = NULL,
-  offspring.bve.parents.database = NULL,
-  offspring.bve.parents.cohorts = NULL,
-  offspring.bve.offspring.gen = NULL,
-  offspring.bve.offspring.database = NULL,
-  offspring.bve.offspring.cohorts = NULL,
-  culling.gen = NULL,
-  culling.database = NULL,
-  culling.cohorts = NULL,
-  culling.time = Inf,
-  culling.name = "Not_named",
-  culling.bv1 = 0,
-  culling.share1 = 0,
-  culling.bv2 = NULL,
-  culling.share2 = NULL,
-  culling.index = 0,
-  culling.single = TRUE,
-  culling.all.copy = TRUE,
-  calculate.reliability = FALSE,
-  estimate.reliability = FALSE,
-  selection.m.gen = NULL,
-  selection.f.gen = NULL,
-  selection.m.database = NULL,
-  selection.f.database = NULL,
-  selection.m.cohorts = NULL,
-  selection.f.cohorts = NULL,
-  selection.m.miesenberger = FALSE,
-  selection.f.miesenberger = NULL,
-  selection.miesenberger.reliability.est = "derived",
-  miesenberger.trafo = 0,
-  multiple.bve.weights.m = 1,
-  multiple.bve.weights.f = NULL,
-  multiple.bve.scale.m = "bv_sd",
-  multiple.bve.scale.f = NULL,
-  verbose = TRUE,
-  bve.parent.mean = FALSE,
-  bve.grandparent.mean = FALSE,
-  bve.mean.between = "bvepheno",
-  bve.direct.est = TRUE,
-  bve.pseudo = FALSE,
-  bve.pseudo.accuracy = 1,
-  miraculix.destroyA = TRUE,
-  mas.bve = FALSE,
-  mas.markers = NULL,
-  mas.number = 5,
-  mas.effects = NULL,
-  threshold.selection.index = NULL,
-  threshold.selection.value = NULL,
-  threshold.selection.sign = ">",
-  threshold.selection.criteria = "bve",
-  threshold.selection = NULL,
-  threshold.sign = ">",
-  bve.input.phenotype = "own",
-  input.phenotype = NULL,
-  bve.ignore.traits = NULL,
-  bv.ignore.traits = NULL,
-  genotyped.database = NULL,
-  genotyped.gen = NULL,
-  genotyped.cohorts = NULL,
-  genotyped.share = 1,
-  genotyped.array = 1,
-  sex.s = NULL,
-  bve.imputation = TRUE,
-  bve.imputation.errorrate = 0,
-  share.phenotyped = 1,
-  avoid.mating.fullsib = FALSE,
-  avoid.mating.halfsib = FALSE,
-  max.mating.pair = Inf,
-  bve.per.sample.sigma.e = TRUE,
-  bve.solve = "exact",
-  fixed.effects.p = NULL,
-  fixed.effects.freq = NULL,
-  bve.exclude.fixed.effects = NULL,
-  bve.beta.hat.approx = TRUE,
-  export.selected = FALSE,
-  export.relationship.matrix = FALSE,
-  import.relationship.matrix = NULL,
-  bve.array = NULL,
-  genotyped.remove.gen = NULL,
-  genotyped.remove.database = NULL,
-  genotyped.remove.cohorts = NULL,
-  genotyped.remove.all.copy = TRUE,
-  sort.selected.pos = FALSE,
-  pen.assignments = NULL,
-  pen.size = NULL,
-  pen.by.sex = TRUE,
-  pen.by.litter = FALSE,
-  pen.size.overwrite = TRUE,
-  intern.func = 0,
-  generation.cores = NULL,
-  parallel.intern = FALSE,
-  mixblup.bve = FALSE,
-  mixblup.pedfile = TRUE,
-  mixblup.parfile = TRUE,
-  mixblup.datafile = TRUE,
-  mixblup.inputfile = TRUE,
-  mixblup.genofile = TRUE,
-  mixblup.path = NULL,
-  mixblup.path.pedfile = NULL,
-  mixblup.path.parfile = NULL,
-  mixblup.path.datafile = NULL,
-  mixblup.path.inputfile = NULL,
-  mixblup.path.genofile = NULL,
-  mixblup.files = "MiXBLUP_files",
-  mixblup.verbose = TRUE,
-  mixblup.genetic.cov = NULL,
-  mixblup.residual.cov = NULL,
-  storage.save = 1.5,
-  size.scaling = NULL,
-  mixblup.lambda = 1,
-  mixblup.alpha = NULL,
-  mixblup.beta = NULL,
-  mixblup.omega = NULL,
-  store.sparse = FALSE,
-  remove.duplicates = TRUE,
-  mixblup.apy = FALSE,
-  mixblup.apy.core = NULL,
-  repeat.mating.trait = 1,
-  repeat.mating.max = NULL,
-  selection.m.random.prob = NULL,
-  selection.f.random.prob = NULL,
-  recombination.function = NULL,
-  recombination.minimum.distance = NULL,
-  recombination.distance.penalty = NULL,
-  recombination.distance.penalty.2 = NULL,
-  mas.geno = NULL
-)
-}
+
 \arguments{
 \item{population}{Population list}
 
-\item{mutation.rate}{Mutation rate in each marker (default: 10^-8)}
+\item{\strong{ #### Selection of individuals ####}}{#################}
 
-\item{remutation.rate}{Remutation rate in each marker (default: 10^-8)}
+\item{selection.size}{Number of selected individuals as parents (default: all individuals in selection.m/f.gen/database/gen - alt: positive numbers)}
 
-\item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
+\item{selection.criteria}{What to use in the selection proces (default: "bve", alt: "bv", "pheno", "random")}
 
-\item{selection.m}{Selection criteria for male individuals (Set to "random" to randomly select individuals - this happens automatically when no the input in selection.criteria has no input ((usually breeding values)))}
+\item{selection.m.gen, selection.m.cohorts, selection.m.database}{Generations/cohorts/groups available for selection of first/paternal parent}
 
-\item{selection.f}{Selection criteria for female individuals (default: selection.m , alt: "random", function")}
+\item{selection.f.gen, selection.f.cohorts, selection.f.database}{Generations available for selection of maternal parent}
 
-\item{new.selection.calculation}{If TRUE recalculate breeding values obtained by selection.function.matrix}
+\item{class.m, class.f}{For selection only individuals from this class (included in selection.m/f.gen/database/cohorts) will be considered for selection (default: 0 - which is all individuals if never used class elsewhere)}
 
-\item{selection.function.matrix}{Manuel generation of a temporary selection function (Use BVs instead!)}
+\item{add.class.cohorts}{Inital classes of cohorts used in selection.m/f.cohorts are automatically added to class.m/f (default: TRUE)}
 
-\item{selection.size}{Number of selected individuals for breeding (default: c(0,0) - alt: positive numbers)}
+\item{multiple.bve}{Way to handle multiple traits in selection (default: "add" - use values directly in an index, alt: "ranking" - ignore values but only use ranking per trait)}
+
+\item{multiple.bve.weights.m, multiple.bve.weights.f}{Weighting between traits (default: 1)}
+
+\item{multiple.bve.scale.m, multiple.bve.scale.f}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
+
+\item{selection.highest}{If FALSE to select individuals with lowest value for the selection criterium (default c(TRUE,TRUE) - (m,w))}
 
 \item{ignore.best}{Not consider the top individuals of the selected individuals (e.g. to use 2-10 best individuals)}
 
-\item{breeding.size}{Number of individuals to generate}
+\item{best.selection.ratio.m, best.selection.ratio.f}{Ratio of the frequency of the selection of the best best individual and the worst best individual (default=1)}
 
-\item{breeding.size.litter}{Number of litters to generate}
+\item{best.selection.criteria.m, best.selection.criteria.f}{Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")}
 
-\item{repeat.mating.s}{Use this parameter to manually provide the size of each litter generated}
+\item{best.selection.manual.ratio.m, best.selection.manual.ratio.f}{vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))}
 
-\item{breeding.sex}{Share of female animals (if single value is used for breeding size; default: 0.5)}
+\item{best.selection.manual.reorder}{Set to FALSE to not use the order from best to worst selected individual but plain order based on database-order}
 
-\item{breeding.sex.random}{If TRUE randomly chose sex of new individuals (default: FALSE - use expected values)}
+\item{selection.m.random.prob, selection.f.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
 
-\item{relative.selection}{Use best.selection.ratio instead!}
+\item{reduced.selection.panel.m, reduced.selection.panel.f}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
 
-\item{class.m}{Migrationlevels of male individuals to consider for mating process (default: 0)}
+\item{threshold.selection.index}{Selection index on which to access (matrix which one index per row)}
 
-\item{class.f}{Migrationlevels of female individuals to consider for mating process (default: 0)}
+\item{threshold.selection.value}{Minimum value in the selection index selected individuals have to have}
 
-\item{add.gen}{Generation you want to add the new individuals to (default: New generation)}
+\item{threshold.selection.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
 
-\item{recom.f.indicator}{Use step function for recombination map (transform snp.positions if possible instead)}
+\item{threshold.selection.criteria}{Criterium on which to evalute the index (default: "bve", alt: "bv", "pheno")}
 
-\item{duplication.rate}{Share of recombination points with a duplication (default: 0 - DEACTIVATED)}
+\item{threshold.selection}{Minimum value in the selection index selected individuals have to have}
 
-\item{duplication.length}{Average length of a duplication (Exponentially distributed)}
+\item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
 
-\item{duplication.recombination}{Average number of recombinations per 1 length uit of duplication (default: 1)}
+\item{remove.duplicates}{Set to FALSE to select the same individual multiple times when the gen/database/cohorts for selection contains it multiple times}
 
-\item{new.class}{Migration level of newly generated individuals (default: 0 / use vector for different classes for different sexes)}
+\item{selection.m.miesenberger, selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for paternal/maternal selection}
 
-\item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
+\item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default: "derived" (cor(BVE,BV)^2) , alt: "heritability", "estimated" (SD BVE / SD Pheno) as replacement}
 
-\item{sigma.e}{Enviromental standard deviation (default: 10)}
+\item{miesenberger.trafo}{Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)}
 
-\item{sigma.g}{Genetic standard deviation (default: 10 - this is only used for non-QTL based traits!)}
+\item{sort.selected.pos}{Set to TRUE to arrange selected individuals according to position in the database (not by breeding value)}
 
-\item{new.bv.child}{(OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
-
-\item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
-
-\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
+\item{ogc}{If TRUE use optimal genetic contribution theory to perform selection ( This requires the use of the R-package optiSel)}
 
 \item{relationship.matrix.ogc}{Method to calculate relationship matrix for OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
 
-\item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
-
-\item{computation.A.ogc}{(OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
-
-\item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted (only use if storage problem!)}
-
-\item{delete.individuals}{Generations for with individuals are completley deleted (only use if storage problem!)}
-
-\item{delete.gen}{Generations to entirely delete (only use if storage problem!!)}
-
-\item{delete.sex}{Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)}
-
-\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
-
-\item{fixed.breeding}{Set of targeted matings to perform}
-
-\item{fixed.breeding.best}{Perform targeted matings in the group of selected individuals}
-
-\item{max.offspring}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
-
-\item{max.litter}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
-
-\item{store.breeding.totals}{If TRUE store information on selected animals in $info$breeding.totals}
-
-\item{forecast.sigma.g}{Set FALSE to not estimate sigma.g (Default: TRUE // in case sigma.g is set this is automatically set to FALSE)}
-
-\item{variance.correction}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
-
-\item{multiple.bve}{Way to handle multiple traits in bv/selection (default: "add", alt: "ranking")}
-
-\item{store.bve.data}{If TRUE store information of bve in $info$bve.data}
-
-\item{fixed.assignment}{Set TRUE for targeted mating of best-best individual till worst-worst (of selected). set to "bestworst" for best-worst mating}
-
-\item{reduce.group}{(OLD! - use culling modules) Groups of animals for reduce to a new size (by changing class to -1)}
-
-\item{reduce.group.selection}{(OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")}
-
-\item{selection.highest}{If 0 individuals with lowest bve are selected as best individuals (default c(1,1) - (m,w))}
-
-\item{selection.criteria}{What to use in the selection proces (default: "bve", alt: "bv", "pheno")}
-
-\item{same.sex.activ}{If TRUE allow matings of individuals of same sex (Sex here is a general term with the first sex referring to the first parent, second sex second parent)}
-
-\item{same.sex.sex}{Probability to use female individuals as parents (default: 0.5)}
-
-\item{same.sex.selfing}{Set to TRUE to allow for selfing when using same.sex matings}
-
-\item{selfing.mating}{If TRUE generate new individuals via selfing}
-
-\item{selfing.sex}{Share of female individuals used for selfing (default: 0.5)}
-
-\item{praeimplantation}{Only use matings the lead to a specific genotype in a specific marker}
-
-\item{heritability}{Use sigma.e to obtain a certain heritability (default: NULL)}
-
-\item{repeatability}{Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)}
-
-\item{save.recombination.history}{If TRUE store the time point of each recombination event}
-
-\item{martini.selection}{If TRUE use the group of non-selected individuals as second parent}
-
-\item{BGLR.bve}{If TRUE use BGLR to perform breeding value estimation}
-
-\item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
-
-\item{BGLR.burnin}{Number of burn-in steps in BGLR (default: 1000)}
-
-\item{BGLR.iteration}{Number of iterations in BGLR (default: 5000)}
-
-\item{BGLR.print}{If TRUE set verbose to TRUE in BGLR}
-
-\item{copy.individual}{If TRUE copy the selected father for a mating}
-
-\item{copy.individual.m}{If TRUE generate exactly one copy of all selected male in a new cohort (or more by setting breeding.size)}
-
-\item{copy.individual.f}{If TRUE generate exactly one copy of all selected female in a new cohort (or more by setting breeding.size)}
-
-\item{dh.mating}{If TRUE generate a DH-line in mating process}
-
-\item{dh.sex}{Share of DH-lines generated from selected female individuals}
-
-\item{n.observation}{Number of phenotypes generated per individuals (influences enviromental variance)}
-
-\item{bve.0isNA}{Individuals with phenotype 0 are used as NA in breeding value estimation}
-
-\item{phenotype.bv}{If TRUE use phenotype as estimated breeding value}
-
-\item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
-
-\item{estimate.u}{If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)}
-
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance}
-
-\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
-
-\item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!)}
-
-\item{estimate.add.gen.var}{If TRUE estimate additive genetic variance and heritability based on parent model}
-
-\item{estimate.pheno.var}{If TRUE estimate total variance in breeding value estimation}
-
-\item{best1.from.group}{(OLD!- use selection.m.database) Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
-
-\item{best2.from.group}{(OLD!- use selection.f.database) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
-
-\item{best1.from.cohort}{(OLD!- use selection.m.cohorts) Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
-
-\item{best2.from.cohort}{(OLD! - use selection.f.cohorts) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
-
-\item{add.class.cohorts}{Migration levels of all cohorts selected for reproduction are automatically added to class.m/class.f (default: TRUE)}
-
-\item{store.comp.times}{If TRUE store computation times in $info$comp.times.general (default: TRUE)}
-
-\item{store.comp.times.bve}{If TRUE store computation times of breeding value estimation in $info$comp.times.bve (default: TRUE)}
-
-\item{store.comp.times.generation}{If TRUE store computation times of mating simulations in $info$comp.times.generation (default: TRUE)}
-
-\item{import.position.calculation}{Function to calculate recombination point into adjacent/following SNP}
-
-\item{BGLR.save}{Method to use in BGLR (default: "RKHS" - alt: NON currently)}
-
-\item{BGLR.save.random}{Add random number to store location of internal BGLR computations (only needed when simulating a lot in parallel!)}
-
-\item{ogc}{If TRUE use optimal genetic contribution theory to perform selection ( This requires the use of the R-package optiSel)}
+\item{depth.pedigree.ogc}{Depth of the pedigree in generations (default: 7)}
 
 \item{ogc.target}{Target of OGC (default: "min.sKin" - minimize inbreeding; alt: "max.BV" / "min.BV" - maximize genetic gain; both under constrains selected below)}
 
@@ -539,89 +91,50 @@ breeding.diploid(
 
 \item{ogc.lb.BV.increase}{This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel}
 
-\item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
+\item{\strong{ #### Generation of new individuals ####}}{#################}
 
-\item{rrblup.bve}{If TRUE use REML estimator from R-package rrBLUP in breeding value estimation}
 
-\item{sommer.bve}{If TRUE use REML estimator from R-package sommer in breeding value estimation}
+\item{breeding.size}{Number of individuals to generate (default: 0, use vector with two entries to control offspring per sex)}
 
-\item{sommer.multi.bve}{Set TRUE to use a mulit-trait model in the R-package sommer for BVE}
-
-\item{nr.edits}{Number of edits to perform per individual}
-
-\item{gene.editing.offspring}{If TRUE perform gene editing on newly generated individuals}
-
-\item{gene.editing.best}{If TRUE perform gene editing on selected individuals}
-
-\item{gene.editing.offspring.sex}{Which sex to perform editing on (Default c(TRUE,TRUE), mw)}
-
-\item{gene.editing.best.sex}{Which sex to perform editing on (Default c(TRUE,TRUE), mw)}
-
-\item{gwas.u}{If TRUE estimate u via GWAS (relevant for gene editing)}
-
-\item{approx.residuals}{If FALSE calculate the variance for each marker separatly instead of using a set variance (doesnt change order - only p-values)}
-
-\item{sequenceZ}{Split genomic matric into parts (relevent if high memory usage)}
-
-\item{maxZ}{Number of SNPs to consider in each part of sequenceZ}
-
-\item{maxZtotal}{Number of matrix entries to consider jointly (maxZ = maxZtotal/number of animals)}
-
-\item{gwas.group.standard}{If TRUE standardize phenotypes by group mean}
-
-\item{y.gwas.used}{What y value to use in GWAS study (Default: "pheno", alt: "bv", "bve")}
-
-\item{gen.architecture.m}{Genetic architecture for male animal (default: 0 - no transformation)}
-
-\item{gen.architecture.f}{Genetic architecture for female animal (default: gen.architecture.m - no transformation)}
-
-\item{add.architecture}{List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)}
-
-\item{ncore.generation}{Number of cores to use in parallel generation}
-
-\item{Z.integer}{If TRUE save Z as a integer in parallel computing}
-
-\item{store.effect.freq}{If TRUE store the allele frequency of effect markers per generation}
-
-\item{backend}{Chose the used backend (default: "doParallel", alt: "doMPI")}
-
-\item{randomSeed}{Set random seed of the process}
-
-\item{randomSeed.generation}{Set random seed for parallel generation process}
-
-\item{Rprof}{Store computation times of each function}
-
-\item{miraculix}{If TRUE use miraculix to perform computations (ideally already generate population in creating.diploid with this; default: automatic detection from population list)}
-
-\item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
-
-\item{miraculix.mult}{If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage}
-
-\item{miraculix.chol}{Set to FALSE to deactive miraculix based Cholesky-decomposition (default: TRUE)}
-
-\item{best.selection.ratio.m}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
-
-\item{best.selection.ratio.f}{Ratio of the frequency of the selection of the best best animal and the worst best animal (default=1)}
-
-\item{best.selection.criteria.m}{Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")}
-
-\item{best.selection.criteria.f}{Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")}
-
-\item{best.selection.manual.ratio.m}{vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))}
-
-\item{best.selection.manual.ratio.f}{vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))}
-
-\item{best.selection.manual.reorder}{Set to FALSE to not use the order from best to worst selected individual but plain order based on database-order}
-
-\item{bve.class}{Consider only animals of those class classes in breeding value estimation (default: NULL - use all)}
-
-\item{parallel.generation}{Set TRUE to active parallel computing in animal generation}
+\item{breeding.size.litter}{Number of litters to generate (default: NULL - use breeding.size; only single positive number input allowed)}
 
 \item{name.cohort}{Name of the newly added cohort}
 
-\item{display.progress}{Set FALSE to not display progress bars. Setting verbose to FALSE will automatically deactive progress bars}
+\item{breeding.sex}{Share of female individuals (if single value is used for breeding size; default: 0.5)}
 
-\item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
+\item{breeding.sex.random}{If TRUE randomly chose sex of new individuals (default: FALSE - use expected values)}
+
+\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
+
+\item{add.gen}{Generation you want to add the new individuals to (default: New generation)}
+
+\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped (Default: 0)}
+
+\item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
+
+\item{fixed.effects.p}{Parametrization for the fixed effects (default: c(0,0..,0), if multiple different parametrizations are possible use a matrix with one parametrization per row)}
+
+\item{fixed.effects.freq}{Frequency of each different parametrization of the fixed effects}
+
+\item{new.class}{Migration level of newly generated individuals (default: 0 / use vector for different classes for different sexes)}
+
+\item{max.offspring}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
+
+\item{max.litter}{Maximum number of litters per individual (default: c(Inf,Inf) - (m,w))}
+
+\item{max.mating.pair}{Maximum number of matings between two specific individuals (default: Inf)}
+
+\item{avoid.mating.fullsib}{Set to TRUE to not generate offspring of full siblings}
+
+\item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
+
+\item{fixed.breeding}{Set of targeted matings to perform (matrix with 7 columns: database position first parent (gen, sex, nr), database position second parent (gen,sex,nr), likelihood to be female (optional))}
+
+\item{fixed.breeding.best}{Perform targeted matings in the group of selected individuals (matrix with 5 columns:  position first parent (male/female pool of selected individuals, ranking in selected animals), position second parent (male/female pool of selected individuals, ranking in selected animals), likelihood to be female (optional))}
+
+\item{fixed.assignment}{Set to "bestbest" / TRUE for targeted mating of best-best individual till worst-worst (of selected). set to "bestworst" for best-worst mating}
+
+\item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
 
 \item{repeat.mating}{Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)}
 
@@ -631,183 +144,133 @@ breeding.diploid(
 
 \item{repeat.mating.overwrite}{Set to FALSE to not use the current repeat.mating / repeat.mating.copy input as the new standard values (default: TRUE)}
 
-\item{time.point}{Time point at which the new individuals are generated}
+\item{repeat.mating.trait}{Trait that should be linked to the litter size}
 
-\item{creating.type}{Technique to generate new individuals (usage in web-based application)}
+\item{repeat.mating.max}{Maximum number of individuals in a litter}
 
-\item{multiple.observation}{Set TRUE to allow for more than one phenotype observation per individual (this will decrease enviromental variance!)}
+\item{repeat.mating.s}{Use this parameter to manually provide the size of each litter generated}
 
-\item{new.bv.observation}{(OLD! - use phenotyping) Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
+\item{same.sex.activ}{If TRUE allow matings of individuals of same sex (Sex here is a general term with the first sex referring to the first parent, second sex second parent)}
 
-\item{new.bv.observation.gen}{(OLD! use phenotyping.gen) Vector of generation from which to generate additional phenotypes}
+\item{same.sex.sex}{Probability to use female individuals as parents (default: 0.5)}
 
-\item{new.bv.observation.cohorts}{(OLD! use phenotyping.cohorts)Vector of cohorts from which to generate additional phenotype}
+\item{same.sex.selfing}{Set to TRUE to allow for selfing when using same.sex matings (default: FALSE)}
 
-\item{new.bv.observation.database}{(OLD! use phenotyping.database) Matrix of groups from which to generate additional phenotypes}
+\item{selfing.mating}{If TRUE generate new individuals via selfing}
 
-\item{phenotyping}{Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
+\item{selfing.sex}{Share of female individuals used for selfing (default: 0.5)}
 
-\item{phenotyping.gen}{Vector of generation from which to generate additional phenotypes}
+\item{dh.mating}{If TRUE generate a DH-line in mating process}
 
-\item{phenotyping.cohorts}{Vector of cohorts from which to generate additional phenotype}
+\item{dh.sex}{Share of DH-lines generated from selected female individuals}
 
-\item{phenotyping.database}{Matrix of groups from which to generate additional phenotypes}
+\item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 
-\item{phenotyping.class}{Classes of individuals for which to generate phenotypes (default: NULL --> all classes)}
+\item{copy.individual}{If TRUE a copy of the first parent will be generated instead of meosis between two parents}
 
-\item{bve.gen}{Generations of individuals to consider in breeding value estimation (default: NULL)}
+\item{copy.individual.m, copy.individual.f}{If TRUE generate exactly one copy of all selected male/female in a new cohort (or more by setting breeding.size)}
 
-\item{bve.cohorts}{Cohorts of individuals to consider in breeding value estimation (default: NULL)}
+\item{copy.individual.keep.bve}{Set to FALSE to not keep estimated breeding value in case of use of copying individuals instead of regular meoisis}
 
-\item{bve.database}{Groups of individuals to consider in breeding value estimation (default: NULL)}
-
-\item{sigma.e.gen}{Generations to consider when estimating sigma.e when using heritability}
-
-\item{sigma.e.cohorts}{Cohorts to consider when estimating sigma.e when using heritability}
-
-\item{sigma.e.database}{Groups to consider when estimating sigma.e when using heritability}
-
-\item{sigma.g.gen}{Generations to consider when estimating sigma.g - this is only used for non-QTL based traits!}
-
-\item{sigma.g.cohorts}{Cohorts to consider when estimating sigma.g - this is only used for non-QTL based traits!}
-
-\item{sigma.g.database}{Groups to consider when estimating sigma.g - this is only used for non-QTL based traits!}
-
-\item{gwas.gen}{Generations to consider in GWAS analysis}
-
-\item{gwas.cohorts}{Cohorts to consider in GWAS analysis}
-
-\item{gwas.database}{Groups to consider in GWAS analysis}
-
-\item{bve.insert.gen}{Generations of individuals to compute breeding values for (default: all groups in bve.database)}
-
-\item{bve.insert.cohorts}{Cohorts of individuals to compute breeding values for (default: all groups in bve.database)}
-
-\item{bve.insert.database}{Groups of individuals to compute breeding values for (default: all groups in bve.database)}
-
-\item{reduced.selection.panel.m}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
-
-\item{reduced.selection.panel.f}{Use only a subset of individuals of the potential selected ones ("Split in user-interface")}
-
-\item{breeding.all.combination}{Set to TRUE to automatically perform each mating combination possible exactly ones.}
-
-\item{depth.pedigree}{Depth of the pedigree in generations (default: 7)}
-
-\item{depth.pedigree.ogc}{Depth of the pedigree in generations (default: 7)}
-
-\item{copy.individual.keep.bve}{Set to FALSE to not keep estimated breeding value in case of use of copy.individuals}
-
-\item{copy.individual.keep.pheno}{Set to FALSE to not keep estimated breeding values in case of use of copy.individuals}
-
-\item{bve.avoid.duplicates}{If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)}
-
-\item{report.accuracy}{Report the accuracy of the breeding value estimation}
-
-\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped (Default: 0)}
-
-\item{singlestep.active}{Set TRUE to use single step in breeding value estimation (only implemented for vanRaden- G matrix and without use sequenceZ) (Legarra 2014)}
-
-\item{remove.non.genotyped}{Set to FALSE to manually include non-genotyped individuals in genetic BVE, single-step will deactive this as well}
+\item{copy.individual.keep.pheno}{Set to FALSE to not keep phenotypes in case of use of copying individuals instead of regular meoisis}
 
 \item{added.genotyped}{Share of individuals that is additionally genotyped (only for copy.individuals, default: 0)}
 
-\item{fast.uhat}{Set to FALSE to  derive inverse of A in rrBLUP}
+\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 
-\item{offpheno.parents.gen}{Generations to consider to derive phenotype from offspring phenotypes}
+\item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
 
-\item{offpheno.parents.database}{Groups to consider to derive phenotype from offspring phenotypes}
+\item{\strong{ #### Genotyping (already existing individuals) ####}}{#################}
 
-\item{offpheno.parents.cohorts}{Cohorts to consider to derive phenotype from offspring phenotypes}
 
-\item{offpheno.offspring.gen}{Active generations for import of offspring phenotypes}
+\item{genotyped.gen, genotyped.cohorts, genotyped.database}{Generations/cohorts/groups to generate genotype data (that can be used in a BVE)}
 
-\item{offpheno.offspring.database}{Active groups for import of offspring phenotypes}
+\item{genotyped.share}{Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)}
 
-\item{offpheno.offspring.cohorts}{Active cohorts for import of offspring phenotypes}
+\item{genotyped.array}{Genotyping array used}
 
-\item{offspring.bve.parents.gen}{(OLD! use offpheno.parents.gen) Generations to consider to derive phenotype from offspring phenotypes}
+\item{genotyped.remove.gen, genotyped.remove.database, genotyped.remove.cohorts}{Generations/cohorts/groups from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
 
-\item{offspring.bve.parents.database}{(OLD! use offpheno.parents.database) Groups to consider to derive phenotype from offspring phenotypes}
+\item{genotyped.remove.all.copy}{Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)}
 
-\item{offspring.bve.parents.cohorts}{(OLD! use offpheno.parents.cohorts) Cohorts to consider to derive phenotype from offspring phenotypes}
+\item{\strong{ #### Phenotyping (already existing individuals) ####}}{#################}
 
-\item{offspring.bve.offspring.gen}{(OLD! use offpheno.offspring.gen) Active generations for import of offspring phenotypes}
 
-\item{offspring.bve.offspring.database}{(OLD! use offpheno.offspring.database) Active groups for import of offspring phenotypes}
+\item{phenotyping}{Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
 
-\item{offspring.bve.offspring.cohorts}{(OLD! use offpheno.offspring.cohorts) Active cohorts for import of offspring phenotypes}
+\item{phenotyping.gen, phenotyping.cohorts, phenotyping.database}{Generations/cohorts/groups from which to generate additional phenotypes}
 
-\item{culling.gen}{Generations to consider to culling}
+\item{n.observation}{Number of phenotypic observations generated per trait and per individuals (use repeatability to control correlation between observations)}
 
-\item{culling.database}{Groups to consider to culling}
+\item{phenotyping.class}{Classes of individuals for which to generate phenotypes (default: NULL --> all classes)}
 
-\item{culling.cohorts}{Cohorts to consider to culling}
+\item{heritability}{Use sigma.e to obtain a certain heritability (default: NULL)}
 
-\item{culling.time}{Age of the individuals at culling}
+\item{repeatability}{Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)}
 
-\item{culling.name}{Name of the culling action (user-interface stuff)}
+\item{multiple.observation}{If an already phenotyped trait is phenotyped again this will on NOT lead to an additional phenotyped observation unless this is set to TRUE}
 
-\item{culling.bv1}{Reference Breeding value}
+\item{share.phenotyped}{Share of the individuals to phenotype (use vector for different probablities for different traits)}
 
-\item{culling.share1}{Probability of death for individuals with bv1}
+\item{offpheno.parents.gen, offpheno.parents.database, offpheno.parents.cohorts}{Generations/groups/cohorts to consider to derive phenotype from offspring phenotypes}
 
-\item{culling.bv2}{Alternative breeding value (linear extended for other bvs)}
+\item{offpheno.offspring.gen, offpheno.offspring.cohorts, offpheno.offspring.database}{Active generations/cohorts/groups for import of offspring phenotypes}
 
-\item{culling.share2}{Probability of death for individuals with bv2}
+\item{sigma.e}{Enviromental standard deviation (default: use sigma.e from last run / usually fit by use of heritability; if never provided: 10; used in BVE for variance components if manually set)}
 
-\item{culling.index}{Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)}
+\item{sigma.e.gen, sigma.e.cohorts, sigma.e.database}{Generations/cohorts/groups to consider when estimating sigma.e when using heritability}
 
-\item{culling.single}{Set to FALSE to not apply the culling module on all individuals of the cohort}
+\item{new.residual.correlation}{Correlation of the simulated residual variance}
 
-\item{culling.all.copy}{Set to FALSE to not kill copies of the same individual in the culling module}
+\item{new.breeding.correlation}{Correlation of the simulated genetic variance (only impacts non-QTL based traits. Needs to be fit in creating.diploid/trait for QTL-based traits)}
+
+\item{\strong{ #### Breeding value estimation ####}}{#################}
+
+\item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
+
+\item{bve.gen, bve.cohorts, bve.database}{Generations/Groups/Cohorts of individuals to consider in breeding value estimation (default: NULL)}
+
+\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
+
+\item{depth.pedigree}{Depth of the pedigree in generations (default: 7)}
+
+\item{singlestep.active}{Set FALSE remove all individuals without genomic data from the breeding value estimation}
+
+\item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
+
+\item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on used individuals in BVE)}
+
+\item{bve.imputation}{Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available}
+
+\item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0)}
+
+\item{bve.all.genotyped}{Set to TRUE to act as if every individual in the breeding value estimation has been genotyped}
+
+\item{bve.insert.gen, bve.insert.cohorts, bve.insert.database}{Generations/Groups/Cohorts of individuals to compute breeding values for (default: all groups in bve.database)}
+
+\item{variance.correction}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
+
+\item{bve.class}{Consider only individuals of those class classes in breeding value estimation (default: NULL - use all)}
+
+\item{sigma.g}{Genetic standard deviation (default: calculated based on individuals in BVE ; used in BVE for variance components if manually set; mostly recommended to be used for non-QTL based traits)}
+
+\item{sigma.g.gen, sigma.g.cohorts, sigma.g.database}{Generations/cohorts/groups to consider when estimating sigma.g}
+
+\item{forecast.sigma.g}{Set FALSE to not estimate sigma.g (Default: TRUE // in case sigma.g is set this is automatically set to FALSE)}
+
+\item{remove.effect.position}{If TRUE remove real QTLs in breeding value estimation}
+
+\item{estimate.add.gen.var}{If TRUE estimate additive genetic variance and heritability based on parent model}
+
+\item{estimate.pheno.var}{If TRUE estimate total variance in breeding value estimation}
+
+\item{bve.avoid.duplicates}{If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)}
 
 \item{calculate.reliability}{Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE}
 
 \item{estimate.reliability}{Set TRUE to estimate the reliablity in the BVE by calculating the correlation between estimated and real breeding values}
 
-\item{selection.m.gen}{Generations available for selection of paternal parent}
-
-\item{selection.f.gen}{Generations available for selection of maternal parent}
-
-\item{selection.m.database}{Groups available for selection of paternal parent}
-
-\item{selection.f.database}{Groups available for selection of maternal parent}
-
-\item{selection.m.cohorts}{Cohorts available for selection of paternal parent}
-
-\item{selection.f.cohorts}{Cohorts available for selection of maternal parent}
-
-\item{selection.m.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for paternal selection}
-
-\item{selection.f.miesenberger}{Use Weighted selection index according to Miesenberger 1997 for maternal selection}
-
-\item{selection.miesenberger.reliability.est}{If available reliability estimated are used. If not use default: "derived" (cor(BVE,BV)^2) , alt: "heritability", "estimated" (SD BVE / SD Pheno) as replacement}
-
-\item{miesenberger.trafo}{Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)}
-
-\item{multiple.bve.weights.m}{Weighting between traits when using "add" (default: 1)}
-
-\item{multiple.bve.weights.f}{Weighting between traits when using "add" (default: same as multiple.bve.weights.m)}
-
-\item{multiple.bve.scale.m}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
-
-\item{multiple.bve.scale.f}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
-
-\item{verbose}{Set to FALSE to not display any prints}
-
-\item{bve.parent.mean}{Set to TRUE to use the average parental performance as the breeding value estimate}
-
-\item{bve.grandparent.mean}{Set to TRUE to use the average grandparental performance as the breeding value estimate}
-
-\item{bve.mean.between}{Select if you want to use the "bve", "bv", "pheno" or "bvepheno" to form the mean (default: "bvepheno" - if available bve, else pheno)}
-
-\item{bve.direct.est}{If TRUE predict BVEs in direct estimation according to vanRaden 2008 method 2 (default: TRUE)}
-
-\item{bve.pseudo}{If set to TRUE the breeding value estimation will be simulated with resulting accuracy bve.pseudo.accuracy (default: 1)}
-
-\item{bve.pseudo.accuracy}{The accuracy to be obtained in the "pseudo" - breeding value estimation}
-
-\item{miraculix.destroyA}{If FALSE A will not be destroyed in the process of inversion (less computing / more memory)}
+\item{bve.input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
 
 \item{mas.bve}{If TRUE use marker assisted selection in the breeding value estimation}
 
@@ -817,97 +280,42 @@ breeding.diploid(
 
 \item{mas.effects}{Effects assigned to the MAS markers (Default: estimated via lm())}
 
-\item{threshold.selection.index}{Selection index on which to access (matrix which one index per row)}
+\item{mas.geno}{Genotype dataset used in MAS (default: NULL, automatic internal calculation)}
 
-\item{threshold.selection.value}{Minimum value in the selection index selected individuals have to have}
+\item{bve.parent.mean}{Set to TRUE to use the average parental performance as the breeding value estimate}
 
-\item{threshold.selection.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
+\item{bve.grandparent.mean}{Set to TRUE to use the average grandparental performance as the breeding value estimate}
 
-\item{threshold.selection.criteria}{Criterium on which to evalute the index (default: "bve", alt: "bv", "pheno")}
-
-\item{threshold.selection}{Minimum value in the selection index selected individuals have to have}
-
-\item{threshold.sign}{Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")}
-
-\item{bve.input.phenotype}{Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
-
-\item{input.phenotype}{(OLD! use bve.input.phenotype) Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
-
-\item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in multiple.bve.weights.m/.w)}
-
-\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
-
-\item{genotyped.database}{Groups to generate genotype data (that can be used in a BVE)}
-
-\item{genotyped.gen}{Generations to generate genotype data (that can be used in a BVE)}
-
-\item{genotyped.cohorts}{Cohorts to generate genotype data (that can be used in a BVE)}
-
-\item{genotyped.share}{Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)}
-
-\item{genotyped.array}{Genotyping array used}
-
-\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
-
-\item{bve.imputation}{Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available}
-
-\item{bve.imputation.errorrate}{Share of errors in the imputation procedure (default: 0)}
-
-\item{share.phenotyped}{Share of the individuals to phenotype}
-
-\item{avoid.mating.fullsib}{Set to TRUE to not generate offspring of full siblings}
-
-\item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
-
-\item{max.mating.pair}{Set to the maximum number of matings between two individuals (default: Inf)}
-
-\item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample}
-
-\item{bve.solve}{Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)}
-
-\item{fixed.effects.p}{Parametrization for the fixed effects (default: c(0,0..,0), if multiple different parametrizations are possible use a matrix with one parametrization per row)}
-
-\item{fixed.effects.freq}{Frequency of each different parametrization of the fixed effects}
+\item{bve.mean.between}{Select if you want to use the "bve", "bv", "pheno" or "bvepheno" to form the mean (default: "bvepheno" - if available bve, else pheno)}
 
 \item{bve.exclude.fixed.effects}{Vector of fixed effects to ignore in the BVE (default: NULL)}
 
 \item{bve.beta.hat.approx}{Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.}
 
-\item{export.selected}{Set to TRUE to export the list of selected individuals}
+\item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample}
 
-\item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
+\item{\strong{ #### Software for breeding value estimation ####}}{#################}
 
-\item{import.relationship.matrix}{Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)}
 
-\item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on availabled used ones)}
-
-\item{genotyped.remove.gen}{Generations from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
-
-\item{genotyped.remove.database}{Groups from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
-
-\item{genotyped.remove.cohorts}{Cohorts from which to remove genotyping information (this will affect all copies of an individual unless genotyped.remove.all.copy is set to FALSE)}
-
-\item{genotyped.remove.all.copy}{Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)}
-
-\item{sort.selected.pos}{Set to TRUE to arrange selected individuals according to position in the database (not by breeding value)}
-
-\item{pen.assignments}{This is a placeholder to deactivate this module for now}
-
-\item{pen.size}{Pen size. When different types of pen are used: use a matrix with two columns coding Number of individuals per pen, Probability for each pen size}
-
-\item{pen.by.sex}{Only individuals of the same sex are put in the same pen (default: TRUE)}
-
-\item{pen.by.litter}{Only individuals of the same litter are put in the same pen (default: FALSE)}
-
-\item{pen.size.overwrite}{Set to FALSE to not use the input for pen.size for down-stream use of breeding.diploid (default: TRUE)}
-
-\item{intern.func}{AA}
-
-\item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
-
-\item{parallel.intern}{Internal parameter for the parallelization}
+\item{mobps.bve}{If TRUE predict BVEs in direct estimation with assumed known heritablity (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)}
 
 \item{mixblup.bve}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
+
+\item{emmreml.bve}{If TRUE use REML estimator from R-package EMMREML in breeding value estimation}
+
+\item{rrblup.bve}{If TRUE use REML estimator from R-package rrBLUP in breeding value estimation}
+
+\item{sommer.bve}{If TRUE use REML estimator from R-package sommer in breeding value estimation}
+
+\item{sommer.multi.bve}{Set TRUE to use a mulit-trait model in the R-package sommer for BVE}
+
+\item{BGLR.bve}{If TRUE use BGLR to perform breeding value estimation}
+
+\item{pseudo.bve}{If set to TRUE the breeding value estimation will be simulated with resulting accuracy pseudo.bve.accuracy (default: 1)}
+
+\item{pseudo.bve.accuracy}{The accuracy to be obtained in the "pseudo" - breeding value estimation}
+
+\item{bve.solve}{Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)}
 
 \item{mixblup.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
 
@@ -939,10 +347,6 @@ breeding.diploid(
 
 \item{mixblup.residual.cov}{Provide residual covariance matrix to be used in MiXBLUP (lower-triangle is sufficent)}
 
-\item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
-
-\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
-
 \item{mixblup.lambda}{Lambda parameter in MiXBLUP}
 
 \item{mixblup.alpha}{Alpha parameter in MiXBLUP (default: 1, with alpha + beta = 1)}
@@ -951,21 +355,88 @@ breeding.diploid(
 
 \item{mixblup.omega}{Omega parameter in MiXBLUP}
 
-\item{store.sparse}{Set to TRUE to store the pedigree relationship matrix as a sparse matrix}
-
-\item{remove.duplicates}{Set to FALSE to select the sample individual multiple times when the database for selection contains it multiple times}
-
 \item{mixblup.apy}{Set to TRUE to use APY inverse in MiXBLUP (default: FALSE)}
 
-\item{mixblup.apy.core}{Number of core animals in the APY algorithm (default: 5000)}
+\item{mixblup.apy.core}{Number of core individuals in the APY algorithm (default: 5000)}
 
-\item{repeat.mating.trait}{Trait that should be linked to the litter size}
+\item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
 
-\item{repeat.mating.max}{Maximum number of individuals in a litter}
+\item{BGLR.burnin}{Number of burn-in steps in BGLR (default: 1000)}
 
-\item{selection.m.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
+\item{BGLR.iteration}{Number of iterations in BGLR (default: 5000)}
 
-\item{selection.f.random.prob}{Use this parameter to control the probablity of each individual to be selected when doing random selection}
+\item{BGLR.print}{If TRUE set verbose to TRUE in BGLR}
+
+\item{BGLR.save}{Method to use in BGLR (default: "RKHS" - alt: NON currently)}
+
+\item{BGLR.save.random}{Add random number to store location of internal BGLR computations (only needed when simulating a lot in parallel!)}
+
+\item{miraculix}{If TRUE use miraculix to perform computations (ideally already generate population in creating.diploid with this; default: automatic detection from population list)}
+
+\item{miraculix.cores}{Number of cores used in miraculix applications (default: 1)}
+
+\item{miraculix.mult}{If TRUE use miraculix for matrix multiplications even if miraculix is not used for storage}
+
+\item{miraculix.chol}{Set to FALSE to deactive miraculix based Cholesky-decomposition (default: TRUE)}
+
+\item{miraculix.destroyA}{If FALSE A will not be destroyed in the process of inversion (less computing / more memory)}
+
+\item{\strong{ #### Estimation of SNP-effects, GWAS, genome editing ####}}{#################}
+
+\item{estimate.u}{If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)}
+
+\item{fast.uhat}{Set to FALSE to  derive inverse of A in rrBLUP (only required when this becomes numerical unstable otherwise)}
+
+\item{gwas.u}{If TRUE estimate u via GWAS (relevant for gene editing)}
+
+\item{approx.residuals}{If FALSE calculate the variance for each marker separatly instead of using a set variance (doesnt change order - only p-values)}
+
+\item{gwas.gen, gwas.cohorts, gwas.database}{Generations/cohorts/groups to consider in GWAS analysis}
+
+\item{gwas.group.standard}{If TRUE standardize phenotypes by group mean}
+
+\item{y.gwas.used}{What y value to use in GWAS study (Default: "pheno", alt: "bv", "bve")}
+
+\item{gene.editing.offspring}{If TRUE perform gene editing on newly generated individuals}
+
+\item{gene.editing.best}{If TRUE perform gene editing on selected individuals}
+
+\item{gene.editing.offspring.sex}{Which sex to perform editing on (Default c(TRUE,TRUE), mw)}
+
+\item{gene.editing.best.sex}{Which sex to perform editing on (Default c(TRUE,TRUE), mw)}
+
+\item{nr.edits}{Number of edits to perform per individual}
+
+\item{\strong{ #### Culling ####}}{#################}
+
+\item{culling.gen, culling.cohorts, culling.database}{Generations/cohorst/groups to consider to culling}
+
+\item{culling.time}{Age of the individuals at culling}
+
+\item{culling.name}{Name of the culling action (user-interface stuff)}
+
+\item{culling.bv1}{Reference Breeding value}
+
+\item{culling.share1}{Probability of death for individuals with bv1}
+
+\item{culling.bv2}{Alternative breeding value (linear extended for other bvs)}
+
+\item{culling.share2}{Probability of death for individuals with bv2}
+
+\item{culling.index}{Genomic index (default:0 - no genomic impact, use: "lastindex" to use the last selection index applied in selection)}
+
+\item{culling.single}{Set to FALSE to not apply the culling module on all individuals of the cohort}
+
+\item{culling.all.copy}{Set to FALSE to not kill copies of the same individual in the culling module}
+
+\item{\strong{ #### Meiosis ####}}{#################}
+
+
+\item{mutation.rate}{Mutation rate in each marker (default: 10^-8)}
+
+\item{remutation.rate}{Remutation rate in each marker (default: 10^-8)}
+
+\item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
 
 \item{recombination.function}{Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())}
 
@@ -975,8 +446,130 @@ breeding.diploid(
 
 \item{recombination.distance.penalty.2}{Reduced probability for recombination events closer than this value - quadratic penalty (default: 0)}
 
-\item{mas.geno}{Genotype dataset used in MAS (default: NULL, automatic internal calculation)}
+\item{recom.f.indicator}{Use step function for recombination map (transform snp.positions if possible instead)}
+
+\item{import.position.calculation}{Function to calculate recombination point into adjacent/following SNP}
+
+\item{duplication.rate}{Share of recombination points with a duplication (default: 0 - DEACTIVATED)}
+
+\item{duplication.length}{Average length of a duplication (Exponentially distributed)}
+
+\item{duplication.recombination}{Average number of recombinations per 1 length uit of duplication (default: 1)}
+
+\item{gen.architecture.m, gen.architecture.f}{Genetic architecture for male/female individuals (default: 0 - no transformation)}
+
+\item{add.architecture}{List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)}
+
+\item{intern.func}{Chose which function will be used for simulation of meosis (default: 0, alt: 1,2) - can be faster for specific cases}
+
+\item{\strong{ #### Advanced memory savings ####}}{#################}
+
+\item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted from population list for memory reduction (default: NULL)}
+
+\item{delete.individuals}{Generations for with individuals are completely deleted from population list for memory reduction (default: NULL)}
+
+\item{delete.gen}{Generations to entirely deleted fro population list for memory reduction (default: NULL)}
+
+\item{delete.sex}{Remove all individuals from these sex from generation delete.individuals (default: 1:2 ; note:delete individuals=NULL)}
+
+\item{delete.same.origin}{If TRUE delete recombination points when genetic origin of adjacent segments is the same}
+
+\item{save.recombination.history}{If TRUE store the time point of each recombination event}
+
+\item{store.sparse}{Set to TRUE to store the pedigree relationship matrix as a sparse matrix}
+
+\item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time for calculation of the pedigree relationship matrix (default: 1.5, min: 1)}
+
+\item{\strong{ #### Tracking/Reporting ####}}{#################}
+
+\item{verbose}{Set to FALSE to not display any prints}
+
+\item{report.accuracy}{Report the accuracy of the breeding value estimation}
+
+\item{store.breeding.totals}{If TRUE store information on selected individuals in $info$breeding.totals (default: FALSE)}
+
+\item{store.bve.data}{If TRUE store information of bve in $info$bve.data}
+
+\item{store.comp.times}{If TRUE store computation times in $info$comp.times.general (default: TRUE)}
+
+\item{store.comp.times.bve}{If TRUE store computation times of breeding value estimation in $info$comp.times.bve (default: TRUE)}
+
+\item{store.comp.times.generation}{If TRUE store computation times of mating simulations in $info$comp.times.generation (default: TRUE)}
+
+\item{store.effect.freq}{If TRUE store the allele frequency of effect markers per generation}
+
+\item{Rprof}{Store computation times of each function}
+
+\item{randomSeed}{Set random seed of the process}
+
+\item{display.progress}{Set FALSE to not display progress bars. Setting verbose to FALSE will automatically deactive progress bars}
+
+\item{time.point}{Time point at which the new individuals are generated}
+
+\item{creating.type}{Technique to generate new individuals (use mostly intended for web-based application)}
+
+\item{\strong{ #### Import / Export ####}}{#################}
+
+\item{import.relationship.matrix}{Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)}
+
+\item{export.selected}{Set to TRUE to export the list of selected individuals}
+
+\item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
+
+\item{\strong{ #### Still in development ####}}{#################}
+
+\item{pen.assignments}{This is a placeholder to deactivate this module for now}
+
+\item{pen.size}{Pen size. When different types of pen are used: use a matrix with two columns coding Number of individuals per pen, Probability for each pen size}
+
+\item{pen.by.sex}{Only individuals of the same sex are put in the same pen (default: TRUE)}
+
+\item{pen.by.litter}{Only individuals of the same litter are put in the same pen (default: FALSE)}
+
+\item{pen.size.overwrite}{Set to FALSE to not use the input for pen.size for down-stream use of breeding.diploid (default: TRUE)}
+
+\item{\strong{ #### Old parameters ####}}{#################}
+
+\item{selection.m, selection.f}{(OLD! use selection criteria) Selection criteria for male/female individuals (Set to "random" to randomly select individuals - default: "function"  based on selection.criteria ((usually breeding values)))}
+
+\item{new.bv.observation.gen, new.bv.observation.cohorts, new.bv.observation.database}{(OLD! use phenotyping.gen/cohorts/database) Vector of generation from which to generate additional phenotypes}
+
+\item{best1.from.group, best1.from.cohort}{(OLD!- use selection.m.database/cohorts) Groups of individuals to consider as First Parent / Father (also female individuals are possible)}
+
+\item{best2.from.group, best2.from.cohort}{(OLD!- use selection.f.database/cohorts) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)}
+
+\item{new.bv.observation}{(OLD! - use phenotyping) Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
+
+\item{reduce.group}{(OLD! - use culling modules) Groups of individuals for reduce to a new size (by changing class to -1)}
+
+\item{reduce.group.selection}{(OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")}
+
+\item{new.bv.child}{(OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
+
+\item{computation.A}{(OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
+
+\item{computation.A.ogc}{(OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")}
+
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance}
+
+\item{offspring.bve.parents.gen, offspring.bve.parents.cohorts, offspring.bve.parents.database}{(OLD! use offpheno.parents.gen/database/cohorts) Generations/cohorts/groups to consider to derive phenotype from offspring phenotypes}
+
+\item{offspring.bve.offspring.gen, offspring.bve.offspring.cohorts, offspring.bve.offspring.database}{(OLD! use offpheno.offspring.gen/database/cohorts) Active generations/cohorts/groups for import of offspring phenotypes}
+
+\item{input.phenotype}{(OLD! use bve.input.phenotype) Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))}
+
+\item{\strong{ #### Other ####}}{#################}
+
+\item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
+
+\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
+
 }
+
+\usage{
+breeding.diploid(population, ...)
+}
+
 \value{
 Population-list
 }

@@ -22,194 +22,250 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Generation of the starting population
 #'
 #' Generation of the starting population
-#' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
-#' @param nsnp number of markers to generate in a random dataset
-#' @param nindi number of individuals to generate in a random dataset (you can also provide number males / females in a vector)
-#' @param freq frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)
+###### General
 #' @param population Population list
+#' @param nsnp Number of markers to generate (Split equally across chromosomes (chr.nr) unless vector is used)
+#' @param nindi Number of individuals to generate (you can also provide number males / females in a vector)
+#' @param name.cohort Name of the newly added cohort
+#' @param generation Generation to which newly individuals are added (default: 1)
+#' @param founder.pool Founder pool an individual is assign to (default: 1)
+#' @param one.sex.mode Activating this will ignore all sex specific parameters and handle each individual as part of the first sex (default: FALSE)
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
-#' @param add.chromosome If TRUE add an additional chromosome to the dataset
-#' @param generation Generation of the newly added individuals (default: 1)
-#' @param class Migration level of the newly added individuals
+#' @param class Migration level of the newly added individuals (default: 0)
+#' @param verbose Set to FALSE to not display any prints
+###### Genome architecture
+#' @param map map-file that contains up to 5 colums (chromosome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
 #' @param chromosome.length Length of the newly added chromosome (default: 5)
-#' @param length.before Length before the first SNP of the dataset (default: 5)
-#' @param length.behind Length after the last SNP of the dataset (default: 5)
+#' @param chr.nr Number of chromosomes (SNPs are equally split) or vector containing the associated chromosome for each marker
+#' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
+#' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
 #' @param snp.position Location of each marker on the genetic map
-#' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
-#' @param polygenic.variance Genetic variance of traits with no underlying QTL
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in MoBPS-bit-storing
-#' @param randomSeed Set random seed of the process
-#' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
-#' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
+#' @param change.order Markers are automatically sorted according to their snp.position unless this is set to FALSE (default: TRUE)
+#' @param add.chromosome If TRUE add an additional chromosome to the population
+#' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
+#' @param snp.name Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)
+#' @param hom0 Vector containing the first allelic variant in each marker (default: 0)
+#' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
+###### Genotype data
+#' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
+#' @param freq frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)
+#' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
+#' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
+#' @param share.genotyped Share of individuals genotyped in the founders
+#' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
+#' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
+#' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
+#' @param vcf.chromosomes Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)
+#' @param vcf.VA Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)
+###### Traits
+#' @param trait.name Name of the traits generated
+#' @param mean.target Target mean for each trait
+#' @param var.target Target variance for each trait
+#' @param trait.cor Target correlation between QTL-based traits (underlying true genomic values)
+#' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
 #' @param n.additive Number of additive QTL with effect size drawn from a gaussian distribution
 #' @param n.dominant Number of dominant QTL with effect size drawn from a gaussian distribution
 #' @param n.equal.additive Number of additive QTL with equal effect size (effect.size)
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
-#' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
-#' @param var.additive.l Variance of additive QTL
-#' @param var.dominant.l Variance of dominante QTL
-#' @param var.qualitative.l Variance of qualitative epistatic QTL
-#' @param var.quantitative.l Variance of quantitative epistatic QTL
-#' @param effect.size.equal.add Effect size of the QTLs in n.equal.additive
-#' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
-#' @param exclude.snps Marker were no QTL are simulated on
-#' @param replace.real.bv If TRUE delete the simulated traits added before
-#' @param shuffle.traits Combine different traits into a joined trait
-#' @param shuffle.cor Target Correlation between shuffeled traits
-#' @param real.bv.add Single Marker effects
+#' @param real.bv.add Single Marker effects (list for each trait with columns for: SNP Nr, Chr Nr, Effect 00, Effect 01, Effect 11, Position (optional), Founder pool genotype (optional), Founder pool origin (optional))
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
-#' @param bve.mult.factor Multiplicate trait value times this
-#' @param bve.poly.factor Potency trait value over this
-#' @param base.bv Average genetic value of a trait
-#' @param add.chromosome.ends Add chromosome ends as recombination points
-#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
+#' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
+#' @param base.bv Intercept of underlying true genomic values (excluding all QTL effects, default: 100)
 #' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param litter.effect.covariance Covariance matrix of the litter effect (default: no effects)
 #' @param pen.effect.covariance Covariance matrix of the pen effect (default: no effects)
-#' @param add.architecture Add genetic architecture (marker positions)
-#' @param position.scaling Manual scaling of snp.position
-#' @param name.cohort Name of the newly added cohort
-#' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
-#' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
-#' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
-#' @param vcf.chromosomes Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)
-#' @param vcf.VA Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)
-#' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
-#' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
-#' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
-#' @param snp.name Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)
-#' @param hom0 Vector containing the first allelic variant in each marker (default: 0)
-#' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
-#' @param skip.rest Internal variable needed when adding multipe chromosomes jointly
-#' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
-#' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
-#' @param time.point Time point at which the new individuals are generated
-#' @param creating.type Technique to generate new individuals (usage in web-based application)
-#' @param trait.name Name of the trait generated
-#' @param share.genotyped Share of individuals genotyped in the founders
-#' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
-#' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
-#' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
-#' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
-#' @param mean.target Target mean
-#' @param var.target Target variance
-#' @param verbose Set to FALSE to not display any prints
-#' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
-#' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
+#' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: FALSE)
+#' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: FALSE)
 #' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))
-#' @param enter.bv Internal parameter
-#' @param one.sex.mode Activating this will ignore all sex specific parameters and handle each individual as part of the first sex
-#' @param internal Dont touch!
-#' @param internal.geno Dont touch!
-#' @param internal.dataset Dont touch!
-#' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
-#' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
-#' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
-#' @param founder.pool Founder pool an individual is assign to (default: 1)
-#' @param trait.pool Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)
-#' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
+#' @param trait.pool Vector providing information for which pools QTLs of which trait are activ (default: 0 - all pools)
 #' @param gxe.correlation Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)
 #' @param gxe.max Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)
 #' @param gxe.min Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)
 #' @param n.locations Number of locations / environments to consider for the GxE model
 #' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
 #' @param location.name Same of the different locations / environments used
-#' @param change.order Markers are automatically sorted according to their snp.position unless this is set to FALSE (default: TRUE)
+#' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
+#' @param exclude.snps Vector contain markers on which no QTL effects are placed
+#' @param var.additive.l Variance of additive QTL
+#' @param var.dominant.l Variance of dominante QTL
+#' @param var.qualitative.l Variance of qualitative epistatic QTL
+#' @param var.quantitative.l Variance of quantitative epistatic QTL
+#' @param effect.size.equal.add Effect size of the QTLs in n.equal.additive
+#' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
+#' @param polygenic.variance Genetic variance of traits with no underlying QTL
+#' @param bve.mult.factor Multiplicate trait value times this
+#' @param bve.poly.factor Potency trait value over this
+#' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
+#' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
+#' @param replace.real.bv If TRUE delete the simulated traits added before
+#' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
+#' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
+###### Other
+#' @param randomSeed Set random seed of the process
+#' @param add.architecture Add genetic architecture (marker positions)
+#' @param time.point Time point at which the new individuals are generated
+#' @param creating.type Technique to generate new individuals (usage in web-based application)
+#' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
+###### Data storage
+#' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
+#' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
+#' @param add.chromosome.ends Add chromosome ends as recombination points
+#' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
+#' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
+###### Internal
+#' @param skip.rest Internal variable needed when adding multipe chromosomes jointly
+#' @param enter.bv Internal parameter
+#' @param internal Dont touch!
+#' @param internal.geno Dont touch!
+#' @param internal.dataset Dont touch!
+# OLD
+#' @param nbits Bits available in MoBPS-bit-storing
+#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
+#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
+#' @param length.before Length before the first SNP of the dataset (default: 5)
+#' @param length.behind Length after the last SNP of the dataset (default: 5)
+#' @param position.scaling Manual scaling of snp.position
+#' @param shuffle.cor OLD! Use trait.cor - Target Correlation between traits
+#' @param shuffle.traits OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
 #' @export
 
 
-creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
+creating.diploid <- function(population=NULL,
+                             #### General
+                             nsnp=0,
+                             nindi=0,
+                             name.cohort=NULL,
+                             generation=1,
+                             founder.pool = 1,
+                             one.sex.mode = FALSE,
+                             sex.s="fixed",
+                             sex.quota = 0.5,
+                             class=0L,
+                             verbose=TRUE,
+                             #### Genome architecture
+                             map=NULL,
+                             chr.nr=NULL,
+                             chromosome.length=NULL,
+                             bp=NULL,
+                             snps.equidistant=NULL,
+                             template.chip=NULL,
+                             snp.position=NULL,
+
+                             change.order = TRUE,
+                             add.chromosome=FALSE,
                              bpcm.conversion=0,
-                             nsnp=0, nindi=0, freq="beta", population=NULL, sex.s="fixed",
-                             add.chromosome=FALSE, generation=1, class=0L,
-                             sex.quota = 0.5, chromosome.length=NULL,length.before=5, length.behind=5,
-                             real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
-                             bv.total=0, polygenic.variance=100,
-                             bve.mult.factor=NULL, bve.poly.factor=NULL,
-                             base.bv=NULL, add.chromosome.ends=TRUE,
-                             new.phenotype.correlation=NULL,
-                             new.residual.correlation = NULL,
-                             new.breeding.correlation=NULL,
-                             add.architecture=NULL, snp.position=NULL,
-                             position.scaling=FALSE,
-                             bit.storing=FALSE,
-                             nbits=30, randomSeed=NULL,
-                             miraculix=TRUE,
-                             miraculix.dataset=TRUE,
+                             snp.name=NULL,
+                             hom0=NULL,
+                             hom1=NULL,
+                             dataset=NULL,
+                             freq="beta",
+                             beta.shape1=1,
+                             beta.shape2=1,
+                             share.genotyped=0,
+                             genotyped.s=NULL,
+                             vcf=NULL,
+                             vcf.maxsnp=Inf,
+                             vcf.chromosomes = NULL,
+                             vcf.VA = TRUE,
+                             ## Traits
+                             trait.name=NULL,
+                             mean.target=NULL,
+                             var.target=NULL,
+                             trait.cor = NULL,
+                             trait.cor.include = NULL,
+
                              n.additive=0,
                              n.equal.additive=0,
                              n.dominant=0,
                              n.equal.dominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
+                             real.bv.add=NULL,
+                             real.bv.mult=NULL,
+                             real.bv.dice=NULL,
+                             new.residual.correlation = NULL,
+                             new.breeding.correlation=NULL,
+                             litter.effect.covariance = NULL,
+                             pen.effect.covariance = NULL,
+                             is.maternal = NULL,
+                             is.paternal = NULL,
+                             fixed.effects = NULL,
+                             trait.pool = 0,
+                             gxe.correlation = NULL,
+                             n.locations = NULL,
+                             gxe.max = 0.85,
+                             gxe.min = 0.7,
+                             location.name = NULL,
+                             gxe.combine = TRUE,
+                             bv.total=0,
+                             base.bv=NULL,
                              dominant.only.positive = FALSE,
+                             exclude.snps=NULL,
                              var.additive.l=NULL,
                              var.dominant.l=NULL,
                              var.qualitative.l=NULL,
                              var.quantitative.l=NULL,
                              effect.size.equal.add = 1,
                              effect.size.equal.dom = 1,
-                             exclude.snps=NULL,
+                             polygenic.variance=100,
+                             bve.mult.factor=NULL,
+                             bve.poly.factor=NULL,
+                             set.zero = FALSE,
+                             bv.standard=FALSE,
                              replace.real.bv=FALSE,
-                             shuffle.traits=NULL,
-                             shuffle.cor=NULL,
-                             skip.rest=FALSE,
-                             enter.bv=TRUE,
-                             name.cohort=NULL,
-                             template.chip=NULL,
-                             beta.shape1=1,
-                             beta.shape2=1,
+                             bv.ignore.traits = NULL,
+                             remove.invalid.qtl=TRUE,
+                             #### Other
+                             randomSeed=NULL,
+                             add.architecture=NULL,
                              time.point=0,
                              creating.type=0,
-                             trait.name=NULL,
-                             share.genotyped=0,
-                             genotyped.s=NULL,
-                             map=NULL,
-                             remove.invalid.qtl=TRUE,
-                             verbose=TRUE,
-                             bv.standard=FALSE,
-                             mean.target=NULL,
-                             var.target=NULL,
-                             is.maternal = NULL,
-                             is.paternal = NULL,
-                             vcf.maxsnp=Inf,
-                             vcf.chromosomes = NULL,
-                             fixed.effects = NULL,
+                             size.scaling = 1,
+                             #### Data storage
+                             miraculix=TRUE,
+                             miraculix.dataset=TRUE,
+                             add.chromosome.ends=TRUE,
+                             use.recalculate.manual = FALSE,
+                             store.comp.times = TRUE,
+                             #### Internal
+                             skip.rest=FALSE,
+                             enter.bv=TRUE,
                              internal=FALSE,
                              internal.geno=TRUE,
                              internal.dataset = NULL,
-                             vcf.VA = TRUE,
-                             one.sex.mode = FALSE,
-                             store.comp.times = TRUE,
-                             bv.ignore.traits = NULL,
-                             litter.effect.covariance = NULL,
-                             pen.effect.covariance = NULL,
-                             size.scaling = 1,
-                             founder.pool = 1,
-                             trait.pool = 0,
-                             set.zero = FALSE,
-                             gxe.correlation = NULL,
-                             location.name = NULL,
-                             n.locations = NULL,
-                             gxe.max = 0.85,
-                             gxe.min = 0.7,
-                             gxe.combine = TRUE,
-                             change.order = TRUE){
+                             #### Old
+                             nbits=30,
+                             bit.storing=FALSE,
+                             new.phenotype.correlation=NULL,
+                             length.before=5,
+                             length.behind=5,
+                             position.scaling=FALSE,
+                             shuffle.cor=NULL,
+                             shuffle.traits=NULL
+                             ){
 
+
+  if(length(trait.cor)>0){
+    shuffle.cor = trait.cor
+  }
+  if(length(trait.cor.include)>0){
+    shuffle.traits = trait.cor.include
+  }
+
+  name.cohort_temp = name.cohort
 
   # GxE Trait generation module
   {
-  if(length(n.locations)>0 && length(gxe.correlation)==0){
+  if(length(n.locations)>0 && n.locations > 1 && length(gxe.correlation)==0){
     gxe.correlation = matrix(stats::runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
     for(i in 2:nrow(gxe.correlation)) {
       for(j in 1:(i-1)) {
@@ -363,7 +419,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         bp[!is.na(map[,4])] <- as.numeric(map[!is.na(map[,4]),4])
       }
       if(sum(is.na(map[,3])) < nrow(map) && sum(map[,3]==0)==nrow(map)){
-        warning("0 Morgan is no legal position. Set position to NA")
+        if(bpcm.conversion==0){
+          warning("0 Morgan is no legal position. Set position to NA")
+        }
+
         map[map[,3]==0,3] <- NA
       } else if(sum(is.na(map[,3]))<nrow(map) && sum(map[,3]==0)>1){
         stop("0 Morgan is no legal position. Please fix!")
@@ -546,6 +605,23 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
     if(length(dataset)>0 && sum(class(dataset) %in% "matrix")>=1){
 
 
+
+      if(is.matrix(dataset) && is.numeric(dataset[1,1])){
+        if(storage.mode(dataset)!="integer"){
+          storage.mode(dataset) <- "integer"
+        }
+      } else if(is.matrix(dataset)){
+        if(length(hom0)==0){
+          hom0 <- dataset[,1]
+        }
+        if(length(hom1)==0){
+          hom1 <- dataset[,1]
+        }
+        dataset <- (dataset==hom1)
+        storage.mode(dataset) <- "integer"
+      }
+
+
       diffs <- sum(diff(snp.position)<0)
       if(length(chr.nr)==1){
         comp <- chr.nr
@@ -602,6 +678,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
     if(length(chr.nr)==1 && is.numeric(chr.nr)){
+
+      if(length(nsnp)==1 && nsnp < chr.nr){
+        stop("Each Chromosome must contain at least 1 SNP. Please check your inputs!")
+      }
       if(length(nsnp)==1  && nsnp >= chr.nr){
         chr.nr <- sort(rep(1:chr.nr, length.out=nsnp))
         nsnp <- numeric(max(chr.nr))
@@ -1053,7 +1133,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
         if(length(real.bv.add)>0){
           for(index in 1:length(real.bv.add)){
-            while(sum(is.na(real.bv.add[[index]][,1:2]))>0){
+            while(sum(is.na(real.bv.add[[index]][,c(1:2,6)]))>0){
 
               effect_marker <- (1:sum(c(population$info$snp, nsnp)))
               if(length(exclude.snps)>0){
@@ -1070,7 +1150,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
                 add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
               }
 
-              enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])
+
+              if(sum(is.na(real.bv.add[[index]][,6]))>0){
+                add_marker = add_snp + c(0,cum_snp)[add_chromo]
+              }
+
+              enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])| is.na(real.bv.add[[index]][,1]) | is.na(real.bv.add[[index]][,6])
 
               real.bv.add[[index]][enter,c(1:2, 6)] <- cbind(add_snp, add_chromo, add_marker)[enter,]
             }
@@ -1581,20 +1666,7 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
 
 
-    if(is.matrix(dataset) && is.numeric(dataset[1,1])){
-      if(storage.mode(dataset)!="integer"){
-        storage.mode(dataset) <- "integer"
-      }
-    } else if(is.matrix(dataset)){
-      if(length(hom0)==0){
-        hom0 <- dataset[,1]
-      }
-      if(length(hom1)==0){
-        hom1 <- dataset[,1]
-      }
-      dataset <- (dataset==hom1)
-      storage.mode(dataset) <- "integer"
-    }
+
 
     if((length(population)==0 || (length(population)>0 & add.chromosome)) && (length(snp.position)>0 && snp.position[1]<=0 && (length(snps.equidistant)==0 || snps.equidistant!=TRUE))){
       snp.position[1] <- snp.position[2]/2
@@ -1693,7 +1765,15 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$info$pool_effects = FALSE
 
         population$info$pen.size <- cbind(1,1)
+        population$info$litter.effect.active <- FALSE
+        population$info$pen.effect.active <- FALSE
 
+        if(length(litter.effect.covariance)>0 && sum( abs(litter.effect.covariance))>0){
+          population$info$litter.effect.active <- TRUE
+        }
+        if(length(pen.effect.covariance)>0 && sum( abs(pen.effect.covariance))>0){
+          population$info$pen.effect.active <- TRUE
+        }
 
 
         if(length(is.maternal)==0){
@@ -1912,10 +1992,25 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
           population$breeding[[generation]][[sex]][[counter[sex]]][[28]] <- numeric(0)
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[29]]  <- rep(0L, population$info$bv.nr) ## Litter effect
-          population$breeding[[generation]][[sex]][[counter[sex]]][[30]]  <- rep(0L, population$info$bv.nr) ## Pen effect
-          population$breeding[[generation]][[sex]][[counter[sex]]][[31]]  <- 0L ## Litter nr
-          population$breeding[[generation]][[sex]][[counter[sex]]][[32]]  <- 0L ## Pen nr
+          if(population$info$litter.effect.active){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[29]]  <- rep(0L, population$info$bv.nr) ## Litter effect
+            population$breeding[[generation]][[sex]][[counter[sex]]][[31]]  <- 0L ## Litter nr
+          } else{
+            population$breeding[[generation]][[sex]][[counter[sex]]][[30]]  <- rep(0L, population$info$bv.nr) ## Pen effect
+            population$breeding[[generation]][[sex]][[counter[sex]]][[32]]  <- 0L ## Pen nr
+          }
+
+          if(population$info$pen.effect.active){
+            child_temp[[30]] <- rep(0L, population$info$bv.nr)
+            child_temp[[32]] <- 0L
+          } else{
+
+          }
+
+
+
+
+
 
           population$breeding[[generation]][[sex]][[counter[sex]]][[33]] <- "placeholder"
           population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
@@ -1923,12 +2018,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         }
 
         if(length(population$breeding[[generation]])==2){
-          population$breeding[[generation]][[3]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Selektionsfunktion
-          population$breeding[[generation]][[4]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[3]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # Selektionsfunktion
+          population$breeding[[generation]][[4]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[5]] <- rep(class,counter[1]-1) # Migrationslevel
           population$breeding[[generation]][[6]] <- rep(class,counter[2]-1)
-          population$breeding[[generation]][[7]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
-          population$breeding[[generation]][[8]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[7]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # realer ZW
+          population$breeding[[generation]][[8]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[9]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-1) # Phenotype
           population$breeding[[generation]][[10]] <- matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[11]] <- rep(time.point,counter[1]-1) # Time point
@@ -1941,18 +2036,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$next.animal <- population$info$next.animal + counter[2] - 1
           population$breeding[[generation]][[17]] <- rep(NA,counter[1]-1) # Time of death point
           population$breeding[[generation]][[18]] <- rep(NA,counter[2]-1)
-          population$breeding[[generation]][[19]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Reliabilities
-          population$breeding[[generation]][[20]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-          population$breeding[[generation]][[21]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
-          population$breeding[[generation]][[22]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[19]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # Reliabilities
+          population$breeding[[generation]][[20]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[21]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # Last applied selection index
+          population$breeding[[generation]][[22]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[23]] <- rep(time.point,counter[1]-1) # Age time point
           population$breeding[[generation]][[24]] <- rep(time.point,counter[2]-1)
           population$breeding[[generation]][[25]] <- rep(NA,counter[1]-1) # Death time point
           population$breeding[[generation]][[26]] <- rep(NA,counter[2]-1)
-          population$breeding[[generation]][[27]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
-          population$breeding[[generation]][[28]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
-          population$breeding[[generation]][[29]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
-          population$breeding[[generation]][[30]] <- matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[27]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # offspring phenotype
+          population$breeding[[generation]][[28]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
+          population$breeding[[generation]][[29]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # number of offspring used
+          population$breeding[[generation]][[30]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[31]] <- rep(0,counter[1]-1) # Time of death point
           population$breeding[[generation]][[32]] <- rep(0,counter[2]-1)
 
@@ -1968,12 +2063,12 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
 
           # calculate Real-ZW
         } else{
-          population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
-          population$breeding[[generation]][[4]] <- cbind(population$breeding[[generation]][[4]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
+          population$breeding[[generation]][[4]] <- cbind(population$breeding[[generation]][[4]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
           population$breeding[[generation]][[5]] <- c(population$breeding[[generation]][[5]], rep(class ,counter[1]-counter.start[1])) # Migrationslevel
           population$breeding[[generation]][[6]] <- c(population$breeding[[generation]][[6]], rep(class ,counter[2]-counter.start[2]))
-          population$breeding[[generation]][[7]] <- cbind(population$breeding[[generation]][[7]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # realer ZW
-          population$breeding[[generation]][[8]] <- cbind(population$breeding[[generation]][[8]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[7]] <- cbind(population$breeding[[generation]][[7]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # realer ZW
+          population$breeding[[generation]][[8]] <- cbind(population$breeding[[generation]][[8]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
           population$breeding[[generation]][[9]] <- cbind(population$breeding[[generation]][[9]] , matrix(NA, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # geschaetzer ZW
           population$breeding[[generation]][[10]] <-cbind(population$breeding[[generation]][[10]] , matrix(NA, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
           population$breeding[[generation]][[11]] <- c(population$breeding[[generation]][[11]], rep(time.point ,counter[1]-counter.start[1])) # Time point
@@ -1987,18 +2082,18 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$next.animal <- population$info$next.animal + counter[2] - counter.start[2]
           population$breeding[[generation]][[17]] <- c(population$breeding[[generation]][[17]], rep(NA ,counter[1]-counter.start[1])) # Time of death
           population$breeding[[generation]][[18]] <- c(population$breeding[[generation]][[18]], rep(NA ,counter[2]-counter.start[2]))
-          population$breeding[[generation]][[19]] <- cbind(population$breeding[[generation]][[19]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Reliabilities
-          population$breeding[[generation]][[20]] <- cbind(population$breeding[[generation]][[20]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
-          population$breeding[[generation]][[21]] <- cbind(population$breeding[[generation]][[21]], matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Last applied selection index
-          population$breeding[[generation]][[22]] <- cbind(population$breeding[[generation]][[22]], matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[19]] <- cbind(population$breeding[[generation]][[19]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Reliabilities
+          population$breeding[[generation]][[20]] <- cbind(population$breeding[[generation]][[20]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[21]] <- cbind(population$breeding[[generation]][[21]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Last applied selection index
+          population$breeding[[generation]][[22]] <- cbind(population$breeding[[generation]][[22]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
           population$breeding[[generation]][[23]] <- c(population$breeding[[generation]][[23]], rep(time.point ,counter[1]-counter.start[1])) # Age Time point
           population$breeding[[generation]][[24]] <- c(population$breeding[[generation]][[24]], rep(time.point ,counter[2]-counter.start[2]))
           population$breeding[[generation]][[25]] <- c(population$breeding[[generation]][[25]], rep(NA ,counter[1]-counter.start[1])) # Death Time point
           population$breeding[[generation]][[26]] <- c(population$breeding[[generation]][[26]], rep(NA ,counter[2]-counter.start[2]))
-          population$breeding[[generation]][[27]] <- cbind(population$breeding[[generation]][[27]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # offspring phenotype
-          population$breeding[[generation]][[28]] <-cbind(population$breeding[[generation]][[28]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
-          population$breeding[[generation]][[29]] <- cbind(population$breeding[[generation]][[29]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # number of offspring used
-          population$breeding[[generation]][[30]] <-cbind(population$breeding[[generation]][[30]] , matrix(0, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[27]] <- cbind(population$breeding[[generation]][[27]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # offspring phenotype
+          population$breeding[[generation]][[28]] <-cbind(population$breeding[[generation]][[28]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          population$breeding[[generation]][[29]] <- cbind(population$breeding[[generation]][[29]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # number of offspring used
+          population$breeding[[generation]][[30]] <-cbind(population$breeding[[generation]][[30]] , matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[31]] <- c(population$breeding[[generation]][[31]], rep(0, counter[1]-counter.start[1])) # Last applied selection index
           population$breeding[[generation]][[32]] <- c(population$breeding[[generation]][[32]], rep(0, counter[2]-counter.start[2]))
@@ -2078,22 +2173,28 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         name.cohort <- paste0("Cohort_", population$info$cohort.index)
         population$info$cohort.index <- population$info$cohort.index + 1
       }
+
+      if(length(name.cohort)==1 && ((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0)){
+        name.cohort = paste0(name.cohort, c("_M", "_F"))
+        if(verbose) cat("Both sexes in the cohort. Added _M, _F to cohort names!\n")
+      }
+
       if(length(name.cohort)>=1 && add.chromosome==FALSE){
 
         if((counter-counter.start)[1]>0 && (counter-counter.start)[2]>0){
-          population$info$cohorts <- rbind(population$info$cohorts, c(paste0(name.cohort, "_M"), generation, (counter - counter.start)[1], 0, class, counter.start[1], 0,
+          population$info$cohorts <- rbind(population$info$cohorts, c(name.cohort[1], generation, (counter - counter.start)[1], 0, class, counter.start[1], 0,
                                                                       time.point, creating.type),
-                                           c(paste0(name.cohort, "_F"), generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
+                                           c(name.cohort[2], generation, 0, (counter - counter.start)[2], class, 0, counter.start[2],
                                              time.point, creating.type))
 
-          if(verbose) cat("Both sexes in the cohort. Added _M, _F to cohort names!\n")
+
 
           if(verbose){
-            posi <- get.database(population, cohorts = paste0(name.cohort, "_M"))
-            cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_M"), "\n",
+            posi <- get.database(population, cohorts = name.cohort[1])
+            cat(paste0("Successfully generated cohort: ",  name.cohort[1], "\n",
                        "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
-            posi <- get.database(population, cohorts = paste0(name.cohort, "_F"))
-            cat(paste0("Successfully generated cohort: ",  paste0(name.cohort, "_F"), "\n",
+            posi <- get.database(population, cohorts = name.cohort[2])
+            cat(paste0("Successfully generated cohort: ",  name.cohort[2], "\n",
                        "Database position: ", posi[1], " (gen), ", posi[2], " (sex), ", posi[3], " (first), ", posi[4], " (last).\n" ))
           }
 
@@ -2366,8 +2467,21 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
         population$info$pen.effect.covariance <- diag(0L, bv.total)
       }
       if(length(pen.effect.covariance)>0){
-        population$info$pen.effect.covariance <- new.breeding.correlation
+        population$info$pen.effect.covariance <- pen.effect.covariance
       }
+
+      if(length( population$info$litter.effect.covariance)==0 || sum( abs(population$info$litter.effect.covariance))==0){
+        population$info$litter.effect.active <- FALSE
+      } else{
+        population$info$litter.effect.active <- TRUE
+      }
+
+      if(length( population$info$pen.effect.covariance)==0 || sum( abs(population$info$pen.effect.covariance))==0){
+        population$info$pen.effect.active <- FALSE
+      } else{
+        population$info$pen.effect.active <- TRUE
+      }
+
 
 
       if(bv.total>0){
@@ -2394,7 +2508,16 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           shuffle.traits <- which(population$info$bv.random==FALSE)
         }
         # scaling of QTL effects
+        if(!population$info$bv.calculated){
+          if(use.recalculate.manual){
+            population = recalculate.manual(population, cohorts = name.cohort_temp)
+            population$info$bv.calculated = TRUE
+          }
+        }
+
         population <- breeding.diploid(population, verbose = FALSE)
+
+
         bvs <- get.bv(population, gen=1)
         scalings <- sqrt(diag(stats::var(t(bvs))))
         if(sum(is.na(scalings))>0){
@@ -2471,16 +2594,34 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           for(index in shuffle.traits){
             new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
             row <- 1
+            add.list = mult.list = list()
             for(index2 in shuffle.traits){
               if(length(store.add[[index2]])>0){
-                new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1,1)))
-                zeros <- rowSums(abs(new.add[,3:5, drop=FALSE]))
-                new.add <- new.add[zeros>0,,drop=FALSE]
+
+                if(LT[row,col]!=0){
+                  temp1 <- store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1,1))
+                } else{
+                  temp1 <- NULL
+                }
+                if(length(temp1)>0){
+                  zeros <- rowSums(abs(temp1[,3:5, drop=FALSE]))
+                  temp1 <- temp1[zeros>0,,drop=FALSE]
+                }
+                add.list[[index2]] = temp1
+
               }
               if(length(store.mult[[index2]])>0){
-                new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
-                zeros <- rowSums(abs(new.mult[,5:13, drop=FALSE]))
-                new.mult <- new.mult[zeros>0,,drop=FALSE]
+
+                if(LT[row,col]!=0){
+                  temp1 <- store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9)))
+                } else{
+                  temp1 <- NULL
+                }
+                if(length(temp1)>0){
+                  zeros <- rowSums(abs(new.mult[,5:13, drop=FALSE]))
+                  temp1 <- temp1[zeros>0,,drop=FALSE]
+                }
+                mult.list[[index2]] = temp1
               }
               if(length(store.dice[[index2]])>0){
                 before <- length(new.dice2)
@@ -2492,6 +2633,10 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
               }
               row <- row +1
             }
+
+            new.add = do.call(rbind, add.list)
+            new.mult = do.call(rbind, mult.list)
+
             # DONT REMOVE NULL - MORE WORK NEEDED HERE!
             if(length(new.add)==0){
 
@@ -2519,19 +2664,24 @@ creating.diploid <- function(dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.n
           population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
         }
 
+
+      }
+
+      if(population$info$bv.nr > 0){
         for(index in 1:population$info$bv.nr){
-          if(length(population$info$real.bv.add[[index]])>0){
+          if(length(population$info$real.bv.add[[index]])>1){
             t <- population$info$real.bv.add[[index]]
             take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
             t <- t[take$ix,,drop=FALSE]
             take <- sort(t[,1]+ t[,2] * 10^10 + t[,7]*10^8)
             keep <- c(0,which(diff(take)!=0), length(take))
-            if(length(keep) <= (nrow(t)+1)){
-              for(index2 in 2:(length(keep))){
+            if(length(keep) < (nrow(t)+1)){
+
+              for(index2 in (2:(length(keep)))[diff(keep)>1]){
                 t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
               }
-              population$info$real.bv.add[[index]] <- t[keep,]
             }
+            population$info$real.bv.add[[index]] <- t[keep,,drop=FALSE]
           }
         }
       }
@@ -2621,14 +2771,16 @@ E.g. The entire human genome has a size of ~33 Morgan."))
     times_comp[6] <- as.numeric(Sys.time())
   }
 
-  if(store.comp.times){
-    add <- diff(times_comp)
-    names(add) <- c("Initialization", "Genotype Generation", "Preprocessing", "Population List genotypes", "Population list traits")
-    population$info$comp.times.creating <- rbind( population$info$comp.times.creating, add)
-  }
+
 
   if(!internal){
 
+    if(store.comp.times){
+      add <- diff(times_comp)
+      add = c(add, sum(add))
+      names(add) <- c("Initialization", "Genotype Generation", "Preprocessing", "Population List genotypes", "Population list traits", "Total")
+      population$info$comp.times.creating <- rbind( population$info$comp.times.creating, add)
+    }
 
     if(length(population$info$creating.freq)==0){
       population$info$creating.freq <- freq
@@ -2646,25 +2798,47 @@ E.g. The entire human genome has a size of ~33 Morgan."))
       if(length(bv.ignore.traits)>0){
         activ_bv <- activ_bv[-bv.ignore.traits]
       }
-      for(sex in 1:2){
-        if(counter.start[sex]<counter[sex]){
-          for(nr.animal in counter.start[sex]:(counter[sex]-1)){
 
-            temp_out <- calculate.bv(population, generation, sex, nr.animal,
-                                     decodeOriginsU=decodeOriginsU,
-                                     output_compressed=FALSE,
-                                     activ_bv = activ_bv,
-                                     bv.ignore.traits=bv.ignore.traits)
-            population$breeding[[generation]][[6+sex]][,nr.animal] <- temp_out[[1]]
-            population$breeding[[generation]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0
+      if(use.recalculate.manual){
+        population = recalculate.manual(population, cohorts = name.cohort_temp, store.comp.times= store.comp.times)
+
+#        if(store.comp.times){
+#          population$info$comp.times.general[nrow(population$info$comp.times.general)-1, ] = population$info$comp.times.general[nrow(population$info$comp.times.general)-1, ] +
+#            population$info$comp.times.general[nrow(population$info$comp.times.general), ]
+#          population$info$comp.times.general = population$info$comp.times.general[-nrow(population$info$comp.times.general), ,drop = FALSE]
+#        }
+
+      } else{
+        for(sex in 1:2){
+          if(counter.start[sex]<counter[sex]){
+            for(nr.animal in counter.start[sex]:(counter[sex]-1)){
+
+              temp_out <- calculate.bv(population, generation, sex, nr.animal,
+                                       decodeOriginsU=decodeOriginsU,
+                                       output_compressed=FALSE,
+                                       activ_bv = activ_bv,
+                                       bv.ignore.traits=bv.ignore.traits)
+              population$breeding[[generation]][[6+sex]][,nr.animal] <- temp_out[[1]]
+              population$breeding[[generation]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0
+            }
+
+
           }
-
-
         }
       }
 
+
+
     }
+
+    if(use.recalculate.manual){
+      population = recalculate.manual(population, cohorts = name.cohort_temp)
+      population$info$bv.calculated = TRUE
+    }
+
     population <- breeding.diploid(population, verbose = verbose)
+
+
     class(population) <- "population"
 
 

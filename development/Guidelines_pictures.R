@@ -20,6 +20,12 @@ colnames(real.bv.dice$location[[2]]) <- c("SNP", "chromosome")
 
 
 
+population = creating.diploid(nsnp = 10, chr.nr = 5, nindi = 50)
+population = breeding.diploid(population, breeding.size = 50,
+                              breeding.sex = 0.6,
+                              selection.size = c(10,10),
+                              name.cohort = "Offspring")
+
 database <- cbind(c(1,5), c(2,1))
 colnames(database) <- c("Generation", "sex")
 
@@ -35,7 +41,8 @@ pop <- creating.diploid(nsnp=10000, nindi=100,
                         chr.nr=5, chromosome.length=2,
                         n.additive=50, n.dominant=10,
                         name.cohort="Founder",
-                        var.target = 1)
+                        var.target = 1,
+                        share.genotyped = 1)
 pop <- breeding.diploid(pop, heritability=0.5,
                         phenotyping="all")
 pop <- breeding.diploid(pop, bve=TRUE)
@@ -439,6 +446,7 @@ population <- creating.diploid(nindi = 1000, nsnp = 5000,
 # Simulation of a random mating generation
 # 100 bulls (sex=1), 1'000 cows (sex=2) are generated
 population <- breeding.diploid(population, breeding.size = c(100,1000),
+                               share.genotyped = 1,
                                selection.size = c(500,500),
                                selection.m.cohorts = "Founders_M",
                                selection.f.cohorts = "Founders_F",
@@ -462,6 +470,7 @@ population <- breeding.diploid(population, breeding.size = c(0,900),
                                selection.size = c(5,1000),
                                selection.criteria = "bve",
                                name.cohort = "Sec_F",
+                               share.genotyped = 1,
                                selection.m.cohorts = "Random_M",
                                selection.f.cohorts = "Random_F",
                                add.gen = 3)
@@ -503,7 +512,7 @@ dev.off()
 # Seletion Hardsweep
 {
 library(MoBPS)
-set.seed(1)
+set.seed(2)
 
 # Generate a starting population with 5000 SNPs and 200 individuals
 # and a single chromosome of length 2 Morgan.
@@ -519,7 +528,7 @@ for(index in 1:100){
 # Derive allele frequency and check LD for the last generation:
 genotype.check <- get.geno(population, gen = length(population$breeding))
 p_i <- rowMeans(genotype.check)/2
-ld.decay(population, genotype.dataset = genotype.check, step = 10, max = 500)
+ld.decay(population, genotype.dataset = genotype.check, step = 10, max = 500, plot = TRUE)
 
 # Simulate a favorable mutation in a previously fixed marker
 fixated_markers <- which(p_i==0) # Which markers are fixated
@@ -541,12 +550,12 @@ for(index in 1:25){
 
 analyze.population(population, gen = 98:115, chromosome = 1, snp = qtl_posi)
 
-  png("C:/Users/pook/Desktop/ld_decay_sweep.png", width=2250, height= 960, res=300)
+  png("C:/Users/pook001/OneDrive - Wageningen University & Research/ld_decay_sweep.png", width=2250, height= 960, res=300)
   par(mar=c(4.1,4.1,0.6,0.6))
-  ld.decay(population, genotype.dataset = genotype.check, step=5, max=500)
+  ld.decay(population, genotype.dataset = genotype.check, step=5, max=500, plot = TRUE)
   dev.off()
 
-  png("C:/Users/pook/Desktop/allele_freq_sweep.png", width=2250, height= 960, res=300)
+  png("C:/Users/pook001/OneDrive - Wageningen University & Research/allele_freq_sweep.png", width=2250, height= 960, res=300)
   par(mar=c(4.1,4.1,0.6,0.6))
   analyze.population(population, gen=98:115, chromosome = 1, snp=qtl_posi )
   dev.off()
@@ -662,23 +671,25 @@ population <- breeding.diploid(population, phenotyping.cohorts = "PartlyPhenotyp
 population <- breeding.diploid(population, phenotyping.cohorts = "Phenotyped+Genotyped",
                                genotyped.cohorts = "Phenotyped+Genotyped")
 
-# MoBPS default BVE: GBLUP (all non-genotyped individuals are ignored)
-# BVE only for the individuals in "Phenotyped+Genotyped"-cohort
-# Genotype / Phenotype information from all copies entered in bve.gen/database/cohorts is collected
+# MoBPS default: single-step GBLUP
+# All 500 individuals are used with 250/250/100 providing phenotype information
 population <- breeding.diploid(population, bve=TRUE,
                                bve.cohorts = c("Founder", "PartlyPhenotyped",
                                                "Phenotyped+Genotyped"))
 
 # BVE with pedigree BLUP
-# All 500 individuals are used with 250/250/100 providing phenotype information
 population <- breeding.diploid(population, bve=TRUE,
                                bve.cohorts = c("Founder", "PartlyPhenotyped",
                                                "Phenotyped+Genotyped"),
                                relationship.matrix = "kinship")
 
-# BVE with single-step GBLUP
-# Usually slightly higher prediction accuracy than pedigree BLUP
-population <- breeding.diploid(population, bve=TRUE, singlestep.active = TRUE,
+# Not include non-genotyped individuals in the evaluation
+population <- breeding.diploid(population, bve=TRUE, singlestep.active = FALSE,
+                               bve.cohorts = c("Founder", "PartlyPhenotyped",
+                                               "Phenotyped+Genotyped"))
+
+# Act as if all individuals were genotyped (although they are not!)
+population <- breeding.diploid(population, bve=TRUE, bve.all.genotyped = TRUE,
                                bve.cohorts = c("Founder", "PartlyPhenotyped",
                                                "Phenotyped+Genotyped"))
 
@@ -715,8 +726,7 @@ cor(get.bv(population, gen=1)[1,], get.bv(ex_pop, gen=1:5)[1,])
 population <- creating.diploid(nsnp = 1000, nindi=10,
                                n.additive = c(100,100),
                                var.target = c(100,20),
-                               shuffle.traits = 1:2,
-                               shuffle.cor = matrix(c(1,0.5, 0.5, 1), nrow=2),
+                               trait.cor = matrix(c(1,0.5, 0.5, 1), nrow=2),
                                is.maternal = c(FALSE, TRUE),
                                trait.name = c("direct_effect", "maternal_effect"))
 
@@ -790,12 +800,8 @@ population <- creating.diploid(nsnp = 500, nindi = 30,
                                bp = c(1:250*1000000, 1:250*50000))
 get.pedmap(population, path="import_test", gen=1)
 
-#
 map <- as.matrix(read.table("import_test.map"))
 ped <- as.matrix(read.table("import_test.ped"))
-# Order in MoBPS map-files is not the same as in regular PedMap
-# This will be fixed soon!
-map[,3:4] <- map[,4:3]
 
 # Convert PED-file into haplotype dataset (one haplotype per colum)
 nsnp <- (ncol(ped)-6)/2
@@ -806,7 +812,9 @@ haplo <- t(rbind(haplo1, haplo2)[c(0,nrow(haplo1)) + sort(rep(1:nrow(haplo1),2))
 population <- creating.diploid(dataset = haplo, map = map,  bpcm.conversion = 1000000)
 summary(population)
 # Assume markers to be equidistant and generate a genome of fixed size:
-population <- creating.diploid(dataset = haplo, map = map,  chromosome.length = c(2,1))
+# This will overwrite snp positions from the map file
+population <- creating.diploid(dataset = haplo, map = map,
+                               snps.equidistant = TRUE, chromosome.length = c(2,1))
 summary(population)
 
 
@@ -824,6 +832,7 @@ pop <- creating.diploid(nsnp=10000, nindi=100,
                         chr.nr=5, chromosome.length=2,
                         n.additive=50, n.dominant=10,
                         name.cohort="Founder",
+                        share.genotyped = 1,
                         var.target = 1)
 
 # Generate phenotypic observations for all individuals
@@ -859,12 +868,15 @@ pop2 <- breeding.diploid(pop, breeding.size=100,
                          selection.f.cohorts="Founder_F",
                          name.cohort="Offspring")
 
-library(MoBPS)
-gain1 <- gain2 <- inbreeding1 <- inbreeding2 <- numeric(10000)
-for(index in 1:10000){
+
+# Initialize objects to store simulation outputs in
+gain1 <- gain2 <- kinship1 <- kinship2 <- numeric(100)
+# Run simulation 100 times
+for(index in 1:100){
   pop <- creating.diploid(nsnp=10000, nindi=100,
                           chr.nr=5, chromosome.length=2,
                           n.additive=50, n.dominant=10,
+                          share.genotyped = 1,
                           name.cohort="Founder",
                           var.target = 1)
 
@@ -896,8 +908,8 @@ for(index in 1:10000){
   temp2 <- kinship.emp(population=pop2, gen=2)
 
   # Calculate the average of all off-diagonal values
-  inbreeding1[index] <- mean(temp1-diag(diag(temp1))) * 100/99
-  inbreeding2[index] <- mean(temp2-diag(diag(temp2))) * 100/99
+  kinship1[index] <- mean(temp1-diag(diag(temp1))) * 100/99
+  kinship2[index] <- mean(temp2-diag(diag(temp2))) * 100/99
 }
 
 save(file="C:/Users/pook/Desktop/Fig1_data.RData", list=c("a", "b", "c","d"))
@@ -914,8 +926,8 @@ save(file="C:/Users/pook/Desktop/Fig1_data.RData", list=c("a", "b", "c","d"))
   axis(side=4)
   axis(side=1, at=seq(0.4,1.6, by=.3))
   title(ylab="Scenario 1", line=0, cex.lab=1.5)
-  hist(inbreeding1, xlim=c(0.004,0.019), main="", axes = FALSE, xlab="", breaks = 25)
-  abline(v=mean(inbreeding1), col="red", lwd=2)
+  hist(kinship1, xlim=c(0.004,0.019), main="", axes = FALSE, xlab="", breaks = 25)
+  abline(v=mean(kinship1), col="red", lwd=2)
   axis(side=4, ylab="Scenario 1")
   axis(side=1, at=seq(0.005,0.018, by=.003))
   hist(gain2, xlim=c(0.2,1.65), axes=FALSE, main="", xlab="", breaks = 50)
@@ -924,8 +936,8 @@ save(file="C:/Users/pook/Desktop/Fig1_data.RData", list=c("a", "b", "c","d"))
   axis(side=1, at=seq(0.4,1.6, by=.3))
   title(ylab="Scenario 2", line=0, cex.lab=1.5)
   title(xlab="Genomic gain", cex.lab=1.5)
-  hist(inbreeding2, xlim=c(0.004,0.019), axes=FALSE, main="", xlab="", breaks = 40)
-  abline(v=mean(inbreeding2), col="red", lwd=2)
+  hist(kinship2, xlim=c(0.004,0.019), axes=FALSE, main="", xlab="", breaks = 40)
+  abline(v=mean(kinship2), col="red", lwd=2)
   axis(side=4)
   axis(side=1,at=seq(0.005,0.018, by=.003))
   title(xlab="Gain in avg. kinship", cex.lab=1.5)
@@ -1118,12 +1130,12 @@ new_bv = get.bv(population, gen=1)
 
 old_bv
 #M1_1      M2_1      M3_1      M4_1      F1_1      F2_1      F3_1      F4_1
-#Trait 1  95.33272  97.05488 100.00000 100.00000  94.98303  82.02923 100.00000 100.00000
-#Trait 2 100.00000 100.00000  82.48126  82.76736 100.00000 100.00000  99.78461  83.69153
+#Trait 1  94.98455  97.95988 100.0000 100.000  98.01574  94.72518 100.0000 100.0000
+#Trait 2 100.00000 100.00000 114.7768 108.875 100.00000 100.00000 100.3462 101.3287
 
 new_bv
 #M1_1     M2_1     M3_1     M4_1     F1_1     F2_1     F3_1     F4_1
-#Trait 1 95.33272 97.05488 82.48126 82.76736 94.98303 82.02923 99.78461 83.69153
+#Trait 1 94.98455 97.95988 114.7768 108.875 98.01574 94.72518 100.3462 101.3287
 
 # Which segment stems from which founder pool?
 pools = get.pool(population, gen = 4, plot = TRUE)
@@ -1328,14 +1340,14 @@ table(age)
 hist(age, main="Distribution of the age of individuals in the breeding population", nclass=50)
 
 
+set.seed(1)
+
 # Generation of a baseline population
 # Generation of a trait with slightly different genetic architecture in two environments
 
-set.seed(1)
-
 population <- creating.diploid(nsnp=5000, nindi=100, n.additive = c(100,100),
                                share.genotyped = 1,
-                               shuffle.cor = matrix(c(1,0.9,0.9,1), ncol=2))
+                               trait.cor = matrix(c(1,0.9,0.9,1), ncol=2))
 
 # Linking of the two traits (environments)
 population <- combine.traits(population, combine.traits = 1:2)
@@ -1368,7 +1380,7 @@ set.seed(1)
 
 population <- creating.diploid(nsnp=5000, nindi=100, n.additive = c(100,100),
                                share.genotyped = 1,
-                               shuffle.cor = matrix(c(1,0.9,0.9,1), ncol=2))
+                               trait.cor = matrix(c(1,0.9,0.9,1), ncol=2))
 
 # Collection of phenotypic data
 # 50 lines are phenotypes in either of the two environments
@@ -1472,6 +1484,44 @@ selected_indi = breeding.diploid(population, selection.size = c(5,5),
                                  selection.criteria = "pheno",
                                  export.selected = TRUE,
                                  multiple.bve.weights.m = trait_index)
+
+
+{
+
+  # Generate a founder population
+  population <- creating.diploid(nsnp=1000, nindi = 100, n.additive = 100)
+
+  # Make sure the simulated trait has a set mean and variance
+  population <- bv.standardization(population, gen=1, mean.target = 100, var.target = 10)
+
+  # Generate offspring
+  population <- breeding.diploid(population, breeding.size = 500, selection.size = c(50,50))
+
+  ### Plain application of culling with a set probability
+
+  # Apply culling with a probability of 0.3 to all individuals
+  pop1 <- breeding.diploid(population, culling.gen=2, culling.share1 = 0.3)
+
+  # Death animals put into class (-1)
+  # This means that these individuals on default will not be used for reproduction anymore
+  # These individuals can still be used in a breeding value estimation
+  table(get.class(pop1, gen=2))
+  #-1   0
+  #170 330
+
+  ### Apply culling with a probability depending on the genomic value
+
+  pop2 <- breeding.diploid(population, culling.gen=2, culling.bv1 = 100, culling.share1 = 0.5, culling.bv2 = 105, culling.share2 = 0.1,
+                           culling.index = 1)
+
+  class <- get.class(pop2, gen=2)
+  bv <- get.bv(pop2, gen=2)[1,]
+
+  par(mfrow=c(2,1))
+  hist(bv[class==0], xlim=c(90,110), main="Genomic value distribution of alive individuals", xlab="genomic value")
+  hist(bv[class==(-1)], xlim=c(90,110), main="Genomic value distrition of death individuals", xlab="genomic value")
+
+}
 library(drat)
 ?drat
 drat::insertPackage("C:/Users/pook/Documents/GitHub/MoBPS/RandomFieldsUtils_1.0.6.tar.gz", "C:/Users/pook/Documents/GitHub/drat/")

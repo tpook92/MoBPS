@@ -175,7 +175,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     not_first = FALSE
     for(index in 2:nrow(database)){
       if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
-        first_index <- which(database[index,1]==database[,1])[1]
+        first_index <- which(database[index,1]==database[,1] & database[index,2]==database[,2])[1]
         first_same <- database[first_index,1]
         not_first = FALSE
       } else{

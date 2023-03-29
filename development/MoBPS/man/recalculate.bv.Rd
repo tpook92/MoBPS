@@ -9,7 +9,8 @@ recalculate.bv(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  bv.ignore.traits = NULL
+  bv.ignore.traits = NULL,
+  store.comp.times = TRUE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ recalculate.bv(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
+
+\item{store.comp.times}{If TRUE store computation times in $info$comp.times.general (default: TRUE)}
 }
 \value{
 Population list

@@ -16,7 +16,9 @@ ld.decay(
   gen = NULL,
   cohorts = NULL,
   type = "snp",
-  plot = FALSE
+  plot = FALSE,
+  xlim = NULL,
+  ylim = NULL
 )
 }
 \arguments{
@@ -43,6 +45,10 @@ ld.decay(
 \item{type}{Compute LD decay according to following distance measure between markers (default: "snp", alt: "bp", "cM")}
 
 \item{plot}{Set to FALSE to not generate an LD plot}
+
+\item{xlim}{Axis limits for the x-axis in the LD plot}
+
+\item{ylim}{Axis limits for the y-axis in the LD plot}
 }
 \value{
 LD-decay plot for in gen/database/cohorts selected individuals

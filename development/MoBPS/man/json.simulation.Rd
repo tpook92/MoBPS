@@ -22,7 +22,8 @@ json.simulation(
   export.gen = NULL,
   export.timepoint = NULL,
   fixed.generation.order = NULL,
-  generation.cores = NULL
+  generation.cores = NULL,
+  manual.select.check = FALSE
 )
 }
 \arguments{
@@ -61,6 +62,8 @@ json.simulation(
 \item{fixed.generation.order}{Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)}
 
 \item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
+
+\item{manual.select.check}{Set to FALSE to not automatically remove cohorts from Manual select with they lead to an invalite breeding scheme}
 }
 \value{
 Population-list

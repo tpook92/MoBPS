@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.timepoint Last timepoint to simulate before exporting population to file
 #' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
+#' @param manual.select.check Set to FALSE to not automatically remove cohorts from Manual select with they lead to an invalite breeding scheme
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
@@ -58,7 +59,8 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             export.gen=NULL,
                             export.timepoint=NULL,
                             fixed.generation.order=NULL,
-                            generation.cores = NULL){
+                            generation.cores = NULL,
+                            manual.select.check = FALSE){
 
   if(length(log)==0 && length(file)>0){
     log <- paste0(file, ".log")
@@ -2493,29 +2495,89 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
 
 
-          for(index in (1:length(edges))[!last_avail]){
-            there <- which(edges[[index]]$to==possible)
-            if(length(there)>0){
+          if(manual.select.check){
+            for(index in (1:length(edges))[!last_avail]){
+              there <- which(edges[[index]]$to==possible)
+              if(length(there)>0){
 
 
-              if(sum(edges[[index]]$from==stock)==0){
+                if(sum(edges[[index]]$from==stock)==0){
 
-                possible <- possible[-there]
-
-                next
-              }
-
-              to_node <- which(ids==edges[[index]]$to)
-
-              if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
-                manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
-                if(length(intersect(manu, stock))<length(manu)){
                   possible <- possible[-there]
+
+                  next
+                }
+
+                to_node <- which(ids==edges[[index]]$to)
+
+                if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                  manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                  if(length(intersect(manu, stock))<length(manu)){
+                    possible <- possible[-there]
+                  }
+                }
+
+              }
+            }
+          } else{
+
+            possible_temp = possible
+            for(index in (1:length(edges))[!last_avail]){
+              there <- which(edges[[index]]$to==possible)
+              if(length(there)>0){
+
+
+                if(sum(edges[[index]]$from==stock)==0){
+
+                  possible <- possible[-there]
+
+                  next
+                }
+
+                to_node <- which(ids==edges[[index]]$to)
+
+                if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                  manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                  if(length(intersect(manu, stock))<length(manu)){
+                    possible <- possible[-there]
+                  }
+                }
+
+              }
+            }
+
+            if(length(possible)== 0){
+              possible = possible_temp
+
+              for(index in (1:length(edges))[!last_avail]){
+                there <- which(edges[[index]]$to==possible)
+                if(length(there)>0){
+
+
+                  if(sum(edges[[index]]$from==stock)==0){
+
+                    possible <- possible[-there]
+
+                    next
+                  }
+
+                  to_node <- which(ids==edges[[index]]$to)
+
+                  if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                    manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                    if(length(intersect(manu, stock))<length(manu)){
+                      nodes[[to_node]]$'Manuel selected cohorts' = intersect(manu, stock)
+                      if(verbose){
+                        cat(paste0("Removed ", length(manu) - length(intersect(manu, stock)), " cohorts from BVE for ", edges[[index]]$from, " to ", edges[[index]]$to, ".\n"))
+                      }
+                    }
+                  }
+
                 }
               }
-
             }
           }
+
 
           if(length(intersect(possible, priority_breeding))>0){
             possible <- intersect(possible, priority_breeding)
@@ -2573,6 +2635,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         generation_group <- list()
         generation_bv_size <- list()
         for(index in 1:length(generation_times)){
+          print(index)
           nrs <- setdiff(which(time.point.list==generation_times[[index]]), founder)
           btype <- numeric(length(nrs))
           if(length(nrs)>0){
@@ -3344,7 +3407,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   parent_average <- FALSE
                   grandparent_average <- FALSE
                   mean_between <- NULL
-                  phenotype.bv <- FALSE
+                  selection.criteria <- NULL
                   pseudo_bve <- FALSE
                   computeA <- "vanRaden"
                   input_phenotype <- "own"
@@ -3407,7 +3470,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                   } else if(nodes[[groupnr]]$'Selection Type'=="Phenotypic"){
                     bve <- FALSE
                     selection <- "function"
-                    phenotype.bv <- TRUE
+                    selection.criteria <- c("pheno")
                   } else if(nodes[[groupnr]]$'Selection Type' == "Pseudo-BVE"){
                     bve <- pseudo_bve <- TRUE
                     pseudo_acc <- nodes[[groupnr]]$'PseudoAcc'
@@ -3511,10 +3574,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  bve=(bve&bve_exe),
                                                  bve.solve = bve_solve,
                                                  computation.A = computeA,
-                                                 bve.pseudo = pseudo_bve,
+                                                 pseudo.bve = pseudo_bve,
                                                  calculate.reliability = calc_reli,
                                                  estimate.reliability = est_reli,
-                                                 bve.pseudo.accuracy = pseudo_acc,
+                                                 pseudo.bve.accuracy = pseudo_acc,
                                                  offspring.bve.parents.database=offspring.bve.parents.database,
                                                  BGLR.bve = activbglr,
                                                  BGLR.model = bglrmodel,
@@ -3534,7 +3597,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                                  new.bv.child="addobs",
                                                  selection.m = selection,
                                                  selection.f = selection,
-                                                 phenotype.bv = phenotype.bv,
+                                                 selection.criteria =  selection.criteria,
                                                  add.gen = generation,
                                                  bve.database = bve.database,
                                                  selfing.mating=TRUE,

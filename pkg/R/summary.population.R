@@ -100,5 +100,21 @@ summary.population <- function(object, ...){
     }
   }
 
+  if(length(population$info$comp.times.general)>0){
+    comp.times.general = round(colSums(population$info$comp.times.general), digits =1)
+    comp.times.creating = round(colSums(population$info$comp.times.creating), digits =1)
+
+    cat(paste0("Total time spent for generation: ", comp.times.general[7] + comp.times.creating[6], " seconds.\n\n"))
+    cat("Time spent per step: \n")
+    if((comp.times.creating[6])>0) cat(paste0((comp.times.creating[6]), " seconds for creation of founder population.\n"))
+    if((comp.times.general[1])>0) cat(paste0((comp.times.general[1]), "seconds for initialization.\n"))
+    if(comp.times.general[2]>0) cat(paste0( comp.times.general[2], " seconds for calculation of true genomic values.\n"))
+    if(comp.times.general[3]>0) cat(paste0( comp.times.general[3], " seconds for phenotyping.\n"))
+    if(comp.times.general[4]>0) cat(paste0( comp.times.general[4]," second for breeding value estimation.\n"))
+    if(comp.times.general[5]>0) cat(paste0( comp.times.general[5], " seconds for selection.\n"))
+    if(comp.times.general[6]>0) cat(paste0( comp.times.general[6], " seconds for generation of new individuals.\n"))
+  }
+
 
 }
+

@@ -4,117 +4,54 @@
 \alias{creating.diploid}
 \title{Generation of the starting population}
 \usage{
-creating.diploid(
-  dataset = NULL,
-  vcf = NULL,
-  chr.nr = NULL,
-  bp = NULL,
-  snp.name = NULL,
-  hom0 = NULL,
-  hom1 = NULL,
-  bpcm.conversion = 0,
-  nsnp = 0,
-  nindi = 0,
-  freq = "beta",
-  population = NULL,
-  sex.s = "fixed",
-  add.chromosome = FALSE,
-  generation = 1,
-  class = 0L,
-  sex.quota = 0.5,
-  chromosome.length = NULL,
-  length.before = 5,
-  length.behind = 5,
-  real.bv.add = NULL,
-  real.bv.mult = NULL,
-  real.bv.dice = NULL,
-  snps.equidistant = NULL,
-  bv.total = 0,
-  polygenic.variance = 100,
-  bve.mult.factor = NULL,
-  bve.poly.factor = NULL,
-  base.bv = NULL,
-  add.chromosome.ends = TRUE,
-  new.phenotype.correlation = NULL,
-  new.residual.correlation = NULL,
-  new.breeding.correlation = NULL,
-  add.architecture = NULL,
-  snp.position = NULL,
-  position.scaling = FALSE,
-  bit.storing = FALSE,
-  nbits = 30,
-  randomSeed = NULL,
-  miraculix = TRUE,
-  miraculix.dataset = TRUE,
-  n.additive = 0,
-  n.equal.additive = 0,
-  n.dominant = 0,
-  n.equal.dominant = 0,
-  n.qualitative = 0,
-  n.quantitative = 0,
-  dominant.only.positive = FALSE,
-  var.additive.l = NULL,
-  var.dominant.l = NULL,
-  var.qualitative.l = NULL,
-  var.quantitative.l = NULL,
-  effect.size.equal.add = 1,
-  effect.size.equal.dom = 1,
-  exclude.snps = NULL,
-  replace.real.bv = FALSE,
-  shuffle.traits = NULL,
-  shuffle.cor = NULL,
-  skip.rest = FALSE,
-  enter.bv = TRUE,
-  name.cohort = NULL,
-  template.chip = NULL,
-  beta.shape1 = 1,
-  beta.shape2 = 1,
-  time.point = 0,
-  creating.type = 0,
-  trait.name = NULL,
-  share.genotyped = 0,
-  genotyped.s = NULL,
-  map = NULL,
-  remove.invalid.qtl = TRUE,
-  verbose = TRUE,
-  bv.standard = FALSE,
-  mean.target = NULL,
-  var.target = NULL,
-  is.maternal = NULL,
-  is.paternal = NULL,
-  vcf.maxsnp = Inf,
-  vcf.chromosomes = NULL,
-  fixed.effects = NULL,
-  internal = FALSE,
-  internal.geno = TRUE,
-  internal.dataset = NULL,
-  vcf.VA = TRUE,
-  one.sex.mode = FALSE,
-  store.comp.times = TRUE,
-  bv.ignore.traits = NULL,
-  litter.effect.covariance = NULL,
-  pen.effect.covariance = NULL,
-  size.scaling = 1,
-  founder.pool = 1,
-  trait.pool = 0,
-  set.zero = FALSE,
-  gxe.correlation = NULL,
-  location.name = NULL,
-  n.locations = NULL,
-  gxe.max = 0.85,
-  gxe.min = 0.7,
-  gxe.combine = TRUE,
-  change.order = TRUE
-)
+creating.diploid(population = NULL, ...)
 }
 \arguments{
-\item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
+\item{population}{Population list}
 
-\item{vcf}{Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)}
+\item{\strong{ #### General ####}}{#################}
 
-\item{chr.nr}{Vector containing the assosiated chromosome for each marker (default: all on the same)}
+\item{nsnp}{Number of markers to generate (Split equally across chromosomes (chr.nr) unless vector is used)}
+
+\item{nindi}{Number of individuals to generate (you can also provide number males / females in a vector)}
+
+\item{name.cohort}{Name of the newly added cohort}
+
+\item{generation}{Generation to which newly individuals are added (default: 1)}
+
+\item{founder.pool}{Founder pool an individual is assign to (default: 1)}
+
+\item{one.sex.mode}{Activating this will ignore all sex specific parameters and handle each individual as part of the first sex (default: FALSE)}
+
+\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
+
+\item{sex.quota}{Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")}
+
+\item{class}{Migration level of the newly added individuals (default: 0)}
+
+\item{verbose}{Set to FALSE to not display any prints}
+
+\item{\strong{ #### Genome architecture ####}}{#################}
+
+\item{map}{map-file that contains up to 5 colums (chromosome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
+
+\item{chr.nr}{Number of chromosomes (SNPs are equally split) or vector containing the associated chromosome for each marker}
+
+\item{chromosome.length}{Length of the newly added chromosome (default: 5)}
 
 \item{bp}{Vector containing the physical position (bp) for each marker (default: 1,2,3...)}
+
+\item{snps.equidistant}{Use equidistant markers (computationally faster! ; default: TRUE)}
+
+\item{template.chip}{Import genetic map and chip from a species ("cattle", "chicken", "pig")}
+
+\item{snp.position}{Location of each marker on the genetic map}
+
+\item{change.order}{Markers are automatically sorted according to their snp.position unless this is set to FALSE (default: TRUE)}
+
+\item{add.chromosome}{If TRUE add an additional chromosome to the population}
+
+\item{bpcm.conversion}{Convert physical position (bp) into a cM position (default: 0 - not done)}
 
 \item{snp.name}{Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)}
 
@@ -122,73 +59,39 @@ creating.diploid(
 
 \item{hom1}{Vector containing the second allelic variant in each marker (default: 1)}
 
-\item{bpcm.conversion}{Convert physical position (bp) into a cM position (default: 0 - not done)}
+\item{\strong{ #### Genotype data ####}}{#################}
 
-\item{nsnp}{number of markers to generate in a random dataset}
-
-\item{nindi}{number of individuals to generate in a random dataset (you can also provide number males / females in a vector)}
+\item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
 
 \item{freq}{frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)}
 
-\item{population}{Population list}
+\item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies}
 
-\item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
+\item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
 
-\item{add.chromosome}{If TRUE add an additional chromosome to the dataset}
+\item{share.genotyped}{Share of individuals genotyped in the founders}
 
-\item{generation}{Generation of the newly added individuals (default: 1)}
+\item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
 
-\item{class}{Migration level of the newly added individuals}
+\item{vcf}{Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)}
 
-\item{sex.quota}{Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")}
+\item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
 
-\item{chromosome.length}{Length of the newly added chromosome (default: 5)}
+\item{vcf.chromosomes}{Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)}
 
-\item{length.before}{Length before the first SNP of the dataset (default: 5)}
+\item{vcf.VA}{Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)}
 
-\item{length.behind}{Length after the last SNP of the dataset (default: 5)}
+\item{\strong{ #### Traits ####}}{#################}
 
-\item{real.bv.add}{Single Marker effects}
+\item{trait.name}{Name of the traits generated}
 
-\item{real.bv.mult}{Two Marker effects}
+\item{mean.target}{Target mean for each trait}
 
-\item{real.bv.dice}{Multi-marker effects}
+\item{var.target}{Target variance for each trait}
 
-\item{snps.equidistant}{Use equidistant markers (computationally faster! ; default: TRUE)}
+\item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
-\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
-
-\item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
-
-\item{bve.mult.factor}{Multiplicate trait value times this}
-
-\item{bve.poly.factor}{Potency trait value over this}
-
-\item{base.bv}{Average genetic value of a trait}
-
-\item{add.chromosome.ends}{Add chromosome ends as recombination points}
-
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
-
-\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
-
-\item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
-
-\item{add.architecture}{Add genetic architecture (marker positions)}
-
-\item{snp.position}{Location of each marker on the genetic map}
-
-\item{position.scaling}{Manual scaling of snp.position}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
-
-\item{randomSeed}{Set random seed of the process}
-
-\item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
-
-\item{miraculix.dataset}{Set FALSE to deactive miraculix package for dataset generation}
+\item{trait.cor.include}{Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)}
 
 \item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
@@ -202,7 +105,47 @@ creating.diploid(
 
 \item{n.quantitative}{Number of quantitative epistatic QTL}
 
+\item{real.bv.add}{Single Marker effects (list for each trait with columns for: SNP Nr, Chr Nr, Effect 00, Effect 01, Effect 11, Position (optional), Founder pool genotype (optional), Founder pool origin (optional))}
+
+\item{real.bv.mult}{Two Marker effects}
+
+\item{real.bv.dice}{Multi-marker effects}
+
+\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
+
+\item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
+
+\item{litter.effect.covariance}{Covariance matrix of the litter effect (default: no effects)}
+
+\item{pen.effect.covariance}{Covariance matrix of the pen effect (default: no effects)}
+
+\item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: FALSE)}
+
+\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: FALSE)}
+
+\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))}
+
+\item{trait.pool}{Vector providing information for which pools QTLs of which trait are activ (default: 0 - all pools)}
+
+\item{gxe.correlation}{Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)}
+
+\item{n.locations}{Number of locations / environments to consider for the GxE model}
+
+\item{gxe.max}{Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)}
+
+\item{gxe.min}{Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)}
+
+\item{location.name}{Same of the different locations / environments used}
+
+\item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
+
+\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+
+\item{base.bv}{Intercept of underlying true genomic values (excluding all QTL effects, default: 100)}
+
 \item{dominant.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
+
+\item{exclude.snps}{Vector contain markers on which no QTL effects are placed}
 
 \item{var.additive.l}{Variance of additive QTL}
 
@@ -216,97 +159,63 @@ creating.diploid(
 
 \item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
 
-\item{exclude.snps}{Marker were no QTL are simulated on}
+\item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
+
+\item{bve.mult.factor}{Multiplicate trait value times this}
+
+\item{bve.poly.factor}{Potency trait value over this}
+
+\item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
+
+\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used}
 
 \item{replace.real.bv}{If TRUE delete the simulated traits added before}
 
-\item{shuffle.traits}{Combine different traits into a joined trait}
+\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 
-\item{shuffle.cor}{Target Correlation between shuffeled traits}
+\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 
-\item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
+\item{\strong{ #### Other ####}}{#################}
 
-\item{enter.bv}{Internal parameter}
+\item{randomSeed}{Set random seed of the process}
 
-\item{name.cohort}{Name of the newly added cohort}
-
-\item{template.chip}{Import genetic map and chip from a species ("cattle", "chicken", "pig")}
-
-\item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies}
-
-\item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
+\item{add.architecture}{Add genetic architecture (marker positions)}
 
 \item{time.point}{Time point at which the new individuals are generated}
 
 \item{creating.type}{Technique to generate new individuals (usage in web-based application)}
 
-\item{trait.name}{Name of the trait generated}
+\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
 
-\item{share.genotyped}{Share of individuals genotyped in the founders}
+\item{\strong{ #### Data storage ####}}{#################}
 
-\item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
+\item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
 
-\item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
+\item{miraculix.dataset}{Set FALSE to deactive miraculix package for dataset generation}
 
-\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
+\item{add.chromosome.ends}{Add chromosome ends as recombination points}
 
-\item{verbose}{Set to FALSE to not display any prints}
-
-\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used}
-
-\item{mean.target}{Target mean}
-
-\item{var.target}{Target variance}
-
-\item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
-
-\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
-
-\item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
-
-\item{vcf.chromosomes}{Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)}
-
-\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))}
-
-\item{internal}{Dont touch!}
-
-\item{internal.geno}{Dont touch!}
-
-\item{internal.dataset}{Dont touch!}
-
-\item{vcf.VA}{Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)}
-
-\item{one.sex.mode}{Activating this will ignore all sex specific parameters and handle each individual as part of the first sex}
+\item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
 
 \item{store.comp.times}{Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating}
 
-\item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
+\item{\strong{ #### OLD ####}}{#################}
 
-\item{litter.effect.covariance}{Covariance matrix of the litter effect (default: no effects)}
+\item{nbits}{Bits available in MoBPS-bit-storing}
 
-\item{pen.effect.covariance}{Covariance matrix of the pen effect (default: no effects)}
+\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
 
-\item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
 
-\item{founder.pool}{Founder pool an individual is assign to (default: 1)}
+\item{length.before}{Length before the first SNP of the dataset (default: 5)}
 
-\item{trait.pool}{Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)}
+\item{length.behind}{Length after the last SNP of the dataset (default: 5)}
 
-\item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
+\item{position.scaling}{Manual scaling of snp.position}
 
-\item{gxe.correlation}{Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)}
+\item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
 
-\item{location.name}{Same of the different locations / environments used}
-
-\item{n.locations}{Number of locations / environments to consider for the GxE model}
-
-\item{gxe.max}{Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)}
-
-\item{gxe.min}{Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)}
-
-\item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
-
-\item{change.order}{Markers are automatically sorted according to their snp.position unless this is set to FALSE (default: TRUE)}
+\item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
 }
 \value{
 Population-list

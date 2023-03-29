@@ -6,78 +6,69 @@
 \usage{
 creating.trait(
   population,
-  real.bv.add = NULL,
-  real.bv.mult = NULL,
-  real.bv.dice = NULL,
-  bv.total = 0,
-  polygenic.variance = 100,
-  bve.mult.factor = NULL,
-  bve.poly.factor = NULL,
-  base.bv = NULL,
-  new.phenotype.correlation = NULL,
-  new.residual.correlation = NULL,
-  new.breeding.correlation = NULL,
+  trait.name = NULL,
+  mean.target = NULL,
+  var.target = NULL,
+  trait.cor = NULL,
+  trait.cor.include = NULL,
   n.additive = 0,
   n.equal.additive = 0,
   n.dominant = 0,
   n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
+  real.bv.add = NULL,
+  real.bv.mult = NULL,
+  real.bv.dice = NULL,
+  bv.total = 0,
+  base.bv = NULL,
+  new.residual.correlation = NULL,
+  new.breeding.correlation = NULL,
+  is.maternal = NULL,
+  is.paternal = NULL,
+  fixed.effects = NULL,
+  trait.pool = 0,
+  gxe.correlation = NULL,
+  n.locations = NULL,
+  gxe.max = 0.85,
+  gxe.min = 0.7,
+  location.name = NULL,
+  gxe.combine = TRUE,
   dominant.only.positive = FALSE,
+  exclude.snps = NULL,
   var.additive.l = NULL,
   var.dominant.l = NULL,
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
   effect.size.equal.add = 1,
   effect.size.equal.dom = 1,
-  exclude.snps = NULL,
-  randomSeed = NULL,
-  shuffle.traits = NULL,
-  shuffle.cor = NULL,
-  replace.traits = FALSE,
-  trait.name = NULL,
-  remove.invalid.qtl = TRUE,
-  bv.standard = FALSE,
-  mean.target = NULL,
-  var.target = NULL,
-  verbose = TRUE,
-  is.maternal = NULL,
-  is.paternal = NULL,
-  fixed.effects = NULL,
-  trait.pool = 0,
+  polygenic.variance = 100,
+  bve.mult.factor = NULL,
+  bve.poly.factor = NULL,
   set.zero = FALSE,
-  gxe.correlation = NULL,
-  location.name = NULL,
-  n.locations = NULL,
-  gxe.max = 0.85,
-  gxe.min = 0.7,
-  gxe.combine = TRUE
+  bv.standard = FALSE,
+  replace.traits = FALSE,
+  remove.invalid.qtl = TRUE,
+  randomSeed = NULL,
+  verbose = TRUE,
+  use.recalculate.manual = FALSE,
+  new.phenotype.correlation = NULL,
+  shuffle.traits = NULL,
+  shuffle.cor = NULL
 )
 }
 \arguments{
 \item{population}{Population list}
 
-\item{real.bv.add}{Single Marker effects}
+\item{trait.name}{Name of the trait generated}
 
-\item{real.bv.mult}{Two Marker effects}
+\item{mean.target}{Target mean}
 
-\item{real.bv.dice}{Multi-marker effects}
+\item{var.target}{Target variance}
 
-\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+\item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
-\item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
-
-\item{bve.mult.factor}{Multiplicate trait value times this}
-
-\item{bve.poly.factor}{Potency trait value over this}
-
-\item{base.bv}{Average genetic value of a trait}
-
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
-
-\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
-
-\item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
+\item{trait.cor.include}{Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)}
 
 \item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
@@ -91,7 +82,43 @@ creating.trait(
 
 \item{n.quantitative}{Number of quantitative epistatic QTL}
 
+\item{real.bv.add}{Single Marker effects}
+
+\item{real.bv.mult}{Two Marker effects}
+
+\item{real.bv.dice}{Multi-marker effects}
+
+\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+
+\item{base.bv}{Average genetic value of a trait}
+
+\item{new.residual.correlation}{Correlation of the simulated enviromental variance}
+
+\item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
+
+\item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
+
+\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
+
+\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))}
+
+\item{trait.pool}{Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)}
+
+\item{gxe.correlation}{Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)}
+
+\item{n.locations}{Number of locations / environments to consider for the GxE model}
+
+\item{gxe.max}{Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)}
+
+\item{gxe.min}{Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)}
+
+\item{location.name}{Same of the different locations / environments used}
+
+\item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
+
 \item{dominant.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
+
+\item{exclude.snps}{Marker were no QTL are simulated on}
 
 \item{var.additive.l}{Variance of additive QTL}
 
@@ -105,49 +132,31 @@ creating.trait(
 
 \item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
 
-\item{exclude.snps}{Marker were no QTL are simulated on}
+\item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
 
-\item{randomSeed}{Set random seed of the process}
+\item{bve.mult.factor}{Multiplicate trait value times this}
 
-\item{shuffle.traits}{Combine different traits into a joined trait}
-
-\item{shuffle.cor}{Target Correlation between shuffeled traits}
-
-\item{replace.traits}{If TRUE delete the simulated traits added before}
-
-\item{trait.name}{Name of the trait generated}
-
-\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
-
-\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization()}
-
-\item{mean.target}{Target mean}
-
-\item{var.target}{Target variance}
-
-\item{verbose}{Set to FALSE to not display any prints}
-
-\item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
-
-\item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
-
-\item{fixed.effects}{Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: p x 1 matrix with 0s (additional intercept))}
-
-\item{trait.pool}{Vector providing information for which pools QTLs of this trait are activ (default: 0 - all pools)}
+\item{bve.poly.factor}{Potency trait value over this}
 
 \item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
 
-\item{gxe.correlation}{Correlation matrix between locations / environments (default: only one location, sampled from gxe.max / gxe.min)}
+\item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization()}
 
-\item{location.name}{Same of the different locations / environments used}
+\item{replace.traits}{If TRUE delete the simulated traits added before}
 
-\item{n.locations}{Number of locations / environments to consider for the GxE model}
+\item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 
-\item{gxe.max}{Maximum correlation between locations / environments when generating correlation matrix via sampling (default: 0.85)}
+\item{randomSeed}{Set random seed of the process}
 
-\item{gxe.min}{Minimum correlation between locations / environments when generating correlation matrix via sampling (default: 0.70)}
+\item{verbose}{Set to FALSE to not display any prints}
 
-\item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
+\item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
+
+\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
+
+\item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
+
+\item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
 }
 \value{
 Population-list with one or more additional new traits

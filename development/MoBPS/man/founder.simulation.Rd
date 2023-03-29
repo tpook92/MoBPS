@@ -41,7 +41,13 @@ founder.simulation(
   beta.shape2 = 1,
   map = NULL,
   verbose = TRUE,
-  vcf.maxsnp = Inf
+  vcf.maxsnp = Inf,
+  plot.ld = TRUE,
+  plot.allele.freq = TRUE,
+  xlim = NULL,
+  ylim = NULL,
+  nclass = 20,
+  ylim.af = NULL
 )
 }
 \arguments{
@@ -118,6 +124,18 @@ founder.simulation(
 \item{verbose}{Set to FALSE to not display any prints}
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
+
+\item{plot.ld}{Set FALSE to not generate the LD plot (default; TRUE)}
+
+\item{plot.allele.freq}{Set FALSE to not generate the allele frequency spectrum plot (default: TRUE)}
+
+\item{xlim}{Axis limits for the x-axis in the LD plot (default: NULL)}
+
+\item{ylim}{Axis limits for the y-axis in the LD plot (default: NULL)}
+
+\item{nclass}{Number of classes to consider in the allele frequency spectrum plot (default: 20)}
+
+\item{ylim.af}{Axis limits for the allele frequency spectrum plot (default: NULL)}
 }
 \description{
 Function to generate founder genotypes

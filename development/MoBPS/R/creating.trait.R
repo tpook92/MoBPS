@@ -23,6 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Generation of the trait in a starting population
 #' @param population Population list
+#' @param trait.cor Target correlation between QTL-based traits (underlying true genomic values)
+#' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
 #' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
 #' @param randomSeed Set random seed of the process
@@ -41,8 +43,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.traits If TRUE delete the simulated traits added before
-#' @param shuffle.traits Combine different traits into a joined trait
-#' @param shuffle.cor Target Correlation between shuffeled traits
+#' @param shuffle.cor OLD! Use trait.cor - Target Correlation between traits
+#' @param shuffle.traits OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)
 #' @param real.bv.add Single Marker effects
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
@@ -69,6 +71,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.locations Number of locations / environments to consider for the GxE model
 #' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
 #' @param location.name Same of the different locations / environments used
+#' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
@@ -76,48 +79,67 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL,
-                           bv.total=0, polygenic.variance=100,
-                           bve.mult.factor=NULL, bve.poly.factor=NULL, base.bv=NULL,
-                           new.phenotype.correlation=NULL,
-                           new.residual.correlation=NULL,
-                           new.breeding.correlation=NULL,
+creating.trait <- function(population,
+                           ###### Traits
+                           trait.name=NULL,
+                           mean.target=NULL,
+                           var.target=NULL,
+                           trait.cor = NULL,
+                           trait.cor.include = NULL,
                            n.additive=0,
                            n.equal.additive=0,
                            n.dominant=0,
                            n.equal.dominant=0,
                            n.qualitative=0,
                            n.quantitative=0,
+                           real.bv.add=NULL,
+                           real.bv.mult=NULL,
+                           real.bv.dice=NULL,
+                           bv.total=0,
+                           base.bv=NULL,
+                           new.residual.correlation=NULL,
+                           new.breeding.correlation=NULL,
+                           is.maternal=NULL,
+                           is.paternal=NULL,
+                           fixed.effects=NULL,
+                           trait.pool = 0,
+                           gxe.correlation = NULL,
+                           n.locations = NULL,
+                           gxe.max = 0.85,
+                           gxe.min = 0.7,
+                           location.name = NULL,
+                           gxe.combine = TRUE,
                            dominant.only.positive = FALSE,
+                           exclude.snps=NULL,
                            var.additive.l=NULL,
                            var.dominant.l=NULL,
                            var.qualitative.l=NULL,
                            var.quantitative.l=NULL,
                            effect.size.equal.add = 1,
                            effect.size.equal.dom = 1,
-                           exclude.snps=NULL,
-                           randomSeed=NULL,
-                           shuffle.traits=NULL,
-                           shuffle.cor= NULL,
-                           replace.traits=FALSE,
-                           trait.name=NULL,
-                           remove.invalid.qtl=TRUE,
-                           bv.standard=FALSE,
-                           mean.target=NULL,
-                           var.target=NULL,
-                           verbose=TRUE,
-                           is.maternal=NULL,
-                           is.paternal=NULL,
-                           fixed.effects=NULL,
-                           trait.pool = 0,
-                           set.zero = FALSE,
-                           gxe.correlation = NULL,
-                           location.name = NULL,
-                           n.locations = NULL,
-                           gxe.max = 0.85,
-                           gxe.min = 0.7,
-                           gxe.combine = TRUE){
 
+                           polygenic.variance=100,
+                           bve.mult.factor=NULL,
+                           bve.poly.factor=NULL,
+                           set.zero = FALSE,
+                           bv.standard=FALSE,
+                           replace.traits=FALSE,
+                           remove.invalid.qtl=TRUE,
+                           #### Other
+                           randomSeed=NULL,
+                           verbose=TRUE,
+                           use.recalculate.manual = FALSE,
+                           new.phenotype.correlation=NULL,
+                           shuffle.traits=NULL,
+                           shuffle.cor= NULL){
+
+
+  if(length(trait.cor)>0){
+    shuffle.cor = trait.cor
+  }
+  if(length(trait.cor.include)>0){
+    shuffle.traits = trait.cor.include
+  }
 
   {
     if(length(n.locations)>0 && length(gxe.correlation)==0){
@@ -905,7 +927,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       for(index in c(3,4,7:10, 19:22, 27:30)){
 
         sex_temp = 2-index%%2
-        population$breeding[[generation]][[index]] <-  matrix(if(index==9 || index==10) {NA} else{0}, nrow= to_add, ncol=counter[sex_temp]-1) # estimated breeding value
+        population$breeding[[generation]][[index]] <-  matrix(if(index==9 || index==10) {NA} else{0L}, nrow= to_add, ncol=counter[sex_temp]-1) # estimated breeding value
         # estimated breeding value 3,4
         # real genomic value 7,8
         # phenotype 9,10
@@ -920,7 +942,7 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       for(index in c(3,4,7:10, 19:22, 27:30)){
         sex_temp = 2-index%%2
         population$breeding[[generation]][[index]] <- rbind( population$breeding[[generation]][[index]],
-                                                             matrix(if(index==9 || index==10) {NA} else{0}, nrow= to_add, ncol=counter[sex_temp]-1)) # estimated breeding value
+                                                             matrix(if(index==9 || index==10) {NA} else{0L}, nrow= to_add, ncol=counter[sex_temp]-1)) # estimated breeding value
         # estimated breeding value 3,4
         # real genomic value 7,8
         # phenotype 9,10
@@ -1025,30 +1047,48 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
       for(index in shuffle.traits){
         new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
         row <- 1
+        add.list = mult.list = list()
         for(index2 in shuffle.traits){
           if(length(store.add[[index2]])>0){
-            new.add <- rbind(new.add, store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1,1)))
-            zeros <- rowSums(abs(new.add[,3:5,drop=FALSE] ))
-            new.add <- new.add[zeros>0,,drop=FALSE]
+
+            if(LT[row,col]!=0){
+              temp1 <- store.add[[index2]] %*% diag(c(1,1,rep(LT[row,col],3),1,1,1))
+            } else{
+              temp1 <- NULL
+            }
+            if(length(temp1)>0){
+              zeros <- rowSums(abs(temp1[,3:5, drop=FALSE]))
+              temp1 <- temp1[zeros>0,,drop=FALSE]
+            }
+            add.list[[index2]] = temp1
+
           }
           if(length(store.mult[[index2]])>0){
-            new.mult <- rbind(new.mult, store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9))))
-            zeros <- rowSums(abs(new.mult[,5:13,drop=FALSE]))
-            new.mult <- new.mult[zeros>0,,drop=FALSE]
+
+            if(LT[row,col]!=0){
+              temp1 <- store.mult[[index2]] %*% diag(c(1,1,1,1,rep(LT[row,col],9)))
+            } else{
+              temp1 <- NULL
+            }
+            if(length(temp1)>0){
+              zeros <- rowSums(abs(new.mult[,5:13, drop=FALSE]))
+              temp1 <- temp1[zeros>0,,drop=FALSE]
+            }
+            mult.list[[index2]] = temp1
           }
           if(length(store.dice[[index2]])>0){
-            if(length(store.dice[[index2]][[1]])>0){
-              before <- length(new.dice2)
-              new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
-              new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
-              for(index3 in (before+1):length(new.dice2)){
-                new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
-              }
+            before <- length(new.dice2)
+            new.dice1 <- c(new.dice1,store.dice[[index2]][[1]])
+            new.dice2 <- c(new.dice2,store.dice[[index2]][[2]])
+            for(index3 in (before+1):length(new.dice2)){
+              new.dice2[[index3]] <- new.dice2[[index3]] * LT[row,col]
             }
-
           }
           row <- row +1
         }
+
+        new.add = do.call(rbind, add.list)
+        new.mult = do.call(rbind, mult.list)
 
         # DONT REMOVE NULL - MORE WORK NEEDED HERE!
         if(length(new.add)==0){
@@ -1066,7 +1106,6 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
         } else{
           population$info$real.bv.dice[[index]] <- list(new.dice1,new.dice2)
         }
-
         col <- col +1
       }
 
@@ -1079,26 +1118,26 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     }
 
 
+  }
 
+  if(population$info$bv.nr>0){
     for(index in 1:population$info$bv.nr){
-      if(length(population$info$real.bv.add[[index]])>0){
+      if(length(population$info$real.bv.add[[index]])>1){
         t <- population$info$real.bv.add[[index]]
         take <- sort(t[,1]+ cumsum(c(0,population$info$snp))[t[,2]], index.return=TRUE)
         t <- t[take$ix,,drop=FALSE]
         take <- sort(t[,1]+ t[,2] * 10^10 + t[,7]*10^8)
         keep <- c(0,which(diff(take)!=0), length(take))
-        if(length(keep) <= (nrow(t)+1)){
-          for(index2 in 2:(length(keep))){
+        if(length(keep) < (nrow(t)+1)){
+
+          for(index2 in (2:(length(keep)))[diff(keep)>1]){
             t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
           }
-          population$info$real.bv.add[[index]] <- t[keep,]
         }
+        population$info$real.bv.add[[index]] <- t[keep,,drop=FALSE]
       }
     }
-
-
   }
-
 
 
 
@@ -1176,8 +1215,19 @@ creating.trait <- function(population, real.bv.add=NULL, real.bv.mult=NULL, real
     }
   }
 
+  if(use.recalculate.manual){
+    population = recalculate.manual(population, gen = 1:get.ngen(population))
+    population$info$bv.calculated = TRUE
+  }
+
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target, set.zero = set.zero)
+
+    if(use.recalculate.manual){
+      population = recalculate.manual(population, gen = 1:get.ngen(population))
+      population$info$bv.calculated = TRUE
+    }
+
   }
 
   # Calculation of initial genomic values

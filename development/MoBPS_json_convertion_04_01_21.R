@@ -14,11 +14,11 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Sijne3000notworking.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Schweiz_v1_BLUP (1).json")
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 1
+size.scaling <- 0.2
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -2423,29 +2423,89 @@ fixed.generation.order <- NULL
 
 
 
-        for(index in (1:length(edges))[!last_avail]){
-          there <- which(edges[[index]]$to==possible)
-          if(length(there)>0){
+        if(manual.select.check){
+          for(index in (1:length(edges))[!last_avail]){
+            there <- which(edges[[index]]$to==possible)
+            if(length(there)>0){
 
 
-            if(sum(edges[[index]]$from==stock)==0){
+              if(sum(edges[[index]]$from==stock)==0){
 
-              possible <- possible[-there]
-
-              next
-            }
-
-            to_node <- which(ids==edges[[index]]$to)
-
-            if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
-              manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
-              if(length(intersect(manu, stock))<length(manu)){
                 possible <- possible[-there]
+
+                next
+              }
+
+              to_node <- which(ids==edges[[index]]$to)
+
+              if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                if(length(intersect(manu, stock))<length(manu)){
+                  possible <- possible[-there]
+                }
+              }
+
+            }
+          }
+        } else{
+
+          possible_temp = possible
+          for(index in (1:length(edges))[!last_avail]){
+            there <- which(edges[[index]]$to==possible)
+            if(length(there)>0){
+
+
+              if(sum(edges[[index]]$from==stock)==0){
+
+                possible <- possible[-there]
+
+                next
+              }
+
+              to_node <- which(ids==edges[[index]]$to)
+
+              if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                if(length(intersect(manu, stock))<length(manu)){
+                  possible <- possible[-there]
+                }
+              }
+
+            }
+          }
+
+          if(length(possible)== 0){
+            possible = possible_temp
+
+            for(index in (1:length(edges))[!last_avail]){
+              there <- which(edges[[index]]$to==possible)
+              if(length(there)>0){
+
+
+                if(sum(edges[[index]]$from==stock)==0){
+
+                  possible <- possible[-there]
+
+                  next
+                }
+
+                to_node <- which(ids==edges[[index]]$to)
+
+                if(length(nodes[[to_node]]$'Manuel selected cohorts')>0){
+                  manu <- setdiff(nodes[[to_node]]$'Manuel selected cohorts', edges[[index]]$from)
+                  if(length(intersect(manu, stock))<length(manu)){
+                    nodes[[to_node]]$'Manuel selected cohorts' = intersect(manu, stock)
+                    if(verbose){
+                      cat(paste0("Removed ", length(manu) - length(intersect(manu, stock)), " cohorts from BVE for ", edges[[index]]$from, " to ", edges[[index]]$to, ".\n"))
+                    }
+                  }
+                }
+
               }
             }
-
           }
         }
+
 
         if(length(intersect(possible, priority_breeding))>0){
           possible <- intersect(possible, priority_breeding)
@@ -2503,6 +2563,7 @@ fixed.generation.order <- NULL
       generation_group <- list()
       generation_bv_size <- list()
       for(index in 1:length(generation_times)){
+        print(index)
         nrs <- setdiff(which(time.point.list==generation_times[[index]]), founder)
         btype <- numeric(length(nrs))
         if(length(nrs)>0){
@@ -3274,7 +3335,7 @@ fixed.generation.order <- NULL
                 parent_average <- FALSE
                 grandparent_average <- FALSE
                 mean_between <- NULL
-                phenotype.bv <- FALSE
+                selection.criteria <- NULL
                 pseudo_bve <- FALSE
                 computeA <- "vanRaden"
                 input_phenotype <- "own"
@@ -3337,7 +3398,7 @@ fixed.generation.order <- NULL
                 } else if(nodes[[groupnr]]$'Selection Type'=="Phenotypic"){
                   bve <- FALSE
                   selection <- "function"
-                  phenotype.bv <- TRUE
+                  selection.criteria <- c("pheno")
                 } else if(nodes[[groupnr]]$'Selection Type' == "Pseudo-BVE"){
                   bve <- pseudo_bve <- TRUE
                   pseudo_acc <- nodes[[groupnr]]$'PseudoAcc'
@@ -3441,10 +3502,10 @@ fixed.generation.order <- NULL
                                                bve=(bve&bve_exe),
                                                bve.solve = bve_solve,
                                                computation.A = computeA,
-                                               bve.pseudo = pseudo_bve,
+                                               pseudo.bve = pseudo_bve,
                                                calculate.reliability = calc_reli,
                                                estimate.reliability = est_reli,
-                                               bve.pseudo.accuracy = pseudo_acc,
+                                               pseudo.bve.accuracy = pseudo_acc,
                                                offspring.bve.parents.database=offspring.bve.parents.database,
                                                BGLR.bve = activbglr,
                                                BGLR.model = bglrmodel,
@@ -3464,7 +3525,7 @@ fixed.generation.order <- NULL
                                                new.bv.child="addobs",
                                                selection.m = selection,
                                                selection.f = selection,
-                                               phenotype.bv = phenotype.bv,
+                                               selection.criteria =  selection.criteria,
                                                add.gen = generation,
                                                bve.database = bve.database,
                                                selfing.mating=TRUE,

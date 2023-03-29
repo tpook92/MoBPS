@@ -70,6 +70,11 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
       }
 
       var_test <- stats::var(get.bv(population, database= database)[index,])
+
+      if(var_test==0){
+        stop(paste0("No variance in trait ", index, ". No scaling to achieve target variance possible."))
+      }
+
       test1 <- TRUE
       if(length(population$info$real.bv.add[[index]])>0){
         population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
@@ -146,6 +151,16 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
         }
       }
     }
+  }
+
+  if(length(population$info$e0)>0){
+    population$info$e0 = NULL
+  }
+  if(length(population$info$e1)>0){
+    population$info$e1 = NULL
+  }
+  if(length(population$info$e2)>0){
+    population$info$e2 = NULL
   }
   return(population)
 }

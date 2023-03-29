@@ -14,12 +14,17 @@ add.diversity(
   target.gen = NULL,
   target.database = NULL,
   target.cohorts = NULL,
+  target.value = NULL,
   reduction.multiplier = 5,
   name.cohort = NULL,
   sex.quota = NULL,
   add.gen = 1,
   target.direction = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  store.comp.times = TRUE,
+  use.recalculate.manual = FALSE,
+  pop1 = NULL,
+  export.pop1 = FALSE
 )
 }
 \arguments{
@@ -41,6 +46,8 @@ add.diversity(
 
 \item{target.cohorts}{Cohorts of individuals to consider to calculate target genomic value to get to (default: NULL)}
 
+\item{target.value}{Target genomic value to get (default: NULL - calculated based on target.gen/database/cohorts)}
+
 \item{reduction.multiplier}{Traits that already exceed the target are bred against. Weighting is scaled by this factor.}
 
 \item{name.cohort}{Name of the newly added cohort}
@@ -52,6 +59,14 @@ add.diversity(
 \item{target.direction}{Manual select with traits are supposed to increase / decrease (1 target high, -1 target low)}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{store.comp.times}{If TRUE store computation times in $info$comp.times.general (default: TRUE)}
+
+\item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
+
+\item{pop1}{Population to start with as founder pool (default: NULL - generation from pool.gen/database/cohorts)}
+
+\item{export.pop1}{Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initialising this multiple times}
 }
 \value{
 population list with newly added individuals

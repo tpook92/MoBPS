@@ -64,7 +64,7 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
       start <- start + population$info$snp[index]
     }
   }
-  mapfile <- cbind(chr.nr, population$info$snp.name, 0 ,population$info$bp)
+  mapfile <- cbind(chr.nr, population$info$snp.name, unlist(population$info$position) ,population$info$bp)
   mapfile[is.na(mapfile)] <- 0
   haplo1 <- t(haplo[,(1:(ncol(haplo)/2))*2-1])
   haplo2 <- t(haplo[,(1:(ncol(haplo)/2))*2])

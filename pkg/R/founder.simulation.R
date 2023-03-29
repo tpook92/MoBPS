@@ -59,6 +59,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
 #' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
+#' @param plot.ld Set FALSE to not generate the LD plot (default; TRUE)
+#' @param plot.allele.freq Set FALSE to not generate the allele frequency spectrum plot (default: TRUE)
+#' @param xlim Axis limits for the x-axis in the LD plot (default: NULL)
+#' @param ylim Axis limits for the y-axis in the LD plot (default: NULL)
+#' @param ylim.af Axis limits for the allele frequency spectrum plot (default: NULL)
+#' @param nclass Number of classes to consider in the allele frequency spectrum plot (default: 20)
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' population <- founder.simulation(nindi=100, nsnp=1000, n.gen=5)
@@ -83,7 +89,13 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                beta.shape2=1,
                                map=NULL,
                                verbose=TRUE,
-                               vcf.maxsnp=Inf){
+                               vcf.maxsnp=Inf,
+                               plot.ld = TRUE,
+                               plot.allele.freq = TRUE,
+                               xlim = NULL,
+                               ylim = NULL,
+                               nclass = 20,
+                               ylim.af = NULL){
 
 
   if(length(nfinal)==0){
@@ -171,19 +183,21 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
     },
     error = function(e) {}))
     #on.exit(graphics::par(oldpar))
-    graphics::par(mfrow=c(1,2))
+    graphics::par(mfrow=c(1, plot.ld + plot.allele.freq ))
   }
 
   geno <- get.geno(population, gen = nrow(population$info$size))
 
 
-  ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", plot = plot)
+  ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", xlim = xlim, ylim = ylim,
+                     plot = plot && plot.ld)
   p_i <- rowMeans(geno)/2
 
-  if(plot){
+  if(plot && plot.allele.freq){
 
     tryCatch(  {
-      graphics::hist(p_i[p_i!=0 & p_i !=1], nclass=20, xlab="allele frequency spectrum", main="Allele frequency spectrum")
+      graphics::hist(p_i[p_i!=0 & p_i !=1], xlab="allele frequency spectrum", main="Allele frequency spectrum",
+                     nclass = nclass, ylim = ylim.af)
     },
     error = function(e) {})
 
