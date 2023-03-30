@@ -1,7 +1,7 @@
 #############################################################
         ############ Modular Breeding Program Simulator #############
         #############################################################
-Simulation started: 2023-03-29 13:27:02
+Simulation started: 2023-03-29 23:50:06
 MoBPS version used: 1.10.48
 Copyright (C) 2017-2020 Torsten Pook
 
@@ -57,7 +57,7 @@ Successfully generated cohort: NewOffspring_M
 Database position: 2 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_F
 Database position: 2 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3317 seconds
+Generation of new individuals took 0.307 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -65,7 +65,7 @@ Start generation of new individuals (cohort: 1yearRamsNext).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext
 Database position: 2 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0709 seconds
+Generation of new individuals took 0.0582 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
@@ -75,10 +75,10 @@ Variance components in BVE: sigma_g^2 = 30; sigma_e^2 = 70 ; h^2 = 0.3
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 20.1787; sigma_e^2 = 80 ; h^2 = 0.201
+Variance components in BVE: sigma_g^2 = 20.7751; sigma_e^2 = 80 ; h^2 = 0.206
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6844971 0.465052
+0.558427 0.1381488
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -86,7 +86,7 @@ Start generation of new individuals (cohort: 2yearRamsNext).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext
 Database position: 2 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0202 seconds
+Generation of new individuals took 0.0184 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -94,7 +94,7 @@ Start generation of new individuals (cohort: 1yearEwesNext).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext
 Database position: 2 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0619 seconds
+Generation of new individuals took 0.0621 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -102,7 +102,7 @@ Start generation of new individuals (cohort: 2yearEwesNext).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext
 Database position: 2 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0535 seconds
+Generation of new individuals took 0.0515 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -110,11 +110,11 @@ Start generation of new individuals (cohort: 3yearEwesNext).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext
 Database position: 2 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0561 seconds
+Generation of new individuals took 0.0413 seconds
 Generated groups: 
 NewOffspring_M NewOffspring_F 1yearRamsNext 2yearRamsNext 1yearEwesNext 2yearEwesNext 3yearEwesNext
-Time spend: 0.68 seconds.
-For generation: 0.68 seconds.
+Time spend: 0.64 seconds.
+For generation: 0.64 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 3 (time point: 1)
 Start selection procedure.
@@ -129,7 +129,7 @@ Successfully generated cohort: NewOffspring_1_M
 Database position: 3 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_1_F
 Database position: 3 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.317 seconds
+Generation of new individuals took 0.3075 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -137,20 +137,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_1).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_1
 Database position: 3 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0608 seconds
+Generation of new individuals took 0.0599 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 34.8365; sigma_e^2 = 70 ; h^2 = 0.332
+Variance components in BVE: sigma_g^2 = 33.2916; sigma_e^2 = 70 ; h^2 = 0.322
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 22.988; sigma_e^2 = 80 ; h^2 = 0.223
+Variance components in BVE: sigma_g^2 = 17.1834; sigma_e^2 = 80 ; h^2 = 0.177
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.7800722 0.1793846
+0.6585581 0.5436408
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -158,7 +158,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_1).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_1
 Database position: 3 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0183 seconds
+Generation of new individuals took 0.019 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -166,7 +166,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_1).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_1
 Database position: 3 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0616 seconds
+Generation of new individuals took 0.0576 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -174,7 +174,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_1).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_1
 Database position: 3 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0707 seconds
+Generation of new individuals took 0.053 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -182,11 +182,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_1).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_1
 Database position: 3 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0395 seconds
+Generation of new individuals took 0.0586 seconds
 Generated groups: 
 NewOffspring_M_1 NewOffspring_F_1 1yearRamsNext_1 2yearRamsNext_1 1yearEwesNext_1 2yearEwesNext_1 3yearEwesNext_1
-Time spend: 0.66 seconds.
-For generation: 0.66 seconds.
+Time spend: 0.64 seconds.
+For generation: 0.64 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 4 (time point: 2)
 Start selection procedure.
@@ -201,7 +201,7 @@ Successfully generated cohort: NewOffspring_2_M
 Database position: 4 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_2_F
 Database position: 4 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3408 seconds
+Generation of new individuals took 0.2929 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -209,20 +209,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_2).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_2
 Database position: 4 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.057 seconds
+Generation of new individuals took 0.0754 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 31.9944; sigma_e^2 = 70 ; h^2 = 0.314
+Variance components in BVE: sigma_g^2 = 36.1336; sigma_e^2 = 70 ; h^2 = 0.34
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 15.2066; sigma_e^2 = 80 ; h^2 = 0.16
+Variance components in BVE: sigma_g^2 = 31.0042; sigma_e^2 = 80 ; h^2 = 0.279
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.7407658 0.1093558
+0.6487194 0.1341724
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -230,7 +230,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_2).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_2
 Database position: 4 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0199 seconds
+Generation of new individuals took 0.0194 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -238,7 +238,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_2).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_2
 Database position: 4 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0573 seconds
+Generation of new individuals took 0.0557 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -246,7 +246,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_2).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_2
 Database position: 4 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0622 seconds
+Generation of new individuals took 0.0573 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -254,11 +254,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_2).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_2
 Database position: 4 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.038 seconds
+Generation of new individuals took 0.0422 seconds
 Generated groups: 
 NewOffspring_M_2 NewOffspring_F_2 1yearRamsNext_2 2yearRamsNext_2 1yearEwesNext_2 2yearEwesNext_2 3yearEwesNext_2
-Time spend: 0.67 seconds.
-For generation: 0.67 seconds.
+Time spend: 0.63 seconds.
+For generation: 0.63 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 5 (time point: 3)
 Start selection procedure.
@@ -273,7 +273,7 @@ Successfully generated cohort: NewOffspring_3_M
 Database position: 5 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_3_F
 Database position: 5 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.2887 seconds
+Generation of new individuals took 0.3484 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -281,20 +281,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_3).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_3
 Database position: 5 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0878 seconds
+Generation of new individuals took 0.0557 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 32.7834; sigma_e^2 = 70 ; h^2 = 0.319
+Variance components in BVE: sigma_g^2 = 29.8177; sigma_e^2 = 70 ; h^2 = 0.299
 0 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 19.2856; sigma_e^2 = 80 ; h^2 = 0.194
+Variance components in BVE: sigma_g^2 = 25.966; sigma_e^2 = 80 ; h^2 = 0.245
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6416016 0.2461834
+0.5222142 0.467256
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -302,7 +302,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_3).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_3
 Database position: 5 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0216 seconds
+Generation of new individuals took 0.0211 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -310,7 +310,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_3).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_3
 Database position: 5 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0734 seconds
+Generation of new individuals took 0.0592 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -318,7 +318,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_3).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_3
 Database position: 5 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0657 seconds
+Generation of new individuals took 0.0523 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -326,11 +326,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_3).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_3
 Database position: 5 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0612 seconds
+Generation of new individuals took 0.0394 seconds
 Generated groups: 
 NewOffspring_M_3 NewOffspring_F_3 1yearRamsNext_3 2yearRamsNext_3 1yearEwesNext_3 2yearEwesNext_3 3yearEwesNext_3
-Time spend: 0.7 seconds.
-For generation: 0.69 seconds.
+Time spend: 0.66 seconds.
+For generation: 0.66 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 6 (time point: 4)
 Start selection procedure.
@@ -345,7 +345,7 @@ Successfully generated cohort: NewOffspring_4_M
 Database position: 6 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_4_F
 Database position: 6 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3464 seconds
+Generation of new individuals took 0.3031 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -353,20 +353,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_4).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_4
 Database position: 6 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0767 seconds
+Generation of new individuals took 0.0717 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 26.9494; sigma_e^2 = 70 ; h^2 = 0.278
-0.01 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 34.3816; sigma_e^2 = 70 ; h^2 = 0.329
+0 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 14.8481; sigma_e^2 = 80 ; h^2 = 0.157
+Variance components in BVE: sigma_g^2 = 25.5673; sigma_e^2 = 80 ; h^2 = 0.242
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6413238 0.3268697
+0.7486663 0.4394407
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -374,7 +374,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_4).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_4
 Database position: 6 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0197 seconds
+Generation of new individuals took 0.0211 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -382,7 +382,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_4).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_4
 Database position: 6 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0644 seconds
+Generation of new individuals took 0.06 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -390,7 +390,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_4).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_4
 Database position: 6 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0526 seconds
+Generation of new individuals took 0.0585 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -398,12 +398,12 @@ Start generation of new individuals (cohort: 3yearEwesNext_4).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_4
 Database position: 6 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0562 seconds
+Generation of new individuals took 0.0431 seconds
 Generated groups: 
 NewOffspring_M_4 NewOffspring_F_4 1yearRamsNext_4 2yearRamsNext_4 1yearEwesNext_4 2yearEwesNext_4 3yearEwesNext_4
-Time spend: 0.72 seconds.
-For generation: 0.71 seconds.
-For culling: 0.01 seconds.
+Time spend: 0.66 seconds.
+For generation: 0.66 seconds.
+For culling: 0 seconds.
 Start simulation of generation: 7 (time point: 5)
 Start selection procedure.
 Selection male size:
@@ -417,7 +417,7 @@ Successfully generated cohort: NewOffspring_5_M
 Database position: 7 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_5_F
 Database position: 7 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.501 seconds
+Generation of new individuals took 0.3325 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -425,20 +425,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_5).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_5
 Database position: 7 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0595 seconds
+Generation of new individuals took 0.0618 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 24.2134; sigma_e^2 = 70 ; h^2 = 0.257
+Variance components in BVE: sigma_g^2 = 39.4208; sigma_e^2 = 70 ; h^2 = 0.36
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 18.5751; sigma_e^2 = 80 ; h^2 = 0.188
+Variance components in BVE: sigma_g^2 = 24.882; sigma_e^2 = 80 ; h^2 = 0.237
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.5998055 -0.1389016
+0.7345358 0.549617
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -446,7 +446,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_5).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_5
 Database position: 7 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0389 seconds
+Generation of new individuals took 0.0215 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -454,7 +454,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_5).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_5
 Database position: 7 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0579 seconds
+Generation of new individuals took 0.0618 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -462,7 +462,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_5).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_5
 Database position: 7 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0564 seconds
+Generation of new individuals took 0.056 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -470,11 +470,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_5).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_5
 Database position: 7 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0406 seconds
+Generation of new individuals took 0.039 seconds
 Generated groups: 
 NewOffspring_M_5 NewOffspring_F_5 1yearRamsNext_5 2yearRamsNext_5 1yearEwesNext_5 2yearEwesNext_5 3yearEwesNext_5
-Time spend: 0.86 seconds.
-For generation: 0.85 seconds.
+Time spend: 0.67 seconds.
+For generation: 0.66 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 8 (time point: 6)
 Start selection procedure.
@@ -489,7 +489,7 @@ Successfully generated cohort: NewOffspring_6_M
 Database position: 8 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_6_F
 Database position: 8 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3716 seconds
+Generation of new individuals took 0.3247 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -497,20 +497,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_6).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_6
 Database position: 8 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0577 seconds
+Generation of new individuals took 0.0573 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 24.5852; sigma_e^2 = 70 ; h^2 = 0.26
+Variance components in BVE: sigma_g^2 = 33.7631; sigma_e^2 = 70 ; h^2 = 0.325
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 15.7598; sigma_e^2 = 80 ; h^2 = 0.165
+Variance components in BVE: sigma_g^2 = 18.1213; sigma_e^2 = 80 ; h^2 = 0.185
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.5741266 0.2968143
+0.563435 0.3836145
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -518,7 +518,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_6).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_6
 Database position: 8 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0245 seconds
+Generation of new individuals took 0.018 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -526,7 +526,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_6).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_6
 Database position: 8 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0635 seconds
+Generation of new individuals took 0.062 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -534,7 +534,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_6).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_6
 Database position: 8 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0579 seconds
+Generation of new individuals took 0.0529 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -542,11 +542,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_6).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_6
 Database position: 8 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0474 seconds
+Generation of new individuals took 0.0429 seconds
 Generated groups: 
 NewOffspring_M_6 NewOffspring_F_6 1yearRamsNext_6 2yearRamsNext_6 1yearEwesNext_6 2yearEwesNext_6 3yearEwesNext_6
-Time spend: 0.72 seconds.
-For generation: 0.72 seconds.
+Time spend: 0.67 seconds.
+For generation: 0.67 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 9 (time point: 7)
 Start selection procedure.
@@ -561,7 +561,7 @@ Successfully generated cohort: NewOffspring_7_M
 Database position: 9 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_7_F
 Database position: 9 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3468 seconds
+Generation of new individuals took 0.3317 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -569,20 +569,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_7).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_7
 Database position: 9 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0684 seconds
+Generation of new individuals took 0.0571 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 24.948; sigma_e^2 = 70 ; h^2 = 0.263
+Variance components in BVE: sigma_g^2 = 29.2792; sigma_e^2 = 70 ; h^2 = 0.295
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 15.2788; sigma_e^2 = 80 ; h^2 = 0.16
+Variance components in BVE: sigma_g^2 = 19.152; sigma_e^2 = 80 ; h^2 = 0.193
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.4176512 0.4904865
+0.5210718 0.09177299
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -590,7 +590,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_7).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_7
 Database position: 9 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0196 seconds
+Generation of new individuals took 0.0193 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -598,7 +598,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_7).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_7
 Database position: 9 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0818 seconds
+Generation of new individuals took 0.0606 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -606,7 +606,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_7).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_7
 Database position: 9 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.058 seconds
+Generation of new individuals took 0.0519 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -614,11 +614,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_7).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_7
 Database position: 9 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0426 seconds
+Generation of new individuals took 0.0444 seconds
 Generated groups: 
 NewOffspring_M_7 NewOffspring_F_7 1yearRamsNext_7 2yearRamsNext_7 1yearEwesNext_7 2yearEwesNext_7 3yearEwesNext_7
-Time spend: 0.71 seconds.
-For generation: 0.7 seconds.
+Time spend: 0.66 seconds.
+For generation: 0.65 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 10 (time point: 8)
 Start selection procedure.
@@ -633,7 +633,7 @@ Successfully generated cohort: NewOffspring_8_M
 Database position: 10 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_8_F
 Database position: 10 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3307 seconds
+Generation of new individuals took 0.3854 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -641,20 +641,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_8).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_8
 Database position: 10 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0559 seconds
+Generation of new individuals took 0.0734 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 31.6107; sigma_e^2 = 70 ; h^2 = 0.311
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 32.0642; sigma_e^2 = 70 ; h^2 = 0.314
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 16.0956; sigma_e^2 = 80 ; h^2 = 0.167
+Variance components in BVE: sigma_g^2 = 16.9419; sigma_e^2 = 80 ; h^2 = 0.175
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6599098 0.2941936
+0.7225734 0.129173
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -662,7 +662,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_8).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_8
 Database position: 10 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0193 seconds
+Generation of new individuals took 0.0185 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -670,7 +670,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_8).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_8
 Database position: 10 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0778 seconds
+Generation of new individuals took 0.0593 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -678,7 +678,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_8).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_8
 Database position: 10 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.055 seconds
+Generation of new individuals took 0.0536 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -686,12 +686,12 @@ Start generation of new individuals (cohort: 3yearEwesNext_8).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_8
 Database position: 10 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0806 seconds
+Generation of new individuals took 0.0437 seconds
 Generated groups: 
 NewOffspring_M_8 NewOffspring_F_8 1yearRamsNext_8 2yearRamsNext_8 1yearEwesNext_8 2yearEwesNext_8 3yearEwesNext_8
-Time spend: 0.71 seconds.
-For generation: 0.71 seconds.
-For culling: 0 seconds.
+Time spend: 0.73 seconds.
+For generation: 0.72 seconds.
+For culling: 0.01 seconds.
 Start simulation of generation: 11 (time point: 9)
 Start selection procedure.
 Selection male size:
@@ -705,7 +705,7 @@ Successfully generated cohort: NewOffspring_9_M
 Database position: 11 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_9_F
 Database position: 11 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3673 seconds
+Generation of new individuals took 0.3523 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -713,20 +713,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_9).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_9
 Database position: 11 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0636 seconds
+Generation of new individuals took 0.0685 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 30.3768; sigma_e^2 = 70 ; h^2 = 0.303
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 28.6335; sigma_e^2 = 70 ; h^2 = 0.29
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 17.2677; sigma_e^2 = 80 ; h^2 = 0.178
+Variance components in BVE: sigma_g^2 = 18.4165; sigma_e^2 = 80 ; h^2 = 0.187
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6436075 0.2940971
+0.5229285 0.1564036
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -734,7 +734,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_9).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_9
 Database position: 11 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0199 seconds
+Generation of new individuals took 0.0194 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -742,7 +742,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_9).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_9
 Database position: 11 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0573 seconds
+Generation of new individuals took 0.07 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -750,7 +750,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_9).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_9
 Database position: 11 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0814 seconds
+Generation of new individuals took 0.0563 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -758,11 +758,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_9).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_9
 Database position: 11 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0421 seconds
+Generation of new individuals took 0.046 seconds
 Generated groups: 
 NewOffspring_M_9 NewOffspring_F_9 1yearRamsNext_9 2yearRamsNext_9 1yearEwesNext_9 2yearEwesNext_9 3yearEwesNext_9
 Time spend: 0.72 seconds.
-For generation: 0.72 seconds.
+For generation: 0.71 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 12 (time point: 10)
 Start selection procedure.
@@ -777,7 +777,7 @@ Successfully generated cohort: NewOffspring_10_M
 Database position: 12 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_10_F
 Database position: 12 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3534 seconds
+Generation of new individuals took 0.3163 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -785,20 +785,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_10).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_10
 Database position: 12 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0585 seconds
+Generation of new individuals took 0.0787 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 30.07; sigma_e^2 = 70 ; h^2 = 0.3
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 28.5676; sigma_e^2 = 70 ; h^2 = 0.29
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 16.1003; sigma_e^2 = 80 ; h^2 = 0.168
+Variance components in BVE: sigma_g^2 = 16.7987; sigma_e^2 = 80 ; h^2 = 0.174
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.53736 0.44791
+0.5615355 0.192205
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -806,7 +806,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_10).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_10
 Database position: 12 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0213 seconds
+Generation of new individuals took 0.0191 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -814,7 +814,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_10).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_10
 Database position: 12 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0779 seconds
+Generation of new individuals took 0.0622 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -822,7 +822,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_10).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_10
 Database position: 12 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.053 seconds
+Generation of new individuals took 0.0705 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -830,11 +830,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_10).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_10
 Database position: 12 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0466 seconds
+Generation of new individuals took 0.0442 seconds
 Generated groups: 
 NewOffspring_M_10 NewOffspring_F_10 1yearRamsNext_10 2yearRamsNext_10 1yearEwesNext_10 2yearEwesNext_10 3yearEwesNext_10
-Time spend: 0.71 seconds.
-For generation: 0.7 seconds.
+Time spend: 0.69 seconds.
+For generation: 0.68 seconds.
 For culling: 0 seconds.
 Start simulation of generation: 13 (time point: 11)
 Start selection procedure.
@@ -849,7 +849,7 @@ Successfully generated cohort: NewOffspring_11_M
 Database position: 13 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_11_F
 Database position: 13 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3584 seconds
+Generation of new individuals took 0.361 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -857,20 +857,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_11).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_11
 Database position: 13 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0566 seconds
+Generation of new individuals took 0.0922 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 27.1608; sigma_e^2 = 70 ; h^2 = 0.28
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 31.3615; sigma_e^2 = 70 ; h^2 = 0.309
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 19.3546; sigma_e^2 = 80 ; h^2 = 0.195
+Variance components in BVE: sigma_g^2 = 18.9596; sigma_e^2 = 80 ; h^2 = 0.192
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.5894084 0.3897812
+0.6195663 0.3985569
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -878,7 +878,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_11).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_11
 Database position: 13 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0217 seconds
+Generation of new individuals took 0.023 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -886,7 +886,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_11).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_11
 Database position: 13 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0854 seconds
+Generation of new individuals took 0.0589 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -894,7 +894,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_11).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_11
 Database position: 13 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0532 seconds
+Generation of new individuals took 0.0542 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -902,12 +902,12 @@ Start generation of new individuals (cohort: 3yearEwesNext_11).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_11
 Database position: 13 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0416 seconds
+Generation of new individuals took 0.0399 seconds
 Generated groups: 
 NewOffspring_M_11 NewOffspring_F_11 1yearRamsNext_11 2yearRamsNext_11 1yearEwesNext_11 2yearEwesNext_11 3yearEwesNext_11
-Time spend: 0.71 seconds.
-For generation: 0.7 seconds.
-For culling: 0.01 seconds.
+Time spend: 0.73 seconds.
+For generation: 0.72 seconds.
+For culling: 0 seconds.
 Start simulation of generation: 14 (time point: 12)
 Start selection procedure.
 Selection male size:
@@ -921,7 +921,7 @@ Successfully generated cohort: NewOffspring_12_M
 Database position: 14 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_12_F
 Database position: 14 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.4122 seconds
+Generation of new individuals took 0.3531 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -929,20 +929,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_12).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_12
 Database position: 14 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0561 seconds
+Generation of new individuals took 0.0778 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 26.4806; sigma_e^2 = 70 ; h^2 = 0.274
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 29.6391; sigma_e^2 = 70 ; h^2 = 0.297
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 17.0247; sigma_e^2 = 80 ; h^2 = 0.175
+Variance components in BVE: sigma_g^2 = 15.4377; sigma_e^2 = 80 ; h^2 = 0.162
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.7000369 0.207887
+0.5542867 0.1470824
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -950,7 +950,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_12).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_12
 Database position: 14 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0205 seconds
+Generation of new individuals took 0.019 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -958,7 +958,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_12).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_12
 Database position: 14 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0782 seconds
+Generation of new individuals took 0.0612 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -966,7 +966,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_12).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_12
 Database position: 14 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0565 seconds
+Generation of new individuals took 0.0541 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -974,11 +974,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_12).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_12
 Database position: 14 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.046 seconds
+Generation of new individuals took 0.039 seconds
 Generated groups: 
 NewOffspring_M_12 NewOffspring_F_12 1yearRamsNext_12 2yearRamsNext_12 1yearEwesNext_12 2yearEwesNext_12 3yearEwesNext_12
-Time spend: 0.77 seconds.
-For generation: 0.76 seconds.
+Time spend: 0.7 seconds.
+For generation: 0.69 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 15 (time point: 13)
 Start selection procedure.
@@ -993,7 +993,7 @@ Successfully generated cohort: NewOffspring_13_M
 Database position: 15 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_13_F
 Database position: 15 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3519 seconds
+Generation of new individuals took 0.3418 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1001,20 +1001,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_13).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_13
 Database position: 15 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.067 seconds
+Generation of new individuals took 0.0602 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 24.2405; sigma_e^2 = 70 ; h^2 = 0.257
+Variance components in BVE: sigma_g^2 = 36.1996; sigma_e^2 = 70 ; h^2 = 0.341
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 17.3732; sigma_e^2 = 80 ; h^2 = 0.178
+Variance components in BVE: sigma_g^2 = 17.4481; sigma_e^2 = 80 ; h^2 = 0.179
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.4148004 0.2476281
+0.8155978 0.1373961
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1022,7 +1022,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_13).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_13
 Database position: 15 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0195 seconds
+Generation of new individuals took 0.0239 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1030,7 +1030,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_13).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_13
 Database position: 15 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0591 seconds
+Generation of new individuals took 0.0632 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1038,7 +1038,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_13).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_13
 Database position: 15 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0507 seconds
+Generation of new individuals took 0.0664 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1046,11 +1046,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_13).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_13
 Database position: 15 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0435 seconds
+Generation of new individuals took 0.0738 seconds
 Generated groups: 
 NewOffspring_M_13 NewOffspring_F_13 1yearRamsNext_13 2yearRamsNext_13 1yearEwesNext_13 2yearEwesNext_13 3yearEwesNext_13
-Time spend: 0.71 seconds.
-For generation: 0.7 seconds.
+Time spend: 0.73 seconds.
+For generation: 0.72 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 16 (time point: 14)
 Start selection procedure.
@@ -1065,7 +1065,7 @@ Successfully generated cohort: NewOffspring_14_M
 Database position: 16 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_14_F
 Database position: 16 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3684 seconds
+Generation of new individuals took 0.4007 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1073,20 +1073,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_14).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_14
 Database position: 16 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0723 seconds
+Generation of new individuals took 0.0574 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 25.0594; sigma_e^2 = 70 ; h^2 = 0.264
+Variance components in BVE: sigma_g^2 = 27.3683; sigma_e^2 = 70 ; h^2 = 0.281
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 12.2535; sigma_e^2 = 80 ; h^2 = 0.133
+Variance components in BVE: sigma_g^2 = 17.3441; sigma_e^2 = 80 ; h^2 = 0.178
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6644225 0.4560737
+0.6894351 0.0717628
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1094,7 +1094,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_14).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_14
 Database position: 16 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0271 seconds
+Generation of new individuals took 0.0196 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1102,7 +1102,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_14).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_14
 Database position: 16 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.064 seconds
+Generation of new individuals took 0.0722 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1110,7 +1110,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_14).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_14
 Database position: 16 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0577 seconds
+Generation of new individuals took 0.0764 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1118,12 +1118,12 @@ Start generation of new individuals (cohort: 3yearEwesNext_14).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_14
 Database position: 16 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.041 seconds
+Generation of new individuals took 0.0628 seconds
 Generated groups: 
 NewOffspring_M_14 NewOffspring_F_14 1yearRamsNext_14 2yearRamsNext_14 1yearEwesNext_14 2yearEwesNext_14 3yearEwesNext_14
-Time spend: 0.78 seconds.
-For generation: 0.76 seconds.
-For culling: 0.03 seconds.
+Time spend: 0.8 seconds.
+For generation: 0.79 seconds.
+For culling: 0.01 seconds.
 Start simulation of generation: 17 (time point: 15)
 Start selection procedure.
 Selection male size:
@@ -1137,7 +1137,7 @@ Successfully generated cohort: NewOffspring_15_M
 Database position: 17 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_15_F
 Database position: 17 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3527 seconds
+Generation of new individuals took 0.3995 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1145,20 +1145,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_15).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_15
 Database position: 17 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0591 seconds
+Generation of new individuals took 0.0626 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 32.4467; sigma_e^2 = 70 ; h^2 = 0.317
-0 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 30.8434; sigma_e^2 = 70 ; h^2 = 0.306
+0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 14.7535; sigma_e^2 = 80 ; h^2 = 0.156
+Variance components in BVE: sigma_g^2 = 13.8518; sigma_e^2 = 80 ; h^2 = 0.148
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6599513 0.0167528
+0.5638638 0.2463149
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1166,7 +1166,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_15).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_15
 Database position: 17 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0277 seconds
+Generation of new individuals took 0.0195 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1174,7 +1174,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_15).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_15
 Database position: 17 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.087 seconds
+Generation of new individuals took 0.066 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1182,7 +1182,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_15).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_15
 Database position: 17 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0731 seconds
+Generation of new individuals took 0.0946 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1190,11 +1190,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_15).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_15
 Database position: 17 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.052 seconds
+Generation of new individuals took 0.0443 seconds
 Generated groups: 
 NewOffspring_M_15 NewOffspring_F_15 1yearRamsNext_15 2yearRamsNext_15 1yearEwesNext_15 2yearEwesNext_15 3yearEwesNext_15
-Time spend: 0.76 seconds.
-For generation: 0.76 seconds.
+Time spend: 0.79 seconds.
+For generation: 0.78 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 18 (time point: 16)
 Start selection procedure.
@@ -1209,7 +1209,7 @@ Successfully generated cohort: NewOffspring_16_M
 Database position: 18 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_16_F
 Database position: 18 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.6238 seconds
+Generation of new individuals took 0.4245 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1217,20 +1217,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_16).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_16
 Database position: 18 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0573 seconds
+Generation of new individuals took 0.074 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 26.6982; sigma_e^2 = 70 ; h^2 = 0.276
+Variance components in BVE: sigma_g^2 = 30.6997; sigma_e^2 = 70 ; h^2 = 0.305
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 14.7681; sigma_e^2 = 80 ; h^2 = 0.156
+Variance components in BVE: sigma_g^2 = 14.2633; sigma_e^2 = 80 ; h^2 = 0.151
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.3932975 -0.08435558
+0.5887954 0.005880369
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1238,7 +1238,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_16).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_16
 Database position: 18 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0195 seconds
+Generation of new individuals took 0.0326 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1246,7 +1246,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_16).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_16
 Database position: 18 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.064 seconds
+Generation of new individuals took 0.0947 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1254,7 +1254,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_16).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_16
 Database position: 18 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0557 seconds
+Generation of new individuals took 0.0903 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1262,11 +1262,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_16).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_16
 Database position: 18 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0447 seconds
+Generation of new individuals took 0.0731 seconds
 Generated groups: 
 NewOffspring_M_16 NewOffspring_F_16 1yearRamsNext_16 2yearRamsNext_16 1yearEwesNext_16 2yearEwesNext_16 3yearEwesNext_16
-Time spend: 0.96 seconds.
-For generation: 0.96 seconds.
+Time spend: 0.94 seconds.
+For generation: 0.93 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 19 (time point: 17)
 Start selection procedure.
@@ -1281,7 +1281,7 @@ Successfully generated cohort: NewOffspring_17_M
 Database position: 19 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_17_F
 Database position: 19 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3686 seconds
+Generation of new individuals took 0.509 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1289,20 +1289,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_17).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_17
 Database position: 19 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.063 seconds
+Generation of new individuals took 0.0819 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 25.8427; sigma_e^2 = 70 ; h^2 = 0.27
-0.01 seconds for BVE.
+Variance components in BVE: sigma_g^2 = 29.0186; sigma_e^2 = 70 ; h^2 = 0.293
+0 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 12.6994; sigma_e^2 = 80 ; h^2 = 0.137
+Variance components in BVE: sigma_g^2 = 13.671; sigma_e^2 = 80 ; h^2 = 0.146
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.7039266 -0.003133627
+0.650584 0.2340761
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1310,7 +1310,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_17).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_17
 Database position: 19 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0192 seconds
+Generation of new individuals took 0.0209 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1318,7 +1318,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_17).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_17
 Database position: 19 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0786 seconds
+Generation of new individuals took 0.0882 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1326,7 +1326,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_17).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_17
 Database position: 19 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0551 seconds
+Generation of new individuals took 0.0561 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1334,11 +1334,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_17).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_17
 Database position: 19 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0429 seconds
+Generation of new individuals took 0.0432 seconds
 Generated groups: 
 NewOffspring_M_17 NewOffspring_F_17 1yearRamsNext_17 2yearRamsNext_17 1yearEwesNext_17 2yearEwesNext_17 3yearEwesNext_17
-Time spend: 0.73 seconds.
-For generation: 0.73 seconds.
+Time spend: 0.92 seconds.
+For generation: 0.91 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 20 (time point: 18)
 Start selection procedure.
@@ -1353,7 +1353,7 @@ Successfully generated cohort: NewOffspring_18_M
 Database position: 20 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_18_F
 Database position: 20 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.358 seconds
+Generation of new individuals took 0.3843 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1361,20 +1361,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_18).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_18
 Database position: 20 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0623 seconds
+Generation of new individuals took 0.0691 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 19.3527; sigma_e^2 = 70 ; h^2 = 0.217
+Variance components in BVE: sigma_g^2 = 24.9485; sigma_e^2 = 70 ; h^2 = 0.263
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 13.8521; sigma_e^2 = 80 ; h^2 = 0.148
+Variance components in BVE: sigma_g^2 = 11.7129; sigma_e^2 = 80 ; h^2 = 0.128
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.5452344 0.1119336
+0.4895433 0.2892155
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1382,7 +1382,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_18).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_18
 Database position: 20 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0181 seconds
+Generation of new individuals took 0.0201 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1390,7 +1390,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_18).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_18
 Database position: 20 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0776 seconds
+Generation of new individuals took 0.0738 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1398,7 +1398,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_18).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_18
 Database position: 20 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0558 seconds
+Generation of new individuals took 0.0608 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1406,11 +1406,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_18).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_18
 Database position: 20 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0419 seconds
+Generation of new individuals took 0.082 seconds
 Generated groups: 
 NewOffspring_M_18 NewOffspring_F_18 1yearRamsNext_18 2yearRamsNext_18 1yearEwesNext_18 2yearEwesNext_18 3yearEwesNext_18
-Time spend: 0.72 seconds.
-For generation: 0.71 seconds.
+Time spend: 0.79 seconds.
+For generation: 0.78 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 21 (time point: 19)
 Start selection procedure.
@@ -1425,7 +1425,7 @@ Successfully generated cohort: NewOffspring_19_M
 Database position: 21 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_19_F
 Database position: 21 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.4089 seconds
+Generation of new individuals took 0.3827 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1433,20 +1433,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_19).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_19
 Database position: 21 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0605 seconds
+Generation of new individuals took 0.0577 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 19.7762; sigma_e^2 = 70 ; h^2 = 0.22
+Variance components in BVE: sigma_g^2 = 28.164; sigma_e^2 = 70 ; h^2 = 0.287
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 10.8494; sigma_e^2 = 80 ; h^2 = 0.119
+Variance components in BVE: sigma_g^2 = 9.6703; sigma_e^2 = 80 ; h^2 = 0.108
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6593899 0.3752629
+0.7490066 0.05363972
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1454,7 +1454,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_19).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_19
 Database position: 21 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0206 seconds
+Generation of new individuals took 0.0418 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1462,7 +1462,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_19).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_19
 Database position: 21 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0837 seconds
+Generation of new individuals took 0.0666 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1470,7 +1470,7 @@ Start generation of new individuals (cohort: 2yearEwesNext_19).
 Successfully generated 40 individuals.
 Successfully generated cohort: 2yearEwesNext_19
 Database position: 21 (gen), 2 (sex), 101 (first), 140 (last).
-Generation of new individuals took 0.0504 seconds
+Generation of new individuals took 0.056 seconds
 Start selection procedure.
 Selection female size:
 Select 30 individuals out of  40.
@@ -1478,11 +1478,11 @@ Start generation of new individuals (cohort: 3yearEwesNext_19).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_19
 Database position: 21 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0403 seconds
+Generation of new individuals took 0.063 seconds
 Generated groups: 
 NewOffspring_M_19 NewOffspring_F_19 1yearRamsNext_19 2yearRamsNext_19 1yearEwesNext_19 2yearEwesNext_19 3yearEwesNext_19
-Time spend: 0.76 seconds.
-For generation: 0.75 seconds.
+Time spend: 0.77 seconds.
+For generation: 0.76 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 22 (time point: 20)
 Start selection procedure.
@@ -1497,7 +1497,7 @@ Successfully generated cohort: NewOffspring_20_M
 Database position: 22 (gen), 1 (sex), 1 (first), 50 (last).
 Successfully generated cohort: NewOffspring_20_F
 Database position: 22 (gen), 2 (sex), 1 (first), 50 (last).
-Generation of new individuals took 0.3517 seconds
+Generation of new individuals took 0.4017 seconds
 Start selection procedure.
 Selection male size:
 Select 50 individuals out of  50.
@@ -1505,20 +1505,20 @@ Start generation of new individuals (cohort: 1yearRamsNext_20).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearRamsNext_20
 Database position: 22 (gen), 1 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0553 seconds
+Generation of new individuals took 0.0661 seconds
 Start genomic BVE.
 Use Genomic BLUP (All individuals are genotyped)!
 180 phenotyped individuals in BVE (Trait: Meat).
 180 individuals considered in BVE.
-Variance components in BVE: sigma_g^2 = 21.5277; sigma_e^2 = 70 ; h^2 = 0.235
+Variance components in BVE: sigma_g^2 = 28.5854; sigma_e^2 = 70 ; h^2 = 0.29
 0.01 seconds for BVE.
 80 phenotyped individuals in BVE (Trait: Fertility).
 180 individuals considered in BVE.
 Some genotyped individuals without phenotype.
-Variance components in BVE: sigma_g^2 = 10.1674; sigma_e^2 = 80 ; h^2 = 0.113
+Variance components in BVE: sigma_g^2 = 15.7386; sigma_e^2 = 80 ; h^2 = 0.164
 0 seconds for BVE.
 Correlation between genetic values and BVE:
-0.6034559 0.01543991
+0.6355791 0.2047468
 Start selection procedure.
 Selection male size:
 Select 10 individuals out of  50.
@@ -1526,7 +1526,7 @@ Start generation of new individuals (cohort: 2yearRamsNext_20).
 Successfully generated 10 individuals.
 Successfully generated cohort: 2yearRamsNext_20
 Database position: 22 (gen), 1 (sex), 101 (first), 110 (last).
-Generation of new individuals took 0.0197 seconds
+Generation of new individuals took 0.0189 seconds
 Start selection procedure.
 Selection female size:
 Select 50 individuals out of  50.
@@ -1534,7 +1534,7 @@ Start generation of new individuals (cohort: 1yearEwesNext_20).
 Successfully generated 50 individuals.
 Successfully generated cohort: 1yearEwesNext_20
 Database position: 22 (gen), 2 (sex), 51 (first), 100 (last).
-Generation of new individuals took 0.0634 seconds
+Generation of new individuals took 0.078 seconds
 Start selection procedure.
 Selection female size:
 Select 40 individuals out of  50.
@@ -1550,10 +1550,10 @@ Start generation of new individuals (cohort: 3yearEwesNext_20).
 Successfully generated 30 individuals.
 Successfully generated cohort: 3yearEwesNext_20
 Database position: 22 (gen), 2 (sex), 141 (first), 170 (last).
-Generation of new individuals took 0.0472 seconds
+Generation of new individuals took 0.0458 seconds
 Generated groups: 
 NewOffspring_M_20 NewOffspring_F_20 1yearRamsNext_20 2yearRamsNext_20 1yearEwesNext_20 2yearEwesNext_20 3yearEwesNext_20
-Time spend: 0.69 seconds.
-For generation: 0.68 seconds.
+Time spend: 0.78 seconds.
+For generation: 0.77 seconds.
 For culling: 0.01 seconds.
 Start simulation of generation: 23 (time point: 21)

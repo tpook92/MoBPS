@@ -1315,6 +1315,12 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           for(index in 1:length(arrays)){
             array_info[index,] <- unlist(arrays[[index]])[1:2]
           }
+
+          for(index in 1:length(nodes)){
+            if(length(nodes[[index]]$array_used) == 0){
+              nodes[[index]]$array_used = array_info[1,1]
+            }
+          }
         } else{
           for(index in 1:length(nodes)){
             nodes[[index]]$array_used <- 1

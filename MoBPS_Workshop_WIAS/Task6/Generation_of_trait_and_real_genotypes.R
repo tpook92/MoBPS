@@ -3,12 +3,12 @@ set.seed(42)
 
 # Import genomic data from the first pool
 population <- creating.diploid(vcf="C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task6/Pool1.vcf",
-                               name.cohort = "Pool1", sex.quota = 0)
+                               name.cohort = "Pool1", sex.quota = 0, founder.pool = 1)
 
 
 # Import genomic data from the second pool
 population <- creating.diploid(population = population, vcf="C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task6/Pool2.vcf",
-                               name.cohort = "Pool2", sex.quota = 1)
+                               name.cohort = "Pool2", sex.quota = 1, founder.pool = 2)
 
 # Generation of the three different traits
 
@@ -51,6 +51,39 @@ hist(bv_hybrid[3,], xlim=c(94,115), main="", xlab="genomic value")
 rowMeans(bv_pool1)
 rowMeans(bv_pool2)
 rowMeans(bv_hybrid)
+
+
+# Make a trait to only have variation in one pool
+real.bv.add = get.qtl.effects(population)[[1]][[1]]
+real.bv.add[,7] = 1
+
+pop1 = creating.trait(population, replace.traits = TRUE,
+                      real.bv.add = real.bv.add)
+
+bv_pool1 <- get.bv(pop1, cohorts="Pool1")
+bv_pool2 <- get.bv(pop1, cohorts="Pool2")
+bv_hybrid <- get.bv(pop1, cohorts="Hybrid")
+
+par(mfrow=c(3,1))
+hist(bv_pool1[1,], xlim=c(94,115), main="Trait 1", ylab="Pool 1", xlab="genomic value")
+hist(bv_pool2[1,], xlim=c(94,115), main="", ylab="Pool 2", xlab="genomic value")
+hist(bv_hybrid[1,], xlim=c(94,115), main="", ylab="Hybrids", xlab="genomic value")
+
+# Use different population means in different founder pools
+pop2 = set.mean.pool(population, mean = c(110, 98), trait = 1,
+                    gen = 1, reference = "pool")
+
+get.qtl.effects(pop2)[[1]][[1]]
+
+bv_pool1 <- get.bv(pop2, cohorts="Pool1")
+bv_pool2 <- get.bv(pop2, cohorts="Pool2")
+bv_hybrid <- get.bv(pop2, cohorts="Hybrid")
+
+par(mfrow=c(3,1))
+hist(bv_pool1[1,], xlim=c(94,115), main="Trait 1", ylab="Pool 1", xlab="genomic value")
+hist(bv_pool2[1,], xlim=c(94,115), main="", ylab="Pool 2", xlab="genomic value")
+hist(bv_hybrid[1,], xlim=c(94,115), main="", ylab="Hybrids", xlab="genomic value")
+
 
 # On average each line is used 10 times for reproduction
 # There is however sampling effects

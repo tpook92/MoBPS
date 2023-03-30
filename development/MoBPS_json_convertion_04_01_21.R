@@ -14,7 +14,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Schweiz_v1_BLUP (1).json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/test123.json")
 
 fast.mode <- FALSE
 rep.max <- 1
@@ -1242,6 +1242,12 @@ fixed.generation.order <- NULL
       if(length(arrays)>0){
         for(index in 1:length(arrays)){
           array_info[index,] <- unlist(arrays[[index]])[1:2]
+        }
+
+        for(index in 1:length(nodes)){
+          if(length(nodes[[index]]$array_used) == 0){
+            nodes[[index]]$array_used = array_info[1,1]
+          }
         }
       } else{
         for(index in 1:length(nodes)){
@@ -2563,7 +2569,6 @@ fixed.generation.order <- NULL
       generation_group <- list()
       generation_bv_size <- list()
       for(index in 1:length(generation_times)){
-        print(index)
         nrs <- setdiff(which(time.point.list==generation_times[[index]]), founder)
         btype <- numeric(length(nrs))
         if(length(nrs)>0){

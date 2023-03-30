@@ -863,7 +863,7 @@ pop1 <- breeding.diploid(pop, breeding.size=100,
 # on the male side.
 pop2 <- breeding.diploid(pop, breeding.size=100,
                          selection.size=c(5,20),
-                         selection.m="function",
+                         selection.criteria = "bve",
                          selection.m.cohorts="Founder_M",
                          selection.f.cohorts="Founder_F",
                          name.cohort="Offspring")
