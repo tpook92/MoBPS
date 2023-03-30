@@ -23,6 +23,31 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+
+### Version 1.10.48 (29.03.23)
+
+Documentation overhaul (?breeding.diploid, ?creating.diploid + Guidelines)
+
+Added function to add additional genetic diversity to existing population (add.diversity)
+
+Added options to avoid multiple recombinations in small areas of the genome in breeding.diploid()
+
+Added options to generate traits in multiple locations / GxE in creating.diploid()
+
+Improved efficeny for high number of traits (e.g. recalculate.manual() ) 
+
+Removed sequenceZ functionality
+
+Renamed shuffle.cor / shuffle.traits to trait.cor / trait.cor.include in creating.diploid()
+
+Added plotting parameters to founder.simulation / ld.decay
+
+Added function to print computing times of individuals steps of a simulation (get.computing.time)
+
+Added function to calculate allele frequency / minor allele frequencies (get.allele.freq / get.maf)
+
+MoBPSweb: Manually selected nodes for BVE that are not possible to be generated before are automatically excluded from BVE (manual.select.check in json.simulation)
+
 ### Version 1.10.06 (05.12.22)
 
 Added MiXBLUP implementation for breeding value estimation
