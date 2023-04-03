@@ -2,7 +2,8 @@ set.seed(42)
 library(MoBPS)
 
 # Generation of the founder population
-population <- creating.diploid(nindi=100, nsnp=25000, chr.nr=5, n.additive = 1000, chromosome.length = 3)
+population <- creating.diploid(nindi=100, nsnp=25000, chr.nr=5,
+                               n.additive = 1000, chromosome.length = 3)
 summary(population)
 
 array2 <- array3 <- array4 <- rep(FALSE, 25000)
@@ -19,14 +20,39 @@ population <- add.array(population, marker.included = array4)
 
 # If no input for selection.size is provided MoBPS will automatically use all individuals from the previous generation
 # LD build-up
+# you could for example use selection.m.database = cbind(index,1) &  selection.f.database = cbind(index,2) or cohort names
 
 for(index in 1:10){
+
   population <- breeding.diploid(population, breeding.size = 100,
                                  share.genotyped = 1)
+
 }
 
+
+# example of how to build a database with the best 10 individuals to subsequently genotype them
+# usually run a pedigree-blup or similar before:
+#best_individuals = breeding.diploid(population, selection.size = c(10,0),
+#                              export.selected = TRUE)
+#best_individuals[[1]][,1:3]
+#population = breeding.diploid(population, genotyped.database = best_individuals[[1]][,1:3])
+
+
 # Generation of non-genotyped individuals
-population <- breeding.diploid(population, breeding.size = 100, share.genotyped = 0.2)
+population <- breeding.diploid(population, breeding.size = 100,
+                               share.genotyped = 0.2)
+
+
+### examples for naming of cohorts
+# Although _M / _F are added Cohort_11 kind of still exists
+get.database(population, cohorts = "Cohort_11")
+
+pop1 <- breeding.diploid(population, breeding.size = 100,
+                               share.genotyped = 1,
+                         name.cohort = c("FancyName1", "ABC"))
+
+# There is different ways of making sure your simulation does what its supposed to be doing
+get.pedigree.visual(population, gen=10)
 
 # Generation of phenotypic data
 # In generation 11 & 12 all individuals are phenotyped
@@ -37,11 +63,11 @@ population <- breeding.diploid(population, phenotyping.database = cbind(10,1), h
 ## Part two
 # In case you are struggling with Task 7a load in an exemplary population
 # save(file="C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task7/population.RData", list = c("population"))
-# load("population.RData")
+# load("C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task7/population.RData")
 
 
 # Looking at the prints provides helpful information to validate that the tool is doing what you want it do be doing!
-population <- breeding.diploid(population, bve=TRUE, bve.gen=11)
+population <- breeding.diploid(population, bve=TRUE, bve.gen=11, depth.pedigree = 3)
 population <- breeding.diploid(population, bve=TRUE, bve.gen=11, relationship.matrix = "pedigree")
 
 # BVE with various different arrays

@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param selection.size Number of selected individuals as parents (default: all individuals in selection.m/f.gen/database/gen - alt: positive numbers)
 #' @param selection.m.gen,selection.m.cohorts,selection.m.database Generations/cohorts/groups available for selection of first/paternal parent
 #' @param selection.f.gen,selection.f.cohorts,selection.f.database Generations available for selection of maternal parent
-#' @param selection.criteria What to use in the selection proces (default: "bve", alt: "bv", "pheno", "random")
+#' @param selection.criteria What to use in the selection proces (default: "bve", alt: "bv", "pheno", "random", "offpheno")
 #' @param class.m,class.f For selection only individuals from this class (included in selection.m/f.gen/database/cohorts) will be considered for selection (default: 0 - which is all individuals if never used class elsewhere)
 #' @param add.class.cohorts Inital classes of cohorts used in selection.m/f.cohorts are automatically added to class.m/f (default: TRUE)
 #' @param multiple.bve Way to handle multiple traits in selection (default: "add" - use values directly in an index, alt: "ranking" - ignore values but only use ranking per trait)
@@ -525,7 +525,7 @@ breeding.diploid <- function(population,
                              BGLR.model = "RKHS",
                              BGLR.burnin = 500,
                              BGLR.iteration = 5000,
-                             BGLR.print = FALSE,
+                             BGLR.print = TRUE,
                              BGLR.save = "RKHS",
                              BGLR.save.random = FALSE,
                              miraculix = NULL,
@@ -657,6 +657,68 @@ breeding.diploid <- function(population,
   if(use.recalculate.manual){
     bv.ignore.traits = 1:population$info$bv.nr
   }
+
+  if(length(selection.criteria)>0){
+    selection.criteria[selection.criteria=="ebv"] = "bve"
+    selection.criteria[selection.criteria=="gv"] = "bv"
+  }
+  if(length(multiple.bve.scale.m)>0){
+    multiple.bve.scale.m[multiple.bve.scale.m=="ebv_sd"] = "bve_sd"
+    multiple.bve.scale.m[multiple.bve.scale.m=="gv_sd"] = "bv_sd"
+  }
+  if(length(multiple.bve.scale.f)>0){
+    multiple.bve.scale.f[multiple.bve.scale.f=="ebv_sd"] = "bve_sd"
+    multiple.bve.scale.f[multiple.bve.scale.f=="gv_sd"] = "bv_sd"
+  }
+
+
+
+
+  if(length(best.selection.criteria.m)>0){
+    best.selection.criteria.m[best.selection.criteria.m=="ebv"] = "bve"
+    best.selection.criteria.m[best.selection.criteria.m=="gv"] = "bv"
+  }
+
+  if(length(best.selection.criteria.f)>0){
+    best.selection.criteria.f[best.selection.criteria.f=="ebv"] = "bve"
+    best.selection.criteria.f[best.selection.criteria.f=="gv"] = "bv"
+  }
+
+  if(length(threshold.selection.criteria)>0){
+    threshold.selection.criteria[threshold.selection.criteria=="ebv"] = "bve"
+    threshold.selection.criteria[threshold.selection.criteria=="gv"] = "bv"
+  }
+
+  if(length(bve.mean.between)>0){
+    bve.mean.between[bve.mean.between=="ebv"] = "bve"
+    bve.mean.between[bve.mean.between=="ebvpheno"] = "bvepheno"
+    bve.mean.between[bve.mean.between=="gv"] = "bv"
+  }
+
+  if(length(y.gwas.used)>0){
+    y.gwas.used[y.gwas.used=="ebv"] = "bve"
+    y.gwas.used[y.gwas.used=="gv"] = "bv"
+  }
+
+  if(length(selection.criteria)>0){
+    selection.criteria[selection.criteria=="ebv"] = "bve"
+    selection.criteria[selection.criteria=="gv"] = "bv"
+  }
+  if(length(selection.criteria)>0){
+    selection.criteria[selection.criteria=="ebv"] = "bve"
+    selection.criteria[selection.criteria=="gv"] = "bv"
+  }
+
+
+
+
+
+
+
+
+
+
+
 
   if(length(recombination.minimum.distance)>0){
     recombination.function = function(noc, length.genome){
@@ -3233,7 +3295,7 @@ breeding.diploid <- function(population,
         } else if(relationship.matrix=="vanRaden"){
 
 
-          if(singlestep.active){
+          if(singlestep.active && (BGLR.model == "RKHS" || !BGLR.bve)){
             n.geno <- length(genotype.included)
             n.ped <- n.animals - n.geno
             if(n.ped==0){
@@ -3256,7 +3318,7 @@ breeding.diploid <- function(population,
             }
           }
 
-          if(mixblup.bve && (TRUE || singlestep.active)){
+          if(mixblup.bve && (TRUE || singlestep.active) && (BGLR.model == "RKHS" || !BGLR.bve)){
 
             z_ped <- z_ped - as.numeric(Sys.time())
             write.pedigree.mixblup(population, path = mixblup.path.pedfile, database = bve.database, depth.pedigree=depth.pedigree, storage.save = storage.save)
@@ -3264,141 +3326,156 @@ breeding.diploid <- function(population,
           }
 
 
-            if(singlestep.active){
+            if(BGLR.model == "RKHS" || !BGLR.bve){
+              if(singlestep.active){
 
-              if(!mixblup.bve){
+                if(!mixblup.bve){
 
-                if(verbose) cat("Start derive Single-step relationship matrix \n")
-                if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
-                z_ped <- z_ped - as.numeric(Sys.time())
+                  if(verbose) cat("Start derive Single-step relationship matrix \n")
+                  if(verbose) cat(paste0("Construct pedigree matrix for ", length(loop_elements_list[[2]]), " individuals.\n"))
+                  z_ped <- z_ped - as.numeric(Sys.time())
 
 
-                A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
+                  A_pedigree <-  kinship.exp(population, database=bve.database, depth.pedigree=depth.pedigree, elements = loop_elements_list[[2]], mult = 2, verbose=verbose)
 
-                if(store.sparse){
-                  A_pedigree <- methods::as(A_pedigree, "sparseMatrix")
+                  if(store.sparse){
+                    A_pedigree <- methods::as(A_pedigree, "sparseMatrix")
+                  }
+
+                  z_ped <- z_ped + as.numeric(Sys.time())
+                  if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
+                  if(verbose) cat("Start deriving of H matrix for", length(genotype.included), "genotyped and", nrow(A_pedigree)-length(genotype.included), "non-genotyped individuals.\n")
+
+
                 }
 
-                z_ped <- z_ped + as.numeric(Sys.time())
-                if(verbose) cat(paste0("Derived pedigree matrix in  ", round(z_ped, digits=2), " seconds.\n"))
-                if(verbose) cat("Start deriving of H matrix for", length(genotype.included), "genotyped and", nrow(A_pedigree)-length(genotype.included), "non-genotyped individuals.\n")
-
-
-              }
 
 
 
-
-              if(miraculix){
-                if (requireNamespace("miraculix", quietly = TRUE)) {
-                  # Avoid having the full genotype matrix in memory without bitwise storage!
-                  if(bve.imputation.errorrate>0){
-                    Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code)[,genotype.included])
-                    if(length(to_remove)>0){
-                      Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
-                    }
-                  } else{
-                    Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
-                    if(length(to_remove)>0){
-                      Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
-                    }
-                  }
-
-                  if(mixblup.bve){
-
-
-                    geno = as.matrix(Z.code.small)
-                    dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
-                    for(index in 1:nrow(dense)){
-                      dense[index,2] <- paste0(geno[,index], collapse = "")
+                if(miraculix){
+                  if (requireNamespace("miraculix", quietly = TRUE)) {
+                    # Avoid having the full genotype matrix in memory without bitwise storage!
+                    if(bve.imputation.errorrate>0){
+                      Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code)[,genotype.included])
+                      if(length(to_remove)>0){
+                        Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                      }
+                    } else{
+                      Z.code.small <- miraculix::computeSNPS(population, loop_elements[genotype.included,4], loop_elements[genotype.included,5], loop_elements[genotype.included,2], what="geno", output_compressed=TRUE)
+                      if(length(to_remove)>0){
+                        Z.code.small <- miraculix::genomicmatrix(as.matrix(Z.code.small)[-to_remove,])
+                      }
                     }
 
+                    if(mixblup.bve){
 
-                  } else{
-                    #p_i <- miraculix::allele_freq(Z.code.small)
-                    p_i <- rowMeans(as.matrix(Z.code.small))/2
-                    A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
-                  }
 
-                  rm(Z.code.small)
-                }
-              } else if(miraculix.mult){
-                if (requireNamespace("miraculix", quietly = TRUE)) {
-                  p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
-                  Zt_miraculix <- miraculix::genomicmatrix(Zt[,genotype.included])
-                  if(mixblup.bve){
-                    dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
-                    for(index in 1:nrow(dense)){
-                      dense[index,2] <- paste0(Zt_miraculix[,index], collapse = "")
+                      geno = as.matrix(Z.code.small)
+                      dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+                      for(index in 1:nrow(dense)){
+                        dense[index,2] <- paste0(geno[,index], collapse = "")
+                      }
+
+
+                    } else{
+                      #p_i <- miraculix::allele_freq(Z.code.small)
+                      p_i <- rowMeans(as.matrix(Z.code.small))/2
+                      A_geno <- miraculix::relationshipMatrix(Z.code.small, centered=TRUE, normalized=TRUE)
                     }
-                  } else{
-                    A_geno <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
-                  }
 
-                  rm(Zt_miraculix)
-                }
-              } else{
-                if(mixblup.bve){
-                  geno = Zt[,genotype.included]
-                  dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
-                  for(index in 1:nrow(dense)){
-                    dense[index,2] <- paste0(geno[,index], collapse = "")
+                    rm(Z.code.small)
                   }
-                  rm(geno)
+                } else if(miraculix.mult){
+                  if (requireNamespace("miraculix", quietly = TRUE)) {
+                    p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+                    Zt_miraculix <- miraculix::genomicmatrix(Zt[,genotype.included])
+                    if(mixblup.bve){
+                      dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+                      for(index in 1:nrow(dense)){
+                        dense[index,2] <- paste0(Zt_miraculix[,index], collapse = "")
+                      }
+                    } else{
+                      A_geno <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+                    }
+
+                    rm(Zt_miraculix)
+                  }
                 } else{
-                  p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
-                  Ztm <- Zt[,genotype.included] - p_i * 2
-                  A_geno <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
-                }
-
-              }
-
-              if(!mixblup.bve){
-                z_h <- z_h - as.numeric(Sys.time())
-
-                reorder <- c((1:n.animals)[-genotype.included], genotype.included)
-
-                test1 <- as.numeric(A_geno)
-                test2 <- as.numeric(A_pedigree[genotype.included, genotype.included])
-                a_step <- mean(test2) - mean(test1)
-                A_geno <- A_geno * (1-a_step/2) + a_step # Modification according to Vitezica 2011
-
-                A <- ssGBLUP(A11 = A_pedigree[-genotype.included, -genotype.included],
-                             A12 = A_pedigree[-genotype.included, genotype.included],
-                             A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
-
-                #rm(A_geno)
-                #rm(A_pedigree)
-
-                rest <- (1:n.animals)[-genotype.included]
-                A[c(genotype.included, rest), c(genotype.included, rest)] <- A[c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)) ), c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)))]
-                z_h <- z_h + as.numeric(Sys.time())
-                if(verbose) cat(paste0("Derived H matrix in  ", round(z_h, digits=2), " seconds.\n"))
-
-              }
-
-            } else if(relationship.matrix=="vanRaden"){
-              if(miraculix){
-                if (requireNamespace("miraculix", quietly = TRUE)) {
-
                   if(mixblup.bve){
-
-                    geno = as.matrix(Z.code)
-                    dense <- cbind(get.id(population, database = bve.database), 0)
+                    geno = Zt[,genotype.included]
+                    dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
                     for(index in 1:nrow(dense)){
                       dense[index,2] <- paste0(geno[,index], collapse = "")
                     }
                     rm(geno)
-
                   } else{
-                    #p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
-                    p_i <- rowMeans(as.matrix(Z.code))/2 # Noch nicht implementiert?
-                    A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
+                    p_i <- rowSums(Zt[,genotype.included])/ncol(Zt[,genotype.included])/2
+                    Ztm <- Zt[,genotype.included] - p_i * 2
+                    A_geno <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
                   }
 
                 }
-              } else if(miraculix.mult){
-                if (requireNamespace("miraculix", quietly = TRUE)) {
+
+                if(!mixblup.bve){
+                  z_h <- z_h - as.numeric(Sys.time())
+
+                  reorder <- c((1:n.animals)[-genotype.included], genotype.included)
+
+                  test1 <- as.numeric(A_geno)
+                  test2 <- as.numeric(A_pedigree[genotype.included, genotype.included])
+                  a_step <- mean(test2) - mean(test1)
+                  A_geno <- A_geno * (1-a_step/2) + a_step # Modification according to Vitezica 2011
+
+                  A <- ssGBLUP(A11 = A_pedigree[-genotype.included, -genotype.included],
+                               A12 = A_pedigree[-genotype.included, genotype.included],
+                               A22 = A_pedigree[genotype.included, genotype.included], G = A_geno)
+
+                  #rm(A_geno)
+                  #rm(A_pedigree)
+
+                  rest <- (1:n.animals)[-genotype.included]
+                  A[c(genotype.included, rest), c(genotype.included, rest)] <- A[c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)) ), c((ncol(A)-length(genotype.included)+1):ncol(A),1:(ncol(A)-length(genotype.included)))]
+                  z_h <- z_h + as.numeric(Sys.time())
+                  if(verbose) cat(paste0("Derived H matrix in  ", round(z_h, digits=2), " seconds.\n"))
+
+                }
+
+              } else if(relationship.matrix=="vanRaden"){
+                if(miraculix){
+                  if (requireNamespace("miraculix", quietly = TRUE)) {
+
+                    if(mixblup.bve){
+
+                      geno = as.matrix(Z.code)
+                      dense <- cbind(get.id(population, database = bve.database), 0)
+                      for(index in 1:nrow(dense)){
+                        dense[index,2] <- paste0(geno[,index], collapse = "")
+                      }
+                      rm(geno)
+
+                    } else{
+                      #p_i <- miraculix::allele_freq(Z.code) # Noch nicht implementiert?
+                      p_i <- rowMeans(as.matrix(Z.code))/2 # Noch nicht implementiert?
+                      A <- miraculix::relationshipMatrix(Z.code, centered=TRUE, normalized=TRUE)
+                    }
+
+                  }
+                } else if(miraculix.mult){
+                  if (requireNamespace("miraculix", quietly = TRUE)) {
+                    if(mixblup.bve){
+                      dense <- cbind(get.id(population, database = bve.database), 0)
+                      for(index in 1:nrow(dense)){
+                        dense[index,2] <- paste0(Zt[,index], collapse = "")
+                      }
+                    } else{
+                      p_i <- rowSums(Zt)/ncol(Zt)/2
+                      Zt_miraculix <- miraculix::genomicmatrix(Zt)
+                      A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+                    }
+
+                  }
+                } else{
+
                   if(mixblup.bve){
                     dense <- cbind(get.id(population, database = bve.database), 0)
                     for(index in 1:nrow(dense)){
@@ -3406,26 +3483,14 @@ breeding.diploid <- function(population,
                     }
                   } else{
                     p_i <- rowSums(Zt)/ncol(Zt)/2
-                    Zt_miraculix <- miraculix::genomicmatrix(Zt)
-                    A <- miraculix::relationshipMatrix(Zt_miraculix, centered=TRUE, normalized=TRUE)
+                    Ztm <- Zt - p_i * 2
+                    A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
                   }
 
                 }
-              } else{
-
-                if(mixblup.bve){
-                  dense <- cbind(get.id(population, database = bve.database), 0)
-                  for(index in 1:nrow(dense)){
-                    dense[index,2] <- paste0(Zt[,index], collapse = "")
-                  }
-                } else{
-                  p_i <- rowSums(Zt)/ncol(Zt)/2
-                  Ztm <- Zt - p_i * 2
-                  A <- crossprod(Ztm)/ (2 * sum(p_i*(1-p_i)))
-                }
-
               }
             }
+
 
 
         } else if(relationship.matrix=="CM"){
@@ -3614,7 +3679,7 @@ breeding.diploid <- function(population,
 
           scal1 = diag(gen_cor)
 
-          gen_cor = diag(sqrt(1/scal1)) %*% gen_cor %*% diag(sqrt(1/scal1))
+          gen_cor = diag(sqrt(1/scal1), nrow=length(scal1)) %*% gen_cor %*% diag(sqrt(1/scal1), nrow=length(scal1))
           gen_cor = round(gen_cor, digits = 6)
 
 
@@ -3627,7 +3692,7 @@ breeding.diploid <- function(population,
             k = k-1
           }
 
-          gen_cor = gen_cor * diag(sqrt(scal1)) %*% gen_cor %*% diag(sqrt(scal1))
+          gen_cor = gen_cor * diag(sqrt(scal1), nrow = length(scal1)) %*% gen_cor %*% diag(sqrt(scal1), nrow = length(scal1))
 
           k = 6
           while(eigen(gen_cor)$values[nrow(gen_cor)]<= (10^(-5))){
@@ -3667,7 +3732,7 @@ breeding.diploid <- function(population,
 
           scal2 = diag(res_cor)
 
-          res_cor = diag(sqrt(1/scal2)) %*% res_cor %*% diag(sqrt(1/scal2))
+          res_cor = diag(sqrt(1/scal2), nrow = length(scal2)) %*% res_cor %*% diag(sqrt(1/scal2), nrow = length(scal2))
 
           res_cor = round(res_cor, digits = 6)
 
@@ -3680,7 +3745,7 @@ breeding.diploid <- function(population,
             k = k-1
           }
 
-          res_cor = diag(sqrt(scal2)) %*% res_cor %*% diag(sqrt(scal2))
+          res_cor = diag(sqrt(scal2), nrow = length(scal2)) %*% res_cor %*% diag(sqrt(scal2), nrow = length(scal2))
 
           k = 6
           while(eigen(res_cor)$values[nrow(res_cor)]<=(10^(-5))){

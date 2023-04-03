@@ -122,7 +122,7 @@ get.pedigree.visual = function(population, database=NULL, gen=NULL, cohorts=NULL
     visPedigree::visped(pedt, cex=cex, file=path, showgraph = showgraph,
                         outline = outline, compact = compact)
   } else{
-    stop("R-package visPedigree needed to create visualization!")
+    stop("R-package visPedigree needed to create visualization! \nPackage is not on CRAN and can be installed from GitHub: install_github('luansheng/visPedigree')")
   }
 
 

@@ -1,14 +1,21 @@
 set.seed(42)
 library(MoBPS)
-library(MoBPSmaps)
+
+# Use MoBPSmaps when available
+if (requireNamespace("MoBPSmaps", quietly = TRUE)) {
+  map <- MoBPSmaps::map_sheep2
+} else{
+  map <- NULL
+}
 
 # Simulation of the LD build up
-dataset <- founder.simulation(nindi=100, map = MoBPSmaps::map_sheep2,
+dataset <- founder.simulation(nindi=100, map = map,
                               nfinal = 60+120, n.gen = 50)
 
 # Use a genomic map from the MoBPSmap R-package
 # Import genomic data from the dataset-matrix ((each individual has 2 haplotypes))
-population <- creating.diploid(dataset = dataset[,1:100], nindi = 50, sex.quota=0, map=MoBPSmaps::map_sheep2,
+population <- creating.diploid(dataset = dataset[,1:100], nindi = 50,
+                               sex.quota=0, map=map,
                                name.cohort = "1yearRams_0")
 
 population <- creating.diploid(dataset = dataset[,101:120], population = population, nindi = 10,
@@ -57,14 +64,19 @@ population <- breeding.diploid(population, bve = TRUE,
                                bve.cohorts = c("1yearRams_0", "2yearRams_0", "1yearEwes_0", "2yearEwes_0", "3yearEwes_0"))
 
 
+for(index in 1:20){
+
+  population <- breeding.diploid(population, breeding.size = c(50,50),
+                                 selection.m.cohorts = paste0("2yearRams_",index-1),
+                                 selection.f.cohorts = paste0(c("2yearEwes_", "3yearEwes_"), index-1),
+                                 name.cohort = paste0("NewOffspring_", index),
+                                 repeat.mating = litter_size,
+                                 share.genotyped = 0)
+
+}
 # Generation of new individuals via reproduction
 
-population <- breeding.diploid(population, breeding.size = c(50,50),
-                               selection.m.cohorts = "2yearRams_0",
-                               selection.f.cohorts = c("2yearEwes_0", "3yearEwes_0"),
-                               name.cohort = "NewOffspring_1",
-                               repeat.mating = litter_size,
-                               share.genotyped = 0)
+
 
 population <- breeding.diploid(population, breeding.size = c(50,0),
                                selection.size = c(50,0),

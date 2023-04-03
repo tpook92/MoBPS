@@ -1,14 +1,21 @@
 set.seed(42)
 library(MoBPS)
-library(MoBPSmaps)
+
+# Use MoBPSmaps when available
+if (requireNamespace("MoBPSmaps", quietly = TRUE)) {
+  map <- MoBPSmaps::map_sheep2
+} else{
+  map <- NULL
+}
+
 
 # Simulation of the LD build up
-dataset <- founder.simulation(nindi=100, map = MoBPSmaps::map_sheep2,
+dataset <- founder.simulation(nindi=100, map = map,
                               nfinal = 60+120, n.gen = 50)
 
 # Use a genomic map from the MoBPSmap R-package
 # Import genomic data from the dataset-matrix ((each individual has 2 haplotypes))
-population <- creating.diploid(dataset = dataset[,1:100], nindi = 50, sex.quota=0, map=MoBPSmaps::map_sheep2,
+population <- creating.diploid(dataset = dataset[,1:100], nindi = 50, sex.quota=0, map=map,
                                name.cohort = "1yearRams_0")
 
 
@@ -28,7 +35,8 @@ summary(population)
 
 # Use of two correlated traits
 
-population <- creating.trait(population, n.additive = c(1000,1000), mean.target = 100, var.target = c(30,20),
+population <- creating.trait(population, n.additive = c(1000,1000), mean.target = 100,
+                             var.target = c(30,20),
                              trait.cor = matrix(c(1, 0.2, 0.2,1), nrow=2))
 
 # first column: Size of the litter
@@ -145,5 +153,5 @@ for(index in 1:20){
   inbreeding[index] <- 2* (kinship.emp.fast(population, cohorts = cohorts_to_analyze[index])[2] -0.5)
 }
 
-plot(inbreeding, ylab="inbreeding rate", xlab = "generation", type="l", lwd=2,
-     main="Inbreeding rates for 1yearRams")
+plot(inbreeding, ylab="inbreeding level", xlab = "generation", type="l", lwd=2,
+     main="Inbreeding level for 1yearRams")

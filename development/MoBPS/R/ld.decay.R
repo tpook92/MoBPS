@@ -54,7 +54,12 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
   if(length(dist)>0){
     calc <- dist
   } else{
-    calc <- unique(c(1:(step-1),seq(from=step, to=max, by=step)))
+    if(step>1){
+      calc <- unique(c(1:(step-1),seq(from=step, to=max, by=step)))
+    } else{
+      calc <- seq(from=step, to=max, by=step)
+    }
+
   }
   if(type=="snp"){
     ld <- numeric(length(calc))
@@ -103,7 +108,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
 
       tryCatch(  {
         graphics::plot(calc, ld, xlab="distance in SNP", ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome),
-                       ylim = NULL, xlim = NULL)
+                       ylim = ylim, xlim = xlim)
         graphics::lines(smooth1, col="red", lwd=2)
       },
       error = function(e) {})
@@ -132,7 +137,8 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
     if(plot){
 
       tryCatch(  {
-        graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome))
+        graphics::plot(smooth1 , xlab=paste0("distance in ", type), ylab=expression(r^2), main=paste0("LD structure on chromosome ", chromosome),
+                       ylim = ylim, xlim = xlim)
       },
       error = function(e) {})
 

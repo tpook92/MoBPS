@@ -8,8 +8,14 @@ map <- MoBPSmaps::map_maize1[sort(sample(1:nrow(MoBPSmaps::map_maize1), 10000)),
 allele_freq_flint <- runif(10000,0,1)
 allele_freq_dent <- runif(10000,0,1)
 
+
+
 # Looking at the allele frequency spectrum
 hist(allele_freq_dent)
+
+# Other allele frequency spectra you could think of
+hist(stats::rbeta(1000, 1,1))
+hist(stats::rbeta(1000, 0.3,1))
 
 # Generation of the founder population
 
@@ -18,8 +24,10 @@ hist(allele_freq_dent)
 # We would highly encourage simulate all lines with the same sex OR use the sex to differantiate between gene pools etc
 # to give the simulation more structure
 population <- creating.diploid(nindi=100, map = map, sex.quota=0,
-                               freq = allele_freq_flint, name = "Flint_material",
+                               freq = allele_freq_flint,
+                               name = "Flint_material",
                                n.additive = 500, n.equal.dominant = 500)
+
 # Make sure Dent tester plants are fully inbred
 population <- creating.diploid(population = population, dataset="homorandom", nindi=1,
                                sex.quota=1, freq = allele_freq_dent, name="Dent_tester_1")
@@ -34,16 +42,19 @@ get.pca(population, gen=1)
 get.pca(population, gen=1, components = c(3,4))
 
 # Generate crosses from the founding material
-population <- breeding.diploid(population, selection.m.cohorts = "Flint_material",
+population <- breeding.diploid(population,
+                               selection.m.cohorts = "Flint_material",
                                selection.size = c(100,0),
                                breeding.size = c(1000,0),
                                name.cohort = "Flint_cross")
 
 # Generate DH lines from the crosses - this includes the entire DH generation process including meiosis
-# and doubling of one of the haplotpes
-population <- breeding.diploid(population, selection.m.cohorts = "Flint_cross",
+# and doubling of one of the haplotypes
+population <- breeding.diploid(population,
+                               selection.m.cohorts = "Flint_cross",
                                selection.size = c(1000,0),
-                               breeding.size = c(1000,0), dh.mating = TRUE,
+                               breeding.size = c(1000,0),
+                               dh.mating = TRUE,
                                share.genotyped = 1,
                                max.offspring = 1,
                                name.cohort = "Cross_DHs")
@@ -58,19 +69,29 @@ population <- breeding.diploid(population, selection.m.cohorts = "Cross_DHs",
 population <- breeding.diploid(population, heritability = 0.3,
                                phenotyping.cohorts = "Yield_trial_1")
 
+get.pheno(population, cohorts = "Yield_trial_1")
+
 # Extract the average phenotypes of the offspring for each cross
-population <- breeding.diploid(population, offpheno.parents.cohorts = "Cross_DHs",
+population <- breeding.diploid(population,
+                               offpheno.parents.cohorts = "Cross_DHs",
                                offpheno.offspring.cohorts = "Yield_trial_1")
 
+get.pheno.off(population, cohorts = "Cross_DHs")
+get.pheno.off.count(population, cohorts = "Cross_DHs")
+
+
 # Perform a breeding value estimation for DHs
-population <- breeding.diploid(population, bve=TRUE, bve.cohorts = "Cross_DHs",
-                               rrblup.bve = TRUE, input.phenotype = "off")
+population <- breeding.diploid(population, bve=TRUE,
+                               bve.cohorts = "Cross_DHs",
+                               rrblup.bve = TRUE,
+                               input.phenotype = "off")
 
 # Select the top 250 DHs for the second yield trial - these are the same lines as before!
 # BTW: it is not necessary to generate this cohorts. It just can make it easier for downstream analysis
 population <- breeding.diploid(population, selection.m.cohorts = "Cross_DHs",
                                copy.individual.m = TRUE,
-                               selection.size=c(250,0), name.cohort = "Cross_DHs_sel")
+                               selection.size=c(250,0),
+                               name.cohort = "Cross_DHs_sel")
 
 # Yield Trial 2
 population <- breeding.diploid(population, breeding.size = c(750,0),

@@ -56,7 +56,7 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
         rindex <- rindex + 1
       }
     }
-  } else if(id){
+  } else{
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
@@ -79,7 +79,12 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
         rindex <- rindex + 1
       }
     }
-  } else{
+  }
+
+  pedigree_id = pedigree
+
+  if(!raw && !id){
+    rindex <- 1
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
@@ -94,6 +99,8 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
     }
   }
 
+
+
   if(!raw){
     colnames(pedigree) <- c("offspring", "father", "mother")
   } else{
@@ -104,11 +111,11 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
 
 
   if(founder.zero && !raw){
-    set0 <- which(pedigree[,1]==pedigree[,2])
+    set0 <- which(pedigree_id[,1]==pedigree_id[,2])
     if(length(set0)>0){
       pedigree[set0,2] <- "0"
     }
-    set0 <- which(pedigree[,1]==pedigree[,3])
+    set0 <- which(pedigree_id[,1]==pedigree_id[,3])
     if(length(set0)>0){
       pedigree[set0,3] <- "0"
     }
@@ -343,7 +350,7 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
                             "paternal grandmother.gen", "paternal grandmother.sex", "paternal grandmothe.nr",
                             "maternal grandfather.gen",  "maternal grandfather.sex", "maternal grandfather.nr",
                             "maternal grandmother.gen", "maternal grandmother.sex", "maternal grandmother.nr")
-  } else if(id){
+  } else {
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
@@ -402,7 +409,11 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
     }
     colnames(pedigree) <- c("offspring", "father", "mother", "paternal grandfather", "paternal grandmother", "maternal grandfather", "maternal grandmother")
 
-  } else{
+  }
+
+  pedigree_id = pedigree
+  if(!raw && !id){
+    rindex = 1
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
@@ -439,32 +450,32 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
   if(!raw){
 
     if(founder.zero){
-      set0 <- which(pedigree[,2]==pedigree[,4])
+      set0 <- which(pedigree_id[,2]==pedigree_id[,4])
       if(length(set0)>0){
         pedigree[set0,4] <- 0
       }
-      set0 <- which(pedigree[,2]==pedigree[,5])
+      set0 <- which(pedigree_id[,2]==pedigree_id[,5])
       if(length(set0)>0){
         pedigree[set0,5] <- 0
       }
     }
     if(founder.zero){
-      set0 <- which(pedigree[,3]==pedigree[,6])
+      set0 <- which(pedigree_id[,3]==pedigree_id[,6])
       if(length(set0)>0){
         pedigree[set0,6] <- 0
       }
-      set0 <- which(pedigree[,3]==pedigree[,7])
+      set0 <- which(pedigree_id[,3]==pedigree_id[,7])
       if(length(set0)>0){
         pedigree[set0,7] <- 0
       }
     }
 
     if(founder.zero){
-      set0 <- which(pedigree[,1]==pedigree[,2])
+      set0 <- which(pedigree_id[,1]==pedigree_id[,2])
       if(length(set0)>0){
         pedigree[set0,2] <- 0
       }
-      set0 <- which(pedigree[,1]==pedigree[,3])
+      set0 <- which(pedigree_id[,1]==pedigree_id[,3])
       if(length(set0)>0){
         pedigree[set0,3] <- 0
       }

@@ -24,6 +24,14 @@
 ####### This code takes a while! ###
 ####################################
 
+library(MoBPS)
+# Use MoBPSmaps when available
+if (requireNamespace("MoBPSmaps", quietly = TRUE)) {
+  map <- MoBPSmaps::map_sheep2
+} else{
+  map <- NULL
+}
+
 # These are 40 simulation of the breeding program!
 
 for(run in 1:10){
@@ -54,12 +62,12 @@ for(run in 1:10){
     set.seed(run)
 
     # Simulation of the LD build up
-    dataset <- founder.simulation(nindi=100, map = MoBPSmaps::map_sheep2,
+    dataset <- founder.simulation(nindi=100, map = map,
                                   nfinal = 60+120, n.gen = 5)
 
     # Use a genomic map from the MoBPSmap R-package
     # Import genomic data from the dataset-matrix ((each individual has 2 haplotypes))
-    population <- creating.diploid(dataset = dataset[,1:100], nindi = 50, sex.quota=0, map=MoBPSmaps::map_sheep2,
+    population <- creating.diploid(dataset = dataset[,1:100], nindi = 50, sex.quota=0, map=map,
                                    name.cohort = "1yearRams_0")
 
 

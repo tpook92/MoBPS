@@ -1224,12 +1224,12 @@ population = creating.trait(population, trait.name = "Fertility",
                             n.additive = 250,
                             mean.target = 100, var.target = 100)
 
-population = breeding.diploid(population, heritability = 1/5)
+population = breeding.diploid(population, heritability = 1/10)
 
 # The trait on default has a gaussian distribution
 # here I am adding code to make phenotypic observations be discrete natural numbers
 
-sigma_ferti = sqrt(500)
+sigma_ferti = sqrt(1000)
 # This is the overall phenotypic variance of the fertility trait
 prob_cum = cumsum(litter.size[,2])
 
@@ -1259,11 +1259,11 @@ population = breeding.diploid(population,
                               repeat.mating.trait = 1,
                               repeat.mating.max = 4)
 
+n_litter = 50
 # Simulate 100 years of random mating
 for(generation in 2:100){
-  population = breeding.diploid(population, breeding.size.litter = 30,
-                                selection.criteria = "random",
-                                selection.size = c(10,10))
+  population = breeding.diploid(population, breeding.size.litter = n_litter,
+                                selection.criteria = "random")
 }
 
 # As individuals with better fertility have more offspring
@@ -1275,12 +1275,14 @@ for(index in 1:100){
 }
 plot(bv, type="l", xlab = "generation", ylab = "genomic value")
 
-plot(rowSums(population$info$size)[-1]/30, main="Litter size",
+plot(2:get.ngen(population), rowSums(get.size(population))[-1]/n_litter, main="Litter size",
      xlab = "generation", ylab = "avg. litter ")
 
 # The increase in the trait reduces over time as the
 # difference in litter size between animals reduces over time
 
+lines(ksmooth(2:get.ngen(population), rowSums(get.size(population))[-1]/n_litter,
+              bandwidth = 10), col="red", lwd=2)
 
 
 

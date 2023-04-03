@@ -14,7 +14,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/test123.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple Sheep Advanced.json")
 
 fast.mode <- FALSE
 rep.max <- 1
@@ -1069,10 +1069,11 @@ fixed.generation.order <- NULL
                              filter.values = geninfo$'Ensembl Filter Values')
         }
       } else{
-        stop("Use of Ensembl-Maps without MoBPSmaps R-package.
+        warning("Use of Ensembl-Maps without MoBPSmaps R-package.
         ## To Install:
         ## devtools::install_github('tpook92/MoBPS', subdir='pkg-maps')
         ## Or download from https://github.com/tpook92/MoBPS")
+        map <- cbind(rep(1:5, each=1000), paste0("SNP", 1:1000),  seq(0.005,0.995, length.out = 1000), round(seq(0.005,0.995, length.out = 1000) * 100000000), NA)
       }
 
 
@@ -1725,7 +1726,7 @@ fixed.generation.order <- NULL
                                      miraculix = miraculix,
                                      miraculix.dataset = miraculix.dataset,
                                      chr.nr = map[,1], bp=map[,4], snp.name = map[,2],
-                                     freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {map[,3]})
+                                     freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {as.numeric(map[,3])})
 
       if(nrow(array_info)>1){
 
