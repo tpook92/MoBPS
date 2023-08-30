@@ -1524,6 +1524,48 @@ selected_indi = breeding.diploid(population, selection.size = c(5,5),
   hist(bv[class==(-1)], xlim=c(90,110), main="Genomic value distrition of death individuals", xlab="genomic value")
 
 }
+
+{
+
+
+  # Initialize covariance matrix of pen & litter effects
+  cov_litter = cbind(c(100,-50), c(-50,100))
+  cov_pen = cbind(c(100,-50), c(-50, 100))
+
+  # Generation of the baseline population
+  # Founders of the population do not have pen or litter effects
+  population = creating.diploid(nsnp = 100, nindi = 100, n.additive = c(100,100),
+                                mean.target = 100, var.target = 100,
+                                litter.effect.covariance = cov_litter,
+                                pen.effect.covariance = cov_pen)
+
+
+  population = breeding.diploid(population, breeding.size = 100,
+                                repeat.mating = matrix(c(2, 0.5,
+                                                         3, 0.5), ncol = 2, byrow = TRUE),
+                                pen.size = matrix(c(5, 0.4,
+                                                    6, 0.6), ncol=2, byrow = TRUE),
+                                pen.by.sex = TRUE)
+
+
+  population = breeding.diploid(population, heritability = 0.3, phenotyping = "all")
+
+  # Extract which individual is in which pen / litter
+  get.litter(population, gen = 2)
+  get.pen(population, gen = 2)
+
+  # size of the pen & litter effects
+  get.litter.effect(population, gen = 2)
+  get.pen.effect(population, gen = 2)
+
+  # As a piece of warning!
+  # Non of the R-package packages software for breeding value estimation include litter & pen effects
+  # wont be include in calculated sigma_e / sigma_g in mobps.bve either!
+  population = breeding.diploid(population, bve = TRUE)
+
+
+}
+
 library(drat)
 ?drat
 drat::insertPackage("C:/Users/pook/Documents/GitHub/MoBPS/RandomFieldsUtils_1.0.6.tar.gz", "C:/Users/pook/Documents/GitHub/drat/")

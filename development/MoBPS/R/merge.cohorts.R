@@ -47,7 +47,9 @@ merging.cohorts = function(population, cohorts, name.cohort = NULL){
   }
 
 
-  new_cohort = c(name.cohort, mean(merging[,2]), sum(merging[,3]), sum(merging[,4]), mean(merging[,5]), min(merging[,6]), min(merging[,7]), mean(merging[,8]), mean(merging[,9]))
+  new_cohort = c(name.cohort, mean(merging[,2]), sum(merging[,3]), sum(merging[,4]), mean(merging[,5]),
+                 min(merging[,6]), min(merging[,7]), mean(merging[,8]), mean(merging[,9]),
+                 min(as.numeric(merging[,10])), max(as.numeric(merging[,11])))
 
   # some checks to make sure what you are doing is ok
 

@@ -1,7 +1,7 @@
 Package: MoBPSmaps
 Type: Package
 Title: Modular Breeding Program Simulator maps
-Version: 0.1.13
+Version: 0.1.14
 Author: Torsten Pook
 Maintainer: Torsten Pook <torsten.pook@uni-goettingen.de>
 Description: Maps-files for the R-package MoBPS.

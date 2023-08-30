@@ -12,7 +12,10 @@ get.database(
   avoid.merging = FALSE,
   id = NULL,
   id.all.copy = FALSE,
-  id.last = FALSE
+  id.last = FALSE,
+  keep.order = FALSE,
+  class = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -31,6 +34,12 @@ get.database(
 \item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
 
 \item{id.last}{Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)}
+
+\item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
+
+\item{class}{Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \value{
 Combine gen/database/cohorts to a joined database

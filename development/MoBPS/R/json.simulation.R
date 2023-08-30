@@ -1856,10 +1856,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
         founder_pop <- founder_pop[founder_temp2]
 
-        population$info$cohorts <- cohort_info
+        population$info$cohorts <- cbind(cohort_info, NA, NA)
 
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
-                                               "time point", "creating.type")
+                                               "time point", "creating.type", "lowest ID", "highest ID")
 
 
         if(n_traits>0){

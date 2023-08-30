@@ -35,7 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, keep.order = keep.order)
 
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- rep(0, n.animals)

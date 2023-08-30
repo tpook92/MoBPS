@@ -56,7 +56,13 @@ group.diff <- function(population, database=NULL, gen=NULL, cohorts=NULL, remove
       nr1 <- nr1 +1
     }
   }
-  new_database <- new_database[1:(nr2-1),]
+
+  if(nr2==1){
+    new_database = matrix(nrow = 0, ncol = 4)
+  } else{
+    new_database <- new_database[1:(nr2-1),]
+  }
+
 
   new_database <- get.database(population, database = new_database)
 

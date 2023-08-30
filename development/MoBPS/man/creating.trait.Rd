@@ -9,6 +9,7 @@ creating.trait(
   trait.name = NULL,
   mean.target = NULL,
   var.target = NULL,
+  qtl.position.shared = FALSE,
   trait.cor = NULL,
   trait.cor.include = NULL,
   n.additive = 0,
@@ -20,7 +21,7 @@ creating.trait(
   real.bv.add = NULL,
   real.bv.mult = NULL,
   real.bv.dice = NULL,
-  bv.total = 0,
+  n.traits = 0,
   base.bv = NULL,
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
@@ -54,7 +55,8 @@ creating.trait(
   use.recalculate.manual = FALSE,
   new.phenotype.correlation = NULL,
   shuffle.traits = NULL,
-  shuffle.cor = NULL
+  shuffle.cor = NULL,
+  bv.total = 0
 )
 }
 \arguments{
@@ -65,6 +67,8 @@ creating.trait(
 \item{mean.target}{Target mean}
 
 \item{var.target}{Target variance}
+
+\item{qtl.position.shared}{Set to TRUE to put QTL effects on the same markers for different traits}
 
 \item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
@@ -88,7 +92,7 @@ creating.trait(
 
 \item{real.bv.dice}{Multi-marker effects}
 
-\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+\item{n.traits}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
 \item{base.bv}{Average genetic value of a trait}
 
@@ -157,6 +161,8 @@ creating.trait(
 \item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
 
 \item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
+
+\item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 }
 \value{
 Population-list with one or more additional new traits

@@ -36,9 +36,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 set.class <- function(population, database=NULL, gen=NULL, cohorts=NULL, new.class=0){
 
   database <- get.database(population, gen, database, cohorts)
-  for(index in 1:nrow(database)){
-    population$breeding[[database[index,1]]][[database[index,2]+4]][database[index,3]:database[index,4]] <- new.class
+  if(length(database)>0){
+    for(index in 1:nrow(database)){
+      population$breeding[[database[index,1]]][[database[index,2]+4]][database[index,3]:database[index,4]] <- new.class
+    }
   }
+
   return(population)
 
 }

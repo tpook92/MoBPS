@@ -14,7 +14,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple Sheep Advanced.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple_Cattle.json")
 
 fast.mode <- FALSE
 rep.max <- 1
@@ -27,6 +27,7 @@ miraculix.cores <- 1
 skip.population <- FALSE
 time.check <- FALSE
 time.max <- 7200
+manual.select.check = FALSE
 
 export.population = FALSE
 import.population = FALSE
@@ -34,7 +35,7 @@ export.gen = NULL
 export.timepoint = NULL
 
 fixed.generation.order <- NULL
-{
+  {
   {
 
 
@@ -1784,10 +1785,10 @@ fixed.generation.order <- NULL
 
       founder_pop <- founder_pop[founder_temp2]
 
-      population$info$cohorts <- cohort_info
+      population$info$cohorts <- cbind(cohort_info, NA, NA)
 
       colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
-                                             "time point", "creating.type")
+                                             "time point", "creating.type", "lowest ID", "highest ID")
 
 
       if(n_traits>0){

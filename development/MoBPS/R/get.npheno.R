@@ -39,7 +39,7 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.al
   database <- get.database(population, gen, database, cohorts)
 
   n.animals <- sum(database[,4] - database[,3] +1)
-  data <- matrix(NA, ncol=n.animals, nrow=population$info$bv.nr)
+  data <- matrix(0, ncol=n.animals, nrow=population$info$bv.nr)
   before <- 0
   names <- numeric(n.animals)
 
@@ -58,8 +58,8 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.al
 
           if(sum(population$breeding[[copies[rows,1]]][[copies[rows,2]]][[copies[rows,3]]][[15]]> n_obs)>=1){
             switches <- population$breeding[[copies[rows,1]]][[copies[rows,2]]][[copies[rows,3]]][[15]]> n_obs
-            data[switches, (before+1)] <- population$breeding[[copies[rows,1]]][[copies[rows,2]+8]][switches,copies[rows,3]]
             n_obs[switches] <- population$breeding[[copies[rows,1]]][[copies[rows,2]]][[copies[rows,3]]][[15]][switches]
+            data[switches, (before+1)] <- n_obs[switches]
           }
 
         }

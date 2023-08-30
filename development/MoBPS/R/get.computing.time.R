@@ -48,7 +48,7 @@ get.computing.time <- function(population, verbose = TRUE, extend = FALSE, per.c
     if(comp.times.general[5]>0) cat(paste0( comp.times.general[5], " seconds for selection.\n"))
     if(comp.times.general[6]>0) cat(paste0( comp.times.general[6], " seconds for generation of new individuals.\n"))
   }
-
+  comp.times.bve = NULL
   if(verbose && length(population$info$comp.times.bve)>0 && population$info$bve){
     comp.times.bve = round(colSums(population$info$comp.times.bve), digits =1)
     cat(paste0("Total time spent for BVE: ", comp.times.bve[10], " seconds.\n\n"))
@@ -60,7 +60,7 @@ get.computing.time <- function(population, verbose = TRUE, extend = FALSE, per.c
 
   if(verbose && length(population$info$comp.times.generation)>0){
     comp.times.generation = round(colSums(population$info$comp.times.generation), digits =1)
-    cat(paste0("Total time spent for generation of new individuals: ", comp.times.bve[6], " seconds.\n\n"))
+    cat(paste0("Total time spent for generation of new individuals: ", comp.times.generation[6], " seconds.\n\n"))
     if(sum(comp.times.generation[1:5]>0)) cat("Time spent per step: \n")
     if((comp.times.generation[1])>0) cat(paste0((comp.times.generation[1]), " seconds for preparation.\n"))
     if((comp.times.generation[2])>0) cat(paste0((comp.times.generation[2]), " seconds for generation (meiosis).\n"))

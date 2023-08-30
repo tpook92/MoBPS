@@ -326,21 +326,16 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   }
 
   if(keep.ids){
-
     for(index in 1:nrow(pedigree_position)){
       activ <- pedigree_position[index,]
       population$breeding[[activ[1]]][[activ[2]+14]][activ[3]] <- pedigree[index,1]
     }
-
     if(prod(is.numeric(pedigree[,1]))==1){
       population$info$next.animal <- max(pedigree[index,1])+1
     }
-
-
   }
 
   if(TRUE){
-
     return(list(population, avail, pedigree_position))
   } else{
     return(population)

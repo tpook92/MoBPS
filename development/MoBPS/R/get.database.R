@@ -28,8 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param avoid.merging Set to TRUE to avoid different cohorts to be merged in a joint group when possible
 #' @param id Individual IDs to search/collect in the database
+#' @param keep.order To not change order of individuals when ids are provided (default: FALSE)
 #' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE)
 #' @param id.last Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)
+#' @param class Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)
+#' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
 #' get.database(ex_pop, gen=2)
@@ -37,31 +40,46 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE, id=NULL, id.all.copy=FALSE, id.last=FALSE){
+get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE, per.individual = FALSE, id=NULL, id.all.copy=FALSE, id.last=FALSE,
+                        keep.order = FALSE, class = NULL, verbose = TRUE){
 
   if(length(id)>0 && (length(gen)>0 || length(database)>0 || length(cohorts) > 0 )){
     stop("You can either prove IDs or gen/database/cohorts")
   }
 
   if(length(id)>0){
-    if(ncol(population$info$cohorts)<10){
+    if(is.character(id[1])){
+      id = as.numeric(id)
+    }
 
+    coh <- get.cohorts(population)
+
+    if(ncol(population$info$cohorts)<10){
       min_max <- NULL
-      coh <- get.cohorts(population)
       for(index in coh){
         temp1 <- get.id(population, cohorts = index)
         min_max <- rbind(min_max, c(min(temp1), max(temp1)))
 
       }
+    } else{
+      min_max = (population$info$cohorts[,10:11,drop=FALSE])
+      storage.mode(min_max) = "numeric"
     }
 
     database <- matrix(0, nrow=length(id), ncol=4)
     k <- 1
+
+    poss_prior = NULL
     for(index in id){
       poss <- which((index <= min_max[,2]) & (index >= min_max[,1]))
 
-      ids <- get.id(population, cohorts = coh[poss])
-      db <- get.database(population, cohorts=coh[poss])
+      if(!(length(poss)==length(poss_prior) && prod(poss==poss_prior)==1)){
+        ids <- get.id(population, cohorts = coh[poss])
+        db <- get.database(population, cohorts=coh[poss])
+        poss_prior = poss
+      }
+
+
 
       if(id.last){
         temp1 <- which(ids==index)
@@ -79,7 +97,9 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
       k <- k + 1
     }
 
-
+    if(keep.order){
+      return(database)
+    }
 
     if(!id.all.copy){
       database <- get.database(population, database=database)
@@ -97,6 +117,9 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
 
   }
 
+  if(length(class)>0 && length(gen)==0 && length(database)==0 && length(cohorts)==0){
+    gen = 1:get.ngen(population)
+  }
 
   if(length(gen)>0){
     database_gen <- cbind(rep(gen,each=2), rep(1:2, length(gen)))
@@ -134,13 +157,12 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
       row <- which(population$info$cohorts[,1]==cohorts[index])[1]
       if(is.na(row)){
 
-
         candidates = paste0(cohorts[index], c("_M", "_F"))
         if(sum(population$info$cohorts[,1]==candidates[1])>0 && sum(population$info$cohorts[,1]==candidates[2])>0){
           cohorts = c(cohorts, candidates)
           added = added + 2
           remove = c(remove, index)
-          warning(paste0("Cohort ", cohorts[index], " is not available. Instead use ",  cohorts[index], "_M & ",  cohorts[index], "_F!"))
+          # if(verbose) cat(paste0("Cohort ", cohorts[index], " is not available. Instead use ",  cohorts[index], "_M & ",  cohorts[index], "_F!\n"))
         } else{
           warning(paste0("Cohort ", cohorts[index], " is not available when constructing the individuals database!"))
         }
@@ -212,6 +234,45 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   }
 
   database <- unique(database)
+
+  if(length(class)>0){
+
+    class_db = get.class(population, database = database)
+
+    temp_db = matrix(0, nrow = length(class_db), ncol = 3)
+    current = 1
+    for(index in 1:nrow(database)){
+      n_indi = database[index,4] - database[index,3] + 1
+      temp_db[current:(current + n_indi -1),1] = database[index,1]
+      temp_db[current:(current + n_indi -1),2] = database[index,2]
+      temp_db[current:(current + n_indi -1),3] = database[index,3]:database[index,4]
+      current = current + n_indi
+    }
+
+    keep = rep(FALSE, length(class_db))
+    for(index in 1:length(class)){
+      keep[class_db == class[index]] = TRUE
+    }
+
+    temp_db = temp_db[keep,,drop=FALSE]
+
+    database = get.database(population, database = temp_db)
+  }
+
+  if(per.individual){
+    n_animal = sum(database[,4] - database[,3] + 1)
+
+    database_full = matrix(0, nrow = n_animal, ncol = 4)
+
+    so_far = 0
+    for(index in 1:nrow(database)){
+      consider = database[index,3]:database[index,4]
+      database_full[1:length(consider) + so_far,] = cbind(database[index,1], database[index,2],consider , consider )
+      so_far = so_far + length(consider)
+    }
+
+    database = database_full
+  }
 
   return(database)
 }

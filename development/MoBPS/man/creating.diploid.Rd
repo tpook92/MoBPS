@@ -4,12 +4,117 @@
 \alias{creating.diploid}
 \title{Generation of the starting population}
 \usage{
-creating.diploid(population = NULL, ...)
+creating.diploid(
+  population = NULL,
+  nsnp = 0,
+  nindi = 0,
+  name.cohort = NULL,
+  generation = 1,
+  founder.pool = 1,
+  one.sex.mode = FALSE,
+  sex.s = "fixed",
+  sex.quota = 0.5,
+  class = 0L,
+  verbose = TRUE,
+  map = NULL,
+  chr.nr = NULL,
+  chromosome.length = NULL,
+  bp = NULL,
+  snps.equidistant = NULL,
+  template.chip = NULL,
+  snp.position = NULL,
+  change.order = TRUE,
+  add.chromosome = FALSE,
+  bpcm.conversion = 0,
+  snp.name = NULL,
+  hom0 = NULL,
+  hom1 = NULL,
+  dataset = NULL,
+  freq = "beta",
+  beta.shape1 = 1,
+  beta.shape2 = 1,
+  share.genotyped = 0,
+  genotyped.s = NULL,
+  vcf = NULL,
+  vcf.maxsnp = Inf,
+  vcf.maxindi = Inf,
+  vcf.chromosomes = NULL,
+  vcf.VA = TRUE,
+  trait.name = NULL,
+  mean.target = NULL,
+  var.target = NULL,
+  qtl.position.shared = FALSE,
+  trait.cor = NULL,
+  trait.cor.include = NULL,
+  n.additive = 0,
+  n.equal.additive = 0,
+  n.dominant = 0,
+  n.equal.dominant = 0,
+  n.qualitative = 0,
+  n.quantitative = 0,
+  real.bv.add = NULL,
+  real.bv.mult = NULL,
+  real.bv.dice = NULL,
+  new.residual.correlation = NULL,
+  new.breeding.correlation = NULL,
+  litter.effect.covariance = NULL,
+  pen.effect.covariance = NULL,
+  is.maternal = NULL,
+  is.paternal = NULL,
+  fixed.effects = NULL,
+  trait.pool = 0,
+  gxe.correlation = NULL,
+  n.locations = NULL,
+  gxe.max = 0.85,
+  gxe.min = 0.7,
+  location.name = NULL,
+  gxe.combine = TRUE,
+  n.traits = 0,
+  base.bv = NULL,
+  dominant.only.positive = FALSE,
+  exclude.snps = NULL,
+  var.additive.l = NULL,
+  var.dominant.l = NULL,
+  var.qualitative.l = NULL,
+  var.quantitative.l = NULL,
+  effect.size.equal.add = 1,
+  effect.size.equal.dom = 1,
+  polygenic.variance = 100,
+  bve.mult.factor = NULL,
+  bve.poly.factor = NULL,
+  set.zero = FALSE,
+  bv.standard = FALSE,
+  replace.real.bv = FALSE,
+  bv.ignore.traits = NULL,
+  remove.invalid.qtl = TRUE,
+  randomSeed = NULL,
+  add.architecture = NULL,
+  time.point = 0,
+  creating.type = 0,
+  size.scaling = 1,
+  miraculix = TRUE,
+  miraculix.dataset = TRUE,
+  add.chromosome.ends = TRUE,
+  use.recalculate.manual = FALSE,
+  store.comp.times = TRUE,
+  skip.rest = FALSE,
+  enter.bv = TRUE,
+  internal = FALSE,
+  internal.geno = TRUE,
+  internal.dataset = NULL,
+  nbits = 30,
+  bit.storing = FALSE,
+  new.phenotype.correlation = NULL,
+  length.before = 5,
+  length.behind = 5,
+  position.scaling = FALSE,
+  shuffle.cor = NULL,
+  shuffle.traits = NULL,
+  bv.total = 0
+)
 }
 \arguments{
 \item{population}{Population list}
-
-\item{\strong{ #### General ####}}{#################}
 
 \item{nsnp}{Number of markers to generate (Split equally across chromosomes (chr.nr) unless vector is used)}
 
@@ -30,8 +135,6 @@ creating.diploid(population = NULL, ...)
 \item{class}{Migration level of the newly added individuals (default: 0)}
 
 \item{verbose}{Set to FALSE to not display any prints}
-
-\item{\strong{ #### Genome architecture ####}}{#################}
 
 \item{map}{map-file that contains up to 5 colums (chromosome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
 
@@ -59,8 +162,6 @@ creating.diploid(population = NULL, ...)
 
 \item{hom1}{Vector containing the second allelic variant in each marker (default: 1)}
 
-\item{\strong{ #### Genotype data ####}}{#################}
-
 \item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
 
 \item{freq}{frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)}
@@ -77,17 +178,19 @@ creating.diploid(population = NULL, ...)
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
 
+\item{vcf.maxindi}{Maximum number of individuals to include in the genotype file (default: Inf)}
+
 \item{vcf.chromosomes}{Vector of chromosomes to import from vcf. Use on bgziped and tabixed vcf only. (default: NULL - all chromosomes)}
 
 \item{vcf.VA}{Use the VariantAnnotation package to load in a vcf file when available (default: TRUE)}
-
-\item{\strong{ #### Traits ####}}{#################}
 
 \item{trait.name}{Name of the traits generated}
 
 \item{mean.target}{Target mean for each trait}
 
 \item{var.target}{Target variance for each trait}
+
+\item{qtl.position.shared}{Set to TRUE to put QTL effects on the same markers for different traits}
 
 \item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
@@ -139,7 +242,7 @@ creating.diploid(population = NULL, ...)
 
 \item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
 
-\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+\item{n.traits}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
 \item{base.bv}{Intercept of underlying true genomic values (excluding all QTL effects, default: 100)}
 
@@ -175,8 +278,6 @@ creating.diploid(population = NULL, ...)
 
 \item{remove.invalid.qtl}{Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist}
 
-\item{\strong{ #### Other ####}}{#################}
-
 \item{randomSeed}{Set random seed of the process}
 
 \item{add.architecture}{Add genetic architecture (marker positions)}
@@ -186,8 +287,6 @@ creating.diploid(population = NULL, ...)
 \item{creating.type}{Technique to generate new individuals (usage in web-based application)}
 
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
-
-\item{\strong{ #### Data storage ####}}{#################}
 
 \item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
 
@@ -199,7 +298,15 @@ creating.diploid(population = NULL, ...)
 
 \item{store.comp.times}{Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating}
 
-\item{\strong{ #### OLD ####}}{#################}
+\item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
+
+\item{enter.bv}{Internal parameter}
+
+\item{internal}{Dont touch!}
+
+\item{internal.geno}{Dont touch!}
+
+\item{internal.dataset}{Dont touch!}
 
 \item{nbits}{Bits available in MoBPS-bit-storing}
 
@@ -216,6 +323,8 @@ creating.diploid(population = NULL, ...)
 \item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
 
 \item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
+
+\item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 }
 \value{
 Population-list

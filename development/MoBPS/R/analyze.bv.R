@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param bvrow Which traits to display
+#' @param use.all.copy Set to TRUE to extract phenotyping
 #' @param advanced Set to TRUE to also look at offspring pheno
 #' @examples
 #' data(ex_pop)
@@ -35,14 +36,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 #'
 
-analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow="all", advanced=FALSE){
+analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow="all", advanced=FALSE,
+                       use.all.copy = FALSE){
 
   if(length(bvrow)==1 && bvrow=="all"){
     bvrow <- 1:population$info$bv.nr
   }
   bv <- get.bv(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
   bve <- get.bve(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
-  pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
+  pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts, use.all.copy = use.all.copy)[bvrow,,drop=FALSE]
   if(advanced){
     offpheno <- get.pheno.off(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
   }
@@ -52,12 +54,12 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
     cor_matrix <- matrix(0, nrow=6, ncol=length(bvrow))
     var_vector <- numeric(length(bvrow))
     for(index in 1:length(bvrow)){
-      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,]))
-      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,]))
-      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,]))
-      suppressWarnings(cor_matrix[4,index] <- stats::cor(bv[index,], offpheno[index,]))
-      suppressWarnings(cor_matrix[5,index] <- stats::cor(bve[index,], offpheno[index,]))
-      suppressWarnings(cor_matrix[6,index] <- stats::cor(pheno[index,], offpheno[index,]))
+      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[4,index] <- stats::cor(bv[index,], offpheno[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[5,index] <- stats::cor(bve[index,], offpheno[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[6,index] <- stats::cor(pheno[index,], offpheno[index,], use = "pairwise.complete.obs"))
       var_vector[index] <- stats::var(bv[index,])
     }
     names(var_vector) <- population$info$trait.name
@@ -68,9 +70,9 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
     cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))
     var_vector <- numeric(length(bvrow))
     for(index in 1:length(bvrow)){
-      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,]))
-      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,]))
-      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,]))
+      suppressWarnings(cor_matrix[1,index] <- stats::cor(bv[index,], bve[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[2,index] <- stats::cor(bv[index,], pheno[index,], use = "pairwise.complete.obs"))
+      suppressWarnings(cor_matrix[3,index] <- stats::cor(bve[index,], pheno[index,], use = "pairwise.complete.obs"))
       var_vector[index] <- stats::var(bv[index,])
     }
     names(var_vector) <- population$info$trait.name

@@ -12,7 +12,8 @@ set.mean.pool(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  reference = "pool"
+  reference = "pool",
+  max.effects = Inf
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ set.mean.pool(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export) (THIS CAN ONLY BE APPLIED ON FOUNDERS)}
 
 \item{reference}{Target mean is compared again the reference (default: "pool" - average genomic value in the respective pool, alt: "all")}
+
+\item{max.effects}{Maximum number of locations in the genome that will be assigned an effect for pool-based correction}
 }
 \value{
 Class of in gen/database/cohorts selected individuals

@@ -37,7 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE,
-                         raw=FALSE, id=FALSE){
+                         raw=FALSE, id=FALSE, use.first.copy = FALSE){
 
   database <- get.database(population, gen, database, cohorts)
 
@@ -52,6 +52,11 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
       for(index in database[row,3]:database[row,4]){
         father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3]
         mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]][1:3]
+
+        if(use.first.copy){
+          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1,]
+          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1,]
+        }
         pedigree[rindex,] <- c(database[row,1:2], index, father, mother)
         rindex <- rindex + 1
       }
@@ -90,6 +95,12 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
       for(index in database[row,3]:database[row,4]){
         father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
         mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+
+        if(use.first.copy){
+          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1,]
+          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1,]
+        }
+
         father_t <- paste(if(father[2]==1) "M" else "F", father[3], "_", father[1], sep="")
         mother_t <- paste(if(mother[2]==1) "M" else "F", mother[3], "_", mother[1], sep="")
         child_t <- paste(if(database[row,2]==1) "M" else "F", index, "_", database[row,1], sep="")

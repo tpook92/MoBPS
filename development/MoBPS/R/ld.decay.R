@@ -44,13 +44,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL,  step=5, max=500, max.cases = 100, database=NULL, gen=NULL, cohorts= NULL,
                      type="snp", plot=FALSE, xlim = NULL, ylim = NULL){
-  max <- min(population$info$snp[chromosome]-1, max)
+
   if(length(genotype.dataset)==0){
     dataset <- t(get.geno(population, chromosome = chromosome, gen=gen, database=database,cohorts=cohorts))
   } else{
     dataset <- t(genotype.dataset)
   }
 
+  nsnp = ncol(dataset)
+  max <- min(nsnp-1, max)
   if(length(dist)>0){
     calc <- dist
   } else{
@@ -71,7 +73,7 @@ ld.decay <- function(population, genotype.dataset=NULL, chromosome=1, dist =NULL
   for(index in 1:length(calc)){
 
 
-    cases <- 1:(population$info$snp[chromosome]-calc[index])
+    cases <- 1:(nsnp-calc[index])
     if(length(cases)> max.cases){
       cases <- sample(cases, max.cases)
     }
