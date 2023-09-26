@@ -9,6 +9,7 @@ get.nindi(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  extended = FALSE,
   count.copy = FALSE
 )
 }

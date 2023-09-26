@@ -11,7 +11,8 @@ get.pedigree(
   cohorts = NULL,
   founder.zero = TRUE,
   raw = FALSE,
-  id = FALSE
+  id = FALSE,
+  use.first.copy = FALSE
 )
 }
 \arguments{

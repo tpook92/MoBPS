@@ -73,6 +73,11 @@ breeding.diploid(
   fixed.effects.freq = NULL,
   new.class = 0L,
   max.offspring = Inf,
+  max.offspring.individual.m = NULL,
+  max.offspring.individual.f = NULL,
+  max.offspring.individual.gen = NULL,
+  max.offspring.individual.database = NULL,
+  max.offspring.individual.cohorts = NULL,
   max.litter = Inf,
   max.mating.pair = Inf,
   avoid.mating.fullsib = FALSE,
@@ -102,7 +107,7 @@ breeding.diploid(
   copy.individual.f = FALSE,
   copy.individual.keep.bve = TRUE,
   copy.individual.keep.pheno = TRUE,
-  added.genotyped = 0,
+  added.genotyped = NULL,
   bv.ignore.traits = NULL,
   generation.cores = NULL,
   genotyped.database = NULL,
@@ -214,6 +219,7 @@ breeding.diploid(
   mixblup.omega = NULL,
   mixblup.apy = FALSE,
   mixblup.apy.core = NULL,
+  mixblup.skip = FALSE,
   BGLR.model = "RKHS",
   BGLR.burnin = 500,
   BGLR.iteration = 5000,
@@ -285,11 +291,12 @@ breeding.diploid(
   store.effect.freq = FALSE,
   Rprof = FALSE,
   randomSeed = NULL,
-  display.progress = TRUE,
+  display.progress = NULL,
   time.point = 0,
   creating.type = 0,
   import.relationship.matrix = NULL,
   export.selected = FALSE,
+  export.selected.database = FALSE,
   export.relationship.matrix = FALSE,
   pen.assignments = NULL,
   pen.size = NULL,
@@ -427,7 +434,7 @@ breeding.diploid(
 
 \item{add.gen}{Generation you want to add the new individuals to (default: New generation)}
 
-\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped (Default: 0)}
+\item{share.genotyped}{Share of individuals newly generated individuals that are genotyped (Default: 0). Also applies if individuals are copied with copy.individual}
 
 \item{phenotyping.child}{Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)}
 
@@ -459,7 +466,7 @@ breeding.diploid(
 
 \item{repeat.mating}{Generate multiple mating from the same dam/sire combination (first column: number of offspring; second column: probability)}
 
-\item{repeat.mating.copy}{Generate multiple copies from a copy action (combine / copy.individuals.m/f) (first column: number of offspring; second column: probability)}
+\item{repeat.mating.copy}{Generate multiple copies from a copy action (combine / copy.individual.m/f) (first column: number of offspring; second column: probability)}
 
 \item{repeat.mating.fixed}{Vector containing number of times each mating is repeated. This will overwrite sampling from repeat.mating / repeat.mating.copy (default: NULL)}
 
@@ -487,7 +494,7 @@ breeding.diploid(
 
 \item{combine}{Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent}
 
-\item{copy.individual}{If TRUE a copy of the first parent will be generated instead of meosis between two parents}
+\item{copy.individual}{Set TRUE to generate a copy of an already existing individual. If only one of the sexes has individuals to select from it will automatically detect with sex to chose. Otherwise the first/male parent will be copied}
 
 \item{copy.individual.m, copy.individual.f}{If TRUE generate exactly one copy of all selected male/female in a new cohort (or more by setting breeding.size)}
 
@@ -495,7 +502,7 @@ breeding.diploid(
 
 \item{copy.individual.keep.pheno}{Set to FALSE to not keep phenotypes in case of use of copying individuals instead of regular meoisis}
 
-\item{added.genotyped}{Share of individuals that is additionally genotyped (only for copy.individuals, default: 0)}
+\item{added.genotyped}{(OLD! use share.genotyped) Share of individuals that is additionally genotyped (only for copy.individual, default: 0)}
 
 \item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 
@@ -679,6 +686,8 @@ breeding.diploid(
 
 \item{mixblup.apy.core}{Number of core individuals in the APY algorithm (default: 5000)}
 
+\item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
+
 \item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
 
 \item{BGLR.burnin}{Number of burn-in steps in BGLR (default: 1000)}
@@ -820,6 +829,8 @@ breeding.diploid(
 \item{import.relationship.matrix}{Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)}
 
 \item{export.selected}{Set to TRUE to export the list of selected individuals}
+
+\item{export.selected.database}{Set to TRUE to export a database of the selected individuals}
 
 \item{export.relationship.matrix}{Export the relationship matrix used in the breeding value estimation}
 

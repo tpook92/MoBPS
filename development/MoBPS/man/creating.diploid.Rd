@@ -92,6 +92,7 @@ creating.diploid(
   time.point = 0,
   creating.type = 0,
   size.scaling = 1,
+  progress.bar = TRUE,
   miraculix = TRUE,
   miraculix.dataset = TRUE,
   add.chromosome.ends = TRUE,
@@ -287,6 +288,8 @@ creating.diploid(
 \item{creating.type}{Technique to generate new individuals (usage in web-based application)}
 
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
+
+\item{progress.bar}{Set to FALSE to not use progress bars in any application of breeding.diploid() downstream (Keep log-files lean!)}
 
 \item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
 

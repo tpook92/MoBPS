@@ -10,6 +10,7 @@ get.database(
   database = NULL,
   cohorts = NULL,
   avoid.merging = FALSE,
+  per.individual = FALSE,
   id = NULL,
   id.all.copy = FALSE,
   id.last = FALSE,

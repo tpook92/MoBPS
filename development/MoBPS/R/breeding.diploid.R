@@ -170,6 +170,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #### Software for breeding value estimation
 #' @param mobps.bve If TRUE predict BVEs in direct estimation with assumed known heritablity (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)
 #' @param mixblup.bve Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)
+#' @param mixblup.skip Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files
 #' @param mixblup.reliability Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)
 #' @param emmreml.bve If TRUE use REML estimator from R-package EMMREML in breeding value estimation
 #' @param rrblup.bve If TRUE use REML estimator from R-package rrBLUP in breeding value estimation
@@ -201,6 +202,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mixblup.residual.cov Provide residual covariance matrix to be used in MiXBLUP (lower-triangle is sufficent) (default: underlying true values)
 #' @param mixblup.apy Set to TRUE to use APY inverse in MiXBLUP (default: FALSE)
 #' @param mixblup.apy.core Number of core individuals in the APY algorithm (default: 5000)
+#' @param mixblup.multiple.records Set to TRUE to write multiple phenotypic records for an individual
 #' @param BGLR.model Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")
 #' @param BGLR.burnin Number of burn-in steps in BGLR (default: 1000)
 #' @param BGLR.iteration Number of iterations in BGLR (default: 5000)
@@ -278,6 +280,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #### Import / Export
 #' @param import.relationship.matrix Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)
 #' @param export.selected Set to TRUE to export the list of selected individuals
+#' @param export.selected.database Set to TRUE to export a database of the selected individuals
 #' @param export.relationship.matrix Export the relationship matrix used in the breeding value estimation
 #### Still in development
 #' @param pen.assignments This is a placeholder to deactivate this module for now
@@ -543,6 +546,8 @@ breeding.diploid <- function(population,
                              mixblup.omega = NULL,
                              mixblup.apy = FALSE,
                              mixblup.apy.core = NULL,
+                             mixblup.skip = FALSE,
+                             mixblup.multiple.records = FALSE,
                              BGLR.model = "RKHS",
                              BGLR.burnin = 500,
                              BGLR.iteration = 5000,
@@ -631,6 +636,7 @@ breeding.diploid <- function(population,
                              #### Import / Export
                              import.relationship.matrix = NULL,
                              export.selected = FALSE,
+                             export.selected.database = FALSE,
                              export.relationship.matrix = FALSE,
 
                              #### Still development
@@ -674,6 +680,13 @@ breeding.diploid <- function(population,
                              size.scaling = NULL,
                              parallel.internal = FALSE){
 
+
+  if(export.selected.database){
+    export.selected = TRUE
+  }
+  if(mixblup.bve || emmreml.bve || rrblup.bve || sommer.bve || sommer.multi.bve || BGLR.bve || pseudo.bve){
+    bve = TRUE
+  }
 
   {
 
@@ -746,8 +759,8 @@ breeding.diploid <- function(population,
       population$info$bypool_list[[bven]] = list()
       if(length(real.bv.adds_pool)>1){
         for(indexp in c(0,population$info$founder_pools)){
-          real.bv.adds_pool = real.bv.adds_pool[real.bv.adds_pool[,8]==FALSE,]
-          real.bv.adds_pool_temp = real.bv.adds_pool[real.bv.adds_pool[,7]==indexp,]
+          real.bv.adds_pool = real.bv.adds_pool[real.bv.adds_pool[,8]==FALSE,,drop = FALSE]
+          real.bv.adds_pool_temp = real.bv.adds_pool[real.bv.adds_pool[,7]==indexp,,drop = FALSE]
           population$info$bypool_list[[bven]][[indexp+1]] = real.bv.adds_pool_temp
         }
       }
@@ -4015,11 +4028,41 @@ breeding.diploid <- function(population,
 
         if(mixblup.bve && mixblup.datafile){
           if(verbose) cat(paste0("Start writting datafile at ", mixblup.path.datafile,"\n"))
-          y_temp = y
-          y_temp[is.na(y_temp)] = -99
 
-          pheno_table = cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]], 1, y_temp)
-          utils::write.table(file=mixblup.path.datafile, pheno_table, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          if(mixblup.multiple.records){
+            n_row = max(get.npheno(population, database = bve.database)) * length(loop_elements_list[[2]])
+
+            pheno_table = matrix(0, nrow = n_row, ncol = length(bve.keeps) + 2)
+            individual_y = get.pheno.single(population, database = bve.database)
+            individual_id = get.id(population, database = bve.database)
+            kindex = 1
+            for(index in loop_elements_list[[2]]){
+
+              tmp1 = t(individual_y[[index]])[,bve.keeps,drop = FALSE]
+
+              if(length(tmp1)>0){
+                pheno_table[kindex:(kindex + nrow(tmp1) - 1),] = cbind(individual_id[index], 1, tmp1)
+                kindex = kindex + nrow(tmp1)
+              }
+
+            }
+
+            pheno_table[is.na(pheno_table)] = -99
+
+            if(kindex <= n_row){
+              pheno_table = pheno_table[1:(kindex - 1),]
+            }
+
+            utils::write.table(file=mixblup.path.datafile, pheno_table, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          } else{
+            y_temp = y[,bve.keeps,drop= FALSE]
+            y_temp[is.na(y_temp)] = -99
+
+            pheno_table = cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]], 1, y_temp)
+            utils::write.table(file=mixblup.path.datafile, pheno_table, row.names = FALSE, col.names = FALSE , quote=FALSE)
+          }
+
         }
 
         if(mixblup.bve && mixblup.genofile && length(dense)>0){
@@ -4417,7 +4460,7 @@ breeding.diploid <- function(population,
             }
 
 
-            if(bven==max((1:population$info$bv.nr)[bve.keeps])){
+            if(mixblup.skip==FALSE && bven==max((1:population$info$bv.nr)[bve.keeps])){
 
               if(verbose) cat(paste0("Start MiXBLUP BVE\n"))
 
@@ -4475,10 +4518,10 @@ breeding.diploid <- function(population,
 
 
               if(mixblup.reliability){
-                y_reli = estimated_bve[takes,4:ncol(estimated_bve),drop=FALSE]
+                y_reli[,bve.keeps] = estimated_bve[takes,4:ncol(estimated_bve),drop=FALSE]
                 bve.insert = rep(FALSE, length(bve.insert))
               } else{
-                y_hat = estimated_bve[takes,4:ncol(estimated_bve),drop=FALSE]
+                y_hat[,bve.keeps] = estimated_bve[takes,4:ncol(estimated_bve),drop=FALSE]
               }
 
 
@@ -6058,7 +6101,13 @@ breeding.diploid <- function(population,
       }
     }
     if(export.selected){
-      return(best)
+
+      if(export.selected.database){
+        best_db = rbind(best[[1]][,1:3, drop = FALSE], best[[2]][,1:3, drop = FALSE])
+      } else{
+        return(best)
+      }
+
     }
 
     if(store.comp.times){
