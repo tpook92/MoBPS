@@ -110,53 +110,55 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
-                              dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
-                                               bpcm.conversion=0,
-                                               nsnp=0, freq="beta", sex.s="fixed",
-                                               chromosome.length=NULL,length.before=5, length.behind=5,
-                                               real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
-                                               bv.total=0, polygenic.variance=100,
-                                               bve.mult.factor=NULL, bve.poly.factor=NULL,
-                                               base.bv=NULL, add.chromosome.ends=TRUE,
-                                               new.phenotype.correlation=NULL,
-                                               new.residual.correlation = NULL,
-                                               new.breeding.correlation=NULL,
-                                               add.architecture=NULL, snp.position=NULL,
-                                               position.scaling=FALSE,
-                                               bit.storing=FALSE,
-                                               nbits=30, randomSeed=NULL,
-                                               miraculix=TRUE,
-                                               miraculix.dataset=TRUE,
-                                               n.additive=0,
-                                               n.dominant=0,
-                                               n.qualitative=0,
-                                               n.quantitative=0,
-                                               var.additive.l=NULL,
-                                               var.dominant.l=NULL,
-                                               var.qualitative.l=NULL,
-                                               var.quantitative.l=NULL,
-                                               exclude.snps=NULL,
-                                               replace.real.bv=FALSE,
-                                               shuffle.traits=NULL,
-                                               shuffle.cor=NULL,
-                                               skip.rest=FALSE,
-                                               enter.bv=TRUE,
-                                               name.cohort=NULL,
-                                               template.chip=NULL,
-                                               beta.shape1=1,
-                                               beta.shape2=1,
-                                               time.point=0,
-                                               creating.type=0,
-                                               trait.name=NULL,
-                                               share.genotyped=1,
-                                               genotyped.s=NULL,
-                                               map=NULL,
-                                               remove.invalid.qtl=TRUE,
-                                               verbose=TRUE,
-                                               bv.standard=FALSE,
-                                               mean.target=NULL,
-                                               var.target=NULL,
-                                               is.maternal = NULL, is.paternal = NULL, vcf.maxsnp=Inf){
+                                dataset=NULL, vcf=NULL, chr.nr=NULL, bp=NULL, snp.name=NULL, hom0=NULL, hom1=NULL,
+                                bpcm.conversion=0,
+                                nsnp=0, freq="beta", sex.s="fixed",
+                                chromosome.length=NULL,length.before=5, length.behind=5,
+                                real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
+                                bv.total=0, polygenic.variance=100,
+                                bve.mult.factor=NULL, bve.poly.factor=NULL,
+                                base.bv=NULL, add.chromosome.ends=TRUE,
+                                new.phenotype.correlation=NULL,
+                                new.residual.correlation = NULL,
+                                new.breeding.correlation=NULL,
+                                add.architecture=NULL, snp.position=NULL,
+                                position.scaling=FALSE,
+                                bit.storing=FALSE,
+                                nbits=30, randomSeed=NULL,
+                                miraculix=TRUE,
+                                miraculix.dataset=TRUE,
+                                n.additive=0,
+                                n.dominant=0,
+                                n.qualitative=0,
+                                n.quantitative=0,
+                                var.additive.l=NULL,
+                                var.dominant.l=NULL,
+                                var.qualitative.l=NULL,
+                                var.quantitative.l=NULL,
+                                exclude.snps=NULL,
+                                replace.real.bv=FALSE,
+                                shuffle.traits=NULL,
+                                shuffle.cor=NULL,
+                                skip.rest=FALSE,
+                                enter.bv=TRUE,
+                                name.cohort=NULL,
+                                template.chip=NULL,
+                                beta.shape1=1,
+                                beta.shape2=1,
+                                time.point=0,
+                                creating.type=0,
+                                trait.name=NULL,
+                                share.genotyped=1,
+                                genotyped.s=NULL,
+                                map=NULL,
+                                remove.invalid.qtl=TRUE,
+                                verbose=TRUE,
+                                bv.standard=FALSE,
+                                mean.target=NULL,
+                                var.target=NULL,
+                                progress.bar = TRUE,
+                                is.maternal = NULL, is.paternal = NULL, vcf.maxsnp=Inf,
+                                halffounder = TRUE){
 
   while(ncol(pedigree)<5){
     pedigree <- cbind(pedigree, NA)
@@ -170,6 +172,17 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   }
 
 
+  ## adding individuals missing from the pedigree
+  adds = setdiff(pedigree[,2], pedigree[,1])
+  adds = adds[adds != 0]
+  pedigree = rbind(cbind(adds, 0,0,0,1), pedigree)
+
+  if(verbose) cat(paste0(length(adds), " male founders added that were sire of pedigree-animals.\n"))
+  adds = setdiff(pedigree[,3], pedigree[,1])
+  adds = adds[adds != 0]
+  pedigree = rbind(cbind(adds, 0,0,0,2), pedigree)
+  if(verbose) cat(paste0(length(adds), " female founders added that were dams of pedigree-animals.\n"))
+
   copies <- duplicated(pedigree[,1])
   if(sum(copies)>0){
     pedigree <- pedigree[!copies,]
@@ -178,10 +191,26 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   n <- nrow(pedigree)
   is_founder <- rep(FALSE, n)
 
-  for(index in 1:n){
-    if(sum(pedigree[index,2]==pedigree[,1])==0 || sum(pedigree[index,3]==pedigree[,1])==0){
-      is_founder[index] <- TRUE
-    }
+  is_in1 = !(pedigree[,2] %in% pedigree[,1])
+  is_in2 = !(pedigree[,3] %in% pedigree[,1])
+
+  is_founder = (is_in1 | is_in2)
+  if(halffounder){
+    is_founder = (is_in1 & is_in2)
+    is_halffounder = xor(is_in1 ,is_in2)
+
+    add_animal = max(as.numeric(pedigree), na.rm = TRUE) + 1:sum(is_halffounder)
+    pedigree[is_halffounder,2:3][pedigree[is_halffounder,2:3]==0] = add_animal
+    pedigree = rbind(cbind(add_animal,0,0,0,1), pedigree)
+
+    if(verbose) cat(paste0(length(add_animal), " individuals add for simulation of half-founders.\n"))
+    n <- nrow(pedigree)
+    is_founder <- rep(FALSE, n)
+
+    is_in1 = !(pedigree[,2] %in% pedigree[,1])
+    is_in2 = !(pedigree[,3] %in% pedigree[,1])
+
+    is_founder = (is_in1 | is_in2)
   }
 
   avail <- which(is_founder)
@@ -217,32 +246,58 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
     indexf <- 1
     indexm <- 1
 
-    for(index in (1:n)[-avail]){
-      a <- which(pedigree[index,2]==p_there[,1])
-      b <- which(pedigree[index,3]==p_there[,1])
-      if(length(a)==1 && length(b)==1 && pedigree[index,4]<=(temp1+empty)){
-        poss[index] <- TRUE
-        fixed_temp[index2,] <- c(p_there1[a,], p_there1[b,], pedigree[index,5]-1)
-        if(pedigree[index,5]==1){
-          pedigree_position[index,1:3] <- c(temp1, 1, indexm)
-          indexm <- indexm + 1
-        } else{
-          pedigree_position[index,1:3] <- c(temp1, 2, indexf)
-          indexf <- indexf +1
+    cand = (1:n)[-avail]
+
+    is_in1 = (pedigree[cand,2] %in% p_there[,1])
+    is_in2 = (pedigree[cand,3] %in% p_there[,1])
+
+    cand = cand[is_in1 & is_in2]
+
+    needed = p_there[,1] %in%  c(pedigree[cand,2], pedigree[cand,3])
+    p_there = p_there[needed,,drop = FALSE]
+    p_there1 = p_there1[needed,,drop = FALSE]
+
+
+    for(index5 in 1:ceiling(length(cand)/1000)){
+
+      tmp1 = ((index5-1)*1000+1):min(length(cand), ((index5)*1000))
+      cand_temp = cand[tmp1]
+
+      needed = p_there[,1] %in%  c(pedigree[cand_temp,2], pedigree[cand_temp,3])
+      p_there_tmp = p_there[needed,,drop = FALSE]
+      p_there1_tmp = p_there1[needed,,drop = FALSE]
+
+      for(index in cand_temp){
+        a <- which(pedigree[index,2]==p_there_tmp[,1])
+        b <- which(pedigree[index,3]==p_there_tmp[,1])
+        if(length(a)==1 && length(b)==1 && pedigree[index,4]<=(temp1+empty)){
+          poss[index] <- TRUE
+          fixed_temp[index2,] <- c(p_there1_tmp[a,], p_there1_tmp[b,], pedigree[index,5]-1)
+          if(pedigree[index,5]==1){
+            pedigree_position[index,1:3] <- c(temp1, 1, indexm)
+            indexm <- indexm + 1
+          } else{
+            pedigree_position[index,1:3] <- c(temp1, 2, indexf)
+            indexf <- indexf +1
+          }
+
+
+          index2 <- index2 +1
         }
-
-
-        index2 <- index2 +1
       }
+
     }
-    if(verbose) cat(paste0("Generation ",temp1,": ", index2-1, " individuals. (", sum(!there), " individuals remain)\n"))
+
+
+
+    if(verbose) cat(paste0("Generation ",temp1,": ", index2-1, " individuals. (", sum(!there) - index2 + 1, " individuals remain)\n"))
     if(verbose) cat(paste0("of which ", indexm-1, "/", indexf-1, " are male / female.\n"))
 
     if(index2>1){
       fixed_breeding[[temp1]] <- fixed_temp[1:(index2-1),,drop=FALSE]
     } else{
-     temp1 <- temp1 -1
-     empty <- empty +1
+      temp1 <- temp1 -1
+      empty <- empty +1
     }
 
     avail <- c(avail, which(poss))
@@ -301,7 +356,8 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                  var.target=var.target,
                                  is.maternal = is.maternal,
                                  is.paternal = is.paternal,
-                                 vcf.maxsnp=vcf.maxsnp)
+                                 vcf.maxsnp=vcf.maxsnp,
+                                 progress.bar = progress.bar)
 
   for(index in 2:length(fixed_breeding)){
     if(length(fixed_breeding[[index]])>0){
@@ -336,7 +392,7 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   }
 
   if(TRUE){
-    return(list(population, avail, pedigree_position))
+    return(list(population, avail, pedigree_position, pedigree))
   } else{
     return(population)
   }

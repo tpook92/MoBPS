@@ -72,6 +72,7 @@ pedigree.simulation(
   bv.standard = FALSE,
   mean.target = NULL,
   var.target = NULL,
+  progress.bar = TRUE,
   is.maternal = NULL,
   is.paternal = NULL,
   vcf.maxsnp = Inf

@@ -680,6 +680,7 @@ breeding.diploid <- function(population,
                              size.scaling = NULL,
                              parallel.internal = FALSE){
 
+  ### Ordering of individuals based on IDs issue!
 
   if(export.selected.database){
     export.selected = TRUE
@@ -1437,7 +1438,7 @@ breeding.diploid <- function(population,
         selection.m <- "function"
       }
     }
-    if(culling.share1>0 || (length(culling.share2)>0 && culling.share2>0)){
+    if(length(culling.share1) > 1 || culling.share1>0 || (length(culling.share2)>0 && culling.share2>0)){
       culling <- TRUE
     } else{
       culling <- FALSE
@@ -2316,38 +2317,48 @@ breeding.diploid <- function(population,
         }
 
 
+        if(n.animals > 1){
 
-        for(bven in 1:population$info$bv.nr){
-          if(forecast.sigma.g){
+          for(bven in 1:population$info$bv.nr){
+            if(forecast.sigma.g){
 
-            if(variance.correction=="parental.mean"){
-              sigma.g2.temp <- stats::var(y_real[,bven]-y_p1[,bven]/2 - y_p2[,bven]/2, na.rm = TRUE)
+              if(variance.correction=="parental.mean"){
+                sigma.g2.temp <- stats::var(y_real[,bven]-y_p1[,bven]/2 - y_p2[,bven]/2, na.rm = TRUE)
 
-            } else if(variance.correction =="generation.mean"){
-              sigma.g2.temp <- stats::var(y_real[,bven]-generation_mean[bven,y_gen], na.rm = TRUE)
-            } else {
-              sigma.g2.temp <- stats::var(y_real[,bven], na.rm = TRUE)
+              } else if(variance.correction =="generation.mean"){
+                sigma.g2.temp <- stats::var(y_real[,bven]-generation_mean[bven,y_gen], na.rm = TRUE)
+              } else {
+                sigma.g2.temp <- stats::var(y_real[,bven], na.rm = TRUE)
 
-              if(nrow(sigma.e.database)>=2){
+                if(nrow(sigma.e.database)>=2){
 
-                n1 <- sum(sigma.e.database[1:(nrow(sigma.e.database)/2),4] - sigma.e.database[1:(nrow(sigma.e.database)/2),3 ] +1)
-                n2 <- nrow(y_real) - n1
-                if(sigma.g2.temp==0){
-                  warning(paste0("No sigma.e estimation possible for trait ", population$info$trait.name[bven], ". No variance!"))
-                } else if(n1>1 & n2>1){
-                  test <- stats::t.test(y_real[1:n1,bven], y_real[-(1:n1),bven])
-                  if(test$p.value<1e-10){
-                    warning("Fitting of sigma.e does not account for population structure when estimating sigma.g. Consider using variance.correction for this fitting estimation")
+                  n1 <- sum(sigma.e.database[1:(nrow(sigma.e.database)/2),4] - sigma.e.database[1:(nrow(sigma.e.database)/2),3 ] +1)
+                  n2 <- nrow(y_real) - n1
+                  if(sigma.g2.temp==0){
+                    warning(paste0("No sigma.e estimation possible for trait ", population$info$trait.name[bven], ". No variance!"))
+                  } else if(n1>1 & n2>1){
+                    test <- stats::t.test(y_real[1:n1,bven], y_real[-(1:n1),bven])
+                    if(test$p.value<1e-10){
+                      warning("Fitting of sigma.e does not account for population structure when estimating sigma.g. Consider using variance.correction for this fitting estimation")
+                    }
                   }
+
+
                 }
-
-
               }
-            }
 
+            }
+            sigma.e[bven] <- sqrt(((1- heritability[bven]) * sigma.g2.temp)/ heritability[bven])
           }
-          sigma.e[bven] <- sqrt(((1- heritability[bven]) * sigma.g2.temp)/ heritability[bven])
+
+        } else{
+
+          warning("Only one individual available for sigme.e estimation. Take previous estimates!")
+          sigma.e <- population$info$last.sigma.e.value
+
         }
+
+
 
         if(verbose){
           cat("Estimated residual variances:", round(sigma.e^2, digits=4), "\n")
@@ -2763,7 +2774,7 @@ breeding.diploid <- function(population,
       n_animals <- length(culling.bv)
 
       if(sum(abs(culling.index))==0){
-        culling.prob <- rep(culling.share1, n_animals)
+        culling.prob <- rep(culling.share1, length.out = n_animals)
       } else{
         culling.prob <- (culling.bv - culling.bv1) * (culling.share1 - culling.share2)/ (culling.bv1 - culling.bv2) + culling.share1
         culling.prob[culling.prob>1] <- 1

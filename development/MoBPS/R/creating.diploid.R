@@ -1137,7 +1137,7 @@ creating.diploid <- function(population=NULL,
           real.bv.add <- list(real.bv.add)
         }
 
-        if(length(trait.pool)< length(trait_sum)){
+        if(length(trait.pool)< max(length(real.bv.add),length(trait_sum))){
           trait.pool_temp = rep(trait.pool, length.out = length(real.bv.add))
         } else{
           trait.pool_temp = trait.pool

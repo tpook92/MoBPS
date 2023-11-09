@@ -4,7 +4,7 @@
 \alias{matrix.posdef}
 \title{Projection positive definit}
 \usage{
-matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 0.0000001)
+matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 1e-07)
 }
 \arguments{
 \item{A}{Input matrix to project}

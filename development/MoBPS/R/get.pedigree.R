@@ -65,21 +65,22 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8]]
+        tmp = population$breeding[[database[row,1]]][[database[row,2]]][[index]]
+        father <- tmp[[7]]
+        mother <- tmp[[8]]
         if(length(population$breeding[[father[1]]])>1){
-          father_t <- population$breeding[[father[1]]][[father[2]+14]][[father[3]]]
+          father_t <- population$breeding[[father[1]]][[father[2]+14]][father[3]]
         } else{
           father_t <- 0
         }
         if(length(population$breeding[[mother[1]]])>1){
-          mother_t <- population$breeding[[mother[1]]][[mother[2]+14]][[mother[3]]]
+          mother_t <- population$breeding[[mother[1]]][[mother[2]+14]][mother[3]]
         } else{
           mother_t <- 0
         }
 
 
-        child_t <- population$breeding[[database[row,1]]][[database[row,2]+14]][[index]]
+        child_t <- population$breeding[[database[row,1]]][[database[row,2]+14]][index]
         pedigree[rindex,] <- c(child_t, father_t, mother_t)
         rindex <- rindex + 1
       }
@@ -124,11 +125,11 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
   if(founder.zero && !raw){
     set0 <- which(pedigree_id[,1]==pedigree_id[,2])
     if(length(set0)>0){
-      pedigree[set0,2] <- "0"
+      pedigree[set0,2] <- 0
     }
     set0 <- which(pedigree_id[,1]==pedigree_id[,3])
     if(length(set0)>0){
-      pedigree[set0,3] <- "0"
+      pedigree[set0,3] <- 0
     }
   }
   return(pedigree)
@@ -283,30 +284,33 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
   }
 
 
-  if(founder.zero){
-    pedi1 <- get.pedigree(population, database = database)
+  if(!raw){
+    if(founder.zero){
+      pedi1 <- get.pedigree(population, database = database)
+    }
+
+    if(founder.zero){
+      set0 <- which(pedigree[,1]==pedigree[,2] | pedi1[,2]==pedigree[,2])
+      if(length(set0)>0){
+        pedigree[set0,2] <- 0
+      }
+      set0 <- which(pedigree[,1]==pedigree[,3]| pedi1[,2]==pedigree[,3])
+      if(length(set0)>0){
+        pedigree[set0,3] <- 0
+      }
+    }
+    if(founder.zero){
+      set0 <- which(pedigree[,1]==pedigree[,4] | pedi1[,3]==pedigree[,4])
+      if(length(set0)>0){
+        pedigree[set0,4] <- 0
+      }
+      set0 <- which(pedigree[,1]==pedigree[,5] | pedi1[,3]==pedigree[,5])
+      if(length(set0)>0){
+        pedigree[set0,5] <- 0
+      }
+    }
   }
 
-  if(founder.zero){
-    set0 <- which(pedigree[,1]==pedigree[,2] | pedi1[,2]==pedigree[,2])
-    if(length(set0)>0){
-      pedigree[set0,2] <- "0"
-    }
-    set0 <- which(pedigree[,1]==pedigree[,3]| pedi1[,2]==pedigree[,3])
-    if(length(set0)>0){
-      pedigree[set0,3] <- "0"
-    }
-  }
-  if(founder.zero){
-    set0 <- which(pedigree[,1]==pedigree[,4] | pedi1[,3]==pedigree[,4])
-    if(length(set0)>0){
-      pedigree[set0,4] <- "0"
-    }
-    set0 <- which(pedigree[,1]==pedigree[,5] | pedi1[,3]==pedigree[,5])
-    if(length(set0)>0){
-      pedigree[set0,5] <- "0"
-    }
-  }
   return(pedigree)
 }
 

@@ -220,6 +220,7 @@ breeding.diploid(
   mixblup.apy = FALSE,
   mixblup.apy.core = NULL,
   mixblup.skip = FALSE,
+  mixblup.multiple.records = FALSE,
   BGLR.model = "RKHS",
   BGLR.burnin = 500,
   BGLR.iteration = 5000,
@@ -687,6 +688,8 @@ breeding.diploid(
 \item{mixblup.apy.core}{Number of core individuals in the APY algorithm (default: 5000)}
 
 \item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
+
+\item{mixblup.multiple.records}{Set to TRUE to write multiple phenotypic records for an individual}
 
 \item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
 

@@ -216,15 +216,14 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
           }
         }
         if(!avoid.merging){
-          for(index2 in checks){
-            if(database[index,3] <= (database[index2,4]+1)){
-              database[index2,4] <- max(database[index2,4], database[index,4])
-              database[index,] <- 0
-            } else{
-              not_first = TRUE
-            }
 
+          checks = checks[database[index,3] <= (database[checks,4] + 1)]
+
+          if(length(checks)>0){
+            database[checks,4] <- max(database[checks,4], database[index,4])
+            database[index,] <- 0
           }
+          not_first = TRUE
         }
 
       }
