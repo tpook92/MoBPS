@@ -10,7 +10,8 @@ analyze.bv(
   database = NULL,
   cohorts = NULL,
   bvrow = "all",
-  advanced = FALSE
+  advanced = FALSE,
+  use.all.copy = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ analyze.bv(
 \item{bvrow}{Which traits to display}
 
 \item{advanced}{Set to TRUE to also look at offspring pheno}
+
+\item{use.all.copy}{Set to TRUE to extract phenotyping}
 }
 \value{
 [[1]] Correlation between BV/BVE/Phenotypes [[2]] Genetic variance of the traits

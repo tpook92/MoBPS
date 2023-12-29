@@ -48,3 +48,33 @@ get.ngen <- function(population){
 get.size <- function(population){
   return(population$info$size)
 }
+
+#' Number of traits
+#'
+#' Function to calculate the number of traits in the population list
+#' @param population Population list
+#' @return Numeric value
+#' @examples
+#' data(ex_pop)
+#' get.ngen(ex_pop)
+#' @export
+
+
+get.ntrait <- function(population){
+  return(length(population$info$trait.name))
+}
+
+#' Number of generations
+#'
+#' Function to export trait names in the population list
+#' @param population Population list
+#' @return Numeric value
+#' @examples
+#' data(ex_pop)
+#' get.ngen(ex_pop)
+#' @export
+
+
+get.trait.name <- function(population){
+  return((population$info$trait.name))
+}

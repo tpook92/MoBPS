@@ -21,7 +21,7 @@ set.age.point(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{new.class}{Class to change to (either single character or vector for each individual when just a single group is selected)}
+\item{time.point}{Input value for the age point (time of birth) of an individual (default: 0)}
 }
 \value{
 Population-List with newly entered class values

@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param adapt.pheno Modify previous phenotypes by scaling (default: FALSE)
 #' @param verbose Set to TRUE to display prints
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
+#' @param traits Use this parameter to only perform scaling of these traits (alternatively set values in mean/var.target to NA, default: all traits)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100, n.additive=100)
 #' population <- bv.standardization(population, mean.target=200, var.target=5)
@@ -40,10 +41,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 
-bv.standardization <- function(population, mean.target=100, var.target=10, gen=NULL, database=NULL, cohorts=NULL,
-                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE, set.zero = FALSE){
+bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NULL, database=NULL, cohorts=NULL,
+                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE, set.zero = FALSE,
+                               traits = NULL){
 
   n_traits <- population$info$bv.nr
+
+  if(length(traits)>0){
+    mean.target_temp = rep(NA, n_traits)
+    var.target_temp = rep(NA, n_traits)
+    mean.target_temp[traits] = mean.target
+    var.target_temp[traits] = var.target
+    mean.target = mean.target_temp
+    var.target = var.target_temp
+  }
 
   modi1 <- rep(1, n_traits)
   modi2 <- population$info$base.bv
@@ -106,6 +117,11 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
     }
   }
 
+
+  population$info$pool_effects_calc = FALSE
+  population$info$pool_list = NULL
+  population$info$bypool_list = NULL
+
   ## Mean Standardization
   for(index in 1:n_traits){
 
@@ -162,5 +178,7 @@ bv.standardization <- function(population, mean.target=100, var.target=10, gen=N
   if(length(population$info$e2)>0){
     population$info$e2 = NULL
   }
+
+
   return(population)
 }

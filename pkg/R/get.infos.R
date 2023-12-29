@@ -42,8 +42,8 @@ get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=F
   }
   database <- get.database(population, gen, database, cohorts)
 
-  pheno <- as.numeric(get.pheno(population, database=database, use.id=use.id)[-1])
-  bv <- as.numeric(get.bv(population, database=database, use.id=use.id)[-1])
+  pheno <- get.pheno(population, database=database, use.id=use.id)
+  bv <- get.bv(population, database=database, use.id=use.id)
 
   size <- database[,4]-database[,3]+1
   cindex <- 1

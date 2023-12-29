@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree AA
 #' @param storage.save AA
 #' @param verbose AA
+#' @param mixblup.reliability AA
 #' @return write.pedigree.mixblup
 #' @examples
 #' write.pedigree.mixblup
@@ -38,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
-                           storage.save = 1.5, verbose=TRUE){
+                           storage.save = 1.5, verbose=TRUE, mixblup.reliability = FALSE){
 
   if(verbose) cat(paste0("Start writting pedigree file at ", path,"\n"))
   database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
@@ -116,23 +117,18 @@ write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, co
   if(verbose) cat(paste0("Pedigree contains ", nrow(pedigree_table) + length(add), " animals with ", length(add), " animals without known parents\n"))
   if(verbose) cat(paste0("Start writting: ", path,"\n"))
 
-  if (requireNamespace("data.table", quietly = TRUE)) {
-    if(length(add)>0){
-      data.table::fwrite(file=path, cbind(add,0,0), col.names = FALSE)
-      data.table::fwrite(file=path, pedigree_table, col.names = FALSE, append = TRUE)
-    } else{
-      data.table::fwrite(file=path, pedigree_table, col.names = FALSE)
-    }
-  } else{
-    if(length(add)>0){
-      utils::write.table(file=path, cbind(add,0,0), col.names = FALSE, row.names = FALSE, quote = FALSE)
-      utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE, quote = FALSE, append = TRUE)
-    } else{
-      utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE, quote = FALSE)
-    }
+  if(length(add)>0){
+    pedigree_table = rbind(cbind(add,0,0), pedigree_table)
   }
 
+  if(mixblup.reliability){
+    pedigree_table = cbind(pedigree_table, 1)
+  }
 
-
+  if (requireNamespace("data.table", quietly = TRUE)) {
+    data.table::fwrite(file=path, pedigree_table, col.names = FALSE)
+  } else{
+    utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE, quote = FALSE)
+  }
 
 }

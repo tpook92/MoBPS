@@ -10,7 +10,9 @@ get.pool(
   database = NULL,
   cohorts = NULL,
   ids = NULL,
-  plot = FALSE
+  plot = FALSE,
+  import.position.calculation = NULL,
+  decodeOriginsU = decodeOriginsR
 )
 }
 \arguments{
@@ -25,6 +27,10 @@ get.pool(
 \item{ids}{AA}
 
 \item{plot}{Set TRUE to generate a visualization of genetic origins}
+
+\item{import.position.calculation}{Function to calculate recombination point into adjacent/following SNP}
+
+\item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 }
 \value{
 Genomic value of in gen/database/cohorts selected individuals

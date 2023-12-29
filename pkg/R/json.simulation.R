@@ -1141,10 +1141,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                           filter.values = geninfo$'Ensembl Filter Values')
           }
         } else{
-          stop("Use of Ensembl-Maps without MoBPSmaps R-package.
+          warning("Use of Ensembl-Maps without MoBPSmaps R-package.
         ## To Install:
         ## devtools::install_github('tpook92/MoBPS', subdir='pkg-maps')
         ## Or download from https://github.com/tpook92/MoBPS")
+          map <- cbind(rep(1:5, each=1000), paste0("SNP", 1:1000),  seq(0.005,0.995, length.out = 1000), round(seq(0.005,0.995, length.out = 1000) * 100000000), NA)
         }
 
 
@@ -1314,6 +1315,12 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         if(length(arrays)>0){
           for(index in 1:length(arrays)){
             array_info[index,] <- unlist(arrays[[index]])[1:2]
+          }
+
+          for(index in 1:length(nodes)){
+            if(length(nodes[[index]]$array_used) == 0){
+              nodes[[index]]$array_used = array_info[1,1]
+            }
           }
         } else{
           for(index in 1:length(nodes)){
@@ -1791,7 +1798,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                        miraculix = miraculix,
                                        miraculix.dataset = miraculix.dataset,
                                        chr.nr = map[,1], bp=map[,4], snp.name = map[,2],
-                                       freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {map[,3]})
+                                       freq = map[,5], snp.position = if(is.na(map[1,3])) {NULL} else {as.numeric(map[,3])})
 
         if(nrow(array_info)>1){
 
@@ -1849,10 +1856,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
 
         founder_pop <- founder_pop[founder_temp2]
 
-        population$info$cohorts <- cohort_info
+        population$info$cohorts <- cbind(cohort_info, NA, NA)
 
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
-                                               "time point", "creating.type")
+                                               "time point", "creating.type", "lowest ID", "highest ID")
 
 
         if(n_traits>0){
@@ -2635,7 +2642,6 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         generation_group <- list()
         generation_bv_size <- list()
         for(index in 1:length(generation_times)){
-          print(index)
           nrs <- setdiff(which(time.point.list==generation_times[[index]]), founder)
           btype <- numeric(length(nrs))
           if(length(nrs)>0){

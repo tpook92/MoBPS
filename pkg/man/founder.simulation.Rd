@@ -47,7 +47,11 @@ founder.simulation(
   xlim = NULL,
   ylim = NULL,
   nclass = 20,
-  ylim.af = NULL
+  ylim.af = NULL,
+  mutation.rate = 10^-8,
+  remutation.rate = 10^-8,
+  estimate.ne = TRUE,
+  estimate.ld = TRUE
 )
 }
 \arguments{
@@ -136,6 +140,14 @@ founder.simulation(
 \item{nclass}{Number of classes to consider in the allele frequency spectrum plot (default: 20)}
 
 \item{ylim.af}{Axis limits for the allele frequency spectrum plot (default: NULL)}
+
+\item{mutation.rate}{Mutation rate in each marker (default: 10^-8)}
+
+\item{remutation.rate}{Remutation rate in each marker (default: 10^-8)}
+
+\item{estimate.ne}{Set to FALSE to not estimate the effective population size (default: TRUE)}
+
+\item{estimate.ld}{Set to FALSE to not estimate the ld decay (default: TRUE)}
 }
 \description{
 Function to generate founder genotypes

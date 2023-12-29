@@ -31,6 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param elements Vector of individuals from the database to include in pedigree matrix
 #' @param mult Multiplicator of kinship matrix (default: 1; set to 2 for a pedigree relationship matrix)
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @param elements.copy Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
@@ -44,7 +45,8 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
                                elements = NULL,
                                mult = 1,
                                storage.save=1.5,
-                               verbose=TRUE){
+                               verbose=TRUE,
+                        elements.copy = FALSE){
 
   t1 <- as.numeric(Sys.time())
   int_mult <- as.integer(2^29)
@@ -90,7 +92,13 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
     elements <- elements_new
 
   } else{
-    elements <- 1:sum(database[,4]-database[,3]+1)
+
+    if(elements.copy){
+      elements = which(!duplicated(get.id(population, database = database)))
+    } else{
+      elements <- 1:sum(database[,4]-database[,3]+1)
+    }
+
   }
   if(depth.pedigree==Inf){
     pedigree.database <- get.database(population, gen=1:max(database[,1]))

@@ -11,7 +11,8 @@ get.pedigree(
   cohorts = NULL,
   founder.zero = TRUE,
   raw = FALSE,
-  id = FALSE
+  id = FALSE,
+  use.first.copy = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.pedigree(
 \item{raw}{Set to TRUE to not convert numbers into Sex etc.}
 
 \item{id}{Set to TRUE to extract individual IDs}
+
+\item{use.first.copy}{Set to TRUE to use database-position of the first copy of an individual (default: FALSE)}
 }
 \value{
 Pedigree-file for in gen/database/cohorts selected individuals

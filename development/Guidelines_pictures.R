@@ -241,6 +241,10 @@ population <- insert.bve(population, bves)
 population <- json.simulation(total = ex_json)
 analyze.population(population,5,2, gen=1:8)
 
+population <- json.simulation(total = ex_json)
+analyze.bv(population, cohorts="New_bulls_4")
+analyze.bv(population, cohorts="New_cows_4")
+
 data("ex_pop")
 get.pca(ex_pop, gen=1:2)
 

@@ -22,6 +22,8 @@ get.nindi(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{extended}{Set to TRUE to export information on number of phenotyped, genotyped, and both pheno&genotyped individuals}
+
 \item{count.copy}{Set to TRUE to double count individuals if multiple copies of an individual are included in gen/database/cohorts}
 }
 \value{
@@ -32,5 +34,5 @@ Function to calculate the number of generations in the population list
 }
 \examples{
 data(ex_pop)
-get.nindi(ex_pop)
+get.nindi(ex_pop, gen = 1)
 }

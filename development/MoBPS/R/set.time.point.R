@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param new.class Class to change to (either single character or vector for each individual when just a single group is selected)
+#' @param time.point Input value for the time point (time the cohort of the individual was generated) (default: 0)
 #' @examples
 #' data(ex_pop)
 #' population <- set.time.point(ex_pop, database=cbind(1,1), time.point = 2)

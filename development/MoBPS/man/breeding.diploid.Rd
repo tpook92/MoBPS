@@ -82,6 +82,9 @@ breeding.diploid(
   max.mating.pair = Inf,
   avoid.mating.fullsib = FALSE,
   avoid.mating.halfsib = FALSE,
+  avoid.mating.inb = NULL,
+  avoid.mating.inb.quantile = NULL,
+  avoid.mating.depth.pedigree = 7,
   fixed.breeding = NULL,
   fixed.breeding.best = NULL,
   fixed.breeding.id = NULL,
@@ -197,6 +200,7 @@ breeding.diploid(
   pseudo.bve = FALSE,
   pseudo.bve.accuracy = 1,
   bve.solve = "exact",
+  mixblup.jeremie = FALSE,
   mixblup.hpblup = FALSE,
   mixblup.pedfile = TRUE,
   mixblup.parfile = TRUE,
@@ -217,8 +221,13 @@ breeding.diploid(
   mixblup.alpha = NULL,
   mixblup.beta = NULL,
   mixblup.omega = NULL,
+  mixblup.maxit = 5000,
+  mixblup.stopcrit = NULL,
+  mixblup.maf = 0.005,
+  mixblup.numproc = NULL,
   mixblup.apy = FALSE,
   mixblup.apy.core = NULL,
+  mixblup.ta = FALSE,
   mixblup.skip = FALSE,
   mixblup.multiple.records = FALSE,
   BGLR.model = "RKHS",
@@ -246,9 +255,11 @@ breeding.diploid(
   gene.editing.offspring.sex = c(TRUE, TRUE),
   gene.editing.best.sex = c(TRUE, TRUE),
   nr.edits = 0,
+  culling.non.selected = FALSE,
   culling.gen = NULL,
   culling.database = NULL,
   culling.cohorts = NULL,
+  culling.type = 0,
   culling.time = Inf,
   culling.name = "Not_named",
   culling.bv1 = 0,
@@ -333,7 +344,8 @@ breeding.diploid(
   multiple.bve.scale.f = NULL,
   use.recalculate.manual = FALSE,
   size.scaling = NULL,
-  parallel.internal = FALSE
+  parallel.internal = FALSE,
+  varg = FALSE
 )
 }
 \arguments{
@@ -447,6 +459,14 @@ breeding.diploid(
 
 \item{max.offspring}{Maximum number of offspring per individual (default: c(Inf,Inf) - (m,w))}
 
+\item{max.offspring.individual.m, max.offspring.individual.f}{Vector with maximum number of offspring for first/second parent (default: NULL). Order in the vector by order of selection}
+
+\item{max.offspring.individual.gen}{matrix with first column generation with limited number offspring, second column number of allowed offspring}
+
+\item{max.offspring.individual.database}{matrix with first four columns database with limited number offspring, fifth column number of allowed offspring}
+
+\item{max.offspring.individual.cohorts}{matrix with first column cohort with limited number offspring, second column number of allowed offspring}
+
 \item{max.litter}{Maximum number of litters per individual (default: c(Inf,Inf) - (m,w))}
 
 \item{max.mating.pair}{Maximum number of matings between two specific individuals (default: Inf)}
@@ -454,6 +474,12 @@ breeding.diploid(
 \item{avoid.mating.fullsib}{Set to TRUE to not generate offspring of full siblings}
 
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
+
+\item{avoid.mating.inb}{Maximum allowed expected inbreeding to allow a mating combination (based on kinships)}
+
+\item{avoid.mating.inb.quantile}{Use this to not perform mating between more related potential parents (quantile of all expected inbreeding levels)}
+
+\item{avoid.mating.depth.pedigree}{Depth of the pedigree to calculate expected inbreeding levels / kinships}
 
 \item{fixed.breeding}{Set of targeted matings to perform (matrix with 7 columns: database position first parent (gen, sex, nr), database position second parent (gen,sex,nr), likelihood to be female (optional))}
 
@@ -643,6 +669,8 @@ breeding.diploid(
 
 \item{bve.solve}{Provide solver to be used in BVE (default: "exact" solution via inversion, alt: "pcg", function with inputs A, b and output y_hat)}
 
+\item{mixblup.jeremie}{Set to TRUE to use Jeremies suggested MiXBLUP settings}
+
 \item{mixblup.hpblup}{Set to TRUE to use hpblup in MiXBLUP (default: FALSE)}
 
 \item{mixblup.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
@@ -677,15 +705,25 @@ breeding.diploid(
 
 \item{mixblup.lambda}{Lambda parameter in MiXBLUP (default: 1)}
 
-\item{mixblup.alpha}{Alpha parameter in MiXBLUP (default: 1, with alpha + beta = 1)}
+\item{mixblup.alpha}{Alpha parameter in MiXBLUP (default: 0.95, with alpha + beta = 1  , warning: MiXBLUP software this is 1)}
 
-\item{mixblup.beta}{Beta parameter in MiXBLUP (default: 0, with alpha + beta = 1)}
+\item{mixblup.beta}{Beta parameter in MiXBLUP (default: 0.05, with alpha + beta = 1 , warning: MiXBLUP software this is 0)}
 
 \item{mixblup.omega}{Omega parameter in MiXBLUP (default: mixblup.lambda)}
+
+\item{mixblup.maxit}{!Maxit qualifier in MiXBLUP (default: 5.000)}
+
+\item{mixblup.stopcrit}{!STOPCRIT qualifier in MiXBLUP (default: not used, suggested value 1.E-4 for ssGBLUP) // will overwrite maxit}
+
+\item{mixblup.maf}{!MAF qualifier in MiXBLUP (default: 0.005)}
+
+\item{mixblup.numproc}{Numproc parameter in MiXBLUP (default: not set // 1)}
 
 \item{mixblup.apy}{Set to TRUE to use APY inverse in MiXBLUP (default: FALSE)}
 
 \item{mixblup.apy.core}{Number of core individuals in the APY algorithm (default: 5000)}
+
+\item{mixblup.ta}{Set to TRUE to use the !Ta flag in MixBLUP}
 
 \item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
 
@@ -737,9 +775,13 @@ breeding.diploid(
 
 \item{nr.edits}{Number of edits to perform per individual}
 
+\item{culling.non.selected}{Set TRUE to cull all non-selected individuals (default: FALSE)}
+
 \item{culling.gen, culling.cohorts, culling.database}{Generations/cohorst/groups to consider to culling}
 
-\item{culling.time}{Age of the individuals at culling}
+\item{culling.type}{Default: 0, can be set to code different type of culling reasons (e.g. 0 - aging, 1 - selection, 2 - health)}
+
+\item{culling.time}{Age of the individuals at culling // use time.point if the age of individuals is variable and culling is executed on individuals of different ages culled at the same time}
 
 \item{culling.name}{Name of the culling action (user-interface stuff)}
 
@@ -884,6 +926,8 @@ breeding.diploid(
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
 
 \item{parallel.internal}{Internal parameter for the parallelization}
+
+\item{varg}{Experimental parameter for Tobias Niehoff (dont touch!)}
 }
 \value{
 Population-list

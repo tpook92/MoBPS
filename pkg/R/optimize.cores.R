@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param plot Set to FALSE to not generate a plot of computing times per core
 #' @examples
-#' population = optimize.cores(max.cores=2, test.size=1000)
+#' population = optimize.cores(max.cores=2, test.size=500)
 #' @return Population-list with one or more additional new traits
 #' @export
 

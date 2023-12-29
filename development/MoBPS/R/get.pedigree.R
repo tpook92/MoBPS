@@ -29,6 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @param raw Set to TRUE to not convert numbers into Sex etc.
 #' @param id Set to TRUE to extract individual IDs
+#' @param use.first.copy Set to TRUE to use database-position of the first copy of an individual (default: FALSE)
 #' @examples
 #' data(ex_pop)
 #' get.pedigree(ex_pop, gen=2)

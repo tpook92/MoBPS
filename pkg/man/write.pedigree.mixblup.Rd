@@ -13,7 +13,8 @@ write.pedigree.mixblup(
   id = NULL,
   depth.pedigree = 7,
   storage.save = 1.5,
-  verbose = TRUE
+  verbose = TRUE,
+  mixblup.reliability = FALSE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ write.pedigree.mixblup(
 \item{storage.save}{AA}
 
 \item{verbose}{AA}
+
+\item{mixblup.reliability}{AA}
 }
 \value{
 write.pedigree.mixblup

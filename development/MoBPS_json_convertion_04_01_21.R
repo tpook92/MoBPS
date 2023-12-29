@@ -33,6 +33,7 @@ export.population = FALSE
 import.population = FALSE
 export.gen = NULL
 export.timepoint = NULL
+generation.cores = 1
 
 fixed.generation.order <- NULL
   {

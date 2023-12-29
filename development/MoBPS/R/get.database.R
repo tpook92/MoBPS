@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE)
 #' @param id.last Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)
 #' @param class Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)
+#' @param per.individual Set TRUE to obtain a database with one row per individual instead of concatenating (default: FALSE)
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)

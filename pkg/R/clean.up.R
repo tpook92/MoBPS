@@ -35,10 +35,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 clean.up <- function(population, gen="all", database=NULL, cohorts=NULL){
   #remove.no.snp.segments nur auf die Schnelle und super ineffizient!
   generations <- gen
-  if(gen=="current"){
+  if(length(gen)==1 && gen=="current"){
     generations <- length(population$breeding)
   }
-  if(gen=="all"){
+  if(length(gen)==1 &&  gen=="all"){
     generations <- 1:length(population$breeding)
   }
 

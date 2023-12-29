@@ -35,6 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
+#' @param gamma.shape1 Default: 1
+#' @param gamma.shape2 Default: 1
 #' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
@@ -95,6 +98,9 @@ creating.trait <- function(population,
                            n.equal.dominant=0,
                            n.qualitative=0,
                            n.quantitative=0,
+                           effect.distribution = "gauss",
+                           gamma.shape1 = 1,
+                           gamma.shape2 = 1,
                            real.bv.add=NULL,
                            real.bv.mult=NULL,
                            real.bv.dice=NULL,
@@ -670,10 +676,14 @@ creating.trait <- function(population,
           add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
           add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
         }
-        add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
+        if(effect.distribution == "gauss"){
+          add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
+        } else{
+          add_effect <- stats::rgamma(n.additive[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.additive[index_trait], replace = TRUE)
+        }
+
         real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait], FALSE)
       }
-
 
       if(n.equal.additive[index_trait]>0){
         add_snp1 <- add_chromo1 <- numeric(n.equal.additive[index_trait])
@@ -693,7 +703,11 @@ creating.trait <- function(population,
           dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
         }
 
-        dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
+        if(effect.distribution == "gauss"){
+          dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
+        } else{
+          dom_effect <- stats::rgamma(n.dominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.dominant[index_trait], replace = TRUE)
+        }
 
         if(dominant.only.positive[index_trait]){
           temp1 <- dom_effect
@@ -725,8 +739,16 @@ creating.trait <- function(population,
 
         effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
         for(index in 1:n.quantitative[index_trait]){
-          d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
-          d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+
+
+          if(effect.distribution == "gauss"){
+            d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+            d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+          } else{
+            d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+            d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+          }
+
           effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
         }
         real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
@@ -744,7 +766,12 @@ creating.trait <- function(population,
         effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
         for(index in 1:n.qualitative[index_trait]){
 
-          d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
+          if(effect.distribution == "gauss"){
+            d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
+          } else{
+            d1 <- - stats::rgamma(9, gamma.shape1, gamma.shape2)
+          }
+
           d1[c(3,7)] <- -d1[c(3,7)]
           effect_matrix[index,] <- d1
         }

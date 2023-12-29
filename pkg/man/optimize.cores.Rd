@@ -30,5 +30,5 @@ Population-list with one or more additional new traits
 Function to optimize the number of cores used in the generation of new individuals
 }
 \examples{
-population = optimize.cores(max.cores=2, test.size=1000)
+population = optimize.cores(max.cores=2, test.size=500)
 }

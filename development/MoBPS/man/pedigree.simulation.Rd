@@ -75,7 +75,8 @@ pedigree.simulation(
   progress.bar = TRUE,
   is.maternal = NULL,
   is.paternal = NULL,
-  vcf.maxsnp = Inf
+  vcf.maxsnp = Inf,
+  halffounder = TRUE
 )
 }
 \arguments{
@@ -213,11 +214,15 @@ pedigree.simulation(
 
 \item{var.target}{Target variance}
 
+\item{progress.bar}{Set to FALSE to not use progress bars in the simulation (Keep log-files lean!)}
+
 \item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
 
 \item{is.paternal}{Vector coding if a trait is caused by a paternal effect (Default: all FALSE)}
 
 \item{vcf.maxsnp}{Maximum number of SNPs to include in the genotype file (default: Inf)}
+
+\item{halffounder}{Set to FALSE to make individuals with only one known parent founders (default: TRUE; will additional generate a missing unrelated parent)}
 
 \item{add.chromosome}{If TRUE add an additional chromosome to the dataset}
 }

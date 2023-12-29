@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mean Vector with the target mean for the different pools
 #' @param pool Vector with pools considered (default: 1:length(mean))
 #' @param reference Target mean is compared again the reference (default: "pool" - average genomic value in the respective pool, alt: "all")
+#' @param max.effects Maximum number of locations in the genome that will be assigned an effect for pool-based correction
 #' @examples
 #' data(ex_pop)
 #' get.pool.founder(ex_pop, gen=2)
@@ -38,7 +39,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
                          gen = NULL, database = NULL, cohorts = NULL,
-                         reference = "pool"){
+                         reference = "pool",
+                         max.effects = Inf){
 
   if(length(trait)== 0){
     trait = 1
@@ -83,6 +85,13 @@ set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
     }
   }
 
+  if(max.effects < length(chr.nr)){
+    keep1 = sort(sample(length(snp.nr), max.effects))
+
+    snp.nr = snp.nr[keep1]
+    chr.nr = chr.nr[keep1]
+    nsnp = max.effects
+  }
   add_real.bv.add = NULL
   for(index in 1:length(pool)){
     add_real.bv.add = rbind(add_real.bv.add, cbind(snp.nr, chr.nr, 0, to_change[index]/2/ nsnp, to_change[index]/nsnp, pos, pool[index] , TRUE))
@@ -90,10 +99,25 @@ set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
 
   population$info$real.bv.add[[trait]] = rbind(population$info$real.bv.add[[trait]], add_real.bv.add)
 
-  population$info$bv.calculated = FALSE
-  population$info$bv.calculated.partly = population$info$bv.calculated.partly[population$info$bv.calculated.partly!=trait]
-  population$info$pool_effects = TRUE
-  population = breeding.diploid(population)
+  if(population$info$bv.calculated){
+
+    for(index5 in 1:nrow(database)){
+      temp1 = get.pool.founder(population, database = database[index5,])
+
+      for(indexp in 1:length(pool)){
+        population$breeding[[database[index5,1]]][[database[index5,2]+6]][trait,temp1==pool[indexp]] = population$breeding[[database[index5,1]]][[database[index5,2]+6]][trait,temp1==pool[indexp]] + to_change[indexp]
+      }
+    }
+    population$info$pool_effects = TRUE
+    population$info$pool_effects_calc = FALSE
+  } else{
+    population$info$bv.calculated = FALSE
+    population$info$bv.calculated.partly = population$info$bv.calculated.partly[population$info$bv.calculated.partly!=trait]
+    population$info$pool_effects = TRUE
+    population$info$pool_effects_calc = FALSE
+    population = breeding.diploid(population)
+  }
+
 
   return(population)
 }

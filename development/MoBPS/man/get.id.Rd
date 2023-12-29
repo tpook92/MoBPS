@@ -4,7 +4,14 @@
 \alias{get.id}
 \title{Derive ID on an individual}
 \usage{
-get.id(population, database = NULL, gen = NULL, cohorts = NULL, use.id = FALSE)
+get.id(
+  population,
+  database = NULL,
+  gen = NULL,
+  cohorts = NULL,
+  use.id = FALSE,
+  keep.order = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -16,6 +23,8 @@ get.id(population, database = NULL, gen = NULL, cohorts = NULL, use.id = FALSE)
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+
+\item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
 }
 \value{
 Individual ID for in gen/database/cohorts selected individuals

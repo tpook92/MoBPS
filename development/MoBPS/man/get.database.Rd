@@ -30,6 +30,8 @@ get.database(
 
 \item{avoid.merging}{Set to TRUE to avoid different cohorts to be merged in a joint group when possible}
 
+\item{per.individual}{Set TRUE to obtain a database with one row per individual instead of concatenating (default: FALSE)}
+
 \item{id}{Individual IDs to search/collect in the database}
 
 \item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}

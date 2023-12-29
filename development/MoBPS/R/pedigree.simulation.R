@@ -25,6 +25,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param pedigree Pedigree-file (matrix with 3 columns (Individual ID, Father ID, Mother ID), optional forth columns with earliest generations to generate an individual)
 #' @param keep.ids Set to TRUE to keep the IDs from the pedigree-file instead of the default MoBPS ids
 #' @param plot Set to FALSE to not generate an overview of inbreeding and number of individuals over time
+#' @param halffounder Set to FALSE to make individuals with only one known parent founders (default: TRUE; will additional generate a missing unrelated parent)
+#' @param progress.bar Set to FALSE to not use progress bars in the simulation (Keep log-files lean!)
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
 #' @param freq frequency of allele 1 when randomly generating a dataset
@@ -175,13 +177,21 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   ## adding individuals missing from the pedigree
   adds = setdiff(pedigree[,2], pedigree[,1])
   adds = adds[adds != 0]
-  pedigree = rbind(cbind(adds, 0,0,0,1), pedigree)
 
-  if(verbose) cat(paste0(length(adds), " male founders added that were sire of pedigree-animals.\n"))
+  if(length(adds) > 0){
+    pedigree = rbind(cbind(adds, 0,0,0,1), pedigree)
+    if(verbose) cat(paste0(length(adds), " male founders added that were sire of pedigree-animals.\n"))
+
+  }
+
+
   adds = setdiff(pedigree[,3], pedigree[,1])
   adds = adds[adds != 0]
-  pedigree = rbind(cbind(adds, 0,0,0,2), pedigree)
-  if(verbose) cat(paste0(length(adds), " female founders added that were dams of pedigree-animals.\n"))
+  if(length(adds)>0){
+    pedigree = rbind(cbind(adds, 0,0,0,2), pedigree)
+    if(verbose) cat(paste0(length(adds), " female founders added that were dams of pedigree-animals.\n"))
+  }
+
 
   copies <- duplicated(pedigree[,1])
   if(sum(copies)>0){
@@ -199,18 +209,23 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
     is_founder = (is_in1 & is_in2)
     is_halffounder = xor(is_in1 ,is_in2)
 
-    add_animal = max(as.numeric(pedigree), na.rm = TRUE) + 1:sum(is_halffounder)
-    pedigree[is_halffounder,2:3][pedigree[is_halffounder,2:3]==0] = add_animal
-    pedigree = rbind(cbind(add_animal,0,0,0,1), pedigree)
+    if(sum(is_halffounder)>0){
 
-    if(verbose) cat(paste0(length(add_animal), " individuals add for simulation of half-founders.\n"))
-    n <- nrow(pedigree)
-    is_founder <- rep(FALSE, n)
+      add_animal = max(as.numeric(pedigree), na.rm = TRUE) + 1:sum(is_halffounder)
+      pedigree[is_halffounder,2:3][pedigree[is_halffounder,2:3]==0] = add_animal
+      pedigree = rbind(cbind(add_animal,0,0,0,1), pedigree)
 
-    is_in1 = !(pedigree[,2] %in% pedigree[,1])
-    is_in2 = !(pedigree[,3] %in% pedigree[,1])
+      if(verbose) cat(paste0(length(add_animal), " individuals add for simulation of half-founders.\n"))
+      n <- nrow(pedigree)
+      is_founder <- rep(FALSE, n)
 
-    is_founder = (is_in1 | is_in2)
+      is_in1 = !(pedigree[,2] %in% pedigree[,1])
+      is_in2 = !(pedigree[,3] %in% pedigree[,1])
+
+      is_founder = (is_in1 | is_in2)
+
+    }
+
   }
 
   avail <- which(is_founder)

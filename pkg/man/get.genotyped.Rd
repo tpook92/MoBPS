@@ -9,7 +9,8 @@ get.genotyped(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = FALSE,
+  use.all.copy = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ get.genotyped(
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+
+\item{use.all.copy}{Set to TRUE to extract phenotyping}
 }
 \value{
 Check if in gen/database/cohorts selected individuals are genotyped

@@ -73,6 +73,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
+#' @param gamma.shape1 Default: 1
+#' @param gamma.shape2 Default: 1
 #' @param real.bv.add Single Marker effects (list for each trait with columns for: SNP Nr, Chr Nr, Effect 00, Effect 01, Effect 11, Position (optional), Founder pool genotype (optional), Founder pool origin (optional))
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
@@ -195,6 +198,9 @@ creating.diploid <- function(population=NULL,
                              n.equal.dominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
+                             effect.distribution = "gauss",
+                             gamma.shape1 = 1,
+                             gamma.shape2 = 1,
                              real.bv.add=NULL,
                              real.bv.mult=NULL,
                              real.bv.dice=NULL,
@@ -845,7 +851,7 @@ creating.diploid <- function(population=NULL,
           }
         }
         if(exitVariantAnnotation != 0 && requireNamespace("vcfR", quietly = TRUE)){
-          vcf_file <- vcfR::read.vcfR(vcf)
+          vcf_file <- vcfR::read.vcfR(vcf, verbose = verbose)
           vcf_data <- vcf_file@gt[,-1]
           if(vcf.maxindi<ncol(vcf_data)){
             keep <- sort(sample(1:ncol(vcf_data), vcf.maxindi))
@@ -1416,7 +1422,12 @@ creating.diploid <- function(population=NULL,
               add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
               add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
             }
-            add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
+            if(effect.distribution == "gauss"){
+              add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
+            } else{
+              add_effect <- stats::rgamma(n.additive[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.additive[index_trait], replace = TRUE)
+            }
+
             real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait], FALSE)
           }
 
@@ -1437,7 +1448,12 @@ creating.diploid <- function(population=NULL,
               dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
               dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
             }
-            dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
+
+            if(effect.distribution == "gauss"){
+              dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
+            } else{
+              dom_effect <- stats::rgamma(n.dominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.dominant[index_trait], replace = TRUE)
+            }
 
             if(dominant.only.positive[index_trait]){
               temp1 <- dom_effect
@@ -1469,8 +1485,16 @@ creating.diploid <- function(population=NULL,
 
             effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
             for(index in 1:n.quantitative[index_trait]){
-              d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
-              d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+
+
+              if(effect.distribution == "gauss"){
+                d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+                d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+              } else{
+                d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+                d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+              }
+
               effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
             }
             real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
@@ -1488,7 +1512,12 @@ creating.diploid <- function(population=NULL,
             effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
             for(index in 1:n.qualitative[index_trait]){
 
-              d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
+              if(effect.distribution == "gauss"){
+                d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
+              } else{
+                d1 <- - stats::rgamma(9, gamma.shape1, gamma.shape2)
+              }
+
               d1[c(3,7)] <- -d1[c(3,7)]
               effect_matrix[index,] <- d1
             }
@@ -1881,6 +1910,7 @@ creating.diploid <- function(population=NULL,
         population$info$pen.size <- cbind(1,1)
         population$info$litter.effect.active <- FALSE
         population$info$pen.effect.active <- FALSE
+        population$info$max.time.point = time.point
 
         if(length(litter.effect.covariance)>0 && sum( abs(litter.effect.covariance))>0){
           population$info$litter.effect.active <- TRUE
@@ -1967,6 +1997,7 @@ creating.diploid <- function(population=NULL,
         population$info$snp.name <- c(population$info$snp.name, snp.name)
 
         population$info$chromosome.name <- c(population$info$chromosome.name, chr.opt)
+
 
 
 
@@ -2170,6 +2201,17 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[37]] <- rep(founder.pool, counter[1]-1)
           population$breeding[[generation]][[38]] <- rep(founder.pool, counter[2]-1)
 
+          population$breeding[[generation]][[39]] <- rep(NA, counter[1]-1) ## time point of death
+          population$breeding[[generation]][[40]] <- rep(NA, counter[2]-1)
+
+          population$breeding[[generation]][[41]] <- rep(NA, counter[1]-1) ## culling type
+          population$breeding[[generation]][[42]] <- rep(NA, counter[2]-1)
+
+          population$breeding[[generation]][[43]] <- rep(NA, counter[1]-1) ## time point of first pheno
+          population$breeding[[generation]][[44]] <- rep(NA, counter[2]-1)
+
+          population$breeding[[generation]][[45]] <- rep(NA, counter[1]-1) ## time point of genotyping
+          population$breeding[[generation]][[46]] <- rep(NA, counter[2]-1)
 
           # calculate Real-ZW
         } else{
@@ -2216,6 +2258,18 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[37]] <- c(population$breeding[[generation]][[37]], rep(founder.pool, counter[1]-counter.start[1]))
           population$breeding[[generation]][[38]] <- c(population$breeding[[generation]][[38]], rep(founder.pool, counter[2]-counter.start[2]))
 
+
+          population$breeding[[generation]][[39]] <- c(population$breeding[[generation]][[39]], rep(NA, counter[1]-counter.start[1])) ## time point of death
+          population$breeding[[generation]][[40]] <- c(population$breeding[[generation]][[40]], rep(NA, counter[1]-counter.start[1]))
+
+          population$breeding[[generation]][[41]] <- c(population$breeding[[generation]][[41]], rep(NA, counter[1]-counter.start[1])) ## culling type
+          population$breeding[[generation]][[42]] <- c(population$breeding[[generation]][[42]], rep(NA, counter[1]-counter.start[1]))
+
+          population$breeding[[generation]][[43]] <- c(population$breeding[[generation]][[43]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
+          population$breeding[[generation]][[44]] <- c(population$breeding[[generation]][[44]], rep(NA, counter[1]-counter.start[1]))
+
+          population$breeding[[generation]][[45]] <- c(population$breeding[[generation]][[45]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
+          population$breeding[[generation]][[46]] <- c(population$breeding[[generation]][[46]], rep(NA, counter[1]-counter.start[1]))
 
           population$info$founder_pools = unique(c(population$info$founder_pools, founder.pool))
           population$info$founder_multi = if(length(population$info$founder_pools)>1){TRUE} else{FALSE}
@@ -2985,6 +3039,8 @@ E.g. The entire human genome has a size of ~33 Morgan."))
     }
 
   }
+
+  population$info$max.time.point = max(population$info$max.time.point, time.point)
 
   if(one.sex.mode){
     population$info$one.sex.mode <- TRUE

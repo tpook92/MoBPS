@@ -52,6 +52,9 @@ creating.diploid(
   n.equal.dominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
+  effect.distribution = "gauss",
+  gamma.shape1 = 1,
+  gamma.shape2 = 1,
   real.bv.add = NULL,
   real.bv.mult = NULL,
   real.bv.dice = NULL,
@@ -208,6 +211,12 @@ creating.diploid(
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
 \item{n.quantitative}{Number of quantitative epistatic QTL}
+
+\item{effect.distribution}{Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")}
+
+\item{gamma.shape1}{Default: 1}
+
+\item{gamma.shape2}{Default: 1}
 
 \item{real.bv.add}{Single Marker effects (list for each trait with columns for: SNP Nr, Chr Nr, Effect 00, Effect 01, Effect 11, Position (optional), Founder pool genotype (optional), Founder pool origin (optional))}
 

@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Estimated breeding value of in gen/database/cohorts selected individuals
 #' @export
 
-get.bve <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
+get.bve <- get.ebv <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
 
   database <- get.database(population, gen, database, cohorts)
 

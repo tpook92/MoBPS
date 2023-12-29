@@ -27,13 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
+#' @param keep.order To not change order of individuals when ids are provided (default: FALSE)
 #' @examples
 #' data(ex_pop)
 #' get.id(ex_pop, gen=2)
 #' @return Individual ID for in gen/database/cohorts selected individuals
 #' @export
 
-get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
+get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE, keep.order = FALSE){
 
   database <- get.database(population, gen, database, cohorts, keep.order = keep.order)
 

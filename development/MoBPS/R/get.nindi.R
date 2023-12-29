@@ -27,10 +27,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param count.copy Set to TRUE to double count individuals if multiple copies of an individual are included in gen/database/cohorts
+#' @param extended Set to TRUE to export information on number of phenotyped, genotyped, and both pheno&genotyped individuals
 #' @return Numeric value
 #' @examples
 #' data(ex_pop)
-#' get.nindi(ex_pop)
+#' get.nindi(ex_pop, gen = 1)
 #' @export
 
 

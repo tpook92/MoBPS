@@ -27,30 +27,58 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.all.copy Set to TRUE to extract phenotyping
 #' @examples
 #' data(ex_pop)
 #' get.genotyped(ex_pop, gen=2)
 #' @return Check if in gen/database/cohorts selected individuals are genotyped
 #' @export
 
-get.genotyped <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
+get.genotyped <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE,
+                          use.all.copy = FALSE){
 
   database <- get.database(population, gen, database, cohorts)
   n.animals <- sum(database[,4] - database[,3] +1)
   genotyped <- colnamed <- numeric(n.animals)
   rindex <- 1
 
-  for(row in 1:nrow(database)){
-    animals <- database[row,]
-    if(diff(database[row,3:4])>(-1)){
-      for(index in database[row,3]:database[row,4]){
-        genotyped[rindex] <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[16]]
-        colnamed[rindex] <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")
-        rindex <- rindex + 1
+  if(use.all.copy){
+
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      colnamed[rindex] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1],sep="")
+      if(diff(database[row,3:4])>(-1)){
+        for(index in database[row,3]:database[row,4]){
+          copies <- population$breeding[[animals[1]]][[animals[2]]][[index]][[21]]
+          for(rows in 1:nrow(copies)){
+            if(population$breeding[[copies[rows,1]]][[copies[rows,2]]][[copies[rows,3]]][[16]]==1){
+              genotyped[rindex] <- 1
+            }
+          }
+          rindex <- rindex + 1
+        }
       }
+
     }
 
+
+
+  } else{
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      if(diff(database[row,3:4])>(-1)){
+        for(index in database[row,3]:database[row,4]){
+          genotyped[rindex] <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[16]]
+          colnamed[rindex] <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")
+          rindex <- rindex + 1
+        }
+      }
+
+    }
   }
+
+
+
   if(use.id){
     names(genotyped) <- get.id(population, database = database)
   } else{

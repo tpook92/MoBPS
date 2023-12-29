@@ -10,9 +10,13 @@ get.database(
   database = NULL,
   cohorts = NULL,
   avoid.merging = FALSE,
+  per.individual = FALSE,
   id = NULL,
   id.all.copy = FALSE,
-  id.last = FALSE
+  id.last = FALSE,
+  keep.order = FALSE,
+  class = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -26,11 +30,19 @@ get.database(
 
 \item{avoid.merging}{Set to TRUE to avoid different cohorts to be merged in a joint group when possible}
 
+\item{per.individual}{Set TRUE to obtain a database with one row per individual instead of concatenating (default: FALSE)}
+
 \item{id}{Individual IDs to search/collect in the database}
 
 \item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
 
 \item{id.last}{Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)}
+
+\item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
+
+\item{class}{Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \value{
 Combine gen/database/cohorts to a joined database

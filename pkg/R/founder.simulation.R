@@ -65,6 +65,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param ylim Axis limits for the y-axis in the LD plot (default: NULL)
 #' @param ylim.af Axis limits for the allele frequency spectrum plot (default: NULL)
 #' @param nclass Number of classes to consider in the allele frequency spectrum plot (default: 20)
+#' @param mutation.rate Mutation rate in each marker (default: 10^-8)
+#' @param remutation.rate Remutation rate in each marker (default: 10^-8)
+#' @param estimate.ne Set to FALSE to not estimate the effective population size (default: TRUE)
+#' @param estimate.ld Set to FALSE to not estimate the ld decay (default: TRUE)
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' population <- founder.simulation(nindi=100, nsnp=1000, n.gen=5)
@@ -95,7 +99,11 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                xlim = NULL,
                                ylim = NULL,
                                nclass = 20,
-                               ylim.af = NULL){
+                               ylim.af = NULL,
+                               mutation.rate = 10^-8,
+                               remutation.rate = 10^-8,
+                               estimate.ne = TRUE,
+                               estimate.ld = TRUE){
 
 
   if(length(nfinal)==0){
@@ -147,7 +155,10 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
         utils::setTxtProgressBar(pb, index)
       }
 
-      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = FALSE, display.progress=display.progress)
+      population <- breeding.diploid(population, breeding.size = nindi, breeding.sex = sex.quota, verbose = FALSE,
+                                     mutation.rate = mutation.rate,
+                                     remutation.rate = remutation.rate,
+                                     display.progress=display.progress)
 
       if(index==3){
         size1 <- utils::object.size(population$breeding[[1]])
@@ -168,7 +179,10 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
     utils::setTxtProgressBar(pb, n.gen)
   }
 
-  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = FALSE, display.progress=display.progress)
+  population <- breeding.diploid(population, breeding.size = nfinal, breeding.sex = sex.quota.final, verbose = FALSE,
+                                 mutation.rate = mutation.rate,
+                                 remutation.rate = remutation.rate,
+                                 display.progress=display.progress)
 
   if(verbose && display.progress){
     close(pb)
@@ -188,32 +202,39 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
 
   geno <- get.geno(population, gen = nrow(population$info$size))
 
-
-  ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", xlim = xlim, ylim = ylim,
-                     plot = plot && plot.ld)
   p_i <- rowMeans(geno)/2
-
-  if(plot && plot.allele.freq){
-
-    tryCatch(  {
-      graphics::hist(p_i[p_i!=0 & p_i !=1], xlab="allele frequency spectrum", main="Allele frequency spectrum",
-                     nclass = nclass, ylim = ylim.af)
-    },
-    error = function(e) {})
-
-
-  }
 
   if(verbose){ cat(paste0(sum(p_i==0 | p_i==1), " of ", length(p_i), " markers are fixated.\n"))}
 
-  effs <- numeric(length(ldinfo[[3]]$x))
-  for(index in 1:length(ldinfo[[3]]$x)){
-    effs[index] <- effective.size(ldinfo[[3]]$y[index],
-                                  dist = ldinfo[[3]]$x[index],
-                                  n = nfinal)
+  if(estimate.ld){
+
+    ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", xlim = xlim, ylim = ylim,
+                       plot = plot && plot.ld)
+
+
+    if(plot && plot.allele.freq){
+
+      tryCatch(  {
+        graphics::hist(p_i[p_i!=0 & p_i !=1], xlab="allele frequency spectrum", main="Allele frequency spectrum",
+                       nclass = nclass, ylim = ylim.af)
+      },
+      error = function(e) {})
+
+
+    }
   }
 
-  if(verbose) {cat(paste0("Effective population size is estimated to be around ", ceiling(mean(effs[-(1:10)])), ".\n"))}
+  if(estimate.ne){
+    effs <- numeric(length(ldinfo[[3]]$x))
+    for(index in 1:length(ldinfo[[3]]$x)){
+      effs[index] <- effective.size(ldinfo[[3]]$y[index],
+                                    dist = ldinfo[[3]]$x[index],
+                                    n = nfinal)
+    }
+
+    if(verbose) {cat(paste0("Effective population size is estimated to be around ", ceiling(mean(effs[-(1:10)])), ".\n"))}
+
+  }
 
   haplo <- get.haplo(population, gen = nrow(population$info$size))
   map <- get.map(population)

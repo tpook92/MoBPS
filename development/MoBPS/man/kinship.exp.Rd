@@ -14,7 +14,8 @@ kinship.exp(
   elements = NULL,
   mult = 1,
   storage.save = 1.5,
-  verbose = TRUE
+  verbose = TRUE,
+  elements.copy = FALSE
 )
 }
 \arguments{
@@ -37,6 +38,8 @@ kinship.exp(
 \item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{elements.copy}{Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)}
 }
 \value{
 Pedigree-based kinship matrix for in gen/database/cohort selected individuals
