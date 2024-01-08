@@ -62,8 +62,8 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 
   for(index in 1:nrow(groups)){
     activ <- databases[,1]==groups[index,1] & databases[,2]==groups[index,2]
-    database_activ <- databases[activ,]
-    bves_activ <- t(bves[activ,-1])
+    database_activ <- databases[activ,,drop = FALSE]
+    bves_activ <- t(bves[activ,-1, drop = FALSE])
     storage.mode(bves_activ) <- "numeric"
 
     if(sum(diff(database_activ[,3])==1)==(nrow(database_activ)-1)){
@@ -114,6 +114,12 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 
           }
 
+        }
+
+        for(bven in which(temp1==1)){
+          if(length(population$breeding[[gen]][[sex]][[nr]][[27]]) < bven || length(population$breeding[[gen]][[sex]][[nr]][[27]][[bven]])<=1){
+            population$breeding[[gen]][[sex]][[nr]][[27]][[bven]] = population$breeding[[gen]][[sex+add]][bven,nr]
+          }
         }
       }
 

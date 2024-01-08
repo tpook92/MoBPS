@@ -84,6 +84,11 @@ breeding.diploid(
   avoid.mating.halfsib = FALSE,
   avoid.mating.inb = NULL,
   avoid.mating.inb.quantile = NULL,
+  avoid.mating.kinship = NULL,
+  avoid.mating.kinship.quantile = NULL,
+  avoid.mating.kinship.gen = NULL,
+  avoid.mating.kinship.database = NULL,
+  avoid.mating.kinship.cohorts = NULL,
   avoid.mating.depth.pedigree = 7,
   fixed.breeding = NULL,
   fixed.breeding.best = NULL,
@@ -478,6 +483,12 @@ breeding.diploid(
 \item{avoid.mating.inb}{Maximum allowed expected inbreeding to allow a mating combination (based on kinships)}
 
 \item{avoid.mating.inb.quantile}{Use this to not perform mating between more related potential parents (quantile of all expected inbreeding levels)}
+
+\item{avoid.mating.kinship}{Maximum allowed expected kinship of an offspring to a reference group of individuals}
+
+\item{avoid.mating.kinship.quantile}{Maximum allowed expected kinship of an offspring to a reference group of individuals}
+
+\item{avoid.mating.kinship.gen, avoid.mating.kinship.database, avoid.mating.kinship.cohorts}{Gen/database/cohorts of individuals to consider as a reference pool in avoid.mating.kinship}
 
 \item{avoid.mating.depth.pedigree}{Depth of the pedigree to calculate expected inbreeding levels / kinships}
 
