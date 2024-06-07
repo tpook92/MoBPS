@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.snapshot.R
 \name{get.snapshot}
 \alias{get.snapshot}
-\title{Derive genotypes of selected individuals}
+\title{Derive snapshot of selected individuals}
 \usage{
 get.snapshot(
   population,
@@ -36,12 +36,12 @@ get.snapshot(
 \item{time.diff}{Set to a target time interval to receive information between transitions to other cohorts (default: NA)}
 }
 \value{
-Genotype data for in gen/database/cohorts selected individuals
+Snapshot-matrix
 }
 \description{
-Function to devide genotypes of selected individuals
+Function to devide snapshot of genotyping/phenotyping state of selected individuals
 }
 \examples{
 data(ex_pop)
-geno <- get.geno(ex_pop, gen=2)
+get.snapshot(ex_pop, gen = 2)
 }

@@ -61,7 +61,7 @@ compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.
     current.ursprung <- population$breeding[[gen]][[sex]][[nr]][[hapnr+4]]
     if(is.function(import.position.calculation)){
       till <- import.position.calculation(current.recombi)
-    } else if(faster==TRUE && sum(population$info$snps.equidistant==TRUE)){
+    } else if(faster==TRUE && population$info$snps.equidistant){
       till <- rep(0, length(current.recombi))
       for(index in 1:length(current.recombi)){
         current.chromo <- sum(current.recombi[index] >= population$info$length.total)
@@ -199,7 +199,7 @@ compute.snps_single <- function(population, current.recombi, current.mut, curren
 
   if(is.function(import.position.calculation)){
     till <- import.position.calculation(current.recombi)
-  } else if(faster==TRUE && sum(population$info$snps.equidistant==TRUE)){
+  } else if(faster==TRUE && population$info$snps.equidistant){
     till <- rep(0, length(current.recombi))
     for(index in 1:length(current.recombi)){
       current.chromo <- sum(current.recombi[index] >= population$info$length.total)

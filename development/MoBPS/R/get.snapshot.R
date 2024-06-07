@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive genotypes of selected individuals
+#' Derive snapshot of selected individuals
 #'
-#' Function to devide genotypes of selected individuals
+#' Function to devide snapshot of genotyping/phenotyping state of selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -33,13 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.all.copy Set to TRUE to extract phenotyping
 #' @examples
 #' data(ex_pop)
-#' geno <- get.geno(ex_pop, gen=2)
-#' @return Genotype data for in gen/database/cohorts selected individuals
+#' get.snapshot(ex_pop, gen = 2)
+#' @return Snapshot-matrix
 #' @export
 
 #save(file = "C:/Users/pook001/OneDrive - Wageningen University & Research/temp.RData", list = c("population"))
 #cohorts = "E-line_piglets_5_M"
 # get.snapshot(population, cohorts = "E-line_piglets_5_M")
+# get.snapshot(ex_pop, gen = 2)
 get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, phenotype.data = FALSE, gain.data = FALSE,
                         digits = 3, use.all.copy = TRUE, time.diff = NA){
 
@@ -78,7 +79,8 @@ get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, pheno
     results[index,1] = cohorts_list[potential_cohorts[index],8]
     results[index,2] = cohorts_list[potential_cohorts[index],1]
 
-    to_analyse = which(ids_potential %in% ids)
+    to_analyse = which(ids %in% ids_potential)
+    to_analyse2 = which( ids_potential %in% ids)
     results[index,3] = length(to_analyse)
 
     results[index,4] = sum(gtime[to_analyse] <= as.numeric(results[index,1] ), na.rm = TRUE)
@@ -88,13 +90,13 @@ get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, pheno
     if(phenotype.data){
       n_pheno = get.npheno(population, cohorts = cohorts_list[potential_cohorts[index],1], use.all.copy = use.all.copy)
       n_pheno[, which(ptime[to_analyse] > as.numeric(results[index,1]))] = 0
-      results[index, 1:population$info$bv.nr + 5] = rowSums(n_pheno[,to_analyse,drop = FALSE])
+      results[index, 1:population$info$bv.nr + 5] = rowSums(n_pheno[,to_analyse2,drop = FALSE])
     }
 
     if(gain.data){
 
       bv_temp = get.bv(population, cohorts = cohorts_list[potential_cohorts[index],1])
-      results[index,1:population$info$bv.nr + 5 + population$info$bv.nr * (phenotype.data)] = round(rowMeans(bv_temp[,to_analyse,drop = FALSE]) - bv_base, digits = digits)
+      results[index,1:population$info$bv.nr + 5 + population$info$bv.nr * (phenotype.data)] = round(rowMeans(bv_temp[,to_analyse2,drop = FALSE]) - bv_base, digits = digits)
 
     }
   }

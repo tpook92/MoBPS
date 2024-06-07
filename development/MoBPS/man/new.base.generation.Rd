@@ -7,6 +7,8 @@
 new.base.generation(
   population,
   base.gen = NULL,
+  base.database = NULL,
+  base.cohorts = NULL,
   delete.previous.gen = FALSE,
   delete.breeding.totals = FALSE,
   delete.bve.data = FALSE,
@@ -18,6 +20,10 @@ new.base.generation(
 \item{population}{Population list}
 
 \item{base.gen}{Vector containing all new base generations}
+
+\item{base.database}{Matrix containing all database entries to be used as new base generation}
+
+\item{base.cohorts}{Vector containing all cohorts to be used as new base generations}
 
 \item{delete.previous.gen}{Delete all data before base.gen (default: FALSE)}
 

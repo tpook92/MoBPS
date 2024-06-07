@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive genotypes of selected individuals
+#' Derive snapshot of selected individuals
 #'
-#' Function to devide genotypes of selected individuals
+#' Function to devide snapshot of genotyping/phenotyping state of selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -38,8 +38,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param include.culled Set to TRUE to also include culled individuals in the statistics provided
 #' @examples
 #' data(ex_pop)
-#' geno <- get.geno(ex_pop, gen=2)
-#' @return Genotype data for in gen/database/cohorts selected individuals
+#' get.snapshot.single(ex_pop, cohorts = "Cohort_2_M")
+#' @return Snapshot Matrix
 #' @export
 
 #save(file = "C:/Users/pook001/OneDrive - Wageningen University & Research/temp.RData", list = c("population"))
@@ -76,7 +76,7 @@ get.snapshot.single = function(population, database=NULL, gen=NULL, cohorts=NULL
   for(index in 1:length(potential_cohorts)){
 
     ids_potential  = get.id(population, cohorts = cohorts_list[potential_cohorts[index],1])
-    to_analyse = which(ids_potential %in% ids)
+    to_analyse = which( ids %in% ids_potential)
 
     overlap1[index] = length(to_analyse)
     overlap2[index] = length(to_analyse) / length(ids_potential)
@@ -110,9 +110,10 @@ get.snapshot.single = function(population, database=NULL, gen=NULL, cohorts=NULL
   id_potential = get.id(population, cohorts = names(potential_cohorts)[candidates])
 
   to_analyse = which(ids %in% id_potential)
+  to_analyse2 = which(id_potential %in% ids)
 
   if(gain.data){
-    bv_base = rowMeans(get.bv(population, database = database)[,to_analyse,drop = FALSE])
+    bv_base = rowMeans(get.bv(population, database = database)[,to_analyse2,drop = FALSE])
   }
 
   ids = ids[to_analyse]

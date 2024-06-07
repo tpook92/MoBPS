@@ -101,6 +101,38 @@ title(xlab="Gain in avg. kinship", cex.lab=1.5)
 dev.off()
 }
 
+
+x = seq(-1,1, by = 0.001)
+
+rej1 = 1 - (abs(x)/0.2) ^ 1
+rej2 = 1 - (abs(x)/0.2) ^ 2
+
+rej1[rej1<0] = 0
+rej2[rej2<0] = 0
+par(mfrow = c(1,1))
+plot(x,rej1, type = "l", lwd =2, xlab = "distance to previously sampled cross-over in Morgan",
+     ylab = "rejection probability")
+lines(x,rej2, lwd =2, col = 2)
+
+rej1 = 1 - (abs(x)/0.5) ^ 1
+rej2 = 1 - (abs(x)/0.5) ^ 2
+rej3 =
+rej1[rej1<0] = 0
+rej2[rej2<0] = 0
+par(mfrow = c(1,1))
+lines(x,rej1, type = "l", lwd =2, col = 3)
+lines(x, rej2, lwd = 2, col= 4)
+
+legend("topleft",
+       lty = 1,
+       lwd =3,
+       c("recombination.distance.penalty = 0.2",
+         "recombination.distance.penalty2 = 0.2",
+         "recombination.distance.penalty = 0.5",
+         "recombination.distance.penalty2 = 0.5"),
+       col = 1:4)
+
+
 {
   eps("C:/Users/pook/Desktop/Fig1.png", width=2250, height= 1100, res=300)
   par(mfrow=c(2,2))
@@ -1219,6 +1251,8 @@ litter.size = matrix(c(1, 0.70,
                        4, 0.05
 ), byrow=TRUE, ncol=2)
 
+population = breeding.diploid(population, repeat.mating = litter.size,
+                              breeding.size.litter = n_litter)
 
 # Construction of the fertility trait with discrete phenotypic realisations
 # This is a trait with only purely dominate effects

@@ -41,7 +41,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE, per.individual = FALSE, id=NULL, id.all.copy=FALSE, id.last=FALSE,
+get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE,
+                        per.individual = FALSE, id=NULL, id.all.copy=FALSE, id.last=FALSE,
                         keep.order = FALSE, class = NULL, verbose = TRUE){
 
   if(length(id)>0 && (length(gen)>0 || length(database)>0 || length(cohorts) > 0 )){
@@ -99,11 +100,14 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     }
 
     if(keep.order){
+      if(per.individual){
+        database <- get.database(population, database=database, per.individual = per.individual)
+      }
       return(database)
     }
 
     if(!id.all.copy){
-      database <- get.database(population, database=database)
+      database <- get.database(population, database=database, per.individual = per.individual)
       return(database)
     } else{
       database_list <- list()

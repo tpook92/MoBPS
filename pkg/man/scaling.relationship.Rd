@@ -19,6 +19,3 @@ scaled genomic relationship matrix
 \description{
 scaling.relationship
 }
-\examples{
-write.pedigree.mixblup
-}

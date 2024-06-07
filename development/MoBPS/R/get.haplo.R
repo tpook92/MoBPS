@@ -42,10 +42,13 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
                      non.genotyped.as.missing=FALSE, use.id=FALSE, array = NULL, remove.missing = TRUE){
 
   if(length(chromosome)==1 && chromosome=="all"){
-    subsetting <- FALSE
     chromosome <- 1:length(population$info$snp)
+  }
+
+  if(length(chromosome)==length(population$info$snp) && prod((1:length(population$info$snp))==chromosome)==1){
+    subsetting = FALSE
   } else{
-    subsetting <- TRUE
+    subsetting = TRUE
   }
 
   if(length(array)>0){
@@ -146,7 +149,14 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
   }
 
   if(length(array)>0){
-    is_genotyped[!population$info$array.markers[[array]], ] <- FALSE
+
+    if(subsetting){
+      is_genotyped[!(population$info$array.markers[[array]][relevant.snps]), ] <- FALSE
+    } else{
+      is_genotyped[!population$info$array.markers[[array]], ] <- FALSE
+    }
+
+
   }
   if(sum(!is_genotyped)>0){
     data[!is_genotyped] <- NA

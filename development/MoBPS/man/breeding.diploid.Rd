@@ -14,6 +14,8 @@ breeding.diploid(
   selection.f.database = NULL,
   selection.m.cohorts = NULL,
   selection.f.cohorts = NULL,
+  max.selection.fullsib = Inf,
+  max.selection.halfsib = Inf,
   class.m = 0,
   class.f = 0,
   add.class.cohorts = TRUE,
@@ -22,6 +24,10 @@ breeding.diploid(
   selection.index.weights.f = NULL,
   selection.index.scale.m = NULL,
   selection.index.scale.f = NULL,
+  selection.index.kinship = 0,
+  selection.index.gen = NULL,
+  selection.index.database = NULL,
+  selection.index.cohorts = NULL,
   selection.highest = c(TRUE, TRUE),
   ignore.best = 0,
   best.selection.ratio.m = 1,
@@ -82,14 +88,21 @@ breeding.diploid(
   max.mating.pair = Inf,
   avoid.mating.fullsib = FALSE,
   avoid.mating.halfsib = FALSE,
+  avoid.mating.parent = FALSE,
   avoid.mating.inb = NULL,
   avoid.mating.inb.quantile = NULL,
+  avoid.mating.inb.min = 0,
   avoid.mating.kinship = NULL,
   avoid.mating.kinship.quantile = NULL,
   avoid.mating.kinship.gen = NULL,
   avoid.mating.kinship.database = NULL,
   avoid.mating.kinship.cohorts = NULL,
+  avoid.mating.kinship.min = 0,
+  avoid.mating.kinship.median = FALSE,
   avoid.mating.depth.pedigree = 7,
+  avoid.mating.remove = FALSE,
+  avoid.mating.ignore = 0,
+  avoid.mating.resampling = 1000,
   fixed.breeding = NULL,
   fixed.breeding.best = NULL,
   fixed.breeding.id = NULL,
@@ -127,6 +140,7 @@ breeding.diploid(
   genotyped.remove.database = NULL,
   genotyped.remove.cohorts = NULL,
   genotyped.remove.all.copy = TRUE,
+  genotyped.selected = FALSE,
   phenotyping = NULL,
   phenotyping.gen = NULL,
   phenotyping.cohorts = NULL,
@@ -136,6 +150,7 @@ breeding.diploid(
   heritability = NULL,
   repeatability = NULL,
   multiple.observation = FALSE,
+  phenotyping.selected = FALSE,
   share.phenotyped = 1,
   offpheno.parents.gen = NULL,
   offpheno.parents.database = NULL,
@@ -153,7 +168,7 @@ breeding.diploid(
   bve.gen = NULL,
   bve.cohorts = NULL,
   bve.database = NULL,
-  relationship.matrix = "vanRaden",
+  relationship.matrix = "GBLUP",
   depth.pedigree = 7,
   singlestep.active = TRUE,
   bve.ignore.traits = NULL,
@@ -194,8 +209,10 @@ breeding.diploid(
   bve.p_i.database = NULL,
   bve.p_i.cohorts = NULL,
   bve.p_i.exclude.nongenotyped = FALSE,
+  bve.use.all.copy = FALSE,
   mobps.bve = TRUE,
   mixblup.bve = FALSE,
+  blupf90.bve = FALSE,
   mixblup.reliability = FALSE,
   emmreml.bve = FALSE,
   rrblup.bve = FALSE,
@@ -220,6 +237,7 @@ breeding.diploid(
   mixblup.path.genofile = NULL,
   mixblup.files = "MiXBLUP_files",
   mixblup.verbose = TRUE,
+  blupf90.verbose = TRUE,
   mixblup.genetic.cov = NULL,
   mixblup.residual.cov = NULL,
   mixblup.lambda = 1,
@@ -234,7 +252,27 @@ breeding.diploid(
   mixblup.apy.core = NULL,
   mixblup.ta = FALSE,
   mixblup.skip = FALSE,
+  blupf90.skip = FALSE,
+  mixblup.restart = FALSE,
+  mixblup.nopeek = FALSE,
+  mixblup.calcinbr.s = FALSE,
   mixblup.multiple.records = FALSE,
+  blupf90.pedfile = TRUE,
+  blupf90.parfile = TRUE,
+  blupf90.datafile = TRUE,
+  blupf90.inputfile = TRUE,
+  blupf90.genofile = TRUE,
+  blupf90.path = NULL,
+  renumf90.path = NULL,
+  blupf90.path.pedfile = NULL,
+  blupf90.path.parfile = NULL,
+  blupf90.path.datafile = NULL,
+  blupf90.path.inputfile = NULL,
+  blupf90.path.genofile = NULL,
+  blupf90.files = "blupf90_files",
+  blupf90.blksize = NULL,
+  blupf90.no.quality = FALSE,
+  blupf90.conv_crit = NULL,
   BGLR.model = "RKHS",
   BGLR.burnin = 500,
   BGLR.iteration = 5000,
@@ -277,6 +315,7 @@ breeding.diploid(
   mutation.rate = 10^-8,
   remutation.rate = 10^-8,
   recombination.rate = 1,
+  recombination.rate.trait = 0,
   recombination.function = NULL,
   recombination.minimum.distance = NULL,
   recombination.distance.penalty = NULL,
@@ -310,6 +349,7 @@ breeding.diploid(
   randomSeed = NULL,
   display.progress = NULL,
   time.point = 0,
+  age.point = NULL,
   creating.type = 0,
   import.relationship.matrix = NULL,
   export.selected = FALSE,
@@ -350,7 +390,8 @@ breeding.diploid(
   use.recalculate.manual = FALSE,
   size.scaling = NULL,
   parallel.internal = FALSE,
-  varg = FALSE
+  varg = FALSE,
+  next.id = NULL
 )
 }
 \arguments{
@@ -364,6 +405,10 @@ breeding.diploid(
 
 \item{selection.f.gen, selection.f.cohorts, selection.f.database}{Generations available for selection of maternal parent}
 
+\item{max.selection.fullsib}{Maximum number of individual to select from the same family (same sire & dam)}
+
+\item{max.selection.halfsib}{Maximum number of individual to select from the same family (same sire or same dam)}
+
 \item{class.m, class.f}{For selection only individuals from this class (included in selection.m/f.gen/database/cohorts) will be considered for selection (default: 0 - which is all individuals if never used class elsewhere)}
 
 \item{add.class.cohorts}{Inital classes of cohorts used in selection.m/f.cohorts are automatically added to class.m/f (default: TRUE)}
@@ -373,6 +418,10 @@ breeding.diploid(
 \item{selection.index.weights.m, selection.index.weights.f}{Weighting between traits (default: 1)}
 
 \item{selection.index.scale.m, selection.index.scale.f}{Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
+
+\item{selection.index.kinship}{Include avg. kinship to a reference population (selection.index.gen/database/cohorts) as part of the selection index (Default: 0)}
+
+\item{selection.index.gen, selection.index.database, selection.index.cohorts}{Generation/cohorts/groups to use as a reference of the kinship value in the selection index}
 
 \item{selection.highest}{If FALSE to select individuals with lowest value for the selection criterium (default c(TRUE,TRUE) - (m,w))}
 
@@ -480,9 +529,13 @@ breeding.diploid(
 
 \item{avoid.mating.halfsib}{Set to TRUE to not generate offspring from half or full siblings}
 
+\item{avoid.mating.parent}{Set to TRUE to not generate offspring from parent / sibling matings}
+
 \item{avoid.mating.inb}{Maximum allowed expected inbreeding to allow a mating combination (based on kinships)}
 
 \item{avoid.mating.inb.quantile}{Use this to not perform mating between more related potential parents (quantile of all expected inbreeding levels)}
+
+\item{avoid.mating.inb.min, avoid.mating.kinship.min}{Share of mating to at minimum perform for each individual (default: 0)}
 
 \item{avoid.mating.kinship}{Maximum allowed expected kinship of an offspring to a reference group of individuals}
 
@@ -490,7 +543,15 @@ breeding.diploid(
 
 \item{avoid.mating.kinship.gen, avoid.mating.kinship.database, avoid.mating.kinship.cohorts}{Gen/database/cohorts of individuals to consider as a reference pool in avoid.mating.kinship}
 
+\item{avoid.mating.kinship.median}{Set to TRUE to use median kinship instead of mean kinship in avoid.mating.kinship (default: FALSE)}
+
 \item{avoid.mating.depth.pedigree}{Depth of the pedigree to calculate expected inbreeding levels / kinships}
+
+\item{avoid.mating.remove}{Set to TRUE to automatically exclude any selected individuals from the sample of parents}
+
+\item{avoid.mating.ignore}{Set to value higher 0 for avoid.mating.inb/kinship restrictions to not always be applied}
+
+\item{avoid.mating.resampling}{Number of sampling attempts to avoid unwanted matings (( last couple of individuals otherwise can have unwanted relatedness, default = 1000))}
 
 \item{fixed.breeding}{Set of targeted matings to perform (matrix with 7 columns: database position first parent (gen, sex, nr), database position second parent (gen,sex,nr), likelihood to be female (optional))}
 
@@ -556,6 +617,8 @@ breeding.diploid(
 
 \item{genotyped.remove.all.copy}{Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)}
 
+\item{genotyped.selected}{Set to TRUE to genotype all selected individuals}
+
 \item{phenotyping}{Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")}
 
 \item{phenotyping.gen, phenotyping.cohorts, phenotyping.database}{Generations/cohorts/groups from which to generate additional phenotypes}
@@ -569,6 +632,8 @@ breeding.diploid(
 \item{repeatability}{Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)}
 
 \item{multiple.observation}{If an already phenotyped trait is phenotyped again this will on NOT lead to an additional phenotyped observation unless this is set to TRUE}
+
+\item{phenotyping.selected}{Set to TRUE to phenotype all selected individuals}
 
 \item{share.phenotyped}{Share of the individuals to phenotype (use vector for different probablities for different traits)}
 
@@ -588,7 +653,7 @@ breeding.diploid(
 
 \item{bve.gen, bve.cohorts, bve.database}{Generations/Groups/Cohorts of individuals to consider in breeding value estimation (default: NULL)}
 
-\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
+\item{relationship.matrix}{Method to calculate relationship matrix for the breeding value estimation. This will automatically chosen between GBLUP, ssGBLUP, pBLUP based on if genotyped individuals are available (Default: "GBLUP", alt: "pedigree", "CE", "non_stand", "CE2", "CM")}
 
 \item{depth.pedigree}{Depth of the pedigree in generations (default: 7)}
 
@@ -658,9 +723,13 @@ breeding.diploid(
 
 \item{bve.p_i.exclude.nongenotyped}{Set to TRUE to exclude non-genotyped individuals when calculating allele frequencies for genomic relationship matrix standardization}
 
+\item{bve.use.all.copy}{Set to TRUE to use phenotypes and genotyped status from all copies of an individual instead of just the provided ones in the bve.gen/database/cohorts (default: FALSE)}
+
 \item{mobps.bve}{If TRUE predict BVEs in direct estimation with assumed known heritablity (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)}
 
 \item{mixblup.bve}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
+
+\item{blupf90.bve}{Set to TRUE to activate breeding value estimation via BLUPF90 (requires blupf90 software!)}
 
 \item{mixblup.reliability}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
 
@@ -710,6 +779,8 @@ breeding.diploid(
 
 \item{mixblup.verbose}{Set to TRUE to display MiXBLUP prints}
 
+\item{blupf90.verbose}{Set to TRUE to display blupf90 prints}
+
 \item{mixblup.genetic.cov}{Provide genetic covariance matrix to be used in MiXBLUP (lower-triangle is sufficent) (default: underlying true values)}
 
 \item{mixblup.residual.cov}{Provide residual covariance matrix to be used in MiXBLUP (lower-triangle is sufficent) (default: underlying true values)}
@@ -738,7 +809,47 @@ breeding.diploid(
 
 \item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
 
+\item{blupf90.skip}{Set to TRUE to skip the actualy system calls of blupf90 and only write the blupf90 input files}
+
+\item{mixblup.restart}{Set to TRUE to set the !RESTART flag in MiXBLUP (requires a "Solunf" file in the working directory)}
+
+\item{mixblup.nopeek}{Set to TRUE to set the !NOPEEK flag in MiXBLUP}
+
+\item{mixblup.calcinbr.s}{Set to TRUE to set the !CalcInbr flag to S}
+
 \item{mixblup.multiple.records}{Set to TRUE to write multiple phenotypic records for an individual}
+
+\item{blupf90.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
+
+\item{blupf90.parfile}{Set to FALSE to manually generate your MiXBLUP parfile}
+
+\item{blupf90.datafile}{Set to FALSE to manually generate your blupf90 datafile}
+
+\item{blupf90.inputfile}{Set to FALSE to manually write your MiXBLUP inputfile}
+
+\item{blupf90.genofile}{Set to FALSE to manually write the blupf90 genotypefile}
+
+\item{blupf90.path}{Provide path to blupf90 (default is your working directory: Windows: ./blupf90+.exe ; Linux ./blupf90+.exe)}
+
+\item{renumf90.path}{Provide path to blupf90 (default is your working directory: Windows: ./renumf90.exe ; Linux ./renumf90.exe)}
+
+\item{blupf90.path.pedfile}{Path from where to import the blupf90 pedfile}
+
+\item{blupf90.path.parfile}{Path from where to import the blupf90 parfile}
+
+\item{blupf90.path.datafile}{Path from where to import the blupf90 data file}
+
+\item{blupf90.path.inputfile}{Path from where to import the blupf90 inputfile}
+
+\item{blupf90.path.genofile}{Path from where to import the blupf90 genotype file}
+
+\item{blupf90.files}{Directory to generate all files generated when using blupf90 (default: blupf90_files/ )}
+
+\item{blupf90.blksize}{blupf90 parameter blksize (Default: number of traits)}
+
+\item{blupf90.no.quality}{blupf90 setting OPTION no_quality_control (Default: FALSE)}
+
+\item{blupf90.conv_crit}{blupf90 parameter conv_crit (Default: blupf90 default)}
 
 \item{BGLR.model}{Select which BGLR model to use (default: "RKHS", alt: "BRR", "BL", "BayesA", "BayesB", "BayesC")}
 
@@ -816,6 +927,8 @@ breeding.diploid(
 
 \item{recombination.rate}{Average number of recombination per 1 length unit (default: 1M)}
 
+\item{recombination.rate.trait}{Select a trait which BV will be used as a scalar for the expected number of recombination (default: 0)}
+
 \item{recombination.function}{Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())}
 
 \item{recombination.minimum.distance}{Minimum distance between two points of recombination (default: 0)}
@@ -880,6 +993,8 @@ breeding.diploid(
 
 \item{time.point}{Time point at which the new individuals are generated}
 
+\item{age.point}{Time point at which the new individuals are born (default: time.point - mostly useful in the founder generation)}
+
 \item{creating.type}{Technique to generate new individuals (use mostly intended for web-based application)}
 
 \item{import.relationship.matrix}{Input the wanted relationship matrix with this parameter (default: NULL - relationship matrix will be calculated from other sources)}
@@ -939,6 +1054,8 @@ breeding.diploid(
 \item{parallel.internal}{Internal parameter for the parallelization}
 
 \item{varg}{Experimental parameter for Tobias Niehoff (dont touch!)}
+
+\item{next.id}{Id to assign to first next individual generated}
 }
 \value{
 Population-list

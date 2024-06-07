@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.snapshot.single.R
 \name{get.snapshot.single}
 \alias{get.snapshot.single}
-\title{Derive genotypes of selected individuals}
+\title{Derive snapshot of selected individuals}
 \usage{
 get.snapshot.single(
   population,
@@ -51,12 +51,12 @@ get.snapshot.single(
 \item{include.culled}{Set to TRUE to also include culled individuals in the statistics provided}
 }
 \value{
-Genotype data for in gen/database/cohorts selected individuals
+Snapshot Matrix
 }
 \description{
-Function to devide genotypes of selected individuals
+Function to devide snapshot of genotyping/phenotyping state of selected individuals
 }
 \examples{
 data(ex_pop)
-geno <- get.geno(ex_pop, gen=2)
+get.snapshot.single(ex_pop, cohorts = "Cohort_2_M")
 }

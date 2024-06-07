@@ -39,9 +39,16 @@ group.diff <- function(population, database=NULL, gen=NULL, cohorts=NULL, remove
 
 
   all_id <- get.id(population, gen=gen, database=database, cohorts=cohorts)
-  remove_id <- unique(sort(get.id(population, gen=remove.gen, database=remove.database, cohorts=remove.cohorts)))
 
   old_database <- get.database(population, gen, database, cohorts)
+
+  if(length(remove.gen)==0 && length(remove.database)==0 && length(remove.cohorts)==0){
+    return(old_database)
+  }
+
+  remove_id <- unique(sort(get.id(population, gen=remove.gen, database=remove.database, cohorts=remove.cohorts)))
+
+
   new_database <- matrix(0, ncol=4, nrow=length(all_id))
 
   nr1 <- 1

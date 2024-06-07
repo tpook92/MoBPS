@@ -26,8 +26,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param Z AA
 #' @param p AA
 #' @return scaled genomic relationship matrix
-#' @examples
-#' write.pedigree.mixblup
 #' @export
 
 scaling.relationship = function(A, Z, p){
@@ -37,7 +35,7 @@ scaling.relationship = function(A, Z, p){
   } else{
     p2 = 2 * colSums(Z * p)
   }
-  A = A + p1 -p2 - matrix(p2, , nrow= nrow(A ), ncol = ncol(A), byrow = TRUE)
+  A = A + p1 -p2 - matrix(p2, nrow= nrow(A ), ncol = ncol(A), byrow = TRUE)
   A = A / (2 * sum(p*(1-p)))
 
   if(sum(p*(1-p))==0){

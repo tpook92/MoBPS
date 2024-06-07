@@ -130,6 +130,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param internal Dont touch!
 #' @param internal.geno Dont touch!
 #' @param internal.dataset Dont touch!
+#' @param martin_test DONT touch
 # OLD
 #' @param nbits Bits available in MoBPS-bit-storing
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
@@ -264,7 +265,8 @@ creating.diploid <- function(population=NULL,
                              position.scaling=FALSE,
                              shuffle.cor=NULL,
                              shuffle.traits=NULL,
-                             bv.total=0
+                             bv.total=0,
+                             martin_test = FALSE
                              ){
 
 
@@ -379,7 +381,12 @@ creating.diploid <- function(population=NULL,
 
   {
 
-    counter.start <- counter <- c(1,1)
+
+
+      counter.start <- counter <- c(1,1)
+
+
+
     if(store.comp.times){
       times_comp[1] <- as.numeric(Sys.time())
     }
@@ -478,7 +485,7 @@ creating.diploid <- function(population=NULL,
         }
       }
       if(sum(!is.na(map[,5]))>0){
-        freq <- map[,5]
+        freq <- as.numeric(map[,5])
       }
       if(nsnp!=0 && sum(nsnp)!=nrow(map)){
         warning("Number of SNPs not in concordance with used map!\n")
@@ -845,6 +852,7 @@ creating.diploid <- function(population=NULL,
               }
             }
 
+
             ## remove not needed objects to save space (header will be needed later!)
             #suppressWarnings(rm(vcf_file,tmp.nalt,tmp.params,tmp.ranges,tmp.fl))
             exitVariantAnnotation <- 0
@@ -889,6 +897,7 @@ creating.diploid <- function(population=NULL,
           hom1 <- vcf_file[,5]
         }
 
+
         hom0[hom0=="NA"] = NA
         hom1[hom1=="NA"] = NA
 
@@ -907,6 +916,13 @@ creating.diploid <- function(population=NULL,
           hom0 <- hom0[new_order]
           hom1 <- hom1[new_order]
         }
+
+        if(bpcm.conversion!=0){
+
+          snp.position <- as.numeric(bp) /  bpcm.conversion / 100
+
+        }
+
 
 
         if(length(population)>0){
@@ -982,6 +998,15 @@ creating.diploid <- function(population=NULL,
           hom1 <- hom1[keep]
         }
 
+
+        if(length(population)==0){
+
+          chr_tmp = unique(chr.nr)
+          nsnp = length(chr_tmp)
+          for(index in 1:length(chr_tmp)){
+            nsnp[index] = sum(chr.nr == chr_tmp[index])
+          }
+        }
 
 
         if(length(dataset)>0 && sum(class(dataset) %in% "matrix")>=1){
@@ -1164,6 +1189,7 @@ creating.diploid <- function(population=NULL,
           }
         }
       }
+
 
 
       if(length(population)>0){
@@ -1378,6 +1404,7 @@ creating.diploid <- function(population=NULL,
 
 
 
+          #stop()
           #This part is only needed in creating.diploid
           if(sum(nsnp)>0){
             snpdata <- c(snpdata, nsnp)
@@ -1386,7 +1413,13 @@ creating.diploid <- function(population=NULL,
               rindex <- 1
               for(chr.index in unique(chr.nr)){
                 if(is.list(dataset)){
-                  snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[2])
+
+                  if(martin_test){
+                    snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[3])
+                  } else{
+                    snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[2])
+                  }
+
                   rindex <- rindex + 1
                 } else{
                   snpdata <- c(snpdata, sum(chr.nr==chr.index))
@@ -1394,7 +1427,12 @@ creating.diploid <- function(population=NULL,
               }
             } else{
               if(sum(class(dataset)  %in% "haplomatrix")>0){
-                snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
+                if(martin_test){
+                  snpdata <- c(snpdata, attr(dataset[[1]], "information")[3])
+                } else{
+                  snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
+                }
+
               } else{
                 snpdata <- c(snpdata, nrow(dataset))
               }
@@ -1577,6 +1615,8 @@ creating.diploid <- function(population=NULL,
           nsnp[index] <- sum(chr.nr==chr.opt[index])
         }
       }
+
+
       if(length(dataset)==0 || (length(dataset)==1 && !is.list(dataset) && dataset=="random")){
         if(miraculix && length(chr.nr)==0 && miraculix.dataset){
           suppressWarnings(dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp)))
@@ -1634,7 +1674,13 @@ creating.diploid <- function(population=NULL,
         if(is.list(dataset)){
           nsnp <- numeric(length(dataset))
           for(index in 1:length(dataset)){
-            nsnp[index] <- attr(dataset[[index]], "information")[2]
+
+            if(martin_test){
+              nsnp[index] <- attr(dataset[[index]], "information")[3]
+            } else{
+              nsnp[index] <- attr(dataset[[index]], "information")[2]
+            }
+
           }
 
         } else{
@@ -1649,7 +1695,12 @@ creating.diploid <- function(population=NULL,
         }
       }
       if(is.list(dataset)){
-        nindi <- attr(dataset[[1]], "information")[3]
+        if(martin_test){
+          nindi <- attr(dataset[[1]], "information")[5]
+        } else{
+          nindi <- attr(dataset[[1]], "information")[3]
+        }
+
       } else{
         nindi <- ncol(dataset)/2
       }
@@ -1738,8 +1789,15 @@ creating.diploid <- function(population=NULL,
 
     } else{
       if(is.list(dataset)){
-        nsnp <- attr(dataset[[1]], "information")[2]
-        nindi <- attr(dataset[[1]], "information")[3]
+
+        if(martin_test){
+          nsnp <- attr(dataset[[1]], "information")[3]
+          nindi <- attr(dataset[[1]], "information")[5]
+        } else{
+          nsnp <- attr(dataset[[1]], "information")[2]
+          nindi <- attr(dataset[[1]], "information")[3]
+        }
+
       } else{
         nsnp <- nrow(dataset)
         nindi <- ncol(dataset)/2
@@ -2103,7 +2161,12 @@ creating.diploid <- function(population=NULL,
 
           if(internal.geno){
             if(miraculix && miraculix.dataset){
-              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]],indiv = index))
+              if(martin_test){
+                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], sel.indiv = index))
+              } else{
+                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]],indiv = index))
+              }
+
               population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
             } else if(miraculix){
               population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(dataset[,(index*2-c(1,0))])
@@ -2148,12 +2211,14 @@ creating.diploid <- function(population=NULL,
             population$breeding[[generation]][[sex]][[counter[sex]]][[32]]  <- 0L ## Pen nr
           }
 
+          population$breeding[[generation]][[sex]][[counter[sex]]][[33]] = numeric(0)
+          population$breeding[[generation]][[sex]][[counter[sex]]][[34]] = numeric(0)
+
+          population$breeding[[generation]][[sex]][[counter[sex]]][[35]] = numeric(0) # Recriprocal translocation (RT)
+          population$breeding[[generation]][[sex]][[counter[sex]]][[36]] = numeric(0) #
 
 
-
-
-
-          population$breeding[[generation]][[sex]][[counter[sex]]][[33]] <- "placeholder"
+          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- "placeholder"
           population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
           counter[sex] <- counter[sex] + 1L
         }
@@ -2299,10 +2364,22 @@ creating.diploid <- function(population=NULL,
           if(internal.geno){
             if(miraculix && miraculix.dataset){
               if(length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])==0){
-                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], index))
+
+                if(martin_test){
+                  population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], sel.indiv = index))
+                } else{
+                  population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], indiv = index))
+                }
+
                 population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
               } else{
-                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], index)))
+
+                if(martin_test){
+                  population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], sel.indiv = index)))
+                } else{
+                  population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], indiv = index)))
+                }
+
                 population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
               }
 
@@ -2494,10 +2571,17 @@ creating.diploid <- function(population=NULL,
                                          progress.bar = progress.bar,
                                    internal.geno=if(chr_index == length(chr.opt) || !(miraculix && miraculix.dataset)){TRUE} else {FALSE},
                                    internal.dataset = dataset_full,
-                                   size.scaling = size.scaling)
+                                   size.scaling = size.scaling,
+                                   martin_test = martin_test)
         }
       } else{
-        if(min(diff(as.integer(as.factor(chr.nr))))<0 || !miraculix.dataset){
+
+        if(sum(is.na(as.integer(chr.nr)))==0){
+          tmp1 = min(diff(as.integer((chr.nr))))<0
+        } else{
+          tmp1 = min(diff(as.integer(as.factor(chr.nr))))<0
+        }
+        if(tmp1 || !miraculix.dataset){
           dataset_temp <- dataset
           till <- 0
           for(chr_index in 1:length(chr.opt)){
@@ -2554,7 +2638,8 @@ creating.diploid <- function(population=NULL,
                                        internal=TRUE,
                                        progress.bar = progress.bar,
                                        size.scaling = size.scaling,
-                                       founder.pool = founder.pool)
+                                       founder.pool = founder.pool,
+                                       martin_test = martin_test)
       }
 
     }
@@ -2566,8 +2651,8 @@ creating.diploid <- function(population=NULL,
     if(store.comp.times){
       times_comp[5] <- as.numeric(Sys.time())
     }
-    if(enter.bv){
-      if(bv.total>0 ||length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
+    if(enter.bv ){
+      if(bv.total>0 || length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
         population$info$bve <- TRUE
         if(is.list(real.bv.add)){
           population$info$real.bv.add <- real.bv.add
@@ -2588,8 +2673,17 @@ creating.diploid <- function(population=NULL,
           population$info$real.bv.dice <- list(real.bv.dice)
         }
 
-        population$info$bv.nr <- bv.total
-        population$info$bv.calc <- bv.calc
+
+        if(skip.rest==FALSE){
+          population$info$bv.nr <- bv.total
+          population$info$bv.calc <- bv.calc
+        } else{
+          bv.total = population$info$bv.nr
+          bv.calc = population$info$bv.calc
+          nbv = bv.calc
+          population$info$bv.calculated = FALSE
+        }
+
 
         population$info$real.bv.length <- c(length(population$info$real.bv.add),
                                             length(population$info$real.bv.mult),
@@ -2977,6 +3071,11 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
     if(sum(counter.start)>2 && population$info$bv.calculated){
+
+
+      if(population$info$founder_multi_calc && ((length(population$info$founder_pools) + 1) > length(population$info$bypool_list[[1]]))){
+        population = breeding.diploid(population)
+      }
 
       activ_bv <- 1:population$info$bv.nr
       if(length(bv.ignore.traits)>0){

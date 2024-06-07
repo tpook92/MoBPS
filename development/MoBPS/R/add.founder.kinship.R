@@ -31,8 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Population list
 #' @export
 
-add.founder.kinship <- function(population, founder.kinship = "vanRaden", gen=1){
+add.founder.kinship <- function(population, founder.kinship = "GBLUP", gen=1){
 
+  if(length(founder.kinship)==1 && founder.kinship=="GBLUP"){
+    founder.kinship = "vanRaden"
+  }
   if(length(founder.kinship)==1 && founder.kinship=="vanRaden"){
     Zt <- get.geno(population, gen=gen)
     if(population$info$miraculix){

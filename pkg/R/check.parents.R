@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param info.father position of the first parent in the dataset
 #' @param info.mother position of the second parent in the dataset
 #' @param max.rel maximal allowed relationship (default: 2, alt: 1 no full-sibs, 0 no half-sibs)
+#' @param avoid.mating.parent Set to TRUE to avoid matings of an individual to its parents
 #' @examples
 #' data(ex_pop)
 #' check.parents(ex_pop, info.father=c(4,1,1,1), info.mother=c(4,2,1,1))
@@ -33,9 +34,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-check.parents <- function(population, info.father, info.mother, max.rel=2){
+check.parents <- function(population, info.father, info.mother, max.rel=2,
+                          avoid.mating.parent = FALSE){
 
-  if(max.rel==2){
+  if(max.rel==2 && avoid.mating.parent){
     return(TRUE)
   }  else{
     p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]]
@@ -46,7 +48,20 @@ check.parents <- function(population, info.father, info.mother, max.rel=2){
     check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
       prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
 
-    return(check<=max.rel)
+    check1 = check2 = 0
+    if(avoid.mating.parent){
+
+      check1 <- prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
+        prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
+
+      check2 <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1,]) +
+        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1,])
+
+    }
+
+    valid = (check<=max.rel) && check1==0 && check2 == 0
+
+    return(c(valid, check))
   }
 
 }

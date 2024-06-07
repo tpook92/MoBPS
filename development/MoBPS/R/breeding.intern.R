@@ -51,7 +51,10 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
                              gene.editing=FALSE, nr.edits= 0,
                              gen.architecture=0,
                              decodeOriginsU=MoBPS::decodeOriginsR,
-                            recombination.function=MoBPS::recombination.function.haldane){
+                             recombination.function=MoBPS::recombination.function.haldane){
+
+
+
   n_snps <- sum(population$info$snp)
   if(gen.architecture==0){
     length.total <- population$info$length.total
@@ -96,60 +99,104 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
     recom.vol <- length.total[n.chromosome+1]*recombination.rate
   }
 
-  noc <- stats::rpois(1, recom.vol) #Anzahl Rekombinationspunkte
-  if(length(recom.f.indicator)!=0){
-    porc <- stats::runif(noc,0,recom.vol)
-    if(length(porc)>0){
-      cums <- cumsum((recom.f.indicator[-1,1] -recom.f.indicator[-nrow(recom.f.indicator),1])*recom.f.indicator[-nrow(recom.f.indicator),2])
-      for(index in 1:length(porc)){
-        actuel <- porc[index]
-        before <- sum(actuel < cums)
-        prev1 <- recom.f.indicator[nrow(recom.f.indicator)-before,]
-        next1 <- recom.f.indicator[nrow(recom.f.indicator)-before+1,]
+  valid = FALSE
+  is_carrier = NULL
+  rt = numeric(0)
+  while(!valid){
+    rt = numeric(0)
+    valid = TRUE
 
-        porc[index] <- prev1[1] + (actuel-c(0,cums)[nrow(recom.f.indicator)-before]) /prev1[2]
+    noc <- stats::rpois(1, recom.vol) #Anzahl Rekombinationspunkte
+    if(length(recom.f.indicator)!=0){
+      porc <- stats::runif(noc,0,recom.vol)
+      if(length(porc)>0){
+        cums <- cumsum((recom.f.indicator[-1,1] -recom.f.indicator[-nrow(recom.f.indicator),1])*recom.f.indicator[-nrow(recom.f.indicator),2])
+        for(index in 1:length(porc)){
+          actuel <- porc[index]
+          before <- sum(actuel < cums)
+          prev1 <- recom.f.indicator[nrow(recom.f.indicator)-before,]
+          next1 <- recom.f.indicator[nrow(recom.f.indicator)-before+1,]
+
+          porc[index] <- prev1[1] + (actuel-c(0,cums)[nrow(recom.f.indicator)-before]) /prev1[2]
+        }
       }
+    } else{
+      porc <- recombination.function(noc, length.total[n.chromosome+1]) #Position der Rekombinationspunkte
     }
-  } else{
-    porc <- recombination.function(noc, length.total[n.chromosome+1]) #Position der Rekombinationspunkte
-  }
 
 
+    porc_temp = porc
 
-  if(duplication.rate>0){
-    porc.d <- sortd(c(porc, 0, length.total[n.chromosome+1]))
-    rpod <- c(0, (stats::rbinom(noc,1,duplication.rate) * 2:(noc+1)),0)
-    pod <- porc.d[rpod]
-    pod2 <- rep(0,length(pod))
+    if(duplication.rate>0){
+      porc.d <- sortd(c(porc, 0, length.total[n.chromosome+1]))
+      rpod <- c(0, (stats::rbinom(noc,1,duplication.rate) * 2:(noc+1)),0)
+      pod <- porc.d[rpod]
+      pod2 <- rep(0,length(pod))
 
-    count <- 1
-    add.one <- rep(0,length(pod))
+      count <- 1
+      add.one <- rep(0,length(pod))
 
 
-    for(index in unique(c(0,rpod))[-1]){
-      activ.chromosome <- sum(pod[count] > length.total)
-      length.d <- stats::rexp(1, rate=(1/duplication.length)) * (-1)^(stats::rbinom(1,1,0.5))
-      pod2[count] <- max(min(pod[count]+ length.d, porc.d[index+1], length.total[activ.chromosome+1]),porc.d[index-1], length.total[activ.chromosome])
-      if(pod2[count]==(porc.d[index])|| sum(length.total[start.point]==porc.d[index])){
-        add.one[count] <- 1
+      for(index in unique(c(0,rpod))[-1]){
+        activ.chromosome <- sum(pod[count] > length.total)
+        length.d <- stats::rexp(1, rate=(1/duplication.length)) * (-1)^(stats::rbinom(1,1,0.5))
+        pod2[count] <- max(min(pod[count]+ length.d, porc.d[index+1], length.total[activ.chromosome+1]),porc.d[index-1], length.total[activ.chromosome])
+        if(pod2[count]==(porc.d[index])|| sum(length.total[start.point]==porc.d[index])){
+          add.one[count] <- 1
+        }
+        count <- count+1
       }
-      count <- count+1
-    }
-    pod.start <- pod
-    pod.start[pod.start>pod2] <- pod2[pod.start>pod2]
-    pod.end <- pod
-    pod.end[pod.end<pod2] <- pod2[pod.end<pod2]
+      pod.start <- pod
+      pod.start[pod.start>pod2] <- pod2[pod.start>pod2]
+      pod.end <- pod
+      pod.end[pod.end<pod2] <- pod2[pod.end<pod2]
 
-  } else{
-    pod <- pod2 <- rpod <- pod.start <- pod.end <- numeric(0)
+    } else{
+      pod <- pod2 <- rpod <- pod.start <- pod.end <- numeric(0)
+
+    }
+
+
+    start.point <- c(stats::rbinom(n.chromosome,1,0.5),0) * (1:(n.chromosome+1)) #Wechsel zu Beginn des Chromosoms
+    porc <- sortd((c(length.total[start.point],porc))) # Sortieren der Rekombinationspunkte
+    #Fuege bvei irrelevante Punkte hinzu die in jedemfall Ausserhalb des Gens liegen
+    porc <- c(-1,porc,length.total[n.chromosome+1]+1)
+
+    if(length(parent[[35]])>0 || length(parent[[36]])>0){
+
+      # add additional recombination events at RT positions
+      activ_rt = c(parent[[35]], parent[[36]])
+      activ_rt_indi = as.numeric(length(parent[[36]])>0)
+
+      if(length(activ_rt)>6){
+        stop("No matings between individuals with 2 rts defined")
+      }
+
+
+      if(length(is_carrier)==0){
+        is_carrier = (sum(porc < activ_rt[1])+1)%%2 == (activ_rt_indi)
+      } else{
+        is_carrier_check = (sum(porc < activ_rt[1])+1)%%2 == (activ_rt_indi)
+
+        if(is_carrier != is_carrier_check){
+          valid = FALSE
+        }
+      }
+
+      good_phase = sum(porc > activ_rt[3] & porc < activ_rt[4])%%2==1 &&       sum(porc > activ_rt[5] & porc < activ_rt[6])%%2==1
+
+
+      if(!good_phase){
+        valid = FALSE
+      }
+      # check if RTs are inherited jointly
+      if(is_carrier){
+        rt = activ_rt
+      }
+
+    }
 
   }
-
-
-  start.point <- c(stats::rbinom(n.chromosome,1,0.5),0) * (1:(n.chromosome+1)) #Wechsel zu Beginn des Chromosoms
-  porc <- sortd((c(length.total[start.point],porc))) # Sortieren der Rekombinationspunkte
-  #Fuege bvei irrelevante Punkte hinzu die in jedemfall Ausserhalb des Gens liegen
-  porc <- c(-1,porc,length.total[n.chromosome+1]+1)
 
 
   # recombination on dupliciation sequences
@@ -205,7 +252,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
   #
   new.poc <- NULL
-  new.mut <- NULL
+  new.mut <- integer(0)
   new.origin <- NULL
   new.dup <- NULL
   activ <- 1
@@ -213,60 +260,87 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
   mut_bool <- c(length(store_mut[[1]]), length(store_mut[[2]]))==0
   dup_bool <- c(length(dup[[1]]), length(dup[[2]]))>0
+
+  start_list = list(findInterval(porc, parent[[1]]), findInterval(porc, parent[[2]]))
+
+  end_list = list(findInterval(porc, parent[[1]], left.open = TRUE), findInterval(porc, parent[[2]], left.open = TRUE))
+
+  tmp1 = -2
+  tmp2 = logical(0)
+  if(sum(dup_bool) > 0){
+
+    for(index in 1:(length(porc)-1)){
+      if(start_list[[activ]][index] == end_list[[activ]][index+1]){
+        activ.porc = NULL
+      } else{
+        activ.porc = (start_list[[activ]][index] + 1):end_list[[activ]][index+1]
+      }
+      if(dup_bool[activ]){
+        activ.dup1 <- (dup[[activ]][,1] <= porc[index+1]) * (dup[[activ]][,1] >= porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
+        # duplication section on the start/end of a chromosome
+        activ.dup2 <- (dup[[activ]][,1] < porc[index+1]) * (dup[[activ]][,1] > porc[index]) * (dup[[activ]][,8] == 2)
+        # duplication section in the middle of a chromosome
+
+        # if the adjacting porcs are because of a start.point recombination some duplication sections have to be excluded
+        leftb <- sum(porc[index]==porc) - sum(porc[index] == length.total[start.point])
+        rightb <- sum(porc[index+1]==porc) - sum(porc[index+1] == length.total[start.point])
+
+        activ.dup3 <- (1-leftb) * (dup[[activ]][,1] <= porc[index+1]) * (dup[[activ]][,1] == porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
+        activ.dup4 <- (1-rightb) * (dup[[activ]][,1] == porc[index+1]) * (dup[[activ]][,1] >= porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
+
+        activ.dup <- activ.dup1 + activ.dup2 - ((activ.dup3+ activ.dup4)>0)
+        new.dup <- rbind(new.dup, dup[[activ]][activ.dup * (1:length(activ.dup)),])
+      } else{
+        active.dup <- tmp2
+        new.dup <- NULL
+      }
+
+    }
+  }
+
   for(index in 1:(length(porc)-1)){
-    activ.porc <- (parent[[activ]]<porc[index+1]) & (parent[[activ]]>porc[index])
+
+    tmps = start_list[[activ]][index]
+    tmpe = end_list[[activ]][index+1]
+    if(tmps == tmpe){
+      activ.porc = NULL
+    } else{
+      activ.porc = (tmps + 1):tmpe
+    }
 
     if(mut_bool[activ]){
-      activ.mut <- logical(0)
+      activ.mut <- tmp2
     } else{
       activ.mut <- (store_mut[[activ]]<porc[index+1]) & (store_mut[[activ]]>porc[index])
     }
 
-    if(dup_bool[activ]){
-      activ.dup1 <- (dup[[activ]][,1] <= porc[index+1]) * (dup[[activ]][,1] >= porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
-      # duplication section on the start/end of a chromosome
-      activ.dup2 <- (dup[[activ]][,1] < porc[index+1]) * (dup[[activ]][,1] > porc[index]) * (dup[[activ]][,8] == 2)
-      # duplication section in the middle of a chromosome
 
-      # if the adjacting porcs are because of a start.point recombination some duplication sections have to be excluded
-      leftb <- sum(porc[index]==porc) - sum(porc[index] == length.total[start.point])
-      rightb <- sum(porc[index+1]==porc) - sum(porc[index+1] == length.total[start.point])
-
-      activ.dup3 <- (1-leftb) * (dup[[activ]][,1] <= porc[index+1]) * (dup[[activ]][,1] == porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
-      activ.dup4 <- (1-rightb) * (dup[[activ]][,1] == porc[index+1]) * (dup[[activ]][,1] >= porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
-
-      activ.dup <- activ.dup1 + activ.dup2 - ((activ.dup3+ activ.dup4)>0)
-      new.dup <- rbind(new.dup, dup[[activ]][activ.dup * (1:length(activ.dup)),])
-    } else{
-      active.dup <- integer(0)
-      new.dup <- NULL
-    }
-
-    save1 <- max(new.poc[length(new.poc)],-2)!=porc[index+1]
+    tmp8 = porc[index+1]
+    save1 <- tmp1!=tmp8
 
     if(save1){
-      new.poc <- c(new.poc, parent[[activ]][activ.porc], porc[index+1])
+      tmp1 = tmp8
+      new.poc <- c(new.poc, parent[[activ]][activ.porc], tmp1)
     }
-
 
     if(length(activ.mut)>0){
       new.mut <- c(new.mut, parent[[activ+2]][activ.mut])
     }
 
+    start <- tmps
+    tmp3 = max(start, tmpe)
 
-
-    start <- max(sum(parent[[activ]]<=porc[index]),0)
-
-    activ.origin <- start:(start+sum(activ.porc))
-    if(start==0){
-      activ.origin <- activ.origin[-1]
+    if(start == 0){
+      start = 1
     }
-
-    if(length(activ.origin)>0){
-      while(max(activ.origin,-1)>length(parent[[activ+4]])){ # add -1 avoid max(numeric(0))
-        activ.origin <- activ.origin[-length(activ.origin)]
-
-      }
+    if( tmp3 > length(parent[[activ+4]])){
+      tmp3 = length(parent[[activ+4]])
+    }
+    if(start <= tmp3){
+      activ.origin <- start:tmp3
+    } else{
+      activ.origin = numeric(0)
+      tmp3 = -1
     }
 
     if(porc[index+1]>0 && save1){
@@ -307,7 +381,11 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   }
 
   if(length(remutationen)==0){
-    new.mut <- sort(unique(c(mutationen, new.mut)))
+    tmp6 = c(mutationen, new.mut)
+    if(length(tmp6)>0){
+      new.mut <- sort(unique(tmp6))
+    }
+
   } else{
     new.mut <- c(mutationen, new.mut[-remutationen])
     if(length(new.mut)>0){
@@ -411,6 +489,5 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   }
 
   share_a <- sum(segment_length[(1:length(segment_length)%%2)==1])/maxl
-  return(list(new.poc, new.mut, new.origin, info.parent, new.dup, porc, share_a))
+  return(list(new.poc, new.mut, new.origin, info.parent, new.dup, porc, share_a, porc_temp, rt))
 }
-

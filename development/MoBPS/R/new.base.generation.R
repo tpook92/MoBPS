@@ -24,6 +24,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to set a new base generation for the population
 #' @param population Population list
 #' @param base.gen Vector containing all new base generations
+#' @param base.database Matrix containing all database entries to be used as new base generation
+#' @param base.cohorts Vector containing all cohorts to be used as new base generations
 #' @param delete.previous.gen Delete all data before base.gen (default: FALSE)
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
 #' @param delete.bve.data Deleta all previous bve data (default: FALSE)
@@ -35,7 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Population-List with mutated marker for the selected individual
 #' @export
 
-new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=FALSE, delete.breeding.totals=FALSE,
+new.base.generation <- function(population, base.gen=NULL,
+                                base.database = NULL,
+                                base.cohorts = NULL,
+                                delete.previous.gen=FALSE, delete.breeding.totals=FALSE,
                                 delete.bve.data=FALSE, add.chromosome.ends=TRUE,
                                 founder.pool = 1){
 
@@ -51,6 +56,10 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
   } else{
     miraculix <- FALSE
   }
+
+  base.database.full = get.database(population, gen = base.gen, database = base.database, cohorts = base.cohorts)
+
+  base.gen = unique(base.database.full[,1])
 
   if(length(base.gen)==0){
     base.gen <- length(population$breeding)
@@ -88,10 +97,27 @@ new.base.generation <- function(population, base.gen=NULL, delete.previous.gen=F
 
 
 
+    if(length(base.database) > 0 || length(base.cohorts)>0){
+      skip = TRUE
+
+    } else{
+      skip = FALSE
+
+    }
 
     for(sex in 1:2){
       if(length(population$breeding[[gen]][[sex]])>0){
         for(nr in 1:length(population$breeding[[gen]][[sex]])){
+
+          if(skip){
+
+            checks = (base.database.full[,1] == gen) + (base.database.full[,2] == sex) + (base.database.full[,3] <= nr) + (base.database.full[,4] >= nr)
+
+            if(max(checks)<4){
+              next
+            }
+          }
+
           if(miraculix){
             population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::computeSNPS(population, gen, sex, nr, what="haplo", output_compressed=TRUE)
           } else{

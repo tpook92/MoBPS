@@ -32,14 +32,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param storage.save AA
 #' @param verbose AA
 #' @param mixblup.reliability AA
-#' @return write.pedigree.mixblup
-#' @examples
-#' write.pedigree.mixblup
+#' @param blupf90 FALSE for mixblup; TRUE for MixBLUP
+#' @return pedigree table
 #' @export
 
 
-write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
-                           storage.save = 1.5, verbose=TRUE, mixblup.reliability = FALSE){
+write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
+                           storage.save = 1.5, verbose=TRUE, mixblup.reliability = FALSE,
+                           blupf90 = FALSE){
 
   if(verbose) cat(paste0("Start writting pedigree file at ", path,"\n"))
   database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
@@ -126,9 +126,10 @@ write.pedigree.mixblup <- function(population, path, gen=NULL, database=NULL, co
   }
 
   if (requireNamespace("data.table", quietly = TRUE)) {
-    data.table::fwrite(file=path, pedigree_table, col.names = FALSE)
+    data.table::fwrite(file=path, pedigree_table, col.names = FALSE, sep = if(blupf90){" "} else{","})
   } else{
-    utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE, quote = FALSE)
+    utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE,
+                       quote = FALSE, sep = if(blupf90){" "} else{","})
   }
 
 }
