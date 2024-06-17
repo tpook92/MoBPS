@@ -23,6 +23,37 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.11.50 (17.06.24)
+
+Improved speed of meiosis simulation (~40%) + improved parallelization
+
+"GBLUP" is not an accepted input where previously "vanRaden" was expected to perform a genomic BVE ("vanRaden" still works as well)
+
+Added inbreeding control features (max.selection.fullsib/halfsib, selection.index.kindship, avoid.mating)
+
+Added option to phenotype/genotype selected individuals (genotyped.selected, phenotype.selected)
+
+Added link to blupf90/renumf90 (bve.blupf90)
+
+Added advanced mixblup features (restart/nopeek/calcinbr.s)
+
+Number of recombination points can be linked to a heritable trait (recombination.rate.trait)
+
+Fixed bug in OGC implementation for optiSel where contributions where not always correctly assigned to individuals
+
+### Version 1.11.03 (29.12.23)
+
+QTL-effects can now be sampled from gaussian and gamma distribution (default: effect.distribution = "gauss")
+
+Added features to trait time.point of phenotyping, culling, genotyping
+
+Extended max.offspring feature to limit each individual to an individual threshold value
+
+Added link to mixblup (bve.mixblup)
+
+Added option to cull all non-selected individuals
+
+Added snapshot function to get an overview of population (get.snapshot / get.snapshot.single)
 
 ### Version 1.10.48 (29.03.23)
 
