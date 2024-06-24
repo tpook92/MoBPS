@@ -4,7 +4,7 @@
 \alias{add.founder.kinship}
 \title{Add a relationship matrix for founder individuals}
 \usage{
-add.founder.kinship(population, founder.kinship = "vanRaden", gen = 1)
+add.founder.kinship(population, founder.kinship = "GBLUP", gen = 1)
 }
 \arguments{
 \item{population}{population list}

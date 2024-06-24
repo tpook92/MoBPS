@@ -14,11 +14,11 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple_Cattle.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task2/Simple Sheep Advanced_baseline.json")
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 0.2
+size.scaling <- 1
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE

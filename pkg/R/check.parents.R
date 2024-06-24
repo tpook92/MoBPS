@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param info.mother position of the second parent in the dataset
 #' @param max.rel maximal allowed relationship (default: 2, alt: 1 no full-sibs, 0 no half-sibs)
 #' @param avoid.mating.parent Set to TRUE to avoid matings of an individual to its parents
+#' @param still.check Internal parameter (avoid.mating.parent check)
 #' @examples
 #' data(ex_pop)
 #' check.parents(ex_pop, info.father=c(4,1,1,1), info.mother=c(4,2,1,1))
@@ -35,10 +36,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 check.parents <- function(population, info.father, info.mother, max.rel=2,
-                          avoid.mating.parent = FALSE){
+                          avoid.mating.parent = FALSE, still.check = FALSE){
 
   if(max.rel==2 && avoid.mating.parent){
-    return(TRUE)
+
+    if(still.check){
+      p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]]
+      p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[8]]
+      p3 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]]
+      p4 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[8]]
+
+      check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
+        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
+
+      return(c(TRUE, check))
+    } else{
+      return(c(TRUE, 0))
+    }
+
   }  else{
     p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]]
     p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[8]]

@@ -114,8 +114,7 @@ creating.diploid(
   position.scaling = FALSE,
   shuffle.cor = NULL,
   shuffle.traits = NULL,
-  bv.total = 0,
-  martin_test = FALSE
+  bv.total = 0
 )
 }
 \arguments{
@@ -338,8 +337,6 @@ creating.diploid(
 \item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
 
 \item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
-
-\item{martin_test}{DONT touch}
 }
 \value{
 Population-list

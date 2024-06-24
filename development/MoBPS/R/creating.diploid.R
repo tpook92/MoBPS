@@ -130,7 +130,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param internal Dont touch!
 #' @param internal.geno Dont touch!
 #' @param internal.dataset Dont touch!
-#' @param martin_test DONT touch
 # OLD
 #' @param nbits Bits available in MoBPS-bit-storing
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
@@ -265,8 +264,7 @@ creating.diploid <- function(population=NULL,
                              position.scaling=FALSE,
                              shuffle.cor=NULL,
                              shuffle.traits=NULL,
-                             bv.total=0,
-                             martin_test = FALSE
+                             bv.total=0
                              ){
 
 
@@ -515,6 +513,11 @@ creating.diploid <- function(population=NULL,
     if (requireNamespace("miraculix", quietly = TRUE)) {
       codeOriginsU <- miraculix::codeOrigins
       decodeOriginsU <- miraculix::decodeOrigins
+      new_miraculix = as.numeric(substr(utils::packageVersion("miraculix"), start = 1, stop = 3))>=1.3
+
+      if(!new_miraculix & length(population)==0){
+        if(verbose){cat("Consider updating RandomFieldsUtils and miraculix for maximum performance!\n")}
+      }
     } else{
       codeOriginsU <- codeOriginsR
       decodeOriginsU <- decodeOriginsR
@@ -1414,7 +1417,7 @@ creating.diploid <- function(population=NULL,
               for(chr.index in unique(chr.nr)){
                 if(is.list(dataset)){
 
-                  if(martin_test){
+                  if(new_miraculix){
                     snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[3])
                   } else{
                     snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[2])
@@ -1427,7 +1430,7 @@ creating.diploid <- function(population=NULL,
               }
             } else{
               if(sum(class(dataset)  %in% "haplomatrix")>0){
-                if(martin_test){
+                if(new_miraculix){
                   snpdata <- c(snpdata, attr(dataset[[1]], "information")[3])
                 } else{
                   snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
@@ -1675,7 +1678,7 @@ creating.diploid <- function(population=NULL,
           nsnp <- numeric(length(dataset))
           for(index in 1:length(dataset)){
 
-            if(martin_test){
+            if(new_miraculix){
               nsnp[index] <- attr(dataset[[index]], "information")[3]
             } else{
               nsnp[index] <- attr(dataset[[index]], "information")[2]
@@ -1695,7 +1698,7 @@ creating.diploid <- function(population=NULL,
         }
       }
       if(is.list(dataset)){
-        if(martin_test){
+        if(new_miraculix){
           nindi <- attr(dataset[[1]], "information")[5]
         } else{
           nindi <- attr(dataset[[1]], "information")[3]
@@ -1790,7 +1793,7 @@ creating.diploid <- function(population=NULL,
     } else{
       if(is.list(dataset)){
 
-        if(martin_test){
+        if(new_miraculix){
           nsnp <- attr(dataset[[1]], "information")[3]
           nindi <- attr(dataset[[1]], "information")[5]
         } else{
@@ -2161,7 +2164,7 @@ creating.diploid <- function(population=NULL,
 
           if(internal.geno){
             if(miraculix && miraculix.dataset){
-              if(martin_test){
+              if(new_miraculix){
                 population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], sel.indiv = index))
               } else{
                 population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]],indiv = index))
@@ -2365,7 +2368,7 @@ creating.diploid <- function(population=NULL,
             if(miraculix && miraculix.dataset){
               if(length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])==0){
 
-                if(martin_test){
+                if(new_miraculix){
                   population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], sel.indiv = index))
                 } else{
                   population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(as.matrix(dataset[[1]], indiv = index))
@@ -2374,7 +2377,7 @@ creating.diploid <- function(population=NULL,
                 population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
               } else{
 
-                if(martin_test){
+                if(new_miraculix){
                   population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], sel.indiv = index)))
                 } else{
                   population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),as.matrix(dataset[[1]], indiv = index)))
@@ -2571,8 +2574,7 @@ creating.diploid <- function(population=NULL,
                                          progress.bar = progress.bar,
                                    internal.geno=if(chr_index == length(chr.opt) || !(miraculix && miraculix.dataset)){TRUE} else {FALSE},
                                    internal.dataset = dataset_full,
-                                   size.scaling = size.scaling,
-                                   martin_test = martin_test)
+                                   size.scaling = size.scaling)
         }
       } else{
 
@@ -2638,8 +2640,7 @@ creating.diploid <- function(population=NULL,
                                        internal=TRUE,
                                        progress.bar = progress.bar,
                                        size.scaling = size.scaling,
-                                       founder.pool = founder.pool,
-                                       martin_test = martin_test)
+                                       founder.pool = founder.pool)
       }
 
     }

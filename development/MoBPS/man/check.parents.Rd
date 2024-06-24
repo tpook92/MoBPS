@@ -9,7 +9,8 @@ check.parents(
   info.father,
   info.mother,
   max.rel = 2,
-  avoid.mating.parent = FALSE
+  avoid.mating.parent = FALSE,
+  still.check = FALSE
 )
 }
 \arguments{
@@ -22,6 +23,8 @@ check.parents(
 \item{max.rel}{maximal allowed relationship (default: 2, alt: 1 no full-sibs, 0 no half-sibs)}
 
 \item{avoid.mating.parent}{Set to TRUE to avoid matings of an individual to its parents}
+
+\item{still.check}{Internal parameter (avoid.mating.parent check)}
 }
 \value{
 logical with TRUE if relatedness does not excced max.rel / FALSE otherwise.

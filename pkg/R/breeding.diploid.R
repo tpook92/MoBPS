@@ -5170,8 +5170,8 @@ breeding.diploid <- function(population,
               estimated_bve = estimated_bve[sort(estimated_bve[,3], index.return = TRUE)$ix,]
               decode_blupf90 = decode_blupf90[sort(decode_blupf90[,1], index.return = TRUE)$ix,]
 
-              fixed_effects = estimated_bve[1:length(bve.keeps),]
-              estimated_bve =  estimated_bve[-(1:length(bve.keeps)),]
+              fixed_effects = estimated_bve[1:length(bve.keeps),,drop = FALSE]
+              estimated_bve =  estimated_bve[-(1:length(bve.keeps)),,drop = FALSE]
               estimated_bve = cbind(decode_blupf90[,ncol(decode_blupf90)],matrix(estimated_bve[,ncol(estimated_bve)] + fixed_effects[,ncol(estimated_bve)], byrow = TRUE, ncol = length(bve.keeps)))
 
 
@@ -7870,7 +7870,13 @@ breeding.diploid <- function(population,
           #reset count
           warn1 = warn2 = warn3 = warn4 = 0
 
-          repeat.mating.temp = population$info$repeat.mating[1,1]
+          if(copy.individual){
+            repeat.mating.temp = population$info$repeat.mating.copy[1,1]
+
+          } else{
+            repeat.mating.temp = population$info$repeat.mating[1,1]
+
+          }
 
 
           runs = 0
@@ -7987,7 +7993,8 @@ breeding.diploid <- function(population,
 
                 if(max_rel_temp!=2 || avoid.mating.parent){
                   tmp_rel = check.parents(population, info.father, info.mother, max.rel=max_rel_temp,
-                                          avoid.mating.parent)
+                                          avoid.mating.parent = avoid.mating.parent,
+                                          still.check = (max_rel != max_rel_temp))
                   check_rel = as.logical(tmp_rel[1])
                   check_rel2 = tmp_rel[2] <= max_rel
                 } else{
@@ -8343,7 +8350,8 @@ breeding.diploid <- function(population,
 
                 if(max_rel_temp!=2 || avoid.mating.parent){
                   tmp_rel = check.parents(population, info.father, info.mother, max.rel=max_rel_temp,
-                                          avoid.mating.parent)
+                                          avoid.mating.parent = avoid.mating.parent,
+                                          still.check = (max_rel != max_rel_temp))
                   check_rel = as.logical(tmp_rel[1])
                   check_rel2 = tmp_rel[2] <= max_rel
                 } else{
@@ -8788,7 +8796,7 @@ breeding.diploid <- function(population,
             child_temp[[15]] <- rep(0L, population$info$bv.nr)
           }
           if(copy.individual && copy.individual.keep.pheno){
-            child_temp[[15]] <- father[[15]]
+            child_temp[[15]][ child_temp[[15]] < father[[15]]] <- father[[15]][ child_temp[[15]] < father[[15]]]
             child_temp[[24]] <- father[[24]]
           }
 
