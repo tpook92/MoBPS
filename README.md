@@ -23,6 +23,14 @@ A separate publication of the web-based framework is also published in G3 (https
 
 Updates since initial release:
 
+### Version 1.11.53 (24.06.24)
+
+RandomFieldsUtils & miraculix update (v.1.5). Now again compatible with newer R versions
+
+Added function to calculate variance components (get.variance() )
+
+Updated documentation
+
 ### Version 1.11.50 (17.06.24)
 
 Improved speed of meiosis simulation (~40%) + improved parallelization
