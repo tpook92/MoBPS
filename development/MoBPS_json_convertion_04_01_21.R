@@ -14,7 +14,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/GitHub/MoBPS/MoBPS_Workshop_WIAS/Task2/Simple Sheep Advanced_baseline.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/MoBPS_Workshop_purdue/Task2/Simple Sheep Advanced_baseline.json")
 
 fast.mode <- FALSE
 rep.max <- 1
@@ -368,7 +368,7 @@ fixed.generation.order <- NULL
         }
 
 
-        pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
+        #pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
         residual_var <- pheno_var - gen_var
         if(length(residual_var)==1){
           cor_pheno <- sqrt(matrix(matrix(1/residual_var))) %*% residual_var %*%  sqrt(matrix(matrix(1/residual_var)))

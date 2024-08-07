@@ -1042,6 +1042,7 @@ creating.trait <- function(population,
       to_add = population$info$bv.nr - if(length(population$breeding[[generation]][[3]])>0){nrow(population$breeding[[generation]][[3]])} else {0}
       for(index in c(3,4,7:10, 19:22, 27:30)){
         sex_temp = 2-index%%2
+
         population$breeding[[generation]][[index]] <- rbind( population$breeding[[generation]][[index]],
                                                              matrix(if(index==9 || index==10) {NA} else{0L}, nrow= to_add, ncol=counter[sex_temp]-1)) # estimated breeding value
         # estimated breeding value 3,4

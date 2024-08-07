@@ -83,8 +83,21 @@ get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, pheno
     to_analyse2 = which( ids_potential %in% ids)
     results[index,3] = length(to_analyse)
 
-    results[index,4] = sum(gtime[to_analyse] <= as.numeric(results[index,1] ), na.rm = TRUE)
-    results[index,5] = sum(ptime[to_analyse] <= as.numeric(results[index,1]), na.rm = TRUE)
+
+    if(use.all.copy){
+      results[index,4] = sum(gtime[to_analyse] <= as.numeric(results[index,1] ), na.rm = TRUE)
+      results[index,5] = sum(ptime[to_analyse] <= as.numeric(results[index,1]), na.rm = TRUE)
+    } else{
+
+
+      ptime_tmp = get.pheno.time(population, cohorts = cohorts_list[potential_cohorts[index],1], use.all.copy = use.all.copy)
+      gtime_tmp = get.geno.time(population, cohorts = cohorts_list[potential_cohorts[index],1], use.all.copy = use.all.copy)
+
+      results[index,4] = sum((gtime_tmp[to_analyse2] <= as.numeric(results[index,1] )), na.rm = TRUE)
+      results[index,5] = sum((ptime_tmp[to_analyse2] <= as.numeric(results[index,1])), na.rm = TRUE)
+
+    }
+
 
 
     if(phenotype.data){

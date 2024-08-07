@@ -1251,8 +1251,9 @@ litter.size = matrix(c(1, 0.70,
                        4, 0.05
 ), byrow=TRUE, ncol=2)
 
-population = breeding.diploid(population, repeat.mating = litter.size,
-                              breeding.size.litter = n_litter)
+n_litter = 5
+#population = breeding.diploid(population, repeat.mating = litter.size,
+#                              breeding.size.litter = n_litter)
 
 # Construction of the fertility trait with discrete phenotypic realisations
 # This is a trait with only purely dominate effects
@@ -1292,6 +1293,7 @@ litter.function = function(x){
 population = creating.phenotypic.transform(population,
                           phenotypic.transform.function = litter.function,
                                            trait = 1)
+
 population = breeding.diploid(population,
                               repeat.mating = "genetic",
                               repeat.mating.trait = 1,

@@ -32,6 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mult Multiplicator of kinship matrix (default: 1; set to 2 for a pedigree relationship matrix)
 #' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
 #' @param elements.copy Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)
+#' @param include.error Set to FALSE to ignore/correct any errors in the pedigree
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
@@ -46,6 +47,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
                                mult = 1,
                                storage.save=1.5,
                                verbose=TRUE,
+                        include.error = TRUE,
                         elements.copy = FALSE){
 
   t1 <- as.numeric(Sys.time())
@@ -106,7 +108,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
     new.pedigree.database <- new.pedigree.database_prior <- pedigree.database <- database
     remaining.depth <- depth.pedigree
     while(remaining.depth>0){
-      parents <- get.pedigree(population, database = new.pedigree.database, raw=TRUE)
+      parents <- get.pedigree(population, database = new.pedigree.database, raw=TRUE, include.error = include.error)
       m_parents <- rbind(parents[parents[,5]==1,4:6], parents[parents[,8]==1,7:9])
       f_parents <- rbind(parents[parents[,5]==2,4:6], parents[parents[,8]==2,7:9])
       if(nrow(m_parents)>0){
@@ -232,7 +234,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
   ## Potential export individual id in the pedigree - more efficient for high number of copies!
   #info.indi <- get.pedigree(population, database=pedigree.database)
-  info.indi_id <- get.pedigree(population, database=pedigree.database, id=TRUE)
+  info.indi_id <- get.pedigree(population, database=pedigree.database, id=TRUE, include.error = include.error)
 
   #info.indi <-  info.indi[!duplicated(info.indi_id[,1]),,drop = FALSE]
   info.indi_id <-  info.indi_id[!duplicated(info.indi_id[,1]),,drop = FALSE]

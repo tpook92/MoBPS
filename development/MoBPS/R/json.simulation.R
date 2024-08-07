@@ -438,7 +438,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           }
 
 
-          pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
+          #pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
           residual_var <- pheno_var - gen_var
           if(length(residual_var)==1){
             cor_pheno <- sqrt(matrix(matrix(1/residual_var))) %*% residual_var %*%  sqrt(matrix(matrix(1/residual_var)))
