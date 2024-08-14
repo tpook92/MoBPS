@@ -1,3 +1,11 @@
+# Announcement Workshop
+
+The next MoBPS workshop will be fully remotely / online on October 24 & 25. 
+
+For registration see https://wias.crs.wur.nl/courses/details/1632/
+
+The next in-person workshop in Wageningen will be in March 2025 (details will follow soon)
+
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
 A manuscript for the package is published in G3 Genes Genomes Genetics (https://academic.oup.com/g3journal/article/10/6/1915/6026363)
