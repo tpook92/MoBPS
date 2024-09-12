@@ -617,7 +617,7 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
                             "father.gen", "father.sex","father.nr",
                             "mother.gen","mother.sex","mother.nr",
                             "paternal grandfather.gen","paternal grandfather.sex","paternal grandfather.nr",
-                            "paternal grandmother.gen", "paternal grandmother.sex", "paternal grandmothe.nr",
+                            "paternal grandmother.gen", "paternal grandmother.sex", "paternal grandmother.nr",
                             "maternal grandfather.gen",  "maternal grandfather.sex", "maternal grandfather.nr",
                             "maternal grandmother.gen", "maternal grandmother.sex", "maternal grandmother.nr")
   } else {

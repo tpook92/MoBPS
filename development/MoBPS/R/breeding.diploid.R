@@ -246,11 +246,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mixblup.apy Set to TRUE to use APY inverse in MiXBLUP (default: FALSE)
 #' @param mixblup.apy.core Number of core individuals in the APY algorithm (default: 5000)
 #' @param mixblup.ta Set to TRUE to use the !Ta flag in MixBLUP
+#' @param mixblup.tac Set to TRUE to use the !TAC flag in MixBLUP
 #' @param mixblup.multiple.records Set to TRUE to write multiple phenotypic records for an individual
 #' @param mixblup.restart Set to TRUE to set the !RESTART flag in MiXBLUP (requires a "Solunf" file in the working directory)
 #' @param mixblup.nopeek Set to TRUE to set the !NOPEEK flag in MiXBLUP
 #' @param mixblup.calcinbr.s Set to TRUE to set the !CalcInbr flag to S
 #' @param mixblup.attach Set TRUE to just extent the existing genotype file instead of writting it completely new
+#' @param mixblup.debug Set TRUE to set debugging flags for mixblup call (-Dmst > mixblup_debug.log) (default: FALSE)
+#' @param mixblup.plink Set TRUE to write genotype files in PLINK format (requires R-package genio, default: FALSE)
 #' @param blupf90.path.inputfile Path from where to import the blupf90 inputfile
 #' @param blupf90.path.datafile Path from where to import the blupf90 data file
 #' @param blupf90.path.genofile Path from where to import the blupf90 genotype file
@@ -645,6 +648,7 @@ breeding.diploid <- function(population,
                               mixblup.apy = FALSE,
                               mixblup.apy.core = NULL,
                               mixblup.ta = FALSE,
+                             mixblup.tac = FALSE,
                               mixblup.skip = FALSE,
                              blupf90.skip = FALSE,
                              mixblup.restart = FALSE,
@@ -652,7 +656,8 @@ breeding.diploid <- function(population,
                              mixblup.calcinbr.s = FALSE,
                               mixblup.multiple.records = FALSE,
                              mixblup.attach = FALSE,
-
+                             mixblup.debug = FALSE,
+                             mixblup.plink = FALSE,
                              blupf90.pedfile=TRUE,
                              blupf90.parfile=TRUE,
                              blupf90.datafile=TRUE,
@@ -811,6 +816,7 @@ breeding.diploid <- function(population,
                              next.id = NULL,
                              copy.individual.use = NULL,
                              copy.individual.use2 = NULL){
+
 
   if(length(copy.individual.use) == 0){
     copy.individual.use = c(14,22,24,30,32,34,36,38,40,42,44)
@@ -1171,6 +1177,15 @@ breeding.diploid <- function(population,
         if(length(population$info$pool_effects) == 0){
           population$info$pool_effects = FALSE
         }
+
+
+        if(mixblup.attach){
+          if(mixblup.jeremie || mixblup.plink){
+            mixblup.attach = FALSE
+            if(verbose){cat("Not possible to use mixblup.attach and Plink format at the same time.\n")}
+          }
+        }
+
         if(mixblup.bve){
           if(length(mixblup.omega)==0){
             mixblup.omega = mixblup.lambda
@@ -1430,6 +1445,8 @@ breeding.diploid <- function(population,
       breeding.intern.activ <- breeding.intern6
     } else if(intern.func==7){
       breeding.intern.activ <- breeding.intern7
+    } else if(intern.func==8){
+      breeding.intern.activ <- breeding.intern8
     }
 
 
@@ -3900,6 +3917,19 @@ breeding.diploid <- function(population,
 
                     dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
 
+
+                    if(blupf90.bve){
+
+                      max_char = max(nchar(dense[,1]))
+
+                      while(min(nchar(dense[,1])) < max_char){
+                        to_change = nchar(dense[,1]) < max_char
+                        dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                      }
+                    }
+
+
                     if(mixblup.attach && !mixblup.jeremie ){
 
                       if(file.exists(paste0(mixblup.path.genofile, "_id.txt"))){
@@ -3957,6 +3987,18 @@ breeding.diploid <- function(population,
                     }
                     dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
 
+                    if(blupf90.bve){
+
+                      max_char = max(nchar(dense[,1]))
+
+                      while(min(nchar(dense[,1])) < max_char){
+                        to_change = nchar(dense[,1]) < max_char
+                        dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                      }
+                    }
+
+
                     if(mixblup.attach && !mixblup.jeremie ){
 
                       if(file.exists(paste0(mixblup.path.genofile, "_id.txt"))){
@@ -3998,6 +4040,18 @@ breeding.diploid <- function(population,
                   }
                   geno = Zt
                   dense <- cbind(get.id(population, database = bve.database)[loop_elements_list[[2]]][genotype.included], 0)
+
+                  if(blupf90.bve){
+
+                    max_char = max(nchar(dense[,1]))
+
+                    while(min(nchar(dense[,1])) < max_char){
+                      to_change = nchar(dense[,1]) < max_char
+                      dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                    }
+                  }
+
 
                   if(mixblup.attach && !mixblup.jeremie ){
 
@@ -4072,6 +4126,18 @@ breeding.diploid <- function(population,
 
                     dense <- cbind(get.id(population, database = bve.database), 0)
 
+                    if(blupf90.bve){
+
+                      max_char = max(nchar(dense[,1]))
+
+                      while(min(nchar(dense[,1])) < max_char){
+                        to_change = nchar(dense[,1]) < max_char
+                        dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                      }
+                    }
+
+
                     if(mixblup.attach && !mixblup.jeremie ){
 
                       if(file.exists(paste0(mixblup.path.genofile, "_id.txt"))){
@@ -4122,6 +4188,18 @@ breeding.diploid <- function(population,
                     }
                     dense <- cbind(get.id(population, database = bve.database), 0)
 
+                    if(blupf90.bve){
+
+                      max_char = max(nchar(dense[,1]))
+
+                      while(min(nchar(dense[,1])) < max_char){
+                        to_change = nchar(dense[,1]) < max_char
+                        dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                      }
+                    }
+
+
                     if(mixblup.attach && !mixblup.jeremie ){
 
                       if(file.exists(paste0(mixblup.path.genofile, "_id.txt"))){
@@ -4169,6 +4247,18 @@ breeding.diploid <- function(population,
                     mixblup_time[3] <- as.numeric(Sys.time())
                   }
                   dense <- cbind(get.id(population, database = bve.database), 0)
+
+                  if(blupf90.bve){
+
+                    max_char = max(nchar(dense[,1]))
+
+                    while(min(nchar(dense[,1])) < max_char){
+                      to_change = nchar(dense[,1]) < max_char
+                      dense[to_change ,1] = paste0(" ", dense[to_change ,1])
+
+                    }
+                  }
+
 
                   if(mixblup.attach && !mixblup.jeremie ){
 
@@ -4589,6 +4679,7 @@ breeding.diploid <- function(population,
           if(length(geno)>0){
             dim_geno = dim(geno)
             rm(geno)
+
           } else{
             dim_geno = c(0,0)
           }
@@ -4863,7 +4954,7 @@ breeding.diploid <- function(population,
 
           } else{
 
-            if(!mixblup.jeremie){
+            if(!mixblup.jeremie && !mixblup.plink){
               if (requireNamespace("data.table", quietly = TRUE)) {
                 data.table::fwrite(file=mixblup.path.genofile, dense, sep = " ", col.names = FALSE)
               } else{
@@ -4880,7 +4971,7 @@ breeding.diploid <- function(population,
 
 
 
-          if(mixblup.jeremie){
+          if(mixblup.jeremie || mixblup.plink){
             if (requireNamespace("genio", quietly = TRUE)) {
 
               options("scipen"=999)
@@ -4913,6 +5004,7 @@ breeding.diploid <- function(population,
           if(length(dense)>0){
             dim_dense = dim(dense)
             rm(dense)
+
           } else{
             dim_dense = c(0,0)
           }
@@ -4924,6 +5016,16 @@ breeding.diploid <- function(population,
         }
 
         if(mixblup.bve && mixblup.inputfile){
+
+          if(mixblup.plink){
+            geno_path = paste0(mixblup.path.genofile2, ".bed")
+            geno_format = "!PLINK"
+            geno_type = NULL
+          } else{
+            geno_path = mixblup.path.genofile
+            geno_format = "!DENSE"
+            geno_type = 2
+          }
           if(store.comp.times.bve){
             mixblup_time[11] <- as.numeric(Sys.time())
           }
@@ -4950,6 +5052,7 @@ breeding.diploid <- function(population,
 
           if(sum(dim_dense)>0){
 
+
             if(mixblup.apy){
 
 
@@ -4961,29 +5064,32 @@ breeding.diploid <- function(population,
                 mixblup.apy.core = dim_dense[1]
                 if(verbose){ cat("Number of genotyped individuals is smaller than the core!\nNo use of APY")}
 
-                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat","!Ta", "!SINGLESTEP", "!DENSE", 2, "!MAF", mixblup.maf),
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat","!Ta", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
                                    append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-              } else if(length(mixblup.apy.core)==1 && dim_dense[1] <= mixblup.apy.core && !mixblup.ta){
-                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat", "!SINGLESTEP", "!DENSE", 2, "!MAF", mixblup.maf),
+              } else if(length(mixblup.apy.core)==1 && dim_dense[1] <= mixblup.apy.core && mixblup.tac){
+                mixblup.apy.core = dim_dense[1]
+                if(verbose){ cat("Number of genotyped individuals is smaller than the core!\nNo use of APY")}
+
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat","!TAC", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
                                    append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-              }else{
-                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat", "!SINGLESTEP", "!DENSE", 2, "!MAF", mixblup.maf, "!APY", "!APYCoreRan", mixblup.apy.core),
+              } else if(length(mixblup.apy.core)==1 && dim_dense[1] <= mixblup.apy.core && !mixblup.ta && !mixblup.tac){
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
+                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              } else{
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf, "!APY", "!APYCoreRan", mixblup.apy.core),
                                    append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
 
               }
-              utils::write.table(file=mixblup.path.inputfile, cbind("animal", "I"), append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
-
               utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
-
-
-
-
 
 
             } else{
 
               if(mixblup.ta){
-                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat","!Ta", "!SINGLESTEP", "!DENSE", 2, "!MAF", mixblup.maf),
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat","!Ta", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
+                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              } else if(mixblup.tac){
+                utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat","!TAC", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
                                    append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
               } else{
 
@@ -4993,50 +5099,57 @@ breeding.diploid <- function(population,
                   utils::write.table(file=mixblup.path.inputfile, cbind("animal", "I"), append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
                   utils::write.table(file=mixblup.path.inputfile, cbind("SNP01", paste0(mixblup.path.genofile2, ".bed"), "!REGTYPE", "R", "!Plink"), append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
                 } else{
-                  utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", mixblup.path.genofile, "!CONSTRUCT", "ssmat", "!SINGLESTEP", "!DENSE", 2, "!MAF", mixblup.maf),
+
+                  if(dim_dense[1] > 10000){
+                    if(verbose){cat(paste0("You are running an evaluation with ", dim_dense[1], " individuals without APY / TA / TAC / hpblup ! This will require lot of computational ressource"))}
+                  }
+                  if(dim_dense[1] > 30000){
+                    warning(paste0("You are running an evaluation with ", dim_dense[1], " individuals without APY / TA / TAC / hpblup !!! This will require lots of computational ressource"))
+                  }
+
+                  utils::write.table(file = mixblup.path.inputfile, cbind("ERMFILE", geno_path, "!CONSTRUCT", "ssmat", "!SINGLESTEP", geno_format, geno_type, "!MAF", mixblup.maf),
                                      append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
 
                 }
 
               }
               utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+            }
 
 
 
+            if(mixblup.jeremie){
+              utils::write.table(file = mixblup.path.inputfile, "REGFILE",
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
 
-              if(mixblup.jeremie){
-                utils::write.table(file = mixblup.path.inputfile, "REGFILE",
+              utils::write.table(file = mixblup.path.inputfile, cbind("animal", "I"),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+
+              utils::write.table(file = mixblup.path.inputfile, cbind("REG01", "!REGTYPE", "F", "!Jcov"),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+
+              utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+            } else{
+
+              utils::write.table(file = mixblup.path.inputfile, cbind("animal", "I"),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              utils::write.table(file = mixblup.path.inputfile, cbind("!METHOD", "VanRaden"),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              utils::write.table(file = mixblup.path.inputfile, cbind("!Lambda", mixblup.lambda),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              utils::write.table(file = mixblup.path.inputfile, cbind("!ALPHA", mixblup.alpha),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              utils::write.table(file = mixblup.path.inputfile, cbind("!Beta", mixblup.beta),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+              utils::write.table(file = mixblup.path.inputfile, cbind("!OMEGA", mixblup.omega),
+                                 append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
+
+              if(length(mixblup.numproc)>0){
+                utils::write.table(file = mixblup.path.inputfile, cbind("!NUMPROC", mixblup.numproc),
                                    append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-
-                utils::write.table(file = mixblup.path.inputfile, cbind("animal", "I"),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-
-                utils::write.table(file = mixblup.path.inputfile, cbind("REG01", "!REGTYPE", "F", "!Jcov"),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-
-                utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
-              } else{
-
-                utils::write.table(file = mixblup.path.inputfile, cbind("animal", "I"),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                utils::write.table(file = mixblup.path.inputfile, cbind("!METHOD", "VanRaden"),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                utils::write.table(file = mixblup.path.inputfile, cbind("!Lambda", mixblup.lambda),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                utils::write.table(file = mixblup.path.inputfile, cbind("!ALPHA", mixblup.alpha),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                utils::write.table(file = mixblup.path.inputfile, cbind("!Beta", mixblup.beta),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                utils::write.table(file = mixblup.path.inputfile, cbind("!OMEGA", mixblup.omega),
-                                   append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-
-                if(length(mixblup.numproc)>0){
-                  utils::write.table(file = mixblup.path.inputfile, cbind("!NUMPROC", mixblup.numproc),
-                                     append = TRUE, row.names = FALSE, col.names = FALSE, quote=FALSE)
-                }
-
-                utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
               }
+
+              utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
             }
           }
 
@@ -5445,7 +5558,7 @@ breeding.diploid <- function(population,
                 file.remove(solani)
               }
               tick_mix = Sys.time()
-              system(paste0(mixblup.path, " ", mixblup.path.inputfile), intern=verbose&&mixblup.verbose,
+              system(paste0(mixblup.path, " ", mixblup.path.inputfile, if(mixblup.debug){" -Dmst > mixblup_debug.log"} else{""}), intern=verbose&&mixblup.verbose,
                      ignore.stdout=!(verbose&&mixblup.verbose), ignore.stderr=!(verbose&&mixblup.verbose))
 
               tack_mix = Sys.time()
@@ -6613,6 +6726,8 @@ breeding.diploid <- function(population,
                   if(verbose){
                     cat(paste0("All missing value in selection criteria have been replaced by 0 (", sum(is.na(breeding.values))," cases)\n"))
                   }
+                  warning(paste0("All missing value in selection criteria have been replaced by 0 (", sum(is.na(breeding.values))," cases)\n"))
+
                   breeding.values[is.na(breeding.values)] = 0
                 }
 
