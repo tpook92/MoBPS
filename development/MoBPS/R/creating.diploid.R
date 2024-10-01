@@ -1975,6 +1975,13 @@ creating.diploid <- function(population=NULL,
         population$info$pen.effect.active <- FALSE
         population$info$max.time.point = time.point
 
+        if(miraculix){
+          test_matrix = matrix(rbinom(5000, 1, 0.5), ncol = 2)
+          population$info$miraculix_test_coded = miraculix::haplomatrix(test_matrix)
+          population$info$miraculix_test_decoded = test_matrix
+
+        }
+
         if(length(litter.effect.covariance)>0 && sum( abs(litter.effect.covariance))>0){
           population$info$litter.effect.active <- TRUE
         }

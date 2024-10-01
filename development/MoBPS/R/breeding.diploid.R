@@ -818,6 +818,15 @@ breeding.diploid <- function(population,
                              copy.individual.use2 = NULL){
 
 
+
+  if(population$info$miraculix){
+
+    if( length(population$info$miraculix_test_decoded) > 0 && prod(as.matrix(population$info$miraculix_test_coded) == population$info$miraculix_test_decoded)==0){
+      stop("Something went wrong with your SNP-coding!\n This is most likely caused by genotypes being generated on a different system. No further operations possible!\nWhen switching between operating system / machine decode your population via population = demiraculix(population). \nIf you just want to produce some final results you can set population$info$miraculix_test_decoded = as.matrix(population$info$miraculix_test_coded) to not get this error - Only for expert users! Genotypes will be WRONG!")
+    }
+
+  }
+
   if(length(copy.individual.use) == 0){
     copy.individual.use = c(14,22,24,30,32,34,36,38,40,42,44)
   }

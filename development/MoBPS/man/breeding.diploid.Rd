@@ -44,7 +44,7 @@ breeding.diploid(
   threshold.selection.index = NULL,
   threshold.selection.value = NULL,
   threshold.selection.sign = ">",
-  threshold.selection.criteria = "bve",
+  threshold.selection.criteria = NULL,
   threshold.selection = NULL,
   threshold.sign = ">",
   remove.duplicates = TRUE,
@@ -254,6 +254,7 @@ breeding.diploid(
   mixblup.apy = FALSE,
   mixblup.apy.core = NULL,
   mixblup.ta = FALSE,
+  mixblup.tac = FALSE,
   mixblup.skip = FALSE,
   blupf90.skip = FALSE,
   mixblup.restart = FALSE,
@@ -261,6 +262,8 @@ breeding.diploid(
   mixblup.calcinbr.s = FALSE,
   mixblup.multiple.records = FALSE,
   mixblup.attach = FALSE,
+  mixblup.debug = FALSE,
+  mixblup.plink = FALSE,
   blupf90.pedfile = TRUE,
   blupf90.parfile = TRUE,
   blupf90.datafile = TRUE,
@@ -820,6 +823,8 @@ breeding.diploid(
 
 \item{mixblup.ta}{Set to TRUE to use the !Ta flag in MixBLUP}
 
+\item{mixblup.tac}{Set to TRUE to use the !TAC flag in MixBLUP}
+
 \item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
 
 \item{blupf90.skip}{Set to TRUE to skip the actualy system calls of blupf90 and only write the blupf90 input files}
@@ -833,6 +838,10 @@ breeding.diploid(
 \item{mixblup.multiple.records}{Set to TRUE to write multiple phenotypic records for an individual}
 
 \item{mixblup.attach}{Set TRUE to just extent the existing genotype file instead of writting it completely new}
+
+\item{mixblup.debug}{Set TRUE to set debugging flags for mixblup call (-Dmst > mixblup_debug.log) (default: FALSE)}
+
+\item{mixblup.plink}{Set TRUE to write genotype files in PLINK format (requires R-package genio, default: FALSE)}
 
 \item{blupf90.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
 
