@@ -861,6 +861,7 @@ creating.diploid <- function(population=NULL,
             exitVariantAnnotation <- 0
           }
         }
+
         if(exitVariantAnnotation != 0 && requireNamespace("vcfR", quietly = TRUE)){
           vcf_file <- vcfR::read.vcfR(vcf, verbose = verbose)
           vcf_data <- vcf_file@gt[,-1]
@@ -923,6 +924,16 @@ creating.diploid <- function(population=NULL,
         if(bpcm.conversion!=0){
 
           snp.position <- as.numeric(bp) /  bpcm.conversion / 100
+
+          if(length(chromosome.length)==1 && chromosome.length==5){
+
+            chromosome.length <- numeric(length(chr_list))
+            for(index in 1:length(chr_list)){
+              chromosome.length[index] <- max(as.numeric(snp.position[chr.nr==chr_list[index]])) + min(as.numeric(snp.position[chr.nr==chr_list[index]]))
+            }
+
+          }
+
 
         }
 
@@ -1028,6 +1039,7 @@ creating.diploid <- function(population=NULL,
             nsnp_temp <- nrow(dataset)
           }
           if(diffs<comp & miraculix.dataset){
+
             dataset_temp <- dataset
             dataset <- list()
             for(tt in unique(chr.nr)){
@@ -1867,9 +1879,6 @@ creating.diploid <- function(population=NULL,
 
 
 
-
-
-
     if((length(population)==0 || (length(population)>0 & add.chromosome)) && (length(snp.position)>0 && snp.position[1]<=0 && (length(snps.equidistant)==0 || snps.equidistant!=TRUE))){
       snp.position[1] <- snp.position[2]/2
       warning(paste("Illegal position for SNP 1 - changed to",snp.position[1]))
@@ -1968,10 +1977,19 @@ creating.diploid <- function(population=NULL,
         population$info$pool_effects = FALSE
         population$info$pool_effects_calc = FALSE
 
+        population$info$pedigree_error = FALSE
+
         population$info$pen.size <- cbind(1,1)
         population$info$litter.effect.active <- FALSE
         population$info$pen.effect.active <- FALSE
         population$info$max.time.point = time.point
+
+        if(miraculix){
+          test_matrix = matrix(stats::rbinom(5000, 1, 0.5), ncol = 2)
+          population$info$miraculix_test_coded = miraculix::haplomatrix(test_matrix)
+          population$info$miraculix_test_decoded = test_matrix
+
+        }
 
         if(length(litter.effect.covariance)>0 && sum( abs(litter.effect.covariance))>0){
           population$info$litter.effect.active <- TRUE
@@ -2221,7 +2239,11 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[sex]][[counter[sex]]][[36]] = numeric(0) #
 
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- "placeholder"
+          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- c(generation, sex, counter[sex]) # Pedigree with errors
+          population$breeding[[generation]][[sex]][[counter[sex]]][[38]] <- c(generation, sex, counter[sex]) #
+
+
+          population$breeding[[generation]][[sex]][[counter[sex]]][[39]] <- "placeholder"
           population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
           counter[sex] <- counter[sex] + 1L
         }
@@ -2281,6 +2303,31 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[45]] <- rep(NA, counter[1]-1) ## time point of genotyping
           population$breeding[[generation]][[46]] <- rep(NA, counter[2]-1)
 
+          if(counter[1] >1){
+            population$breeding[[generation]][[47]] <- rbind(generation, 1, 1:(counter[1]-1),
+                                                             generation, 1, 1:(counter[1]-1),
+                                                             generation, 1, 1:(counter[1]-1),
+                                                             population$breeding[[generation]][[15]],
+                                                             population$breeding[[generation]][[15]],
+                                                             population$breeding[[generation]][[15]]) # pedigree (no errors)
+
+          } else{
+            population$breeding[[generation]][[47]]  = matrix(0L, nrow= 12, ncol=counter[1] -1)
+          }
+          if(counter[2] > 1){
+            population$breeding[[generation]][[48]] <- rbind(generation, 2, 1:(counter[2]-1),
+                                                             generation, 2, 1:(counter[2]-1),
+                                                             generation, 2, 1:(counter[2]-1),
+                                                             population$breeding[[generation]][[16]],
+                                                             population$breeding[[generation]][[16]],
+                                                             population$breeding[[generation]][[16]])
+
+          } else{
+            population$breeding[[generation]][[48]] = matrix(0L, nrow= 12, ncol=counter[2] -1)
+          }
+
+
+
           # calculate Real-ZW
         } else{
           population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -2296,9 +2343,11 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[13]] <- c(population$breeding[[generation]][[13]], rep(time.point ,counter[1]-counter.start[1])) # Creating type
           population$breeding[[generation]][[14]] <- c(population$breeding[[generation]][[14]], rep(time.point ,counter[2]-counter.start[2]))
 
-          population$breeding[[generation]][[15]] <- c(population$breeding[[generation]][[15]] , seq(population$info$next.animal, population$info$next.animal + counter[1] - counter.start[1]-1, length.out= counter[1] -counter.start[1]))
+          tmp111 = seq(population$info$next.animal, population$info$next.animal + counter[1] - counter.start[1]-1, length.out= counter[1] -counter.start[1])
+          population$breeding[[generation]][[15]] <- c(population$breeding[[generation]][[15]] , tmp111)
           population$info$next.animal <- population$info$next.animal + counter[1] - counter.start[1]
-          population$breeding[[generation]][[16]] <- c(population$breeding[[generation]][[16]] , seq(population$info$next.animal, population$info$next.animal + counter[2] - counter.start[2]-1, length.out= counter[2] -counter.start[2]))
+          tmp222 = seq(population$info$next.animal, population$info$next.animal + counter[2] - counter.start[2]-1, length.out= counter[2] -counter.start[2])
+          population$breeding[[generation]][[16]] <- c(population$breeding[[generation]][[16]] , tmp222)
           population$info$next.animal <- population$info$next.animal + counter[2] - counter.start[2]
           population$breeding[[generation]][[17]] <- c(population$breeding[[generation]][[17]], rep(NA ,counter[1]-counter.start[1])) # Time of death
           population$breeding[[generation]][[18]] <- c(population$breeding[[generation]][[18]], rep(NA ,counter[2]-counter.start[2]))
@@ -2328,16 +2377,35 @@ creating.diploid <- function(population=NULL,
 
 
           population$breeding[[generation]][[39]] <- c(population$breeding[[generation]][[39]], rep(NA, counter[1]-counter.start[1])) ## time point of death
-          population$breeding[[generation]][[40]] <- c(population$breeding[[generation]][[40]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[40]] <- c(population$breeding[[generation]][[40]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[41]] <- c(population$breeding[[generation]][[41]], rep(NA, counter[1]-counter.start[1])) ## culling type
-          population$breeding[[generation]][[42]] <- c(population$breeding[[generation]][[42]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[42]] <- c(population$breeding[[generation]][[42]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[43]] <- c(population$breeding[[generation]][[43]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
-          population$breeding[[generation]][[44]] <- c(population$breeding[[generation]][[44]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[44]] <- c(population$breeding[[generation]][[44]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[45]] <- c(population$breeding[[generation]][[45]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
-          population$breeding[[generation]][[46]] <- c(population$breeding[[generation]][[46]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[46]] <- c(population$breeding[[generation]][[46]], rep(NA, counter[2]-counter.start[2]))
+
+          if(counter[1] > counter.start[1]){
+            population$breeding[[generation]][[47]] <- cbind(population$breeding[[generation]][[47]], rbind(generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            tmp111,
+                                                                                                            tmp111,
+                                                                                                            tmp111)) # pedigree (no errors)
+          }
+
+          if(counter[2] > counter.start[2]){
+            population$breeding[[generation]][[48]] <- cbind(population$breeding[[generation]][[48]], rbind(generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            tmp222,
+                                                                                                            tmp222,
+                                                                                                            tmp222))
+          }
+
 
           population$info$founder_pools = unique(c(population$info$founder_pools, founder.pool))
           population$info$founder_multi = if(length(population$info$founder_pools)>1){TRUE} else{FALSE}
@@ -2779,7 +2847,16 @@ creating.diploid <- function(population=NULL,
         # scaling of QTL effects
         if(!population$info$bv.calculated){
           if(use.recalculate.manual){
+
+            ttt = length(population$info$bv.random.activ)==0
+            if(ttt){
+              population$info$bv.random.activ = shuffle.traits
+            }
             population = recalculate.manual(population, cohorts = name.cohort_temp)
+            if(ttt){
+              population$info$bv.random.activ = NULL
+
+            }
             population$info$bv.calculated = TRUE
           }
         }

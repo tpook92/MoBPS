@@ -133,6 +133,7 @@ breeding.diploid(
   bv.ignore.traits = NULL,
   generation.cores = NULL,
   pedigree.error = 0,
+  pedigree.unknown = 0,
   genotyped.database = NULL,
   genotyped.gen = NULL,
   genotyped.cohorts = NULL,
@@ -395,6 +396,7 @@ breeding.diploid(
   multiple.bve.scale.m = "bv_sd",
   multiple.bve.scale.f = NULL,
   use.recalculate.manual = FALSE,
+  recalculate.manual.subset = 5000,
   size.scaling = NULL,
   parallel.internal = FALSE,
   varg = FALSE,
@@ -620,6 +622,8 @@ breeding.diploid(
 \item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
 
 \item{pedigree.error}{Share of errors in the pedigree (default: 0; vector with two entries for errors on male/female side)}
+
+\item{pedigree.unknown}{Share of individuals with unknown parents (default: 0; vector with two entries for differences in unknown-share between male/female side)}
 
 \item{genotyped.gen, genotyped.cohorts, genotyped.database}{Generations/cohorts/groups to generate genotype data (that can be used in a BVE)}
 
@@ -1072,6 +1076,8 @@ breeding.diploid(
 \item{multiple.bve.scale.m, multiple.bve.scale.f}{(OLD! use selection.index.scale.m/f) Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
 
 \item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
+
+\item{recalculate.manual.subset}{Maximum number of individuals to process at the same time (( genotypes are in memory ))}
 
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
 

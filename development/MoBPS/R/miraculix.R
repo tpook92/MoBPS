@@ -60,6 +60,10 @@ miraculix <- function(population){
 
   }
 
+  if(length(population$info$miraculix_test_decoded)>0){
+    population$info$miraculix_test_coded = miraculix::haplomatrix(population$info$miraculix_test_decoded)
+  }
+
   return(population)
 
 }

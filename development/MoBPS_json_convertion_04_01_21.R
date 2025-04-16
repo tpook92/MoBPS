@@ -14,11 +14,14 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/MoBPS_Workshop_purdue/Task2/Simple Sheep Advanced_baseline.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/HPL_two_test.json")
+
+population = json.simulation("C:/Users/pook001/Downloads/HPL_two_test.json", fast.mode = FALSE,
+                             verbose =T, size.scaling = 1)
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 1
+size.scaling <- 0.1
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -28,6 +31,7 @@ skip.population <- FALSE
 time.check <- FALSE
 time.max <- 7200
 manual.select.check = FALSE
+export.cor = FALSE
 
 export.population = FALSE
 import.population = FALSE
@@ -642,6 +646,11 @@ fixed.generation.order <- NULL
       if(verbose) cat("Diagonal of cor-matrix must be 1\n")
     }
 
+    if(export.cor){
+      
+      return(list(cor_gen, cor_pheno))
+      
+    }
 
     # Correct nodes are Founders
     ids <- possible_founder <-  earliest_time <- numeric(length(nodes))
@@ -1791,6 +1800,11 @@ fixed.generation.order <- NULL
       colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                              "time point", "creating.type", "lowest ID", "highest ID")
 
+      for(index in 1:nrow(population$info$cohorts)){
+        population$info$cohorts[index,10] = min(get.id(population, cohorts = population$info$cohorts[index,1]))
+        population$info$cohorts[index,11] = max(get.id(population, cohorts = population$info$cohorts[index,1]))
+
+      }
 
       if(n_traits>0){
         population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),

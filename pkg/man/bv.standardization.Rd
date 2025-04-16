@@ -11,8 +11,8 @@ bv.standardization(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  adapt.bve = FALSE,
-  adapt.pheno = FALSE,
+  adapt.bve = TRUE,
+  adapt.pheno = NULL,
   verbose = FALSE,
   set.zero = FALSE,
   traits = NULL

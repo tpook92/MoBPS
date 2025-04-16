@@ -11,7 +11,8 @@ get.pedigree2(
   cohorts = NULL,
   shares = FALSE,
   founder.zero = TRUE,
-  raw = FALSE
+  raw = FALSE,
+  include.error = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.pedigree2(
 \item{founder.zero}{Parents of founders are displayed as "0" (default: TRUE)}
 
 \item{raw}{Set to TRUE to not convert numbers into Sex etc.}
+
+\item{include.error}{Set to TRUE to include errors simulated in the pedigree}
 }
 \value{
 Pedigree-file (grandparents) for in gen/database/cohorts selected individuals

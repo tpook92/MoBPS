@@ -42,6 +42,9 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
 
   temp123 <- population$info$bv.random.activ
 
+  if(length(temp123) == 0){
+    return(population)
+  }
   if(store.comp.times){
     tick <- as.numeric(Sys.time())
   }

@@ -50,6 +50,8 @@ creating.diploid(
   n.equal.additive = 0,
   n.dominant = 0,
   n.equal.dominant = 0,
+  n.overdominant = 0,
+  n.equal.overdominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
   effect.distribution = "gauss",
@@ -78,10 +80,12 @@ creating.diploid(
   exclude.snps = NULL,
   var.additive.l = NULL,
   var.dominant.l = NULL,
+  var.overdominant.l = NULL,
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
   effect.size.equal.add = 1,
   effect.size.equal.dom = 1,
+  effect.size.equal.over = 1,
   polygenic.variance = 100,
   bve.mult.factor = NULL,
   bve.poly.factor = NULL,
@@ -206,7 +210,11 @@ creating.diploid(
 
 \item{n.dominant}{Number of dominant QTL with effect size drawn from a gaussian distribution}
 
-\item{n.equal.dominant}{Number of n.equal.dominant QTL with equal effect size}
+\item{n.equal.dominant}{Number of dominant QTL with equal effect size}
+
+\item{n.overdominant}{Number of overdominant QTL with effect size drawn from absolute value of a gaussian distribution}
+
+\item{n.equal.overdominant}{Number of overdominant QTL with equal effect size}
 
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
@@ -264,6 +272,8 @@ creating.diploid(
 
 \item{var.dominant.l}{Variance of dominante QTL}
 
+\item{var.overdominant.l}{Variance of overdominante QTL}
+
 \item{var.qualitative.l}{Variance of qualitative epistatic QTL}
 
 \item{var.quantitative.l}{Variance of quantitative epistatic QTL}
@@ -271,6 +281,8 @@ creating.diploid(
 \item{effect.size.equal.add}{Effect size of the QTLs in n.equal.additive}
 
 \item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
+
+\item{effect.size.equal.over}{Effect size of the QTLs in n.equal.overdominant}
 
 \item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
 

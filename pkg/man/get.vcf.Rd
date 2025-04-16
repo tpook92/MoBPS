@@ -12,7 +12,8 @@ get.vcf(
   cohorts = NULL,
   chromosome = "all",
   non.genotyped.as.missing = FALSE,
-  use.id = FALSE
+  use.id = FALSE,
+  file.append = FALSE
 )
 }
 \arguments{
@@ -31,6 +32,8 @@ get.vcf(
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+
+\item{file.append}{Set extend an existing vcf-file ((without writting a header))}
 }
 \value{
 VCF-file for in gen/database/cohorts selected individuals

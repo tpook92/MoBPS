@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param avoid.merging Set to TRUE to avoid different cohorts to be merged in a joint group when possible
 #' @param id Individual IDs to search/collect in the database
+#' @param db.names MoPBS internal names (SexNr_Generation)
 #' @param keep.order To not change order of individuals when ids are provided (default: FALSE)
 #' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE)
 #' @param id.last Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)
@@ -42,11 +43,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE,
-                        per.individual = FALSE, id=NULL, id.all.copy=FALSE, id.last=FALSE,
+                        per.individual = FALSE, id=NULL, db.names = NULL, id.all.copy=FALSE, id.last=FALSE,
                         keep.order = FALSE, class = NULL, verbose = TRUE){
 
   if(length(id)>0 && (length(gen)>0 || length(database)>0 || length(cohorts) > 0 )){
     stop("You can either prove IDs or gen/database/cohorts")
+  }
+
+  if(length(db.names)>0){
+
+    sex = substr(db.names, start = 1, stop = 1)
+    rest = substr(db.names, start = 2, stop = 100)
+    rest_split = strsplit(rest, split = "_")
+
+    database_names = cbind(0, as.numeric(sex == "F") + 1, 0,0)
+    for(index in 1:length(rest_split)){
+
+      database_names[index,c(1,3,4)] = rest_split[[index]][c(2,1,1)]
+
+    }
+
+    storage.mode(database_names) = "numeric"
+
+    database = rbind(get.database(population, database = database), database_names)
+
+    database = get.database(population, gen=gen, database=database, cohorts=cohorts, avoid.merging=avoid.merging,
+                            per.individual = per.individual, id=id, db.names = NULL, id.all.copy=id.all.copy, id.last=id.last,
+                            keep.order = keep.order, class = class, verbose = verbose)
+    return(database)
+
   }
 
   if(length(id)>0){
@@ -195,45 +220,66 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   database <- database[keep,,drop=FALSE]
 
   if(length(database)>0 && nrow(database)>1){
-    order <- sort(database[,1]*1e12 + database[,2]*1e7 + database[,3], index.return=TRUE)$ix
+
+   # database = rbind(pedigree.database[300:350,], cbind(5,2,1,400))
+
+
+    tmp  = sort(database[,1]*1e12 + database[,2]*1e7 + database[,3], index.return=TRUE)
+
+    order <- tmp$ix
     database <- database[order,,drop=FALSE]
-    first_same <- 1
-    first_index <- 1
-    not_first = FALSE
-    for(index in 2:nrow(database)){
-      if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
-        first_index <- which(database[index,1]==database[,1] & database[index,2]==database[,2])[1]
-        first_same <- database[first_index,1]
-        not_first = FALSE
-      } else{
-        if(database[(index-1),1]!=0){
-          if(database[index-1,1]==database[index,1] & database[index-1,2] == database[index,2]){
-            checks <- (index-1)
-          } else{
-            checks <- NULL
-          }
+
+    if(nrow(database)>1){
+      tmp2 = ((database[-nrow(database),4] + 1) == database[-1,3]) & ((database[-nrow(database),2]) == database[-1,2]) & ((database[-nrow(database),1]) == database[-1,1])
+    } else{
+      tmp2 = rep(FALSE, length(tmp)-1)
+    }
+
+    # first very basic merging
+    first = which(c(TRUE, diff(tmp$x)!=1 | !tmp2 ))
+    last = which(c(diff(tmp$x)!=1 | !tmp2 , TRUE))
+    database = cbind(database[first,1:3,drop = FALSE], database[last,4,drop = FALSE])
+
+    if(nrow(database) > 1){
+      first_same <- 1
+      first_index <- 1
+      not_first = FALSE
+      for(index in 2:nrow(database)){
+        if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
+          first_index <- which(database[index,1]==database[,1] & database[index,2]==database[,2])[1]
+          first_same <- database[first_index,1]
+          not_first = FALSE
         } else{
-          if(not_first){
-            checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
+          if(database[(index-1),1]!=0){
+            if(database[index-1,1]==database[index,1] & database[index-1,2] == database[index,2]){
+              checks <- (index-1)
+            } else{
+              checks <- NULL
+            }
           } else{
-            checks <- first_index
+            if(not_first){
+              checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
+            } else{
+              checks <- first_index
 
+            }
           }
-        }
-        if(!avoid.merging){
+          if(!avoid.merging){
 
-          checks = checks[database[index,3] <= (database[checks,4] + 1)]
+            checks = checks[database[index,3] <= (database[checks,4] + 1)]
 
-          if(length(checks)>0){
-            database[checks,4] <- max(database[checks,4], database[index,4])
-            database[index,] <- 0
+            if(length(checks)>0){
+              database[checks,4] <- max(database[checks,4], database[index,4])
+              database[index,] <- 0
+            }
+            not_first = TRUE
           }
-          not_first = TRUE
+
         }
 
       }
-
     }
+
     database <- database[database[,1]!=0,,drop=FALSE]
   }
 

@@ -21,6 +21,7 @@ json.simulation(
   export.population = FALSE,
   export.gen = NULL,
   export.timepoint = NULL,
+  export.cor = FALSE,
   fixed.generation.order = NULL,
   generation.cores = NULL,
   manual.select.check = FALSE
@@ -58,6 +59,8 @@ json.simulation(
 \item{export.gen}{Last generation to simulate before exporting population to file}
 
 \item{export.timepoint}{Last timepoint to simulate before exporting population to file}
+
+\item{export.cor}{Set TRUE to export correlation matrices}
 
 \item{fixed.generation.order}{Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)}
 

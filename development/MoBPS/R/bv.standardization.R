@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param adapt.bve Modify previous breeding value estimations by scaling (default: FALSE)
 #' @param adapt.pheno Modify previous phenotypes by scaling (default: FALSE)
+#' @param adapt.sigma.e Set to FALSE to not scale sigma.e values used based on scaling
 #' @param verbose Set to TRUE to display prints
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
 #' @param traits Use this parameter to only perform scaling of these traits (alternatively set values in mean/var.target to NA, default: all traits)
@@ -42,8 +43,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NULL, database=NULL, cohorts=NULL,
-                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE, set.zero = FALSE,
+                               adapt.bve=TRUE, adapt.pheno=NULL, verbose=FALSE, set.zero = FALSE,
+                               adapt.sigma.e = TRUE,
                                traits = NULL){
+
+
 
   n_traits <- population$info$bv.nr
 
@@ -54,6 +58,17 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
     var.target_temp[traits] = var.target
     mean.target = mean.target_temp
     var.target = var.target_temp
+  }
+
+  if(length(adapt.pheno)==0){
+    if(sum(population$info$phenotypic.transform)>0){
+      adapt.pheno = FALSE
+      if(verbose){
+        cat("Phenotype transformation deactivated as phenotypic transformation is used. Set adapt.pheno = TRUE to scale.\n")
+      }
+    } else{
+      adapt.pheno = TRUE
+    }
   }
 
   modi1 <- rep(1, n_traits)
@@ -167,6 +182,10 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
         }
       }
     }
+  }
+
+  if(adapt.sigma.e){
+    population$info$last.sigma.e.value = population$info$last.sigma.e.value * modi1
   }
 
   if(length(population$info$e0)>0){

@@ -42,8 +42,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NULL, database=NULL, cohorts=NULL,
-                               adapt.bve=FALSE, adapt.pheno=FALSE, verbose=FALSE, set.zero = FALSE,
+                               adapt.bve=TRUE, adapt.pheno=NULL, verbose=FALSE, set.zero = FALSE,
                                traits = NULL){
+
+
 
   n_traits <- population$info$bv.nr
 
@@ -54,6 +56,17 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
     var.target_temp[traits] = var.target
     mean.target = mean.target_temp
     var.target = var.target_temp
+  }
+
+  if(length(adapt.pheno)==0){
+    if(sum(population$info$phenotypic.transform)>0){
+      adapt.pheno = FALSE
+      if(verbose){
+        cat("Phenotype transformation deactivated as phenotypic transformation is used. Set adapt.pheno = TRUE to scale.\n")
+      }
+    } else{
+      adapt.pheno = TRUE
+    }
   }
 
   modi1 <- rep(1, n_traits)

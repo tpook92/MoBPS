@@ -12,7 +12,9 @@ get.pedigree(
   founder.zero = TRUE,
   raw = FALSE,
   id = FALSE,
-  use.first.copy = FALSE
+  use.first.copy = FALSE,
+  include.error = FALSE,
+  depth = 1
 )
 }
 \arguments{
@@ -31,6 +33,10 @@ get.pedigree(
 \item{id}{Set to TRUE to extract individual IDs}
 
 \item{use.first.copy}{Set to TRUE to use database-position of the first copy of an individual (default: FALSE)}
+
+\item{include.error}{Set to TRUE to include errors simulated in the pedigree}
+
+\item{depth}{Depth (1) for parents, (2) for grandparents, (3) for grandgrandparents etc.}
 }
 \value{
 Pedigree-file for in gen/database/cohorts selected individuals

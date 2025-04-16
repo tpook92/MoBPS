@@ -33,13 +33,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose AA
 #' @param mixblup.reliability AA
 #' @param blupf90 FALSE for mixblup; TRUE for MixBLUP
+#' @param include.error AA
 #' @return pedigree table
 #' @export
 
 
 write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
                            storage.save = 1.5, verbose=TRUE, mixblup.reliability = FALSE,
-                           blupf90 = FALSE){
+                           blupf90 = FALSE, include.error = TRUE){
 
   if(verbose) cat(paste0("Start writting pedigree file at ", path,"\n"))
   database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
@@ -52,7 +53,7 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
     new.pedigree.database <- pedigree.database <- database
     remaining.depth <- depth.pedigree
     while(remaining.depth>0){
-      parents <- get.pedigree(population, database = new.pedigree.database, raw=TRUE)
+      parents <- get.pedigree(population, database = new.pedigree.database, raw=TRUE, include.error = include.error)
       m_parents <- rbind(parents[parents[,5]==1,4:6], parents[parents[,8]==1,7:9])
       f_parents <- rbind(parents[parents[,5]==2,4:6], parents[parents[,8]==2,7:9])
       if(nrow(m_parents)>0){
@@ -107,7 +108,7 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
     pedigree.database <- get.database(population, database = pedigree.database)
   }
 
-  pedigree_table <- get.pedigree(population, database = pedigree.database, id=TRUE)
+  pedigree_table <- get.pedigree(population, database = pedigree.database, id=TRUE, include.error = include.error)
 
   add <- pedigree_table[which(!duplicated(as.character(pedigree_table))[-(1:nrow(pedigree_table))]) + nrow(pedigree_table)]
   add = add[add!=0]

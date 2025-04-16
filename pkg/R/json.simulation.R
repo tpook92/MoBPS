@@ -438,7 +438,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           }
 
 
-          pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
+          #pheno_var<-  (diag(pheno_var)) %*% cor_pheno %*% (diag(pheno_var))
           residual_var <- pheno_var - gen_var
           if(length(residual_var)==1){
             cor_pheno <- sqrt(matrix(matrix(1/residual_var))) %*% residual_var %*%  sqrt(matrix(matrix(1/residual_var)))
@@ -1861,6 +1861,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                                "time point", "creating.type", "lowest ID", "highest ID")
 
+        for(index in 1:nrow(population$info$cohorts)){
+          population$info$cohorts[index,10] = min(get.id(population, cohorts = population$info$cohorts[index,1]))
+          population$info$cohorts[index,11] = max(get.id(population, cohorts = population$info$cohorts[index,1]))
+
+        }
 
         if(n_traits>0){
           population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),

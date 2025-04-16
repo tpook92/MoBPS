@@ -13,7 +13,9 @@ get.plink(
   chromosome = "all",
   non.genotyped.as.missing = FALSE,
   fam.id = FALSE,
-  type = 0
+  type = 0,
+  use.id = TRUE,
+  bve.pedigree.error = TRUE
 )
 }
 \arguments{
@@ -31,7 +33,13 @@ get.plink(
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 
+\item{fam.id}{Set TRUE to set the fam-ID to the individual ID}
+
+\item{type}{Set 1 to only write paternal haplotype, set 2 to only write maternal haplotype, set 0 for both (default)}
+
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+
+\item{bve.pedigree.error}{Set to FALSE to ignore/correct for any pedigree errors}
 }
 \value{
 VCF-file for in gen/database/cohorts selected individuals

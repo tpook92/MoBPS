@@ -99,7 +99,7 @@ set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
 
   population$info$real.bv.add[[trait]] = rbind(population$info$real.bv.add[[trait]], add_real.bv.add)
 
-  if(population$info$bv.calculated){
+  if(population$info$bv.calculated && get.ngen(population)==1){
 
     for(index5 in 1:nrow(database)){
       temp1 = get.pool.founder(population, database = database[index5,])

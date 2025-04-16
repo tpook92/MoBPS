@@ -105,9 +105,9 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
           population$breeding[[gen]][[sex]][[nr]][[15]][population$breeding[[gen]][[sex]][[nr]][[15]]<temp1] <- temp1[population$breeding[[gen]][[sex]][[nr]][[15]]<temp1]
         } else{
           population$breeding[[gen]][[sex]][[nr]][[15]] <- temp1
-          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 || ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>temp1){
-            if(temp1>0){
-              population$breeding[[gen]][[sex]][[nr]][[24]] <- population$breeding[[gen]][[sex]][[nr]][[24]][,1:temp1]
+          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 || ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>max(temp1)){
+            if(max(temp1)>0){
+              population$breeding[[gen]][[sex]][[nr]][[24]] <- population$breeding[[gen]][[sex]][[nr]][[24]][,1:max(temp1)]
             } else{
               population$breeding[[gen]][[sex]][[nr]][24] <- list(NULL) ## Only single bracket to not reduce length of list
             }

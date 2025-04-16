@@ -12,6 +12,7 @@ get.database(
   avoid.merging = FALSE,
   per.individual = FALSE,
   id = NULL,
+  db.names = NULL,
   id.all.copy = FALSE,
   id.last = FALSE,
   keep.order = FALSE,
@@ -33,6 +34,8 @@ get.database(
 \item{per.individual}{Set TRUE to obtain a database with one row per individual instead of concatenating (default: FALSE)}
 
 \item{id}{Individual IDs to search/collect in the database}
+
+\item{db.names}{MoPBS internal names (SexNr_Generation)}
 
 \item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
 

@@ -11,10 +11,11 @@ bv.standardization(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  adapt.bve = FALSE,
-  adapt.pheno = FALSE,
+  adapt.bve = TRUE,
+  adapt.pheno = NULL,
   verbose = FALSE,
   set.zero = FALSE,
+  adapt.sigma.e = TRUE,
   traits = NULL
 )
 }
@@ -38,6 +39,8 @@ bv.standardization(
 \item{verbose}{Set to TRUE to display prints}
 
 \item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
+
+\item{adapt.sigma.e}{Set to FALSE to not scale sigma.e values used based on scaling}
 
 \item{traits}{Use this parameter to only perform scaling of these traits (alternatively set values in mean/var.target to NA, default: all traits)}
 }

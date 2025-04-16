@@ -36,6 +36,13 @@ add.array <- function(population, marker.included = TRUE,
 
   if(length(array.name)==0){
     array.name = paste0("Array_", length(population$info$array.name)+1)
+  } else{
+
+    suppressWarnings({check1 = !is.na(as.numeric(array.name))})
+    if(check1){
+      stop("Illegal name for array - no purely numerical names allowed")
+    }
+
   }
   if(length(marker.included)<sum(population$info$snp)){
     marker.included <- rep(marker.included, length.out = sum(population$info$snp))

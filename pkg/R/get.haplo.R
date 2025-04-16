@@ -162,7 +162,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
     data[!is_genotyped] <- NA
   }
   if(remove.missing){
-    data <- data[rowMeans(is.na(data))<1,]
+    data <- data[rowMeans(is.na(data))<1,,drop = FALSE]
   }
 
   if(use.id){

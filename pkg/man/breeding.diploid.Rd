@@ -6,7 +6,7 @@
 \usage{
 breeding.diploid(
   population,
-  ...
+...
 )
 }
 \arguments{
@@ -103,6 +103,8 @@ breeding.diploid(
 \item{ogc.ub.sKin.increase}{This corresponds to the upper bound (current sKin + ogc.ub.sKin.increase) as ub.sKin in optiSel}
 
 \item{ogc.lb.BV.increase}{This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel}
+
+\item{selection.skip}{Set to FALSE in case no selection of individuals should be performed (just skips some unnessary computations)}
 
 \subsection{########### Generation of new individuals ###########}
 
@@ -225,6 +227,8 @@ breeding.diploid(
 \item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 
 \item{generation.cores}{Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)}
+
+\item{pedigree.error}{Share of errors in the pedigree (default: 0; vector with two entries for errors on male/female side)}
 
 \subsection{########## Genotyping ##########}
 
@@ -350,6 +354,8 @@ breeding.diploid(
 
 \item{bve.use.all.copy}{Set to TRUE to use phenotypes and genotyped status from all copies of an individual instead of just the provided ones in the bve.gen/database/cohorts (default: FALSE)}
 
+\item{bve.pedigree.error}{Set to FALSE to ignore/correct for any pedigree errors}
+
 \item{mobps.bve}{If TRUE predict BVEs in direct estimation with assumed known heritablity (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)}
 
 \item{mixblup.bve}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
@@ -432,6 +438,8 @@ breeding.diploid(
 
 \item{mixblup.ta}{Set to TRUE to use the !Ta flag in MixBLUP}
 
+\item{mixblup.tac}{Set to TRUE to use the !TAC flag in MixBLUP}
+
 \item{mixblup.skip}{Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files}
 
 \item{blupf90.skip}{Set to TRUE to skip the actualy system calls of blupf90 and only write the blupf90 input files}
@@ -443,6 +451,12 @@ breeding.diploid(
 \item{mixblup.calcinbr.s}{Set to TRUE to set the !CalcInbr flag to S}
 
 \item{mixblup.multiple.records}{Set to TRUE to write multiple phenotypic records for an individual}
+
+\item{mixblup.attach}{Set TRUE to just extent the existing genotype file instead of writting it completely new}
+
+\item{mixblup.debug}{Set TRUE to set debugging flags for mixblup call (-Dmst > mixblup_debug.log) (default: FALSE)}
+
+\item{mixblup.plink}{Set TRUE to write genotype files in PLINK format (requires R-package genio, default: FALSE)}
 
 \item{blupf90.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
 
@@ -690,7 +704,11 @@ breeding.diploid(
 
 \item{varg}{Experimental parameter for Tobias Niehoff (dont touch!)}
 
+\item{gain.stats}{Set to FALSE to not compute genetic gains compared to previous generation (selection)}
+
 \item{next.id}{Id to assign to first next individual generated}
+
+\item{copy.individual.use, copy.individual.use2}{Use this to skip copying some entries from the internal storage ((minor speed up - this will be automized soon))}
 }
 \value{
 Population-list
