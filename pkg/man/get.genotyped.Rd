@@ -9,7 +9,7 @@ get.genotyped(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE,
+  use.id = TRUE,
   use.all.copy = FALSE
 )
 }
@@ -22,7 +22,7 @@ get.genotyped(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 }

@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.pheno.time.R
 \name{get.pheno.time}
 \alias{get.pheno.time}
-\title{Derive class}
+\title{Derive phenotyping time point}
 \usage{
 get.pheno.time(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE,
+  use.id = TRUE,
   use.all.copy = TRUE
 )
 }
@@ -22,17 +22,17 @@ get.pheno.time(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 }
 \value{
-Class of in gen/database/cohorts selected individuals
+Timepoint (of phenotyping) of in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the class for each individual
+Function to derive timepoint of phenotyping for each individual
 }
 \examples{
 data(ex_pop)
-get.class(ex_pop, gen=2)
+get.pheno.time(ex_pop, gen=2)
 }

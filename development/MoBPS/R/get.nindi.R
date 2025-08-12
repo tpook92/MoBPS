@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Number of generations
+#' Number of individuals
 #'
-#' Function to calculate the number of generations in the population list
+#' Function to calculate the number of individuals in the population list
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -36,6 +36,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.nindi <- function(population, database=NULL, gen=NULL, cohorts= NULL, extended = FALSE, count.copy = FALSE){
+
+  if(length(gen)==0 && length(database)==0 && length(gen)==0){
+    gen = 1:get.ngen(population)
+  }
 
   ids = get.id(population, gen = gen, database = database, cohorts = cohorts)
 

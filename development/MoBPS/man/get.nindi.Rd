@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.nindi.R
 \name{get.nindi}
 \alias{get.nindi}
-\title{Number of generations}
+\title{Number of individuals}
 \usage{
 get.nindi(
   population,
@@ -30,7 +30,7 @@ get.nindi(
 Numeric value
 }
 \description{
-Function to calculate the number of generations in the population list
+Function to calculate the number of individuals in the population list
 }
 \examples{
 data(ex_pop)

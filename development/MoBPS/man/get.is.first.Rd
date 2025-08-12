@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.is.first.R
 \name{get.is.first}
 \alias{get.is.first}
-\title{Derive ID on an individual}
+\title{First copy}
 \usage{
 get.is.first(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE,
+  use.id = TRUE,
   keep.order = FALSE
 )
 }
@@ -22,7 +22,7 @@ get.is.first(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
 }
@@ -30,7 +30,7 @@ get.is.first(
 Individual ID for in gen/database/cohorts selected individuals
 }
 \description{
-Function to derive the internal ID given to each individual
+Function to derive if an individual is the first copy of itself in the database (based on position)
 }
 \examples{
 data(ex_pop)

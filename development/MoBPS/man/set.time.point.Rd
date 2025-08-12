@@ -2,7 +2,7 @@
 % Please edit documentation in R/set.time.point.R
 \name{set.time.point}
 \alias{set.time.point}
-\title{Export estimated breeding values}
+\title{Set time point}
 \usage{
 set.time.point(
   population,
@@ -24,10 +24,10 @@ set.time.point(
 \item{time.point}{Input value for the time point (time the cohort of the individual was generated) (default: 0)}
 }
 \value{
-Population-List with newly entered class values
+Population-List with newly entered time points
 }
 \description{
-Function to export estimated breeding values
+Function to set time point of birth for individuals
 }
 \examples{
 data(ex_pop)

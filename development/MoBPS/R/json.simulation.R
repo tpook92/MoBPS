@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,6 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.population Path were to export the population to (at state selected in export.gen/timepoint)
 #' @param export.gen Last generation to simulate before exporting population to file
 #' @param export.timepoint Last timepoint to simulate before exporting population to file
+#' @param export.cor Set TRUE to export correlation matrices
 #' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
 #' @param manual.select.check Set to FALSE to not automatically remove cohorts from Manual select with they lead to an invalite breeding scheme
@@ -58,6 +59,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                             export.population=FALSE,
                             export.gen=NULL,
                             export.timepoint=NULL,
+                            export.cor = FALSE,
                             fixed.generation.order=NULL,
                             generation.cores = NULL,
                             manual.select.check = FALSE){
@@ -78,7 +80,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
     cat("\n")
     cat(paste0("Simulation started: ", Sys.time(), "\n"))
     cat(paste0("MoBPS version used: ", utils::sessionInfo()$otherPkgs$MoBPS$Version, "\n"))
-    cat("Copyright (C) 2017-2020 Torsten Pook\n\n")
+    cat("Copyright (C) 2017-2025 Torsten Pook\n\n")
   }
 
   if(requireNamespace("miraculix", quietly = TRUE)){
@@ -712,6 +714,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         if(verbose) cat("Diagonal of cor-matrix must be 1\n")
       }
 
+      if(export.cor){
+
+        return(list(cor_gen, cor_pheno))
+
+      }
 
       # Correct nodes are Founders
       ids <- possible_founder <-  earliest_time <- numeric(length(nodes))
@@ -1142,6 +1149,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           }
         } else{
           warning("Use of Ensembl-Maps without MoBPSmaps R-package.
+        ## Replace genome with 5 Chromsomes a 1000 SNPs and 1 Morgan
         ## To Install:
         ## devtools::install_github('tpook92/MoBPS', subdir='pkg-maps')
         ## Or download from https://github.com/tpook92/MoBPS")
@@ -1861,6 +1869,11 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                                "time point", "creating.type", "lowest ID", "highest ID")
 
+        for(index in 1:nrow(population$info$cohorts)){
+          population$info$cohorts[index,10] = min(get.id(population, cohorts = population$info$cohorts[index,1]))
+          population$info$cohorts[index,11] = max(get.id(population, cohorts = population$info$cohorts[index,1]))
+
+        }
 
         if(n_traits>0){
           population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),
@@ -3112,21 +3125,24 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                                         verbose = FALSE)
           pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
           pop_check <- breeding.diploid(pop_check, bve=TRUE, new.bv.observation = "all", verbose = FALSE)
-          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual.m = TRUE, verbose = FALSE,
+                                        selection.m.gen = 2)
 
-          time_bve1000 <- pop_check$info$comp.times.bve[2,10]
-          time_gen1000 <- pop_check$info$comp.times.generation[1,4]
-          time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+          time_bve1000 <- pop_check$info$comp.times.bve[3,10]
+          time_gen1000 <- pop_check$info$comp.times.generation[2,6]
+          time_copy1000 <- pop_check$info$comp.times.generation[4,6]
         } else{
           pop_check <- creating.diploid(nindi = 2, nsnp = 100, chromosome.length = chromo.length,
                                         verbose = FALSE)
           pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
           pop_check <- breeding.diploid(pop_check)
-          pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+          pop_check <- breeding.diploid(pop_check, breeding.size = 1000,
+                                        copy.individual.m = TRUE, verbose = FALSE,
+                                        selection.m.gen = 2)
 
           time_bve1000 <- 0.25 #pop_check$info$comp.times.bve[2,10]
-          time_gen1000 <- pop_check$info$comp.times.generation[1,4]
-          time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+          time_gen1000 <- pop_check$info$comp.times.generation[2,6]
+          time_copy1000 <- pop_check$info$comp.times.generation[4,6]
         }
 
 

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Add a trait as a linear combination of other traits
+#' Add fixed effects to traits
 #'
-#' Function to create an additional trait that is the results of a linear combination of the other traits
+#' Function to add fixed effects to existing set of traits
 #' @param population population list
 #' @param fixed.effects Matrix containing fixed effects (p x k -matrix with p being the number of traits and k being number of fixed effects; default: not fixed effects (NULL))
 #' @param replace Set to TRUE to delete previously added fixed effects
@@ -68,6 +68,7 @@ add.fixed.effects <- function(population, fixed.effects, replace = FALSE){
   return(population)
 }
 
+creating.fixed.effects = add.fixed.effects
 
 
 

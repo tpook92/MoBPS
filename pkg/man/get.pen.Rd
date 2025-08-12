@@ -2,15 +2,9 @@
 % Please edit documentation in R/get.pen.R
 \name{get.pen}
 \alias{get.pen}
-\title{Export underlying number of observations per phenotype}
+\title{Export pen ID}
 \usage{
-get.pen(
-  population,
-  database = NULL,
-  gen = NULL,
-  cohorts = NULL,
-  use.id = FALSE
-)
+get.pen(population, database = NULL, gen = NULL, cohorts = NULL, use.id = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -21,13 +15,13 @@ get.pen(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
-Phenotypes for in gen/database/cohorts selected individuals
+Pen ID for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export the number of observation of each underlying phenotype
+Function to export pen ID
 }
 \examples{
 data(ex_pop)

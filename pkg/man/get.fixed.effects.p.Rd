@@ -9,7 +9,7 @@ get.fixed.effects.p(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{

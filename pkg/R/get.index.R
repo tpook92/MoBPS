@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,6 +28,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param trait.weights Vector with a weight per trait
 #' @param location.weights Vector weight a weight per location
 #' @return Index
+#' @examples
+#' population = creating.diploid(nsnp =1000, nindi = 100)
+#' population = creating.trait(population, n.additive = c(10,10), n.location=3, replace.traits = TRUE)
+#' get.index(population, trait.weights = c(1,2), location.weights = c(1,2,3))
 #' @export
 
 get.index <- function(population, traits = NULL, locations = NULL, trait.weights = NULL, location.weights = NULL){

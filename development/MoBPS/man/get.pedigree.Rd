@@ -11,7 +11,8 @@ get.pedigree(
   cohorts = NULL,
   founder.zero = TRUE,
   raw = FALSE,
-  id = FALSE,
+  use.id = TRUE,
+  id = NULL,
   use.first.copy = FALSE,
   include.error = FALSE,
   depth = 1
@@ -30,7 +31,9 @@ get.pedigree(
 
 \item{raw}{Set to TRUE to not convert numbers into Sex etc.}
 
-\item{id}{Set to TRUE to extract individual IDs}
+\item{use.id}{Set to TRUE to extract individual IDs}
+
+\item{id}{Replaced by use.id ((consistency with all other get.xxx functions))}
 
 \item{use.first.copy}{Set to TRUE to use database-position of the first copy of an individual (default: FALSE)}
 
@@ -46,5 +49,5 @@ Derive pedigree for selected individuals
 }
 \examples{
 data(ex_pop)
-get.pedigree(ex_pop, gen=2)
+pedigree = get.pedigree(ex_pop, gen=2)
 }

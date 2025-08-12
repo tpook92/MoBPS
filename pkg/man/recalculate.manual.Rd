@@ -38,3 +38,7 @@ Population list
 \description{
 Function to recalculate genomic values
 }
+\examples{
+data(ex_pop)
+population <- recalculate.manual(ex_pop, gen = 1)
+}

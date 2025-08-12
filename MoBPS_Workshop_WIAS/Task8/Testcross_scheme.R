@@ -8,8 +8,6 @@ map <- MoBPSmaps::map_maize1[sort(sample(1:nrow(MoBPSmaps::map_maize1), 10000)),
 allele_freq_flint <- runif(10000,0,1)
 allele_freq_dent <- runif(10000,0,1)
 
-
-
 # Looking at the allele frequency spectrum
 hist(allele_freq_dent)
 
@@ -81,14 +79,28 @@ get.pheno.off.count(population, cohorts = "Cross_DHs")
 
 
 # Perform a breeding value estimation for DHs
+# use rrblup to estimate variance components as Direct estimation in MoBPS will just take
+# variance components from last phenotyping
+
 population <- breeding.diploid(population, bve=TRUE,
                                bve.cohorts = "Cross_DHs",
                                rrblup.bve = TRUE,
                                input.phenotype = "off")
 
+plot(get.pheno.off(population, cohorts = "Cross_DHs")[1,],
+     get.bve(population, cohorts = "Cross_DHs")[1,])
+plot(get.bve(population, cohorts = "Cross_DHs")[1,])
+breeding.diploid(population, selection.m.cohorts = "Cross_DHs",
+                 selection.criteria = "bve",
+                 copy.individual.m = TRUE,
+                 selection.size=c(10,0),
+                 name.cohort = "Cross_DHs_sel",
+                 export.selected = TRUE)
+
 # Select the top 250 DHs for the second yield trial - these are the same lines as before!
 # BTW: it is not necessary to generate this cohorts. It just can make it easier for downstream analysis
 population <- breeding.diploid(population, selection.m.cohorts = "Cross_DHs",
+                               selection.criteria = "bve",
                                copy.individual.m = TRUE,
                                selection.size=c(250,0),
                                name.cohort = "Cross_DHs_sel")
@@ -107,6 +119,9 @@ population <- breeding.diploid(population, heritability = 0.3,
 population <- breeding.diploid(population, offpheno.parents.cohorts = "Cross_DHs_sel",
                                offpheno.offspring.cohorts = "Yield_trial_2")
 
+# Perform a breeding value estimation for DHs
+# use rrblup to estimate variance components as Direct estimation in MoBPS will just take
+# variance components from last phenotyping
 population <- breeding.diploid(population, bve=TRUE, bve.cohorts = "Cross_DHs_sel",
                                rrblup.bve = TRUE, input.phenotype = "off")
 
@@ -120,10 +135,13 @@ summary(population)
 
 # This is the genomic value of the DHs itself - not for a cross to a dent line
 par(mfrow=c(3,1))
-hist(get.bv(population, cohorts="Cross_DHs")[1,], xlim=c(250,400), xlab="genomic value", main ="Genomic value in initial DHs")
-hist(get.bv(population, cohorts="Cross_DHs_sel")[1,], xlim=c(250,400), xlab="genomic value", main ="Genomic value in selected DHs")
-hist(get.bv(population, cohorts="Cross_DHs_final")[1,], xlim=c(250,400), xlab="genomic value", main ="Genomic value in final DHs")
+hist(get.bv(population, cohorts="Cross_DHs")[1,], xlim=c(250,440), xlab="genomic value", main ="Genomic value in initial DHs")
+hist(get.bv(population, cohorts="Cross_DHs_sel")[1,], xlim=c(250,440), xlab="genomic value", main ="Genomic value in selected DHs")
+hist(get.bv(population, cohorts="Cross_DHs_final")[1,], xlim=c(250,440), xlab="genomic value", main ="Genomic value in final DHs")
 
+#################################################################################################
+####### END of the Task - everthing below is just showing of some additional MoBPS functionality
+#################################################################################################
 
 # In case you want to perform specific mating you can also manually tell the tool who to make with whom
 # E.g. perform generation of the Yield_trial_2 without use of breeding.all.combination
@@ -141,6 +159,10 @@ get.database(population, cohorts=c("Dent_tester_1", "Dent_tester_2", "Dent_teste
 fixed.breeding <- cbind(5,1,1, 1,2,1)
 population <- breeding.diploid(population, fixed.breeding = fixed.breeding, name.cohort = "Fixed_example")
 
+get.id(population, cohorts=c("Dent_tester_1", "Dent_tester_2", "Dent_tester_3"))
+get.id(population, cohorts="Cross_DHs_sel")
+fixed.breeding.id = cbind(1337, 101)
+
 # This is how you could set up your mating structure with fixed breeding
 
 fixed.breeding <- matrix(0, nrow=750, ncol=6)
@@ -153,3 +175,4 @@ fixed.breeding[501:750,] <- cbind(5,1,1:250,1,2,3)
 
 population <- breeding.diploid(population, breeding.size = c(750,0),
                                fixed.breeding = fixed.breeding, name.cohort = "Yield_trial_2_alt")
+

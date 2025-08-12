@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.ngen.R
 \name{get.trait.name}
 \alias{get.trait.name}
-\title{Number of generations}
+\title{Name of traits}
 \usage{
 get.trait.name(population)
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -32,14 +32,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param pch Point type in the PCA plot
 #' @param plot Set to FALSE to not generate a plot
 #' @param export.color Set to TRUE to export the per point coloring
+#' @param use.id Set TRUE to display IDs instead of dots in the PCA plot
 #' @examples
 #' data(ex_pop)
 #' get.pca(ex_pop, gen=2)
-#' @return Genotype data for in gen/database/cohorts selected individuals
+#' @return Principle components of gen/database/cohorts selected individuals
 #' @export
 
 get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, coloring="group",
-                    components = c(1,2), plot = TRUE, pch=1, export.color=FALSE){
+                    components = c(1,2), plot = TRUE, pch=1, export.color=FALSE, use.id = FALSE){
 
   database <- get.database(population, gen, database, cohorts, avoid.merging= if(coloring=="group"){TRUE} else{FALSE})
 
@@ -129,15 +130,37 @@ get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NUL
 
   if(plot){
     if(length(path)==0){
-      graphics::plot(b$vectors[,components], col=col, pch = pch,
-                     xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
-                     ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+
+      if(use.id){
+        graphics::plot(b$vectors[,components], col=col, pch = pch,
+                       xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                       ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"),
+                       type = "n")
+
+        graphics::text(b$vectors[,components], labels = get.id(population, database = database), col = col)
+      } else{
+        graphics::plot(b$vectors[,components], col=col, pch = pch,
+                       xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                       ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+      }
+
     } else{
       if (requireNamespace("grDevices", quietly = TRUE)) {
         grDevices::png(file=paste0(path, ".png"), width=2000, height= 1200, res=300)
-        graphics::plot(b$vectors[,components], col=col,  pch = pch,
-                       xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
-                       ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+
+        if(use.id){
+          graphics::plot(b$vectors[,components], col=col,  pch = pch,
+                         xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                         ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"),
+                         type = "n")
+          graphics::text(b$vectors[,components], labels = get.id(population, database = database), col = col)
+
+        } else{
+          graphics::plot(b$vectors[,components], col=col,  pch = pch,
+                         xlab=paste0("PC",components[1]," (",round(b$values[components[1]]/sum(b$values)*100, digits=2), "%)"),
+                         ylab=paste0("PC", components[2]," (",round(b$values[components[2]]/sum(b$values)*100, digits=2), "%)"))
+        }
+
         grDevices::dev.off()
       } else{
         stop("Use of grDevices without being installed!")

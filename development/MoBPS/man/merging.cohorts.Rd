@@ -16,3 +16,10 @@ merging.cohorts(population, cohorts, name.cohort = NULL)
 \description{
 Function to merge cohorts in a population list
 }
+\examples{
+data(ex_pop)
+population <- breeding.diploid(ex_pop, add.gen = 7, breeding.size = 50)
+population <- breeding.diploid(population, add.gen = 7, breeding.size = 50,
+ selection.m.database = cbind(6,1), selection.f.database = cbind(6,2))
+population <- merging.cohorts(population, cohorts = c("Cohort_7_M", "Cohort_8_M"))
+}

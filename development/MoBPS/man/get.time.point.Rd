@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.time.point.R
 \name{get.time.point}
 \alias{get.time.point}
-\title{Derive time point}
+\title{Derive time point of generation}
 \usage{
 get.time.point(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ get.time.point(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Time point of generation for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide time point for each individual
+Function to derive time point of generation for each individual
 }
 \examples{
 data(ex_pop)

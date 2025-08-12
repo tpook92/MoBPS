@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.litter.effect.R
 \name{get.litter.effect}
 \alias{get.litter.effect}
-\title{Export underlying number of observations per phenotype}
+\title{Export litter effect}
 \usage{
 get.litter.effect(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ get.litter.effect(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
-Phenotypes for in gen/database/cohorts selected individuals
+Litter effects for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export the number of observation of each underlying phenotype
+Function to export the litter effect of selected individuals
 }
 \examples{
 data(ex_pop)

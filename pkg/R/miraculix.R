@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -58,6 +58,10 @@ miraculix <- function(population){
   } else{
     warning("miraculix is not available! No conversion possible")
 
+  }
+
+  if(length(population$info$miraculix_test_decoded)>0){
+    population$info$miraculix_test_coded = miraculix::haplomatrix(population$info$miraculix_test_decoded)
   }
 
   return(population)

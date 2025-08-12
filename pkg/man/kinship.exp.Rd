@@ -15,6 +15,7 @@ kinship.exp(
   mult = 1,
   storage.save = 1.5,
   verbose = TRUE,
+  include.error = TRUE,
   elements.copy = FALSE
 )
 }
@@ -38,6 +39,8 @@ kinship.exp(
 \item{storage.save}{Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{include.error}{Set to FALSE to ignore/correct any errors in the pedigree}
 
 \item{elements.copy}{Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)}
 }

@@ -13,5 +13,5 @@ chicken_chip
 Genome for chicken according to Groenen et al.
 }
 \author{
-Torsten Pook \email{torsten.pook@uni-goettingen.de}
+Torsten Pook \email{torsten.pook@wur.nl}
 }

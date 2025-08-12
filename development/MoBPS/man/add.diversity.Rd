@@ -2,7 +2,7 @@
 % Please edit documentation in R/add.diversity.R
 \name{add.diversity}
 \alias{add.diversity}
-\title{Calculate breeding values}
+\title{Add additional diverse material to a population}
 \usage{
 add.diversity(
   population,
@@ -72,5 +72,9 @@ add.diversity(
 population list with newly added individuals
 }
 \description{
-Internal function to calculate the breeding value of a given individual
+Function to simulate and add additional diverse material to a population
+}
+\examples{
+data(ex_pop)
+population <- add.diversity(ex_pop, pool.gen  = 1, target.gen = 5)
 }

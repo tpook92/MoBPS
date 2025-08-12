@@ -13,5 +13,5 @@ ex_json
 Exemplary json-data
 }
 \author{
-Torsten Pook \email{torsten.pook@uni-goettingen.de}
+Torsten Pook \email{torsten.pook@wur.nl}
 }

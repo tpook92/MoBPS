@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Position detection (SNPs)
 #'
-#' Internal function for the detection on which position each marker is
+#' Internal function for the detection on which overall position each marker is
 #' @param position Position on the genome
 #' @param snp.position Position of the SNPs on the genome
 #' @return SNP-position of the target position

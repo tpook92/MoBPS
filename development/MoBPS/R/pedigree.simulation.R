@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -95,6 +95,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param is.maternal Vector coding if a trait is caused by a maternal effect (Default: all FALSE)
 #' @param is.paternal Vector coding if a trait is caused by a paternal effect (Default: all FALSE)
 #' @param enter.bv Internal parameter
+#' @param output.extended Set TRUE to export more information about the population list
+#' @param trait.cor Target correlation between QTL-based traits (underlying true genomic values)
+#' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
 #' @examples
 #' pedigree <- matrix(c(1,0,0,
 #' 2,0,0,
@@ -105,7 +108,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' 7,1,3,
 #' 8,4,6,
 #' 9,4,7), ncol=3, byrow=TRUE)
-#' population <- pedigree.simulation(pedigree, nsnp=1000)
+#' population = pedigree.simulation(pedigree, nsnp = 100)
 #' @return Population-list
 #' @export
 
@@ -150,6 +153,8 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                 time.point=0,
                                 creating.type=0,
                                 trait.name=NULL,
+                                trait.cor = NULL,
+                                trait.cor.include = NULL,
                                 share.genotyped=1,
                                 genotyped.s=NULL,
                                 map=NULL,
@@ -160,7 +165,8 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                 var.target=NULL,
                                 progress.bar = TRUE,
                                 is.maternal = NULL, is.paternal = NULL, vcf.maxsnp=Inf,
-                                halffounder = TRUE){
+                                halffounder = TRUE,
+                                output.extended = FALSE){
 
   while(ncol(pedigree)<5){
     pedigree <- cbind(pedigree, NA)
@@ -172,6 +178,8 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
   if(sum(is.na(pedigree[,5]))>0){
     pedigree[is.na(pedigree[,5]),5] <- 1
   }
+
+
 
 
   ## adding individuals missing from the pedigree
@@ -352,6 +360,8 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                  replace.real.bv=replace.real.bv,
                                  shuffle.traits=shuffle.traits,
                                  shuffle.cor=shuffle.cor,
+                                 trait.cor = trait.cor,
+                                 trait.cor.include = trait.cor.include,
                                  skip.rest=skip.rest,
                                  enter.bv=enter.bv,
                                  name.cohort=name.cohort,
@@ -406,7 +416,7 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
     }
   }
 
-  if(TRUE){
+  if(output.extended){
     return(list(population, avail, pedigree_position, pedigree))
   } else{
     return(population)

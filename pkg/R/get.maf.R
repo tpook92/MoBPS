@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @examples
 #' data(ex_pop)
 #' get.maf(ex_pop, gen = 1)
-#' @return Allele frequency of the alternative allele
+#' @return Allele frequency of the minor allele
 #' @export
 
 get.maf <- function(population, database=NULL, gen=NULL, cohorts=NULL){

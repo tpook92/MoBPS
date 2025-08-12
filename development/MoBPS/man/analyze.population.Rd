@@ -33,7 +33,7 @@ analyze.population(
 Frequency of AA/AB/BB in selected gen/database/cohorts
 }
 \description{
-Analyze allele frequency of a single marker
+Function to analyze allele frequency of a single marker
 }
 \examples{
 data(ex_pop)

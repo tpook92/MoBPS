@@ -1,10 +1,15 @@
 Package: MoBPS
 Type: Package
 Title: Modular Breeding Program Simulator
-Version: 1.11.53
-Author: Torsten Pook [aut, cre], Johannes Geibel [ctb], Azadeh Hassanpour [ctb], Tobias Niehoff [ctb]
+Version: 1.12.020
+Authors@R: c(
+    person(given = "Torsten", family = "Pook", role = c("aut", "cre"),
+           email = "torsten.pook@wur.nl"),
+    person(given = "Johannes", family = "Geibel", role = "ctb"),
+    person(given = "Azadeh", family = "Hassanpour", role = "ctb"),
+    person(given = "Tobias", family = "Niehoff", role = "ctb"))
 Maintainer: Torsten Pook <torsten.pook@wur.nl>
-Description: Framework for the simulation framework for the simulation of complex breeding programs and compare their economic and genetic impact. The package is also used as the background simulator for our a web-based interface <http:www.mobps.de>. Associated publication: Pook et al. (2020) <doi:10.1534/g3.120.401193>.
+Description: Framework for the simulation framework for the simulation of complex breeding programs and compare their economic and genetic impact. The package is also used as the background simulator for our a web-based interface <https://www.mobps.de/>. Associated publication: Pook et al. (2020) <doi:10.1534/g3.120.401193>.
 Depends: R (>= 3.0),
 Imports: graphics, stats, utils
 License: GPL ( >= 3)
@@ -12,5 +17,5 @@ LazyData: TRUE
 Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer, optiSel, alstructure, NAM, gplots, phylogram, cPCG, VariantAnnotation, GenomicRanges, IRanges, MatrixGenerics, Rsamtools, visPedigree, data.table, methods, genio
 Enhances: miraculix (>= 0.9.10), RandomFieldsUtils (>= 0.5.9), MoBPSmaps
 Additional_repositories: https://tpook92.github.io/drat/
-RoxygenNote: 7.2.1
-Date: 2024-02-08
+RoxygenNote: 7.3.2
+Date: 2025-06-20

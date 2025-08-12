@@ -29,3 +29,8 @@ Index
 \description{
 Function to put together indices for GxE / multi trait
 }
+\examples{
+population = creating.diploid(nsnp =1000, nindi = 100)
+population = creating.trait(population, n.additive = c(10,10), n.location=3, replace.traits = TRUE)
+get.index(population, trait.weights = c(1,2), location.weights = c(1,2,3))
+}

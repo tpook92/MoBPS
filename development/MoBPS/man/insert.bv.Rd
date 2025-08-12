@@ -24,14 +24,14 @@ insert.bv(
 \item{count.only.increase}{Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)}
 }
 \value{
-Population-List with newly entered estimated breeding values
+Population-List with newly entered breeding values
 }
 \description{
 Function to manually enter breeding values
 }
 \examples{
 data(ex_pop)
-bv <- get.bv(ex_pop, gen=2)
+bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
 new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 ex_pop <- insert.bv(ex_pop, bvs=new.bve)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.culling.type.R
 \name{get.culling.type}
 \alias{get.culling.type}
-\title{Derive class}
+\title{Derive culling type}
 \usage{
 get.culling.type(
   population,
@@ -27,7 +27,7 @@ get.culling.type(
 Class of in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the class for each individual
+Function to derive the culling type for each individual
 }
 \examples{
 data(ex_pop)

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @description Genome for cattle according to Ma et al.
 #' @usage cattle_chip
 #' @source Ma et al 2015
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name pig_chip
@@ -32,7 +32,7 @@ NULL
 #' @description Genome for pig according to Rohrer et al.
 #' @usage pig_chip
 #' @source Rohrer et al 1994
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name chicken_chip
@@ -40,7 +40,7 @@ NULL
 #' @description Genome for chicken according to Groenen et al.
 #' @usage chicken_chip
 #' @source Groenen et al 2009
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name sheep_chip
@@ -48,7 +48,7 @@ NULL
 #' @description Genome for sheep according to Prieur et al.
 #' @usage sheep_chip
 #' @source Prieur et al 2017
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name maize_chip
@@ -56,7 +56,7 @@ NULL
 #' @description Genome for maize according to Lee et al.
 #' @usage maize_chip
 #' @source Lee et al 2002
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name ex_json
@@ -64,7 +64,7 @@ NULL
 #' @description Exemplary json-data
 #' @usage ex_json
 #' @source Web-interface
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL
 
 #' @name ex_pop
@@ -72,5 +72,5 @@ NULL
 #' @description Exemplary population-list
 #' @usage ex_pop
 #' @source MoBPS
-#' @author Torsten Pook \email{torsten.pook@uni-goettingen.de}
+#' @author Torsten Pook \email{torsten.pook@wur.nl}
 NULL

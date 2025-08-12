@@ -17,5 +17,5 @@ scaling.relationship(A, Z, p)
 scaled genomic relationship matrix
 }
 \description{
-scaling.relationship
+Function to scale relationship matricies
 }

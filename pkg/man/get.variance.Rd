@@ -21,3 +21,7 @@ Table with realized narrow/broad-sense heritability, sigma_g,a,d
 \description{
 Function to derive underlying variance components (add/dom)
 }
+\examples{
+data(ex_pop)
+get.variance(ex_pop, gen = 2)
+}

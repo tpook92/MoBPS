@@ -1,0 +1,79 @@
+#############################################################
+        ############ Modular Breeding Program Simulator #############
+        #############################################################
+Simulation started: 2024-10-15 13:48:06
+MoBPS version used: 1.11.82
+Copyright (C) 2017-2020 Torsten Pook
+
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Edges to generate new individuals are not supposed to take 0 time. Automatically set to 0.001 time unit.
+Derive genomic values of founders. 
+Derive genomic values of founders. 
+Start deriving enviromental variance (according to given heritability).
+Estimated residual variances: 70 
+Start simulating phenotypes.
+Start simulating phenotypes.
+Start simulating phenotypes.
+Start simulating phenotypes.
+Start simulating phenotypes.
+Start simulation of generation: 2 (time point: 0)
+Start selection procedure.
+Selection male size:
+Select 10 individuals out of  50.
+Start generation of new individuals (cohort: 2yearRamsNext).
+Successfully generated 10 individuals.
+Successfully generated cohort: 2yearRamsNext
+Database position: 2 (gen), 1 (sex), 1 (first), 10 (last).
+Generation of new individuals took 0.0473 seconds
+Start selection procedure.
+Selection female size:
+Select 40 individuals out of  50.
+Start generation of new individuals (cohort: 2yearEwesNext).
+Successfully generated 40 individuals.
+Successfully generated cohort: 2yearEwesNext
+Database position: 2 (gen), 2 (sex), 1 (first), 40 (last).
+Generation of new individuals took 0.1516 seconds
+Start selection procedure.
+Selection female size:
+Select 30 individuals out of  40.
+Start generation of new individuals (cohort: 3yearEwesNext).
+Successfully generated 30 individuals.
+Successfully generated cohort: 3yearEwesNext
+Database position: 2 (gen), 2 (sex), 41 (first), 70 (last).
+Generation of new individuals took 0.1195 seconds
+Generated groups: 
+2yearRamsNext 2yearEwesNext 3yearEwesNext
+Time spend: 0.36 seconds.
+For generation: 0.36 seconds.
+For culling: 0 seconds.
+Start simulation of generation: 3 (time point: 0)
+Start selection procedure.
+Selection male size:
+Select 10 individuals out of  10.
+Selection female size:
+Select 70 individuals out of  70.
+Start generation of new individuals (cohort: 1yearRamsNext).
+Successfully generated 50 individuals.
+Successfully generated cohort: 1yearRamsNext
+Database position: 3 (gen), 1 (sex), 1 (first), 50 (last).
+Generation of new individuals took 0.2998 seconds
+Start selection procedure.
+Selection male size:
+Select 10 individuals out of  10.
+Selection female size:
+Select 70 individuals out of  70.
+Start generation of new individuals (cohort: 1yearEwesNext).
+Successfully generated 50 individuals.
+Successfully generated cohort: 1yearEwesNext
+Database position: 3 (gen), 2 (sex), 1 (first), 50 (last).
+Generation of new individuals took 0.2538 seconds
+Generated groups: 
+1yearRamsNext 1yearEwesNext
+Time spend: 0.6 seconds.
+For generation: 0.59 seconds.
+For culling: 0 seconds.
+Start simulation of generation: 4 (time point: Inf)

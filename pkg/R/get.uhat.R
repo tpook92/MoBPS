@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,14 +19,19 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive ID on an individual
+#' Export estimated SNP effects
 #'
-#' Function to derive the internal ID given to each individual
+#' Function to export estimated SNP effects
 #' @param population Population list
 #' @param plot Set to FALSE to not display overview of estimated SNP effects (default: TRUE)
 #' @param extend Set to TRUE to export u_hat estimates from all breeding values instead of just the last (default: FALSE)
 #' @param trait.plot Select trait for which to generate the visualization (default: 1)
 #' @return matrix with estimated marker effects
+#' @examples
+#' data(ex_pop)
+#' population = breeding.diploid(ex_pop, bve.gen = 2:3, genotyped.gen = 2:3,
+#'  bve = TRUE, estimate.u = TRUE)
+#' get.uhat(population)
 #' @export
 
 get.uhat <- function(population, extend = FALSE, plot = TRUE, trait.plot = 1){

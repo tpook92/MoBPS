@@ -11,7 +11,7 @@ get.pedigree.visual(
   cohorts = NULL,
   depth.pedigree = 3,
   storage.save = 1.1,
-  id = FALSE,
+  use.id = TRUE,
   cex = NULL,
   path = NULL,
   showgraph = TRUE,
@@ -32,7 +32,7 @@ get.pedigree.visual(
 
 \item{storage.save}{The closer this is to 1 the more strict older animals will be filtered out of the pedigree (default: 1.1, min: 1)}
 
-\item{id}{Set to TRUE to extract individual IDs}
+\item{use.id}{Set to TRUE to extract individual IDs}
 
 \item{cex}{Size of individual labels}
 

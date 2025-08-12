@@ -15,7 +15,8 @@ write.pedigree(
   storage.save = 1.5,
   verbose = TRUE,
   mixblup.reliability = FALSE,
-  blupf90 = FALSE
+  blupf90 = FALSE,
+  include.error = TRUE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ write.pedigree(
 \item{mixblup.reliability}{AA}
 
 \item{blupf90}{FALSE for mixblup; TRUE for MixBLUP}
+
+\item{include.error}{AA}
 }
 \value{
 pedigree table

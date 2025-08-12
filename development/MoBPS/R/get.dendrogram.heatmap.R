@@ -1,9 +1,9 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 Azadeh Hassanpour, azadeh.hassanpour@uni-goettingen.de
 
-Copyright (C) 2017 -- 2021  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -22,7 +22,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Dendrogram Heatmap
 #'
-#' Function calculate a dendogram
+#' Function calculate a dendogram heat
 #' @param population Population list
 #' @param path provide a path if the dendrogram would be saved as a png-file
 #' @param database Groups of individuals to consider
@@ -34,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param type Which traits values to consider (default: "pheno", alt: "bv", "bve")
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=40, n.additive = c(100,100,100),
-#'                shuffle.cor = matrix(c(1,0.8,0.2,0.8,1,0.2,0.2,0.2,1), ncol=3), shuffle.traits = 1:3)
+#'                trait.cor = matrix(c(1,0.8,0.2,0.8,1,0.2,0.2,0.2,1), ncol=3), shuffle.traits = 1:3)
 #' population <- breeding.diploid(population, phenotyping = "all", heritability = 0.5)
 #' get.dendrogram.heatmap(population, gen=1, type="pheno")
 #' @return Dendrogram plot of genotypes vs phenotypes
@@ -115,14 +115,14 @@ get.dendrogram.heatmap <- function(population, path=NULL, database=NULL, gen=NUL
                             keysize = 1)
           grDevices::dev.off()
         } else{
-          stop("Use of grDevices without being installed!")
+          warning("Use of grDevices without being installed!")
         }
       }
 
 
 
     } else{
-      stop("Use of gplots without being installed!")
+      warning("Use of gplots without being installed!")
     }
   }
 

@@ -2,7 +2,7 @@
 % Please edit documentation in R/set.age.point.R
 \name{set.age.point}
 \alias{set.age.point}
-\title{Export estimated breeding values}
+\title{Set age points}
 \usage{
 set.age.point(
   population,
@@ -27,9 +27,9 @@ set.age.point(
 Population-List with newly entered class values
 }
 \description{
-Function to export estimated breeding values
+Function to overwrite age.points of individuals
 }
 \examples{
 data(ex_pop)
-population <- set.time.point(ex_pop, database=cbind(1,1), time.point = 2)
+population <- set.age.point(ex_pop, database=cbind(1,1), time.point = 2)
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,19 +21,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive founder pool
 #'
-#' Function to devide the founder pool of individuals
+#' Function to derive the founder pool of individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' get.pool.founder(ex_pop, gen=2)
-#' @return Class of in gen/database/cohorts selected individuals
+#' @return Founder pool of in gen/database/cohorts selected individuals
 #' @export
 
-get.pool.founder <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
+get.pool.founder <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
 
   database <- get.database(population, gen, database, cohorts)
 

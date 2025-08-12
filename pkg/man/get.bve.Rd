@@ -4,13 +4,7 @@
 \alias{get.bve}
 \title{Export estimated breeding values}
 \usage{
-get.bve(
-  population,
-  database = NULL,
-  gen = NULL,
-  cohorts = NULL,
-  use.id = FALSE
-)
+get.bve(population, database = NULL, gen = NULL, cohorts = NULL, use.id = TRUE)
 }
 \arguments{
 \item{population}{Population list}
@@ -21,7 +15,7 @@ get.bve(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Estimated breeding value of in gen/database/cohorts selected individuals

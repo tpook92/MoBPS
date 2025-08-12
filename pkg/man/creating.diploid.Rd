@@ -12,6 +12,7 @@ creating.diploid(
   generation = 1,
   founder.pool = 1,
   one.sex.mode = FALSE,
+  database.sex.mode = FALSE,
   sex.s = "fixed",
   sex.quota = 0.5,
   class = 0L,
@@ -50,6 +51,8 @@ creating.diploid(
   n.equal.additive = 0,
   n.dominant = 0,
   n.equal.dominant = 0,
+  n.overdominant = 0,
+  n.equal.overdominant = 0,
   n.qualitative = 0,
   n.quantitative = 0,
   effect.distribution = "gauss",
@@ -78,10 +81,12 @@ creating.diploid(
   exclude.snps = NULL,
   var.additive.l = NULL,
   var.dominant.l = NULL,
+  var.overdominant.l = NULL,
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
   effect.size.equal.add = 1,
   effect.size.equal.dom = 1,
+  effect.size.equal.over = 1,
   polygenic.variance = 100,
   bve.mult.factor = NULL,
   bve.poly.factor = NULL,
@@ -132,6 +137,8 @@ creating.diploid(
 
 \item{one.sex.mode}{Activating this will ignore all sex specific parameters and handle each individual as part of the first sex (default: FALSE)}
 
+\item{database.sex.mode}{Set TRUE to automatically remove females in selection.m and remove males in selection.f}
+
 \item{sex.s}{Specify which newly added individuals are male (1) or female (2)}
 
 \item{sex.quota}{Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")}
@@ -144,7 +151,7 @@ creating.diploid(
 
 \item{chr.nr}{Number of chromosomes (SNPs are equally split) or vector containing the associated chromosome for each marker}
 
-\item{chromosome.length}{Length of the newly added chromosome (default: 5)}
+\item{chromosome.length}{Length of the newly added chromosome in Morgan; can be a vector when generating multiple chromosomes (default: 5)}
 
 \item{bp}{Vector containing the physical position (bp) for each marker (default: 1,2,3...)}
 
@@ -206,7 +213,11 @@ creating.diploid(
 
 \item{n.dominant}{Number of dominant QTL with effect size drawn from a gaussian distribution}
 
-\item{n.equal.dominant}{Number of n.equal.dominant QTL with equal effect size}
+\item{n.equal.dominant}{Number of dominant QTL with equal effect size}
+
+\item{n.overdominant}{Number of overdominant QTL with effect size drawn from absolute value of a gaussian distribution}
+
+\item{n.equal.overdominant}{Number of overdominant QTL with equal effect size}
 
 \item{n.qualitative}{Number of qualitative epistatic QTL}
 
@@ -264,6 +275,8 @@ creating.diploid(
 
 \item{var.dominant.l}{Variance of dominante QTL}
 
+\item{var.overdominant.l}{Variance of overdominante QTL}
+
 \item{var.qualitative.l}{Variance of qualitative epistatic QTL}
 
 \item{var.quantitative.l}{Variance of quantitative epistatic QTL}
@@ -271,6 +284,8 @@ creating.diploid(
 \item{effect.size.equal.add}{Effect size of the QTLs in n.equal.additive}
 
 \item{effect.size.equal.dom}{Effect size of the QTLs in n.equal.dominant}
+
+\item{effect.size.equal.over}{Effect size of the QTLs in n.equal.overdominant}
 
 \item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
 

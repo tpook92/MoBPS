@@ -11,6 +11,12 @@ recombination.function.haldane(noc, length.genome)
 
 \item{length.genome}{Length of the genome}
 }
+\value{
+Vector of recombination events
+}
 \description{
 Standard haldane function
+}
+\examples{
+recombination.function.haldane(5, 10)
 }

@@ -64,6 +64,8 @@ pedigree.simulation(
   time.point = 0,
   creating.type = 0,
   trait.name = NULL,
+  trait.cor = NULL,
+  trait.cor.include = NULL,
   share.genotyped = 1,
   genotyped.s = NULL,
   map = NULL,
@@ -76,7 +78,8 @@ pedigree.simulation(
   is.maternal = NULL,
   is.paternal = NULL,
   vcf.maxsnp = Inf,
-  halffounder = TRUE
+  halffounder = TRUE,
+  output.extended = FALSE
 )
 }
 \arguments{
@@ -198,6 +201,10 @@ pedigree.simulation(
 
 \item{trait.name}{Name of the trait generated}
 
+\item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
+
+\item{trait.cor.include}{Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)}
+
 \item{share.genotyped}{Share of individuals genotyped in the founders}
 
 \item{genotyped.s}{Specify with newly added individuals are genotyped (1) or not (0)}
@@ -224,6 +231,8 @@ pedigree.simulation(
 
 \item{halffounder}{Set to FALSE to make individuals with only one known parent founders (default: TRUE; will additional generate a missing unrelated parent)}
 
+\item{output.extended}{Set TRUE to export more information about the population list}
+
 \item{add.chromosome}{If TRUE add an additional chromosome to the dataset}
 }
 \value{
@@ -242,5 +251,5 @@ pedigree <- matrix(c(1,0,0,
 7,1,3,
 8,4,6,
 9,4,7), ncol=3, byrow=TRUE)
-population <- pedigree.simulation(pedigree, nsnp=1000)
+population = pedigree.simulation(pedigree, nsnp = 100)
 }

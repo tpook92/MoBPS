@@ -10,7 +10,7 @@ get.npheno(
   gen = NULL,
   cohorts = NULL,
   use.all.copy = FALSE,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ get.npheno(
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals

@@ -13,5 +13,5 @@ sheep_chip
 Genome for sheep according to Prieur et al.
 }
 \author{
-Torsten Pook \email{torsten.pook@uni-goettingen.de}
+Torsten Pook \email{torsten.pook@wur.nl}
 }

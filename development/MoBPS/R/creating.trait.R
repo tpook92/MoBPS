@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -31,8 +31,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param randomSeed Set random seed of the process
 #' @param n.additive Number of additive QTL with effect size drawn from a gaussian distribution
 #' @param n.dominant Number of dominant QTL with effect size drawn from a gaussian distribution
+#' @param n.overdominant Number of overdominant QTL with effect size drawn from absolute value of a gaussian distribution
 #' @param n.equal.additive Number of additive QTL with equal effect size (effect.size)
-#' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
+#' @param n.equal.dominant Number of dominant QTL with equal effect size
+#' @param n.equal.overdominant Number of overdominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
 #' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
@@ -41,10 +43,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
+#' @param var.overdominant.l Variance of overdominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
 #' @param effect.size.equal.add Effect size of the QTLs in n.equal.additive
 #' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
+#' @param effect.size.equal.over Effect size of the QTLs in n.equal.overdominant
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.traits If TRUE delete the simulated traits added before
 #' @param shuffle.cor OLD! Use trait.cor - Target Correlation between traits
@@ -96,6 +100,8 @@ creating.trait <- function(population,
                            n.equal.additive=0,
                            n.dominant=0,
                            n.equal.dominant=0,
+                           n.overdominant=0,
+                           n.equal.overdominant=0,
                            n.qualitative=0,
                            n.quantitative=0,
                            effect.distribution = "gauss",
@@ -122,10 +128,12 @@ creating.trait <- function(population,
                            exclude.snps=NULL,
                            var.additive.l=NULL,
                            var.dominant.l=NULL,
+                           var.overdominant.l=NULL,
                            var.qualitative.l=NULL,
                            var.quantitative.l=NULL,
                            effect.size.equal.add = 1,
                            effect.size.equal.dom = 1,
+                           effect.size.equal.over = 1,
 
                            polygenic.variance=100,
                            bve.mult.factor=NULL,
@@ -158,8 +166,9 @@ creating.trait <- function(population,
     shuffle.traits = trait.cor.include
   }
 
+  # GxE Trait generation module
   {
-    if(length(n.locations)>0 && length(gxe.correlation)==0){
+    if(length(n.locations)>0 && n.locations > 1 && length(gxe.correlation)==0){
       gxe.correlation = matrix(stats::runif(n.locations^2, gxe.min, gxe.max), ncol=n.locations)
       for(i in 2:nrow(gxe.correlation)) {
         for(j in 1:(i-1)) {
@@ -187,6 +196,7 @@ creating.trait <- function(population,
 
     trait_location = NULL
     trait_nr = NULL
+
     if(length(gxe.correlation)>0){
 
       if(length(population)>0 && population$info$bv.nr >0){
@@ -199,13 +209,16 @@ creating.trait <- function(population,
 
       # Determine total number of traits
 
-      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
       n_traits <- length(trait_sum)
 
       n.additive <- rep(c(n.additive, rep(0, length.out=n_traits-length(n.additive))), n.locations)
       n.dominant <- rep(c(n.dominant, rep(0, length.out=n_traits-length(n.dominant))), n.locations)
       n.equal.additive <- rep(c(n.equal.additive, rep(0, length.out=n_traits-length(n.equal.additive))), n.locations)
       n.equal.dominant <- rep(c(n.equal.dominant, rep(0, length.out=n_traits-length(n.equal.dominant))), n.locations)
+      n.overdominant <- rep(c(n.overdominant, rep(0, length.out=n_traits-length(n.overdominant))), n.locations)
+      n.equal.overdominant <- rep(c(n.equal.overdominant, rep(0, length.out=n_traits-length(n.equal.overdominant))), n.locations)
+
       n.qualitative <- rep(c(n.qualitative, rep(0, length.out=n_traits-length(n.qualitative))), n.locations)
       n.quantitative <- rep(c(n.quantitative, rep(0, length.out=n_traits-length(n.quantitative))), n.locations)
 
@@ -232,6 +245,7 @@ creating.trait <- function(population,
         trait.name = paste0(rep(trait.name, n.locations) ," x ", rep(location.name, each = n_traits))
       }
 
+
       trait_location = rep(1:n.locations, each = n_traits)
       trait_nr =  rep(1:n_traits, n.locations)
 
@@ -240,6 +254,7 @@ creating.trait <- function(population,
         cat("Used genetic correlation matrix:\n")
         print(shuffle.cor)
       }
+
     }
   }
 
@@ -279,6 +294,9 @@ creating.trait <- function(population,
   if(!is.list(var.dominant.l)){
     var.dominant.l <- list(var.dominant.l)
   }
+  if(!is.list(var.overdominant.l)){
+    var.overdominant.l <- list(var.overdominant.l)
+  }
   if(!is.list(var.qualitative.l)){
     var.qualitative.l <- list(var.qualitative.l)
   }
@@ -286,14 +304,20 @@ creating.trait <- function(population,
     var.quantitative.l <- list(var.quantitative.l)
   }
 
-  trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+  trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
   test <- list(NULL)
+
   if(length(var.additive.l) < length(trait_sum)){
     var.additive.l <- c(var.additive.l, rep(test,length.out=length(trait_sum)-length(var.additive.l)))
   }
   if(length(var.dominant.l) < length(trait_sum)){
     var.dominant.l <- c(var.dominant.l, rep(test,length.out=length(trait_sum)-length(var.dominant.l)))
   }
+
+  if(length(var.overdominant.l) < length(trait_sum)){
+    var.overdominant.l <- c(var.overdominant.l, rep(test,length.out=length(trait_sum)-length(var.overdominant.l)))
+  }
+
   if(length(var.qualitative.l) < length(trait_sum)){
     var.qualitative.l <- c(var.qualitative.l, rep(test,length.out=length(trait_sum)-length(var.qualitative.l)))
   }
@@ -306,23 +330,32 @@ creating.trait <- function(population,
   n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
   n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
   n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
+  n.overdominant <- c(n.overdominant, rep(0, length.out=ntraits-length(n.overdominant)))
+  n.equal.overdominant <- c(n.equal.overdominant, rep(0, length.out=ntraits-length(n.equal.overdominant)))
+
   n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
   n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
 
-  if(length(unlist(c(var.qualitative.l, var.quantitative.l, var.additive.l, var.dominant.l)))>0){
-    ntraits <- max(length(trait_sum), length(var.additive.l),length(var.dominant.l), length(var.qualitative.l), length(var.quantitative.l) )
+  if(length(unlist(c(var.qualitative.l, var.quantitative.l, var.additive.l, var.dominant.l, var.overdominant.l)))>0){
+    ntraits <- max(length(trait_sum), length(var.additive.l),length(var.dominant.l), length(var.overdominant.l), length(var.qualitative.l), length(var.quantitative.l) )
     n.additive <- c(n.additive, rep(0, length.out=ntraits-length(n.additive)))
     n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
     n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
     n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
+    n.overdominant <- c(n.overdominant, rep(0, length.out=ntraits-length(n.overdominant)))
+    n.equal.overdominant <- c(n.equal.overdominant, rep(0, length.out=ntraits-length(n.equal.overdominant)))
+
     n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
     n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
-    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
     if(length(var.additive.l) < length(trait_sum)){
       var.additive.l <- rep(var.additive.l, length.out=length(trait_sum))
     }
     if(length(var.dominant.l) < length(trait_sum)){
       var.dominant.l <- rep(var.dominant.l, length.out=length(trait_sum))
+    }
+    if(length(var.overdominant.l) < length(trait_sum)){
+      var.overdominant.l <- rep(var.overdominant.l, length.out=length(trait_sum))
     }
     if(length(var.qualitative.l) < length(trait_sum)){
       var.qualitative.l <- rep(var.qualitative.l, length.out=length(trait_sum))
@@ -385,14 +418,12 @@ creating.trait <- function(population,
       trait.pool_temp = trait.pool
     }
 
-
     for(index3 in 1:length(real.bv.add)){
 
       if(length(real.bv.add[[index3]])==1 && real.bv.add[[index3]]=="placeholder"){
         real.bv.add[[index3]] = NULL
         next
       }
-
       if(ncol(real.bv.add[[index3]])==5){
         real.bv.add[[index3]] = cbind(real.bv.add[[index3]], NA, trait.pool_temp[index3])
       }
@@ -408,19 +439,18 @@ creating.trait <- function(population,
   }
 
 
+
   if(length(population)>0){
     if(length(real.bv.add)==0 && replace.traits==FALSE){
       real.bv.add <- population$info$real.bv.add
       if(length(population$info$real.bv.add)>0){
         real.bv.add[[length(population$info$real.bv.add)]] <- NULL
       }
-
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.add)){
         real.bv.add <- list(real.bv.add)
       }
       real.bv.add <- c(population$info$real.bv.add, real.bv.add)
-
       if(length(population$info$real.bv.add)>0){
         real.bv.add[[length(population$info$real.bv.add)]] <- NULL
       }
@@ -430,7 +460,6 @@ creating.trait <- function(population,
       if(length(population$info$real.bv.mult)>0){
         real.bv.mult[[length(population$info$real.bv.mult)]] <- NULL
       }
-
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.mult)){
         real.bv.mult <- list(real.bv.mult)
@@ -445,7 +474,6 @@ creating.trait <- function(population,
       if(length(population$info$real.bv.dice)>0){
         real.bv.dice[[length(population$info$real.bv.dice)]] <- NULL
       }
-
     } else if(replace.traits==FALSE){
       if(!is.list(real.bv.dice)){
         real.bv.dice <- list(real.bv.dice)
@@ -468,100 +496,96 @@ creating.trait <- function(population,
   }
 
   {
-  # Check for missingness in real.bvs and replace with reasonable inputs
-  cum_snp <- cumsum(population$info$snp)
-  snpdata <- population$info$snp
-  if(qtl.position.shared){
+    # Check for missingness in real.bvs and replace with reasonable inputs
+    cum_snp <- cumsum(population$info$snp)
+    snpdata <- snpdata <- population$info$snp
 
-    n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2)
+    if(qtl.position.shared){
 
-    so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-    n_qtls_sofar = numeric(so_far)
+      n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2+ n.overdominant+ n.equal.overdominant)
+
+      so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
+      n_qtls_sofar = numeric(so_far)
+      if(length(real.bv.add)>0){
+        for(index in 1:length(real.bv.add)){
+          if(length(real.bv.add[[index]])>0){
+            n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.add[[index]])
+
+          }
+        }
+      }
+      if(length(real.bv.mult)>0){
+        for(index in 1:length(real.bv.mult)){
+          if(length(real.bv.mult[[index]])>0){
+            n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.mult[[index]]) * 2
+          }
+        }
+      }
+
+      effect_marker <- (1:sum(snpdata))
+      if(length(exclude.snps)>0){
+        effect_marker <- effect_marker[-exclude.snps]
+      }
+
+      max_qtls = max(c(n_qtls, n_qtls_sofar))
+      effect_marker = sample(effect_marker, max_qtls)
+
+    } else{
+      so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
+      effect_marker <- (1:sum(snpdata))
+      if(length(exclude.snps)>0){
+        effect_marker <- effect_marker[-exclude.snps]
+      }
+    }
 
     if(length(real.bv.add)>0){
       for(index in 1:length(real.bv.add)){
-        if(length(real.bv.add[[index]])>0){
-          n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.add[[index]])
-        }
+        while(sum(is.na(real.bv.add[[index]][,c(1:2,6)]))>0){
 
+          add_marker <- sample(effect_marker, nrow(real.bv.add[[index]]), replace=if(nrow(real.bv.add[[index]])>length(effect_marker)){TRUE} else{FALSE})
+          add_snp <- real.bv.add[[index]][,1]
+          add_chromo <- real.bv.add[[index]][,2]
 
-      }
-    }
-    if(length(real.bv.mult)>0){
-      for(index in 1:length(real.bv.mult)){
-        if(length(real.bv.mult[[index]])>0){
-          n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.mult[[index]]) * 2
-        }
-      }
-    }
-
-    effect_marker <- (1:sum(snpdata))
-    if(length(exclude.snps)>0){
-      effect_marker <- effect_marker[-exclude.snps]
-    }
-
-    max_qtls = max(c(n_qtls, n_qtls_sofar))
-    effect_marker = sample(effect_marker, max_qtls)
-
-
-
-  } else{
-    so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-    effect_marker <- (1:sum(population$info$snp))
-    if(length(exclude.snps)>0){
-      effect_marker <- effect_marker[-exclude.snps]
-    }
-  }
-
-  if(length(real.bv.add)>0){
-    for(index in 1:length(real.bv.add)){
-      while(sum(is.na(real.bv.add[[index]][,c(1:2,6)]))>0){
-
-        add_marker <- sample(effect_marker, nrow(real.bv.add[[index]]), replace=if(nrow(real.bv.add[[index]])>length(effect_marker)){TRUE} else{FALSE})
-        add_snp <- real.bv.add[[index]][,1]
-        add_chromo <- real.bv.add[[index]][,2]
-
-        for(index2 in (1:nrow(real.bv.add[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
-          add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
-          add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
-        }
-
-        if(sum(is.na(real.bv.add[[index]][,6]))>0){
-          add_marker = add_snp + c(0,cum_snp)[add_chromo]
-        }
-
-        enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])| is.na(real.bv.add[[index]][,1]) | is.na(real.bv.add[[index]][,6])
-
-        real.bv.add[[index]][enter,c(1:2,6)] <- cbind(add_snp, add_chromo, add_marker)[enter,]
-      }
-    }
-  }
-
-  if(length(real.bv.mult)>0){
-    for(index in 1:length(real.bv.mult)){
-      for(columns in c(0,2)){
-        while(sum(is.na(real.bv.mult[[index]][,1:2+columns]))>0){
-
-
-          add_marker <- sample(effect_marker, nrow(real.bv.mult[[index]]), replace=if(nrow(real.bv.mult[[index]])>length(effect_marker)){TRUE} else{FALSE})
-          add_snp <- real.bv.mult[[index]][,1]
-          add_chromo <- real.bv.mult[[index]][,2]
-
-          for(index2 in (1:nrow(real.bv.mult[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+          for(index2 in (1:nrow(real.bv.add[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
             add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
             add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
           }
 
-          enter <- add_chromo==real.bv.mult[[index]][,2+columns] | is.na(real.bv.mult[[index]][,2])
 
-          real.bv.mult[[index]][enter,1:2+columns] <- cbind(add_snp, add_chromo)[enter,]
+          if(sum(is.na(real.bv.add[[index]][,6]))>0){
+            add_marker = add_snp + c(0,cum_snp)[add_chromo]
+          }
+
+          enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])| is.na(real.bv.add[[index]][,1]) | is.na(real.bv.add[[index]][,6])
+
+          real.bv.add[[index]][enter,c(1:2, 6)] <- cbind(add_snp, add_chromo, add_marker)[enter,]
         }
       }
+    }
 
+    if(length(real.bv.mult)>0){
+      for(index in 1:length(real.bv.mult)){
+        for(columns in c(0,2)){
+          while(sum(is.na(real.bv.mult[[index]][,1:2+columns]))>0){
+
+            add_marker <- sample(effect_marker, nrow(real.bv.mult[[index]]), replace=if(nrow(real.bv.mult[[index]])>length(effect_marker)){TRUE} else{FALSE})
+            add_snp <- real.bv.mult[[index]][,1]
+            add_chromo <- real.bv.mult[[index]][,2]
+
+            for(index2 in (1:nrow(real.bv.mult[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+              add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
+              add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
+            }
+
+            enter <- add_chromo==real.bv.mult[[index]][,2+columns] | is.na(real.bv.mult[[index]][,2])
+
+            real.bv.mult[[index]][enter,1:2+columns] <- cbind(add_snp, add_chromo)[enter,]
+          }
+        }
+
+      }
     }
   }
-  }
-
 
   if(qtl.position.shared){
     sofar_positions = NULL
@@ -574,7 +598,6 @@ creating.trait <- function(population,
       }
     }
 
-
     sofar_positions = sofar_positions[!is.na(sofar_positions)]
     sofar_positions = setdiff(sofar_positions, effect_marker)
     if(length(sofar_positions)>0 && length(sofar_positions)<= length(effect_marker)){
@@ -586,48 +609,57 @@ creating.trait <- function(population,
   if(length(dominant.only.positive)<length(trait_sum)){
     dominant.only.positive <- rep(dominant.only.positive, length.out = length(trait_sum))
   }
-
-
+  so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
 
   if(length(trait.pool)< length(trait_sum)){
     trait.pool = rep(trait.pool, length.out = length(trait_sum))
   }
 
-
-
   if(length(trait_sum)>0){
     for(index_trait in 1:length(trait_sum)){
       var_additive <- var.additive.l[[index_trait]]
       var_dominant <- var.dominant.l[[index_trait]]
+      var_overdominant <- var.overdominant.l[[index_trait]]
+
       var_qualitative <- var.qualitative.l[[index_trait]]
       var_quantitative <- var.quantitative.l[[index_trait]]
       if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
         if(length(var_additive)==0){
           var_additive <- 1
         }
-        var_additive <- rep(1, length.out=n.additive[index_trait])
+        var_additive <- rep(var_additive, length.out=n.additive[index_trait])
         var.additive.l[[index_trait]] <- var_additive
       }
       if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
         if(length(var_dominant)==0){
           var_dominant <- 1
         }
-        var_dominant <- rep(1, length.out=n.dominant[index_trait])
+        var_dominant <- rep(var_dominant, length.out=n.dominant[index_trait])
         var.dominant.l[[index_trait]] <- var_dominant
       }
+
+      if(n.overdominant[index_trait]>0 && length(var_overdominant)<n.overdominant[index_trait]){
+        if(length(var_overdominant)==0){
+          var_overdominant <- 1
+        }
+        var_overdominant <- rep(var_overdominant, length.out=n.overdominant[index_trait])
+        var.overdominant.l[[index_trait]] <- var_overdominant
+      }
+
       if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
         if(length(var_qualitative)==0){
           var_qualitative <- 1
         }
-        var_qualitative <- rep(1, length.out=n.qualitative[index_trait])
+        var_qualitative <- rep(var_qualitative, length.out=n.qualitative[index_trait])
         var.qualitative.l[[index_trait]] <- var_qualitative
       }
       if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
         if(length(var_quantitative)==0){
           var_quantitative <- 1
         }
-        var_quantitative <- rep(1, length.out=n.quantitative[index_trait])
+        var_quantitative <- rep(var_quantitative, length.out=n.quantitative[index_trait])
         var.quantitative.l[[index_trait]] <- var_quantitative
+
       }
 
       if(length(var_additive)!= n.additive[index_trait]){
@@ -635,6 +667,9 @@ creating.trait <- function(population,
       }
       if(length(var_dominant)!= n.dominant[index_trait]){
         n.dominant[index_trait] <- length(var_dominant)
+      }
+      if(length(var_overdominant)!= n.overdominant[index_trait]){
+        n.overdominant[index_trait] <- length(var_overdominant)
       }
       if(length(var_qualitative)!= n.qualitative[index_trait]){
         n.qualitative[index_trait] <- length(var_qualitative)
@@ -647,21 +682,19 @@ creating.trait <- function(population,
 
 
 
-      #This part is only needed in creating.diploid
-      #if(nsnp>0){
-      #  snpdata <- c(snpdata, nsnp)
-      #} else if(is.matrix(dataset) && nrow(dataset)){
-      #  snpdata <- c(snpdata, nrow(dataset))
-      #}
-      #
 
+      #stop()
 
       # Generating additive
 
       add_marker <- sample(effect_marker, n.additive[index_trait], replace=if(n.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
       dom_marker <- sample(effect_marker, n.dominant[index_trait], replace=if(n.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+      over_marker <- sample(effect_marker, n.overdominant[index_trait], replace=if(n.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
       add_marker1 <- sample(effect_marker, n.equal.additive[index_trait], replace=if(n.equal.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
       dom_marker1 <- sample(effect_marker, n.equal.dominant[index_trait], replace=if(n.equal.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+      over_marker1 <- sample(effect_marker, n.equal.overdominant[index_trait], replace=if(n.equal.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
       epi1_marker <- sample(effect_marker, n.quantitative[index_trait]*2, replace=if(n.quantitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
       epi2_marker <- sample(effect_marker, n.qualitative[index_trait]*2, replace=if(n.qualitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
 
@@ -730,6 +763,36 @@ creating.trait <- function(population,
 
       }
 
+      if(n.overdominant[index_trait]>0){
+        over_snp <- over_chromo <- numeric(n.overdominant[index_trait])
+        for(index in 1:n.overdominant[index_trait]){
+          over_chromo[index] <- sum(over_marker[index] > cum_snp) + 1
+          over_snp[index] <- over_marker[index] - c(0,cum_snp)[over_chromo[index]]
+        }
+
+        if(effect.distribution == "gauss"){
+          over_effect <- abs(stats::rnorm(n.overdominant[index_trait], 0, var_overdominant))
+        } else{
+          over_effect <- abs(stats::rgamma(n.overdominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.overdominant[index_trait], replace = TRUE))
+        }
+
+        temp1 <- over_effect
+
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(over_snp, over_chromo, 0 ,temp1,0, over_marker, trait.pool[index_trait], FALSE))
+
+      }
+
+      if(n.equal.overdominant[index_trait]>0){
+        over_snp1 <- over_chromo1 <- numeric(n.equal.overdominant[index_trait])
+        for(index in 1:n.equal.overdominant[index_trait]){
+          over_chromo1[index] <- sum(over_marker1[index] > cum_snp) + 1
+          over_snp1[index] <- over_marker1[index] - c(0,cum_snp)[over_chromo1[index]]
+        }
+        over_effect1 <- effect.size.equal.over
+        real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,over_effect1, 0, over_marker1, trait.pool[index_trait], FALSE))
+
+      }
+
       if(n.quantitative[index_trait]){
         epi1_snp <- epi1_chromo <- numeric(n.quantitative[index_trait]*2)
         for(index in 1:(n.quantitative[index_trait]*2)){
@@ -785,6 +848,7 @@ creating.trait <- function(population,
 
     }
   }
+
 
 
 
@@ -1025,6 +1089,11 @@ creating.trait <- function(population,
     if(replace.traits){
 
       to_add = population$info$bv.nr
+
+      population$info$last.sigma.e.heritability <- NULL
+      population$info$last.sigma.e.database <- NULL
+      population$info$last.sigma.e.value <- NULL
+
       for(index in c(3,4,7:10, 19:22, 27:30)){
 
         sex_temp = 2-index%%2
@@ -1135,7 +1204,7 @@ creating.trait <- function(population,
 
       newA <- S %*% M %*% solve(S)
 
-      diag(newA) <- diag(newA) + 0.0000001 # Avoid numerical issues with inversion
+      diag(newA) <- diag(newA) + 0.001 # Avoid numerical issues with inversion
       newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
       if(verbose) cat("new suggested genetic correlation matrix:\n")
       shuffle.cor <- newA

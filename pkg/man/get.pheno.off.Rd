@@ -9,7 +9,7 @@ get.pheno.off(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -21,7 +21,7 @@ get.pheno.off(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Avg. phenotype of the offspring of in gen/database/cohorts selected individuals

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.variance.components.R
 \name{get.variance.components}
 \alias{get.variance.components}
-\title{Derive age point}
+\title{Derive variance components}
 \usage{
 get.variance.components(population)
 }
@@ -10,12 +10,13 @@ get.variance.components(population)
 \item{population}{Population list}
 }
 \value{
-Time point selected gen/database/cohorts-individuals are born
+Estimated variance components
 }
 \description{
-Function to devide age point for each individual (Same as time.point unless copy.individual is used for aging)
+Function to derive variance components
 }
 \examples{
 data(ex_pop)
-get.age.point(ex_pop, gen=2)
+population = breeding.diploid(ex_pop, bve = TRUE, bve.gen = 2)
+get.variance.components(population)
 }

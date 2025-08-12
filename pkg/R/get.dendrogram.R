@@ -1,9 +1,9 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 Azadeh Hassanpour, azadeh.hassanpour@uni-goettingen.de
 
-Copyright (C) 2017 -- 2021  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -79,11 +79,14 @@ get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohor
         graphics::plot(geno_dend, xlab = x_lab)
         grDevices::dev.off()
       } else{
-        stop("Use of grDevices without being installed!")
+        warning("Use of grDevices without being installed!")
       }
     }
 
     geno_dend
+  } else{
+    warning("Use of NAM without being installed!")
+
   }
 
 

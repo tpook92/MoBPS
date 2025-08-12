@@ -11,7 +11,7 @@ kinship.emp(
   database = NULL,
   cohorts = NULL,
   sym = FALSE,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -27,13 +27,13 @@ kinship.emp(
 
 \item{sym}{If True derive matrix entries below principle-diagonal}
 
-\item{use.id}{Set TRUE to use animal IDs for column/row-names in the output matrix}
+\item{use.id}{Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)}
 }
 \value{
 Empirical kinship matrix (IBD-based since Founders)
 }
 \description{
-Function to compute empirical kinship for a set of individuals)
+Function to compute empirical kinship for a set of individuals
 }
 \examples{
 data(ex_pop)

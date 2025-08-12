@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,14 +28,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @param male.female.coding Set to TRUE to display male/female instead of 1/2
+#' @examples
+#' data(ex_pop)
+#' get.sex(ex_pop, gen=2)
 #' @export
 #'
 
 
-get.sex <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=F, male.female.coding = F){
-  database <- get.database(population, gen, database, cohorts)
-  sex <- get.full.database(population = population, database = database)[,2]
-  ids <- get.id(population = population, database = database, use.id = use.id)
+get.sex <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE, male.female.coding = F){
+  database <- get.database(population, gen, database, cohorts, per.individual = TRUE)
+  sex <- database[,2]
+  ids <- names(get.id(population = population, database = database, use.id = use.id))
   names(sex)<- ids
 
   if(male.female.coding){

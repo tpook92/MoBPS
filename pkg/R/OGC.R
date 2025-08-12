@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -38,13 +38,9 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE, max_male=Inf, max_fema
 
   Opt.int <- function(A, u, Q, cAc=NA){
 
-    if (requireNamespace("MASS", quietly = TRUE)) {
-      A1 <- MASS::ginv(A)
-      QAQ1 <- MASS::ginv(t(Q)%*%A1%*%Q)
-    } else{
-      stop("Use of MASS without being installed!")
-    }
 
+    A1 <- MASS::ginv(A)
+    QAQ1 <- MASS::ginv(t(Q)%*%A1%*%Q)
     minA <- round(0.25*sum(QAQ1)+0.000005,5)
     if(minA<=0){
       minA <- 0.000005
@@ -64,65 +60,74 @@ OGC <- function(A,u,Q,cAc=NA, single=TRUE, verbose=FALSE, max_male=Inf, max_fema
     return(list(xopt,cAc))
   }
 
-  n_male <- sum(Q[,1])
-  n_female <- sum(Q[,2])
-  rr <- Opt.int(A,u,Q,cAc)
-  xopt <- rr[[1]]
-  minA <- minA1 <- rr[[2]]
-  n <- length(u)
-  names(u) <- 1:n
-  for(i in 1:length(xopt)){
-    if((min(xopt) >= 0)){break}
-    neg <- which(xopt < 0)
-    if(single && length(neg)>0){
-      neg <- sample(neg, 1)
+  if (requireNamespace("MASS", quietly = TRUE)) {
+
+    n_male <- sum(Q[,1])
+    n_female <- sum(Q[,2])
+    rr <- Opt.int(A,u,Q,cAc)
+    xopt <- rr[[1]]
+    minA <- minA1 <- rr[[2]]
+    n <- length(u)
+    names(u) <- 1:n
+    for(i in 1:length(xopt)){
+      if((min(xopt) >= 0)){break}
+      neg <- which(xopt < 0)
+      if(single && length(neg)>0){
+        neg <- sample(neg, 1)
+      }
+      A <- A[-neg,-neg]
+      u <- u[-neg]
+      Q <- Q[-neg,]
+      if(length(u)==2){xopt=rep(0.5,2);break}
+      xopt1 <- Opt.int(A,u,Q,cAc)
+      xopt <- xopt1[[1]]
+      minA1 <- xopt1[[2]]
     }
-    A <- A[-neg,-neg]
-    u <- u[-neg]
-    Q <- Q[-neg,]
-    if(length(u)==2){xopt=rep(0.5,2);break}
-    xopt1 <- Opt.int(A,u,Q,cAc)
-    xopt <- xopt1[[1]]
-    minA1 <- xopt1[[2]]
+
+    for(i in 1:length(xopt)){
+      if(sum(Q[,1])<=max_male){break}
+      neg <- which(Q[,1] > 0)
+      if(single && length(neg)>0){
+        neg <- sample(neg, 1)
+      }
+      A <- A[-neg,-neg]
+      u <- u[-neg]
+      Q <- Q[-neg,]
+      if(length(u)==2){xopt=rep(0.5,2);break}
+      xopt1 <- Opt.int(A,u,Q,cAc)
+      xopt <- xopt1[[1]]
+      minA1 <- xopt1[[2]]
+    }
+
+    for(i in 1:length(xopt)){
+      if(sum(Q[,2])<=max_female){break}
+      neg <- which(Q[,2] > 0)
+      if(single && length(neg)>0){
+        neg <- sample(neg, 1)
+      }
+      A <- A[-neg,-neg]
+      u <- u[-neg]
+      Q <- Q[-neg,]
+      if(length(u)==2){xopt=rep(0.5,2);break}
+      xopt1 <- Opt.int(A,u,Q,cAc)
+      xopt <- xopt1[[1]]
+      minA1 <- xopt1[[2]]
+    }
+
+    res <- numeric(n)
+    res[as.numeric(names(u))] <- xopt
+    if(verbose) cat(paste0("Realized gain in inbreeding via OGC: ", minA1 ,"\n"))
+    if(verbose) cat(paste0(sum(Q[,1]), " of the ", n_male, " male individuals have positive contribution.\n"))
+    if(verbose) cat(paste0(sum(Q[,2]), " of the ", n_female, " female individuals have positive contribution.\n"))
+    if(max_female<Inf && max_male <Inf){
+      res[res!=0] <- 1
+    }
+    return(list("Optimal c"=res, "c'u"=t(xopt)%*%u))
+  }else{
+    warning("Use of MASS without being installed!")
   }
 
-  for(i in 1:length(xopt)){
-    if(sum(Q[,1])<=max_male){break}
-    neg <- which(Q[,1] > 0)
-    if(single && length(neg)>0){
-      neg <- sample(neg, 1)
-    }
-    A <- A[-neg,-neg]
-    u <- u[-neg]
-    Q <- Q[-neg,]
-    if(length(u)==2){xopt=rep(0.5,2);break}
-    xopt1 <- Opt.int(A,u,Q,cAc)
-    xopt <- xopt1[[1]]
-    minA1 <- xopt1[[2]]
-  }
 
-  for(i in 1:length(xopt)){
-    if(sum(Q[,2])<=max_female){break}
-    neg <- which(Q[,2] > 0)
-    if(single && length(neg)>0){
-      neg <- sample(neg, 1)
-    }
-    A <- A[-neg,-neg]
-    u <- u[-neg]
-    Q <- Q[-neg,]
-    if(length(u)==2){xopt=rep(0.5,2);break}
-    xopt1 <- Opt.int(A,u,Q,cAc)
-    xopt <- xopt1[[1]]
-    minA1 <- xopt1[[2]]
-  }
 
-  res <- numeric(n)
-  res[as.numeric(names(u))] <- xopt
-  if(verbose) cat(paste0("Realized gain in inbreeding via OGC: ", minA1 ,"\n"))
-  if(verbose) cat(paste0(sum(Q[,1]), " of the ", n_male, " male individuals have positive contribution.\n"))
-  if(verbose) cat(paste0(sum(Q[,2]), " of the ", n_female, " female individuals have positive contribution.\n"))
-  if(max_female<Inf && max_male <Inf){
-    res[res!=0] <- 1
-  }
-  return(list("Optimal c"=res, "c'u"=t(xopt)%*%u))
+
 }

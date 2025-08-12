@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,7 +35,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param blupf90 FALSE for mixblup; TRUE for MixBLUP
 #' @param include.error AA
 #' @return pedigree table
-#' @export
 
 
 write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
@@ -50,6 +49,18 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
   if(depth.pedigree==Inf){
     pedigree.database <- get.database(population, gen=1:max(database[,1]))
   } else{
+
+    complete_gen = rep(FALSE,(get.ngen(population)))
+    if(nrow(database) < 1000){
+      for(index in unique(database[,1])){
+        nindi = get.nindi(population, database = database[database[,1]==index,,drop = FALSE])
+        if(nindi == sum(population$info$size[index,])){
+          complete_gen[index]= TRUE
+        }
+      }
+    }
+    complete_gen = which(complete_gen)
+
     new.pedigree.database <- pedigree.database <- database
     remaining.depth <- depth.pedigree
     while(remaining.depth>0){
@@ -101,11 +112,21 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
 
       new.pedigree.database <- get.database(population, database=rbind(m_data,f_data))
       new.pedigree.database <- unique(new.pedigree.database)
+
+
+      keep = !duplicated(rbind(pedigree.database, new.pedigree.database))[-(1:nrow(pedigree.database))]
+      if(length(complete_gen)>0){
+        keep = keep & !(new.pedigree.database[,1] %in% complete_gen)
+      }
+
+      new.pedigree.database= new.pedigree.database[keep,,drop = FALSE]
+
+
       remaining.depth <- remaining.depth - 1
       pedigree.database <- rbind(new.pedigree.database, pedigree.database)
     }
 
-    pedigree.database <- get.database(population, database = pedigree.database)
+    pedigree.database <- get.database(population, database = unique(pedigree.database))
   }
 
   pedigree_table <- get.pedigree(population, database = pedigree.database, id=TRUE, include.error = include.error)

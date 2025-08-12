@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,6 +25,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population Population list
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param name.cohort Name of the newly added cohort
+#' @examples
+#' data(ex_pop)
+#' population <- breeding.diploid(ex_pop, add.gen = 7, breeding.size = 50)
+#' population <- breeding.diploid(population, add.gen = 7, breeding.size = 50,
+#'  selection.m.database = cbind(6,1), selection.f.database = cbind(6,2))
+#' population <- merging.cohorts(population, cohorts = c("Cohort_7_M", "Cohort_8_M"))
 #' @export
 
 

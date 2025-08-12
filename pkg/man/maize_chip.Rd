@@ -13,5 +13,5 @@ maize_chip
 Genome for maize according to Lee et al.
 }
 \author{
-Torsten Pook \email{torsten.pook@uni-goettingen.de}
+Torsten Pook \email{torsten.pook@wur.nl}
 }

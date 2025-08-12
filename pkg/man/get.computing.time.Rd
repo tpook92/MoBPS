@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.computing.time.R
 \name{get.computing.time}
 \alias{get.computing.time}
-\title{Derive ID on an individual}
+\title{Derive computing time}
 \usage{
 get.computing.time(
   population,
@@ -24,7 +24,7 @@ get.computing.time(
 Computing times overview
 }
 \description{
-Function to derive the internal ID given to each individual
+Function to derive computing time required to generate input population list
 }
 \examples{
 data(ex_pop)

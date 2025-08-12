@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -121,7 +121,7 @@ new.base.generation <- function(population, base.gen=NULL,
           if(miraculix){
             population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::computeSNPS(population, gen, sex, nr, what="haplo", output_compressed=TRUE)
           } else{
-            snps <- compute.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU)
+            snps <- computing.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU)
             population$breeding[[gen]][[sex]][[nr]][[9]] <- snps[1,]
             population$breeding[[gen]][[sex]][[nr]][[10]] <- snps[2,]
           }

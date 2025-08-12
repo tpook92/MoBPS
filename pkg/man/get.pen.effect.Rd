@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.gen.effect.R
 \name{get.pen.effect}
 \alias{get.pen.effect}
-\title{Export underlying number of observations per phenotype}
+\title{Export pen-effects}
 \usage{
 get.pen.effect(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -21,13 +21,13 @@ get.pen.effect(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals
 }
 \description{
-Function to export the number of observation of each underlying phenotype
+Function to export pen-effects
 }
 \examples{
 data(ex_pop)

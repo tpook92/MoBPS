@@ -11,7 +11,7 @@ get.pedmap(
   gen = NULL,
   cohorts = NULL,
   non.genotyped.as.missing = FALSE,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -27,7 +27,7 @@ get.pedmap(
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Ped and map-file for in gen/database/cohorts selected individuals

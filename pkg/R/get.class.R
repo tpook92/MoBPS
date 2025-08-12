@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,19 +21,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive class
 #'
-#' Function to devide the class for each individual
+#' Function to derive the class for each individual
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' get.class(ex_pop, gen=2)
 #' @return Class of in gen/database/cohorts selected individuals
 #' @export
 
-get.class <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE){
+get.class <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
 
   database <- get.database(population, gen, database, cohorts)
 

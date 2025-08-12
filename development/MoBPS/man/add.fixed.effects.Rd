@@ -2,7 +2,7 @@
 % Please edit documentation in R/add.fixed.effects.R
 \name{add.fixed.effects}
 \alias{add.fixed.effects}
-\title{Add a trait as a linear combination of other traits}
+\title{Add fixed effects to traits}
 \usage{
 add.fixed.effects(population, fixed.effects, replace = FALSE)
 }
@@ -19,7 +19,7 @@ Population list
 Population list
 }
 \description{
-Function to create an additional trait that is the results of a linear combination of the other traits
+Function to add fixed effects to existing set of traits
 }
 \examples{
 data(ex_pop)

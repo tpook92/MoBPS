@@ -64,6 +64,6 @@ Internal function to simulate one meiosis
 }
 \examples{
 data(ex_pop)
-child_gamete <- breeding.intern(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
+child_gamete <- breeding.intern5(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
                                 population = ex_pop)
 }

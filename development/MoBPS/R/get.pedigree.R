@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,24 +28,29 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @param raw Set to TRUE to not convert numbers into Sex etc.
-#' @param id Set to TRUE to extract individual IDs
+#' @param use.id Set to TRUE to extract individual IDs
 #' @param use.first.copy Set to TRUE to use database-position of the first copy of an individual (default: FALSE)
 #' @param include.error Set to TRUE to include errors simulated in the pedigree
 #' @param depth Depth (1) for parents, (2) for grandparents, (3) for grandgrandparents etc.
+#' @param id Replaced by use.id ((consistency with all other get.xxx functions))
 #' @examples
 #' data(ex_pop)
-#' get.pedigree(ex_pop, gen=2)
+#' pedigree = get.pedigree(ex_pop, gen=2)
 #' @return Pedigree-file for in gen/database/cohorts selected individuals
 #' @export
 
 
 get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE,
-                              raw=FALSE, id=FALSE, use.first.copy = FALSE, include.error = FALSE,
+                              raw=FALSE, use.id=TRUE, id = NULL, use.first.copy = FALSE, include.error = FALSE,
                          depth = 1){
+
+  if(length(id)>0){
+    use.id = id
+  }
 
   if(population$info$pedigree_error || use.first.copy || depth > 1){
     pedigree = get.pedigree_old(population, database=database, gen=gen, cohorts=cohorts, founder.zero=founder.zero,
-                                raw=raw, id=id, use.first.copy = use.first.copy, include.error = include.error,
+                                raw=raw, use.id = use.id, id=id, use.first.copy = use.first.copy, include.error = include.error,
                                 depth = depth)
   } else{
 
@@ -79,7 +84,7 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
 
     pedigree_id = pedigree
 
-    if(!raw && !id){
+    if(!raw && !use.id){
       rindex <- 0
       for(row in 1:nrow(database)){
         animals <- database[row,]
@@ -159,21 +164,25 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @param raw Set to TRUE to not convert numbers into Sex etc.
-#' @param id Set to TRUE to extract individual IDs
+#' @param use.id Set to TRUE to extract individual IDs
 #' @param use.first.copy Set to TRUE to use database-position of the first copy of an individual (default: FALSE)
 #' @param include.error Set to TRUE to include errors simulated in the pedigree
 #' @param depth Depth (1) for parents, (2) for grandparents, (3) for grandgrandparents etc.
+#' @param id Replaced by use.id ((consistency with all other get.xxx functions))
 #' @examples
 #' data(ex_pop)
-#' get.pedigree(ex_pop, gen=2)
+#' get.pedigree_old(ex_pop, gen=2)
 #' @return Pedigree-file for in gen/database/cohorts selected individuals
 #' @export
 
 
 get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, founder.zero=TRUE,
-                         raw=FALSE, id=FALSE, use.first.copy = FALSE, include.error = FALSE,
+                         raw=FALSE, use.id=TRUE, id = NULL, use.first.copy = FALSE, include.error = FALSE,
                          depth = 1){
 
+  if(length(id)>0){
+    use.id = id
+  }
   if(include.error){
     add = 30
   } else{
@@ -254,7 +263,7 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
       }
 
 
-      if(id || !raw_set){
+      if(use.id || !raw_set){
 
         pedigree_raw = pedigree
         pedigree = matrix(0, nrow = nrow(pedigree_raw), ncol = ncol(pedigree_raw)/3)
@@ -272,7 +281,7 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
 
         pedigree_id = pedigree
 
-        if(!id){
+        if(!use.id){
           for(index2 in 1:ncol(pedigree)){
 
             tmp1 = rep("M", nrow(pedigree))
@@ -335,7 +344,7 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
 
   pedigree_id = pedigree
 
-  if(!raw && !id){
+  if(!raw && !use.id){
     rindex <- 1
     for(row in 1:nrow(database)){
       animals <- database[row,]

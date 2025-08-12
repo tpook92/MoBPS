@@ -1,9 +1,9 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 Azadeh Hassanpour, azadeh.hassanpour@uni-goettingen.de
 
-Copyright (C) 2017 -- 2021  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
-#' @param individual.names Names of the individuals in the database ((default are MoBPS internal names based on position))
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param circular Set to TRUE to generate a fan/circular layout tree
 #' @examples
 #' data(ex_pop)
@@ -39,17 +39,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.phylogenetic.tree <- function(population, path=NULL, database=NULL,
-                           gen=NULL, cohorts=NULL, method=NULL, individual.names= NULL,
+                           gen=NULL, cohorts=NULL, method=NULL, use.id = TRUE,
                            circular = FALSE){
 
   if (requireNamespace("NAM", quietly = TRUE)){
     database <- get.database(population, gen, database, cohorts)
 
-    GD <- t(get.geno(population, database = database))
+    GD <- t(get.geno(population, database = database, use.id = use.id))
 
-    if(length(individual.names)>0){
-      rownames(GD) <- individual.names
-    }
 
     if (requireNamespace("phylogram", quietly = TRUE)){
       if (is.null(method)){
@@ -93,6 +90,8 @@ get.phylogenetic.tree <- function(population, path=NULL, database=NULL,
     } else{
       stop("Generation of phylogenetic trees requires the phylogram R-package!")
     }
+  } else{
+    stop("Generation of phylogenetic trees requires the NAM R-package!")
   }
 
 }

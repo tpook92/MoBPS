@@ -10,7 +10,7 @@ get.genotyped.snp(
   gen = NULL,
   cohorts = NULL,
   export.alleles = FALSE,
-  use.id = FALSE,
+  use.id = TRUE,
   array = NULL
 )
 }
@@ -25,7 +25,7 @@ get.genotyped.snp(
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{array}{Use only markers available on the array}
 }

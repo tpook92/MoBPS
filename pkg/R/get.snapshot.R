@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -83,8 +83,21 @@ get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, pheno
     to_analyse2 = which( ids_potential %in% ids)
     results[index,3] = length(to_analyse)
 
-    results[index,4] = sum(gtime[to_analyse] <= as.numeric(results[index,1] ), na.rm = TRUE)
-    results[index,5] = sum(ptime[to_analyse] <= as.numeric(results[index,1]), na.rm = TRUE)
+
+    if(use.all.copy){
+      results[index,4] = sum(gtime[to_analyse] <= as.numeric(results[index,1] ), na.rm = TRUE)
+      results[index,5] = sum(ptime[to_analyse] <= as.numeric(results[index,1]), na.rm = TRUE)
+    } else{
+
+
+      ptime_tmp = get.pheno.time(population, cohorts = cohorts_list[potential_cohorts[index],1], use.all.copy = use.all.copy)
+      gtime_tmp = get.geno.time(population, cohorts = cohorts_list[potential_cohorts[index],1], use.all.copy = use.all.copy)
+
+      results[index,4] = sum((gtime_tmp[to_analyse2] <= as.numeric(results[index,1] )), na.rm = TRUE)
+      results[index,5] = sum((ptime_tmp[to_analyse2] <= as.numeric(results[index,1])), na.rm = TRUE)
+
+    }
+
 
 
     if(phenotype.data){

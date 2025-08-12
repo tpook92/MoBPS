@@ -27,7 +27,7 @@ get.cullingtime(
 Time of death of in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the time of culling for all individuals
+Function to derive the time of culling for all individuals
 }
 \examples{
 data(ex_pop)

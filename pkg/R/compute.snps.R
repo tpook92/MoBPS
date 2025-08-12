@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return haplotypes for the selected individual
 #' @examples
 #' data(ex_pop)
-#' compute.snps(ex_pop, gen=1, sex=1, nr=1)
+#' computing.snps(ex_pop, gen=1, sex=1, nr=1)
 #' @export
 
-compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.calculation=NULL,
+computing.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.calculation=NULL,
                          from_p=1, to_p=Inf, decodeOriginsU=decodeOriginsR,
                          bit.storing=FALSE, nbits=30, output_compressed=FALSE){
   n.snps <- sum(population$info$snp)
@@ -190,7 +190,7 @@ compute.snps <- function(population, gen, sex, nr, faster=TRUE, import.position.
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @return haplotypes for the selected individual
 
-compute.snps_single <- function(population, current.recombi, current.mut, current.ursprung, faster=TRUE,
+computing.snps_single <- function(population, current.recombi, current.mut, current.ursprung, faster=TRUE,
                                 import.position.calculation=NULL, decodeOriginsU=decodeOriginsR){
   n.snps <- sum(population$info$snp)
   hap<- numeric(n.snps)

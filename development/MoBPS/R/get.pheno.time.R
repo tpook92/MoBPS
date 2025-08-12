@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,22 +19,22 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive class
+#' Derive phenotyping time point
 #'
-#' Function to devide the class for each individual
+#' Function to derive timepoint of phenotyping for each individual
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param use.all.copy Set to TRUE to extract phenotyping
 #' @examples
 #' data(ex_pop)
-#' get.class(ex_pop, gen=2)
-#' @return Class of in gen/database/cohorts selected individuals
+#' get.pheno.time(ex_pop, gen=2)
+#' @return Timepoint (of phenotyping) of in gen/database/cohorts selected individuals
 #' @export
 
-get.pheno.time <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=FALSE, use.all.copy = TRUE){
+get.pheno.time <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE, use.all.copy = TRUE){
 
   database <- get.database(population, gen, database, cohorts)
 

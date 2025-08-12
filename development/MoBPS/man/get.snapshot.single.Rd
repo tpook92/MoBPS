@@ -54,7 +54,7 @@ get.snapshot.single(
 Snapshot Matrix
 }
 \description{
-Function to devide snapshot of genotyping/phenotyping state of selected individuals
+Function to derive snapshot of genotyping/phenotyping state of selected individuals
 }
 \examples{
 data(ex_pop)

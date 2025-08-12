@@ -2,7 +2,7 @@
 % Please edit documentation in R/set.class.R
 \name{set.class}
 \alias{set.class}
-\title{Export estimated breeding values}
+\title{Set class}
 \usage{
 set.class(
   population,
@@ -27,7 +27,7 @@ set.class(
 Population-List with newly entered class values
 }
 \description{
-Function to export estimated breeding values
+Function to overwrite class values for individuals
 }
 \examples{
 data(ex_pop)

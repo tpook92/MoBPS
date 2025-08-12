@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -35,11 +35,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param base.gen Base generation (application of interest rate)
 #' @examples
 #' data(ex_pop)
-#' compute.costs(ex_pop, gen=1:5)
+#' computing.costs(ex_pop, gen=1:5)
 #' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
-compute.costs <- function(population, phenotyping.costs = 10, genotyping.costs = 100, fix.costs= 0, fix.costs.annual = 0,
+computing.costs <- function(population, phenotyping.costs = 10, genotyping.costs = 100, fix.costs= 0, fix.costs.annual = 0,
                           profit.per.bv = 1, database=NULL, gen=NULL, cohorts=NULL,
                           interest.rate = 1, base.gen=1){
 

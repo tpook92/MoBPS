@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,18 +19,18 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Manually enter estimated breeding values
+#' Manually enter phenotypes
 #'
-#' Function to manually enter estimated breeding values
+#' Function to manually enter phenotypes (with repeated records)
 #' @param population Population list
 #' @param phenos Matrix of breeding values to enter (one row per individual: 1st column: individual, 2nd column: trait nr, 3rd-nth column records)
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' bv <- get.bv(ex_pop, gen=2)
+#' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 #' ex_pop <- insert.bve(ex_pop, bves=new.bve)
-#' @return Population-List with newly entered estimated breeding values
+#' @return Population-List with newly entered phenotypes
 #' @export
 
 insert.pheno.single <- function(population, phenos, count.only.increase=TRUE){

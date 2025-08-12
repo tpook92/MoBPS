@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -34,7 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
-#' population <- creating.trait(population, n.additive=100)
+#' population <- creating.trait(population, n.additive=c(100,100))
+#' population <- merging.trait(population, merge = c(1,2))
 #' @return Population-list with one or more additional new traits
 #' @export
 
@@ -216,8 +217,8 @@ merging.trait <- function(population,
   }
 
 
-  population$info$fixed.effects[keep,] = colSums(population$info$fixed.effects[merge,])
-  population$info$fixed.effects = population$info$fixed.effects[-delete,]
+  population$info$fixed.effects[keep,] = colSums(population$info$fixed.effects[merge,,drop = FALSE])
+  population$info$fixed.effects = population$info$fixed.effects[-delete,,drop = FALSE]
 
 
 

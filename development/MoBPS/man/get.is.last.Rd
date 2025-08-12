@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.is.last.R
 \name{get.is.last}
 \alias{get.is.last}
-\title{Derive ID on an individual}
+\title{Last copy}
 \usage{
 get.is.last(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE,
+  use.id = TRUE,
   keep.order = FALSE
 )
 }
@@ -22,17 +22,17 @@ get.is.last(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
 }
 \value{
-Individual ID for in gen/database/cohorts selected individuals
+Logical vector
 }
 \description{
-Function to derive the internal ID given to each individual
+Function to derive if an individual is the last copy of itself in the database (based on position)
 }
 \examples{
 data(ex_pop)
-get.id(ex_pop, gen=2)
+get.is.last(ex_pop, gen=2)
 }

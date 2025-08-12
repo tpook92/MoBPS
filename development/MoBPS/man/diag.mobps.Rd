@@ -2,7 +2,7 @@
 % Please edit documentation in R/diag.mobps.R
 \name{diag.mobps}
 \alias{diag.mobps}
-\title{Add a genotyping array}
+\title{Diagonal matrix}
 \usage{
 diag.mobps(elements)
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param storage.save The closer this is to 1 the more strict older animals will be filtered out of the pedigree (default: 1.1, min: 1)
-#' @param id Set to TRUE to extract individual IDs
+#' @param use.id Set to TRUE to extract individual IDs
 #' @param cex Size of individual labels
 #' @param path NULL or a character value means whether the pedigree graph will be saved in a pdf file. The graph in the pdf file is a legible vector drawing, and labels isn't overlapped especially when the number of individuals is big and width of the individual label is long in one generation. It is recommended that saving a pedigree graph in the pdf file. The default value is NULL (this is taken from visPedigree documentation).
 #' @param showgraph A logical value indicating whether a plot will be shown in the defaulted graphic device, such as the Plots panel of Rstudio. It is useful for quick viewing of the pedigree graph without opening the pdf file. However, the graph on the defaulted graphic device may be not legible, such as overlapped labels, aliasing lines due to the restricted width and height. It's a good choice to set showgraph = FALSE when the pedigree is large. The default value is TRUE (this is taken from visPedigree documentation).
@@ -48,7 +48,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.pedigree.visual = function(population, database=NULL, gen=NULL, cohorts=NULL, depth.pedigree = 3,
-                    storage.save = 1.1, id = FALSE, cex = NULL, path=NULL,
+                    storage.save = 1.1, use.id = TRUE, cex = NULL, path=NULL,
                     showgraph = TRUE,
                     outline = FALSE, compact = FALSE){
 
@@ -116,13 +116,13 @@ get.pedigree.visual = function(population, database=NULL, gen=NULL, cohorts=NULL
       pedigree.database <- get.database(population, database = pedigree.database)
     }
 
-    ped= get.pedigree(population, database = pedigree.database, id=id)
+    ped= get.pedigree(population, database = pedigree.database, use.id = use.id)
 
     pedt = suppressWarnings(visPedigree::tidyped(ped))
     visPedigree::visped(pedt, cex=cex, file=path, showgraph = showgraph,
                         outline = outline, compact = compact)
   } else{
-    stop("R-package visPedigree needed to create visualization! \nPackage is not on CRAN and can be installed from GitHub: install_github('luansheng/visPedigree')")
+    warning("R-package visPedigree needed to create visualization! \nPackage is not on CRAN and can be installed from GitHub: install_github('luansheng/visPedigree')")
   }
 
 

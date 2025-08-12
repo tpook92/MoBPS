@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ edit_animal <- function(population, gen, sex, nr, nr.edits, decodeOriginsU=decod
   if(length(population$info$miraculix)>0 && population$info$miraculix){
     haplo <- miraculix::computeSNPS(population, gen, sex, nr, output_compressed=FALSE, what="haplo")
   } else{
-    haplo <- compute.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+    haplo <- computing.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
   }
   geno <- colSums(haplo)
 #  multi <- rep(2, sum(population$info$snp))

@@ -25,6 +25,6 @@ Function to create an additional trait that is the results of a linear combinati
 }
 \examples{
 data(ex_pop)
-population <- creating.trait(ex_pop, n.additive = 100)
-population <- add.combi(population, trait = 3, combi.weights = c(1,5))
+population <- creating.trait(ex_pop, n.additive = c(100,100), replace.traits = TRUE)
+population <- add.combi(population, trait = 3, combi.weights = c(1,2))
 }

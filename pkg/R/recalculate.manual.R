@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,6 +30,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param e1 Effect matrix for 1 genotype (default: Will be automatically extracted)
 #' @param e2 Effect matrix for 2 genotype (default: Will be automatically extracted)
 #' @param store.comp.times If TRUE store computation times in $info$comp.times.general (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' population <- recalculate.manual(ex_pop, gen = 1)
 #' @return Population list
 #' @export
 #'
@@ -42,6 +45,9 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
 
   temp123 <- population$info$bv.random.activ
 
+  if(length(temp123) == 0){
+    return(population)
+  }
   if(store.comp.times){
     tick <- as.numeric(Sys.time())
   }
@@ -61,6 +67,10 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
     population$info$e0 = effect_matrix0
     population$info$e1 = effect_matrix1
     population$info$e2 = effect_matrix2
+
+    population$info$e0_activ = which(colSums(abs(effect_matrix0))>0)
+    population$info$e1_activ = which(colSums(abs(effect_matrix1))>0)
+    population$info$e2_activ = which(colSums(abs(effect_matrix2))>0)
   }
 
   if(length(e0)==0){
@@ -72,12 +82,26 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
   if(length(e2)==0){
     e2  =population$info$e2
   }
+  e0_activ = population$info$e0_activ
+  e1_activ = population$info$e1_activ
+  e2_activ = population$info$e2_activ
 
   database = get.database(population, gen = gen, database = database, cohorts = cohorts)
 
   for(index in 1:nrow(database)){
     geno = get.geno(population, database = database[index,])
-    bvs = (e0) %*% (geno==0) + (e1) %*% (geno==1) + (e2) %*% (geno==2) + population$info$base.bv
+    bvs = 0
+    if(length(e0_activ)>0){
+      bvs = bvs + (e0)[,e0_activ,drop = FALSE] %*% (geno[e0_activ,,drop = FALSE]==0)
+    }
+    if(length(e1_activ)>0){
+      bvs = bvs + (e1)[,e1_activ,drop = FALSE] %*% (geno[e1_activ,,drop = FALSE]==1)
+    }
+    if(length(e2_activ)>0){
+      bvs = bvs + (e2)[,e2_activ,drop = FALSE] %*% (geno[e2_activ,,drop = FALSE]==2)
+    }
+    bvs = bvs + population$info$base.bv
+
     population$breeding[[database[index,1]]][[database[index,2]+6]][,database[index,3]:database[index,4]] = bvs
 
     for(index2 in database[index,3]:database[index,4]){

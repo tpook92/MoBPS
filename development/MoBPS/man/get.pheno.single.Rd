@@ -10,7 +10,7 @@ get.pheno.single(
   gen = NULL,
   cohorts = NULL,
   use.all.copy = FALSE,
-  use.id = FALSE
+  use.id = TRUE
 )
 }
 \arguments{
@@ -24,7 +24,7 @@ get.pheno.single(
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals
@@ -34,5 +34,5 @@ Function to export underlying phenotypes
 }
 \examples{
 data(ex_pop)
-get.pheno(ex_pop, gen=2)
+get.pheno.single(ex_pop, gen=2)
 }

@@ -14,11 +14,22 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/MoBPS_Workshop_purdue/Task2/Simple Sheep Advanced_baseline.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple Sheep.json")
+total <- jsonlite::read_json(path="HyLine FT.json")
+population = json.simulation("HyLine FT.json", fast.mode = FALSE,
+                             verbose =T, size.scaling = 0.01)
+
+population = json.simulation("C:/Users/pook001/Downloads/Simple Sheep.json",
+                             time.check = TRUE,
+                             time.max = 10000)
+
+
+population = json.simulation("C:/Users/pook001/Downloads/HyLine FT.json", fast.mode = FALSE,
+                             verbose =T, size.scaling = 0.01)
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 1
+size.scaling <- 0.1
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -28,6 +39,7 @@ skip.population <- FALSE
 time.check <- FALSE
 time.max <- 7200
 manual.select.check = FALSE
+export.cor = FALSE
 
 export.population = FALSE
 import.population = FALSE
@@ -642,6 +654,11 @@ fixed.generation.order <- NULL
       if(verbose) cat("Diagonal of cor-matrix must be 1\n")
     }
 
+    if(export.cor){
+      
+      return(list(cor_gen, cor_pheno))
+      
+    }
 
     # Correct nodes are Founders
     ids <- possible_founder <-  earliest_time <- numeric(length(nodes))
@@ -1072,6 +1089,7 @@ fixed.generation.order <- NULL
         }
       } else{
         warning("Use of Ensembl-Maps without MoBPSmaps R-package.
+        ## Replace genome with 5 Chromsomes a 1000 SNPs and 1 Morgan
         ## To Install:
         ## devtools::install_github('tpook92/MoBPS', subdir='pkg-maps')
         ## Or download from https://github.com/tpook92/MoBPS")
@@ -1791,6 +1809,11 @@ fixed.generation.order <- NULL
       colnames(population$info$cohorts) <- c("name","generation", "male individuals", "female individuals", "class", "position first male", "position first female",
                                              "time point", "creating.type", "lowest ID", "highest ID")
 
+      for(index in 1:nrow(population$info$cohorts)){
+        population$info$cohorts[index,10] = min(get.id(population, cohorts = population$info$cohorts[index,1]))
+        population$info$cohorts[index,11] = max(get.id(population, cohorts = population$info$cohorts[index,1]))
+
+      }
 
       if(n_traits>0){
         population <- creating.trait(population, n.additive = as.numeric(trait_matrix[,6]),
@@ -3042,21 +3065,24 @@ fixed.generation.order <- NULL
                                       verbose = FALSE)
         pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
         pop_check <- breeding.diploid(pop_check, bve=TRUE, new.bv.observation = "all", verbose = FALSE)
-        pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+        pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual.m = TRUE, verbose = FALSE,
+                                      selection.m.gen = 2)
 
-        time_bve1000 <- pop_check$info$comp.times.bve[2,10]
-        time_gen1000 <- pop_check$info$comp.times.generation[1,4]
-        time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+        time_bve1000 <- pop_check$info$comp.times.bve[3,10]
+        time_gen1000 <- pop_check$info$comp.times.generation[2,6]
+        time_copy1000 <- pop_check$info$comp.times.generation[4,6]
       } else{
         pop_check <- creating.diploid(nindi = 2, nsnp = 100, chromosome.length = chromo.length,
                                       verbose = FALSE)
         pop_check <- breeding.diploid(pop_check, breeding.size = 1000, verbose =FALSE)
         pop_check <- breeding.diploid(pop_check)
-        pop_check <- breeding.diploid(pop_check, breeding.size = 1000, copy.individual = TRUE, verbose = FALSE)
+        pop_check <- breeding.diploid(pop_check, breeding.size = 1000,
+                                      copy.individual.m = TRUE, verbose = FALSE,
+                                      selection.m.gen = 2)
 
         time_bve1000 <- 0.25 #pop_check$info$comp.times.bve[2,10]
-        time_gen1000 <- pop_check$info$comp.times.generation[1,4]
-        time_copy1000 <- pop_check$info$comp.times.generation[3,4]
+        time_gen1000 <- pop_check$info$comp.times.generation[2,6]
+        time_copy1000 <- pop_check$info$comp.times.generation[4,6]
       }
 
 

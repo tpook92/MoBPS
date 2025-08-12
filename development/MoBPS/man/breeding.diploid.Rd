@@ -66,6 +66,10 @@ breeding.diploid(
   ogc.eq.BV = NULL,
   ogc.ub.sKin.increase = NULL,
   ogc.lb.BV.increase = NULL,
+  ogc.c1 = NULL,
+  ogc.plots = TRUE,
+  ogc.weight = NULL,
+  ogc.freq = NULL,
   selection.skip = FALSE,
   breeding.size = 0,
   breeding.size.litter = NULL,
@@ -132,7 +136,9 @@ breeding.diploid(
   added.genotyped = NULL,
   bv.ignore.traits = NULL,
   generation.cores = NULL,
+  generation.core.make.small = FALSE,
   pedigree.error = 0,
+  pedigree.unknown = 0,
   genotyped.database = NULL,
   genotyped.gen = NULL,
   genotyped.cohorts = NULL,
@@ -166,6 +172,7 @@ breeding.diploid(
   sigma.e.database = NULL,
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
+  phenotyping.trafo.parameter = NULL,
   bve = FALSE,
   bve.gen = NULL,
   bve.cohorts = NULL,
@@ -238,6 +245,7 @@ breeding.diploid(
   mixblup.path.datafile = NULL,
   mixblup.path.inputfile = NULL,
   mixblup.path.genofile = NULL,
+  mixblup.full.path.genofile = NULL,
   mixblup.files = "MiXBLUP_files",
   mixblup.verbose = TRUE,
   blupf90.verbose = TRUE,
@@ -264,11 +272,15 @@ breeding.diploid(
   mixblup.attach = FALSE,
   mixblup.debug = FALSE,
   mixblup.plink = FALSE,
+  mixblup.cleanup = Inf,
   blupf90.pedfile = TRUE,
   blupf90.parfile = TRUE,
   blupf90.datafile = TRUE,
   blupf90.inputfile = TRUE,
   blupf90.genofile = TRUE,
+  mixblup.dgv = FALSE,
+  mixblup.dgv.freq = NULL,
+  mixblup.dgv.effect = NULL,
   blupf90.path = NULL,
   renumf90.path = NULL,
   blupf90.path.pedfile = NULL,
@@ -337,6 +349,9 @@ breeding.diploid(
   add.architecture = NULL,
   intern.func = 0,
   delete.haplotypes = NULL,
+  delete.recombi = NULL,
+  delete.recombi.only.non.genotyped = FALSE,
+  delete.recombi.class = NULL,
   delete.individuals = NULL,
   delete.gen = NULL,
   delete.sex = 1:2,
@@ -395,6 +410,7 @@ breeding.diploid(
   multiple.bve.scale.m = "bv_sd",
   multiple.bve.scale.f = NULL,
   use.recalculate.manual = FALSE,
+  recalculate.manual.subset = 5000,
   size.scaling = NULL,
   parallel.internal = FALSE,
   varg = FALSE,
@@ -496,6 +512,14 @@ breeding.diploid(
 \item{ogc.ub.sKin.increase}{This corresponds to the upper bound (current sKin + ogc.ub.sKin.increase) as ub.sKin in optiSel}
 
 \item{ogc.lb.BV.increase}{This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel}
+
+\item{ogc.c1}{Only applicable when TN-version of OGC is available}
+
+\item{ogc.plots}{Only applicable when TN-version of OGC is available}
+
+\item{ogc.weight}{Only applicable when B4F-version of OGC is available}
+
+\item{ogc.freq}{Only applicable when B4F-version of OGC is available}
 
 \item{selection.skip}{Set to FALSE in case no selection of individuals should be performed (just skips some unnessary computations)}
 
@@ -621,6 +645,8 @@ breeding.diploid(
 
 \item{pedigree.error}{Share of errors in the pedigree (default: 0; vector with two entries for errors on male/female side)}
 
+\item{pedigree.unknown}{Share of individuals with unknown parents (default: 0; vector with two entries for differences in unknown-share between male/female side)}
+
 \item{genotyped.gen, genotyped.cohorts, genotyped.database}{Generations/cohorts/groups to generate genotype data (that can be used in a BVE)}
 
 \item{genotyped.share}{Share of individuals in genotyped.gen/database/cohort to generate genotype data from (default: 1)}
@@ -662,6 +688,8 @@ breeding.diploid(
 \item{new.residual.correlation}{Correlation of the simulated residual variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (only impacts non-QTL based traits. Needs to be fit in creating.diploid/trait for QTL-based traits)}
+
+\item{phenotyping.trafo.parameter}{Additional input parameter for phenotypic transformation function}
 
 \item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
 
@@ -791,6 +819,8 @@ breeding.diploid(
 
 \item{mixblup.path.genofile}{Path from where to import the MiXBLUP genofile}
 
+\item{mixblup.full.path.genofile}{Path from where to import the MiXBLUP genofile}
+
 \item{mixblup.files}{Directory to generate all files generated when using MiXBLUP (default: MiXBLUP_files/ )}
 
 \item{mixblup.verbose}{Set to TRUE to display MiXBLUP prints}
@@ -843,6 +873,8 @@ breeding.diploid(
 
 \item{mixblup.plink}{Set TRUE to write genotype files in PLINK format (requires R-package genio, default: FALSE)}
 
+\item{mixblup.cleanup}{Delete all mixblup output files above the indicated size after MiXBLUP run completes (default: Inf)}
+
 \item{blupf90.pedfile}{Set to FALSE to manually generate your MiXBLUP pedfile}
 
 \item{blupf90.parfile}{Set to FALSE to manually generate your MiXBLUP parfile}
@@ -852,6 +884,12 @@ breeding.diploid(
 \item{blupf90.inputfile}{Set to FALSE to manually write your MiXBLUP inputfile}
 
 \item{blupf90.genofile}{Set to FALSE to manually write the blupf90 genotypefile}
+
+\item{mixblup.dgv}{Set TRUE to use DGV-PBLUP (Only applicable with TAC-BLUP)}
+
+\item{mixblup.dgv.freq}{Path of allele frequency file for DGV-PBLUP}
+
+\item{mixblup.dgv.effect}{Path of SNP effect file for DGV-PBLUP}
 
 \item{blupf90.path}{Provide path to blupf90 (default is your working directory: Windows: ./blupf90+.exe ; Linux ./blupf90+.exe)}
 
@@ -979,6 +1017,8 @@ breeding.diploid(
 
 \item{delete.haplotypes}{Generations for with haplotypes of founders can be deleted from population list for memory reduction (default: NULL)}
 
+\item{delete.recombi}{Generations for which recombination points can be deleted from the population list for memory reduction (default: NULL)}
+
 \item{delete.individuals}{Generations for with individuals are completely deleted from population list for memory reduction (default: NULL)}
 
 \item{delete.gen}{Generations to entirely deleted fro population list for memory reduction (default: NULL)}
@@ -1072,6 +1112,8 @@ breeding.diploid(
 \item{multiple.bve.scale.m, multiple.bve.scale.f}{(OLD! use selection.index.scale.m/f) Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values}
 
 \item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
+
+\item{recalculate.manual.subset}{Maximum number of individuals to process at the same time (( genotypes are in memory ))}
 
 \item{size.scaling}{Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)}
 

@@ -9,7 +9,7 @@ get.sex(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = F,
+  use.id = TRUE,
   male.female.coding = F
 )
 }
@@ -28,4 +28,8 @@ get.sex(
 }
 \description{
 Function to extract the sex of selected individuals
+}
+\examples{
+data(ex_pop)
+get.sex(ex_pop, gen=2)
 }

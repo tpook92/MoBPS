@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,8 +29,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Population list
 #' @examples
 #' data(ex_pop)
-#' population <- creating.trait(ex_pop, n.additive = 100)
-#' population <- add.combi(population, trait = 3, combi.weights = c(1,5))
+#' population <- creating.trait(ex_pop, n.additive = c(100,100), replace.traits = TRUE)
+#' population <- add.combi(population, trait = 3, combi.weights = c(1,2))
 #' @return Population list
 #' @export
 #'

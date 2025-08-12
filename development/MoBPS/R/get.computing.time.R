@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive ID on an individual
+#' Derive computing time
 #'
-#' Function to derive the internal ID given to each individual
+#' Function to derive computing time required to generate input population list
 #' @param population Population list
 #' @param verbose Set to FALSE to not display any prints
 #' @param extend Set to TRUE to return computing times with detailled overview on generation and BVE (default: FALSE)

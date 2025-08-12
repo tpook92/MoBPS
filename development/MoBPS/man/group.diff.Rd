@@ -2,7 +2,7 @@
 % Please edit documentation in R/group.diff.R
 \name{group.diff}
 \alias{group.diff}
-\title{Function to exclude individuals from a database}
+\title{Exclude individuals from a database}
 \usage{
 group.diff(
   population,

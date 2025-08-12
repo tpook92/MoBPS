@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export estimated breeding values
+#' Set time point
 #'
-#' Function to export estimated breeding values
+#' Function to set time point of birth for individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @examples
 #' data(ex_pop)
 #' population <- set.time.point(ex_pop, database=cbind(1,1), time.point = 2)
-#' @return Population-List with newly entered class values
+#' @return Population-List with newly entered time points
 #' @export
 
 set.time.point <- function(population, database=NULL, gen=NULL, cohorts=NULL, time.point=0){

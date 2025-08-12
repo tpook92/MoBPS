@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -21,21 +21,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Empirical kinship
 #'
-#' Function to compute empirical kinship for a set of individuals)
+#' Function to compute empirical kinship for a set of individuals
 #' @param population Population list
 #' @param animals List of animals to compute kinship for
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param sym If True derive matrix entries below principle-diagonal
-#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix
+#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' kinship <- kinship.emp(population=ex_pop, database=cbind(2,1,1,25))
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
-kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, use.id=FALSE){
+kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, use.id=TRUE){
 
 
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){

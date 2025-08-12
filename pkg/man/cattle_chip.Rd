@@ -13,5 +13,5 @@ cattle_chip
 Genome for cattle according to Ma et al.
 }
 \author{
-Torsten Pook \email{torsten.pook@uni-goettingen.de}
+Torsten Pook \email{torsten.pook@wur.nl}
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,13 +30,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param generation Generation to which newly individuals are added (default: 1)
 #' @param founder.pool Founder pool an individual is assign to (default: 1)
 #' @param one.sex.mode Activating this will ignore all sex specific parameters and handle each individual as part of the first sex (default: FALSE)
+#' @param database.sex.mode Set TRUE to automatically remove females in selection.m and remove males in selection.f
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
 #' @param class Migration level of the newly added individuals (default: 0)
 #' @param verbose Set to FALSE to not display any prints
 ###### Genome architecture
 #' @param map map-file that contains up to 5 colums (chromosome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
-#' @param chromosome.length Length of the newly added chromosome (default: 5)
+#' @param chromosome.length Length of the newly added chromosome in Morgan; can be a vector when generating multiple chromosomes (default: 5)
 #' @param chr.nr Number of chromosomes (SNPs are equally split) or vector containing the associated chromosome for each marker
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
@@ -69,8 +70,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
 #' @param n.additive Number of additive QTL with effect size drawn from a gaussian distribution
 #' @param n.dominant Number of dominant QTL with effect size drawn from a gaussian distribution
+#' @param n.overdominant Number of overdominant QTL with effect size drawn from absolute value of a gaussian distribution
 #' @param n.equal.additive Number of additive QTL with equal effect size (effect.size)
-#' @param n.equal.dominant Number of n.equal.dominant QTL with equal effect size
+#' @param n.equal.dominant Number of dominant QTL with equal effect size
+#' @param n.equal.overdominant Number of overdominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
 #' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
@@ -99,10 +102,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param exclude.snps Vector contain markers on which no QTL effects are placed
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
+#' @param var.overdominant.l Variance of overdominante QTL
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
 #' @param effect.size.equal.add Effect size of the QTLs in n.equal.additive
 #' @param effect.size.equal.dom Effect size of the QTLs in n.equal.dominant
+#' @param effect.size.equal.over Effect size of the QTLs in n.equal.overdominant
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
 #' @param bve.mult.factor Multiplicate trait value times this
 #' @param bve.poly.factor Potency trait value over this
@@ -154,6 +159,7 @@ creating.diploid <- function(population=NULL,
                              generation=1,
                              founder.pool = 1,
                              one.sex.mode = FALSE,
+                             database.sex.mode = FALSE,
                              sex.s="fixed",
                              sex.quota = 0.5,
                              class=0L,
@@ -196,6 +202,8 @@ creating.diploid <- function(population=NULL,
                              n.equal.additive=0,
                              n.dominant=0,
                              n.equal.dominant=0,
+                             n.overdominant=0,
+                             n.equal.overdominant=0,
                              n.qualitative=0,
                              n.quantitative=0,
                              effect.distribution = "gauss",
@@ -224,10 +232,12 @@ creating.diploid <- function(population=NULL,
                              exclude.snps=NULL,
                              var.additive.l=NULL,
                              var.dominant.l=NULL,
+                             var.overdominant.l=NULL,
                              var.qualitative.l=NULL,
                              var.quantitative.l=NULL,
                              effect.size.equal.add = 1,
                              effect.size.equal.dom = 1,
+                             effect.size.equal.over = 1,
                              polygenic.variance=100,
                              bve.mult.factor=NULL,
                              bve.poly.factor=NULL,
@@ -268,6 +278,10 @@ creating.diploid <- function(population=NULL,
                              ){
 
 
+  if(length(vcf.maxindi)==2 && length(nindi)==1 && (nindi ==0 | nindi == sum(vcf.maxindi))){
+    nindi = vcf.maxindi
+    vcf.maxindi = sum(vcf.maxindi)
+  }
   if(n.traits>0){
     if(bv.total>0){
       warning("bv.total has been overwritten with value from n.traits")
@@ -326,13 +340,16 @@ creating.diploid <- function(population=NULL,
 
     # Determine total number of traits
 
-    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+    trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
     n_traits <- length(trait_sum)
 
     n.additive <- rep(c(n.additive, rep(0, length.out=n_traits-length(n.additive))), n.locations)
     n.dominant <- rep(c(n.dominant, rep(0, length.out=n_traits-length(n.dominant))), n.locations)
     n.equal.additive <- rep(c(n.equal.additive, rep(0, length.out=n_traits-length(n.equal.additive))), n.locations)
     n.equal.dominant <- rep(c(n.equal.dominant, rep(0, length.out=n_traits-length(n.equal.dominant))), n.locations)
+    n.overdominant <- rep(c(n.overdominant, rep(0, length.out=n_traits-length(n.overdominant))), n.locations)
+    n.equal.overdominant <- rep(c(n.equal.overdominant, rep(0, length.out=n_traits-length(n.equal.overdominant))), n.locations)
+
     n.qualitative <- rep(c(n.qualitative, rep(0, length.out=n_traits-length(n.qualitative))), n.locations)
     n.quantitative <- rep(c(n.quantitative, rep(0, length.out=n_traits-length(n.quantitative))), n.locations)
 
@@ -438,6 +455,11 @@ creating.diploid <- function(population=NULL,
     }
 
     preserve.bve <- length(population)==0
+
+    if(length(population)>0 & length(map)>0 & add.chromosome==FALSE){
+      warning("map has automatically been set to NULL.\nThis parameter should only be used when modifiying the genome (e.g. adding chromosome / initial setup).")
+      map <- NULL
+    }
 
     if(length(map)>0){
       while(ncol(map)<5){
@@ -861,6 +883,7 @@ creating.diploid <- function(population=NULL,
             exitVariantAnnotation <- 0
           }
         }
+
         if(exitVariantAnnotation != 0 && requireNamespace("vcfR", quietly = TRUE)){
           vcf_file <- vcfR::read.vcfR(vcf, verbose = verbose)
           vcf_data <- vcf_file@gt[,-1]
@@ -923,6 +946,16 @@ creating.diploid <- function(population=NULL,
         if(bpcm.conversion!=0){
 
           snp.position <- as.numeric(bp) /  bpcm.conversion / 100
+
+          if(length(chromosome.length)==1 && chromosome.length==5){
+
+            chromosome.length <- numeric(length(chr_list))
+            for(index in 1:length(chr_list)){
+              chromosome.length[index] <- max(as.numeric(snp.position[chr.nr==chr_list[index]])) + min(as.numeric(snp.position[chr.nr==chr_list[index]]))
+            }
+
+          }
+
 
         }
 
@@ -990,11 +1023,11 @@ creating.diploid <- function(population=NULL,
 
         }
 
-
         if(vcf.maxsnp< nrow(dataset)){
           keep <- sort(sample(1:nrow(dataset), vcf.maxsnp))
           dataset <- dataset[keep,,drop=FALSE]
           chr.nr <- chr.nr[keep]
+          snp.position <- snp.position[keep]
           bp <- bp[keep]
           snp.name <- snp.name[keep]
           hom0 <- hom0[keep]
@@ -1028,6 +1061,7 @@ creating.diploid <- function(population=NULL,
             nsnp_temp <- nrow(dataset)
           }
           if(diffs<comp & miraculix.dataset){
+
             dataset_temp <- dataset
             dataset <- list()
             for(tt in unique(chr.nr)){
@@ -1070,6 +1104,9 @@ creating.diploid <- function(population=NULL,
       if(!is.list(var.dominant.l)){
         var.dominant.l <- list(var.dominant.l)
       }
+      if(!is.list(var.overdominant.l)){
+        var.overdominant.l <- list(var.overdominant.l)
+      }
       if(!is.list(var.qualitative.l)){
         var.qualitative.l <- list(var.qualitative.l)
       }
@@ -1077,7 +1114,7 @@ creating.diploid <- function(population=NULL,
         var.quantitative.l <- list(var.quantitative.l)
       }
 
-      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+      trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
       test <- list(NULL)
 
       if(length(var.additive.l) < length(trait_sum)){
@@ -1086,6 +1123,11 @@ creating.diploid <- function(population=NULL,
       if(length(var.dominant.l) < length(trait_sum)){
         var.dominant.l <- c(var.dominant.l, rep(test,length.out=length(trait_sum)-length(var.dominant.l)))
       }
+
+      if(length(var.overdominant.l) < length(trait_sum)){
+        var.overdominant.l <- c(var.overdominant.l, rep(test,length.out=length(trait_sum)-length(var.overdominant.l)))
+      }
+
       if(length(var.qualitative.l) < length(trait_sum)){
         var.qualitative.l <- c(var.qualitative.l, rep(test,length.out=length(trait_sum)-length(var.qualitative.l)))
       }
@@ -1098,23 +1140,32 @@ creating.diploid <- function(population=NULL,
       n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
       n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
       n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
+      n.overdominant <- c(n.overdominant, rep(0, length.out=ntraits-length(n.overdominant)))
+      n.equal.overdominant <- c(n.equal.overdominant, rep(0, length.out=ntraits-length(n.equal.overdominant)))
+
       n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
       n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
 
-      if(length(unlist(c(var.qualitative.l, var.quantitative.l, var.additive.l, var.dominant.l)))>0){
-        ntraits <- max(length(trait_sum), length(var.additive.l),length(var.dominant.l), length(var.qualitative.l), length(var.quantitative.l) )
+      if(length(unlist(c(var.qualitative.l, var.quantitative.l, var.additive.l, var.dominant.l, var.overdominant.l)))>0){
+        ntraits <- max(length(trait_sum), length(var.additive.l),length(var.dominant.l), length(var.overdominant.l), length(var.qualitative.l), length(var.quantitative.l) )
         n.additive <- c(n.additive, rep(0, length.out=ntraits-length(n.additive)))
         n.dominant <- c(n.dominant, rep(0, length.out=ntraits-length(n.dominant)))
         n.equal.additive <- c(n.equal.additive, rep(0, length.out=ntraits-length(n.equal.additive)))
         n.equal.dominant <- c(n.equal.dominant, rep(0, length.out=ntraits-length(n.equal.dominant)))
+        n.overdominant <- c(n.overdominant, rep(0, length.out=ntraits-length(n.overdominant)))
+        n.equal.overdominant <- c(n.equal.overdominant, rep(0, length.out=ntraits-length(n.equal.overdominant)))
+
         n.qualitative <- c(n.qualitative, rep(0, length.out=ntraits-length(n.qualitative)))
         n.quantitative <- c(n.quantitative, rep(0, length.out=ntraits-length(n.quantitative)))
-        trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant
+        trait_sum <- n.additive + n.dominant + n.qualitative + n.quantitative + n.equal.additive + n.equal.dominant + n.overdominant + n.equal.overdominant
         if(length(var.additive.l) < length(trait_sum)){
           var.additive.l <- rep(var.additive.l, length.out=length(trait_sum))
         }
         if(length(var.dominant.l) < length(trait_sum)){
           var.dominant.l <- rep(var.dominant.l, length.out=length(trait_sum))
+        }
+        if(length(var.overdominant.l) < length(trait_sum)){
+          var.overdominant.l <- rep(var.overdominant.l, length.out=length(trait_sum))
         }
         if(length(var.qualitative.l) < length(trait_sum)){
           var.qualitative.l <- rep(var.qualitative.l, length.out=length(trait_sum))
@@ -1245,7 +1296,7 @@ creating.diploid <- function(population=NULL,
 
         if(qtl.position.shared){
 
-          n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2)
+          n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2+ n.overdominant+ n.equal.overdominant)
 
           so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
           n_qtls_sofar = numeric(so_far)
@@ -1357,6 +1408,8 @@ creating.diploid <- function(population=NULL,
         for(index_trait in 1:length(trait_sum)){
           var_additive <- var.additive.l[[index_trait]]
           var_dominant <- var.dominant.l[[index_trait]]
+          var_overdominant <- var.overdominant.l[[index_trait]]
+
           var_qualitative <- var.qualitative.l[[index_trait]]
           var_quantitative <- var.quantitative.l[[index_trait]]
           if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
@@ -1373,6 +1426,15 @@ creating.diploid <- function(population=NULL,
             var_dominant <- rep(var_dominant, length.out=n.dominant[index_trait])
             var.dominant.l[[index_trait]] <- var_dominant
           }
+
+          if(n.overdominant[index_trait]>0 && length(var_overdominant)<n.overdominant[index_trait]){
+            if(length(var_overdominant)==0){
+              var_overdominant <- 1
+            }
+            var_overdominant <- rep(var_overdominant, length.out=n.overdominant[index_trait])
+            var.overdominant.l[[index_trait]] <- var_overdominant
+          }
+
           if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
             if(length(var_qualitative)==0){
               var_qualitative <- 1
@@ -1394,6 +1456,9 @@ creating.diploid <- function(population=NULL,
           }
           if(length(var_dominant)!= n.dominant[index_trait]){
             n.dominant[index_trait] <- length(var_dominant)
+          }
+          if(length(var_overdominant)!= n.overdominant[index_trait]){
+            n.overdominant[index_trait] <- length(var_overdominant)
           }
           if(length(var_qualitative)!= n.qualitative[index_trait]){
             n.qualitative[index_trait] <- length(var_qualitative)
@@ -1447,8 +1512,12 @@ creating.diploid <- function(population=NULL,
 
           add_marker <- sample(effect_marker, n.additive[index_trait], replace=if(n.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
           dom_marker <- sample(effect_marker, n.dominant[index_trait], replace=if(n.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+          over_marker <- sample(effect_marker, n.overdominant[index_trait], replace=if(n.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
           add_marker1 <- sample(effect_marker, n.equal.additive[index_trait], replace=if(n.equal.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
           dom_marker1 <- sample(effect_marker, n.equal.dominant[index_trait], replace=if(n.equal.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+          over_marker1 <- sample(effect_marker, n.equal.overdominant[index_trait], replace=if(n.equal.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
           epi1_marker <- sample(effect_marker, n.quantitative[index_trait]*2, replace=if(n.quantitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
           epi2_marker <- sample(effect_marker, n.qualitative[index_trait]*2, replace=if(n.qualitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
 
@@ -1514,6 +1583,36 @@ creating.diploid <- function(population=NULL,
             }
             dom_effect1 <- effect.size.equal.dom
             real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1, dom_marker1, trait.pool[index_trait], FALSE))
+
+          }
+
+          if(n.overdominant[index_trait]>0){
+            over_snp <- over_chromo <- numeric(n.overdominant[index_trait])
+            for(index in 1:n.overdominant[index_trait]){
+              over_chromo[index] <- sum(over_marker[index] > cum_snp) + 1
+              over_snp[index] <- over_marker[index] - c(0,cum_snp)[over_chromo[index]]
+            }
+
+            if(effect.distribution == "gauss"){
+              over_effect <- abs(stats::rnorm(n.overdominant[index_trait], 0, var_overdominant))
+            } else{
+              over_effect <- abs(stats::rgamma(n.overdominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.overdominant[index_trait], replace = TRUE))
+            }
+
+            temp1 <- over_effect
+
+            real.bv.add.new <- rbind(real.bv.add.new, cbind(over_snp, over_chromo, 0 ,temp1,0, over_marker, trait.pool[index_trait], FALSE))
+
+          }
+
+          if(n.equal.overdominant[index_trait]>0){
+            over_snp1 <- over_chromo1 <- numeric(n.equal.overdominant[index_trait])
+            for(index in 1:n.equal.overdominant[index_trait]){
+              over_chromo1[index] <- sum(over_marker1[index] > cum_snp) + 1
+              over_snp1[index] <- over_marker1[index] - c(0,cum_snp)[over_chromo1[index]]
+            }
+            over_effect1 <- effect.size.equal.over
+            real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,over_effect1, 0, over_marker1, trait.pool[index_trait], FALSE))
 
           }
 
@@ -1646,6 +1745,20 @@ creating.diploid <- function(population=NULL,
         }
 
       }
+
+      if(length(dataset)==1 && !is.list(dataset) && dataset=="all1"){
+        if(miraculix && length(chr.nr)==0 && miraculix.dataset){
+          suppressWarnings(dataset <- list(miraculix::rhaplo(1, indiv = nindi, loci = nsnp)))
+        } else if(miraculix && miraculix.dataset){
+          dataset <- list()
+          for(chr_index in 1:length(chr.opt)){
+            suppressWarnings(dataset[[chr_index]] <- miraculix::rhaplo(1, indiv = nindi, loci = nsnp[chr_index]))
+          }
+        } else{
+          dataset <- matrix((c(rep(1,nindi*2*sum(nsnp)))),ncol=nindi*2, nrow=sum(nsnp))
+        }
+
+      }
       if(length(dataset)==1 && !is.list(dataset) && dataset=="homorandom"){
         if(miraculix && miraculix.dataset && length(chr.nr)==0){
           suppressWarnings(dataset <- list(miraculix::rhaplo(freq, indiv = nindi, loci = nsnp, freq2="IRGENDWAS")))
@@ -1697,7 +1810,11 @@ creating.diploid <- function(population=NULL,
           }
         }
       }
+      nindi_prior = nindi
+
       if(is.list(dataset)){
+
+
         if(new_miraculix){
           nindi <- attr(dataset[[1]], "information")[5]
         } else{
@@ -1708,6 +1825,9 @@ creating.diploid <- function(population=NULL,
         nindi <- ncol(dataset)/2
       }
 
+      if(nindi_prior != 0 && nindi_prior != nindi){
+        warning("Input for nindi does not match with dataset size - nindi was overwritten!")
+      }
 
 
 
@@ -1791,6 +1911,9 @@ creating.diploid <- function(population=NULL,
       }
 
     } else{
+
+      nindi_prior = nindi
+
       if(is.list(dataset)){
 
         if(new_miraculix){
@@ -1804,6 +1927,10 @@ creating.diploid <- function(population=NULL,
       } else{
         nsnp <- nrow(dataset)
         nindi <- ncol(dataset)/2
+      }
+
+      if(nindi_prior != 0 && nindi_prior != nindi){
+        warning("Input for nindi does not match with dataset size - nindi was overwritten!")
       }
 
     }
@@ -1864,9 +1991,6 @@ creating.diploid <- function(population=NULL,
     if(length(bpcm.conversion)!=length(chr.opt)){
       bpcm.conversion <- rep(bpcm.conversion, length.out=length(chr.opt))
     }
-
-
-
 
 
 
@@ -1968,10 +2092,19 @@ creating.diploid <- function(population=NULL,
         population$info$pool_effects = FALSE
         population$info$pool_effects_calc = FALSE
 
+        population$info$pedigree_error = FALSE
+
         population$info$pen.size <- cbind(1,1)
         population$info$litter.effect.active <- FALSE
         population$info$pen.effect.active <- FALSE
         population$info$max.time.point = time.point
+
+        if(miraculix){
+          test_matrix = matrix(stats::rbinom(5000, 1, 0.5), ncol = 2)
+          population$info$miraculix_test_coded = miraculix::haplomatrix(test_matrix)
+          population$info$miraculix_test_decoded = test_matrix
+
+        }
 
         if(length(litter.effect.covariance)>0 && sum( abs(litter.effect.covariance))>0){
           population$info$litter.effect.active <- TRUE
@@ -2005,7 +2138,7 @@ creating.diploid <- function(population=NULL,
 
         population$info$is.combi <- rep(FALSE, bv.total)
         population$info$progress.bar = progress.bar
-
+        population$info$database.sex.mode = FALSE
 
         if(length(bve.mult.factor)==0){
           population$info$bve.mult.factor <- rep(1L, bv.total)
@@ -2221,7 +2354,12 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[sex]][[counter[sex]]][[36]] = numeric(0) #
 
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- "placeholder"
+          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- c(generation, sex, counter[sex]) # Pedigree with errors
+          population$breeding[[generation]][[sex]][[counter[sex]]][[38]] <- c(generation, sex, counter[sex]) #
+
+          population$breeding[[generation]][[sex]][[counter[sex]]][[39]] = numeric(0) ## parameter in generation of phenotypic transformation
+
+          population$breeding[[generation]][[sex]][[counter[sex]]][[40]] <- "placeholder"
           population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
           counter[sex] <- counter[sex] + 1L
         }
@@ -2281,6 +2419,31 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[45]] <- rep(NA, counter[1]-1) ## time point of genotyping
           population$breeding[[generation]][[46]] <- rep(NA, counter[2]-1)
 
+          if(counter[1] >1){
+            population$breeding[[generation]][[47]] <- rbind(generation, 1, 1:(counter[1]-1),
+                                                             generation, 1, 1:(counter[1]-1),
+                                                             generation, 1, 1:(counter[1]-1),
+                                                             population$breeding[[generation]][[15]],
+                                                             population$breeding[[generation]][[15]],
+                                                             population$breeding[[generation]][[15]]) # pedigree (no errors)
+
+          } else{
+            population$breeding[[generation]][[47]]  = matrix(0L, nrow= 12, ncol=counter[1] -1)
+          }
+          if(counter[2] > 1){
+            population$breeding[[generation]][[48]] <- rbind(generation, 2, 1:(counter[2]-1),
+                                                             generation, 2, 1:(counter[2]-1),
+                                                             generation, 2, 1:(counter[2]-1),
+                                                             population$breeding[[generation]][[16]],
+                                                             population$breeding[[generation]][[16]],
+                                                             population$breeding[[generation]][[16]])
+
+          } else{
+            population$breeding[[generation]][[48]] = matrix(0L, nrow= 12, ncol=counter[2] -1)
+          }
+
+
+
           # calculate Real-ZW
         } else{
           population$breeding[[generation]][[3]] <- cbind(population$breeding[[generation]][[3]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1])) # Selektionsfunktion
@@ -2296,9 +2459,11 @@ creating.diploid <- function(population=NULL,
           population$breeding[[generation]][[13]] <- c(population$breeding[[generation]][[13]], rep(time.point ,counter[1]-counter.start[1])) # Creating type
           population$breeding[[generation]][[14]] <- c(population$breeding[[generation]][[14]], rep(time.point ,counter[2]-counter.start[2]))
 
-          population$breeding[[generation]][[15]] <- c(population$breeding[[generation]][[15]] , seq(population$info$next.animal, population$info$next.animal + counter[1] - counter.start[1]-1, length.out= counter[1] -counter.start[1]))
+          tmp111 = seq(population$info$next.animal, population$info$next.animal + counter[1] - counter.start[1]-1, length.out= counter[1] -counter.start[1])
+          population$breeding[[generation]][[15]] <- c(population$breeding[[generation]][[15]] , tmp111)
           population$info$next.animal <- population$info$next.animal + counter[1] - counter.start[1]
-          population$breeding[[generation]][[16]] <- c(population$breeding[[generation]][[16]] , seq(population$info$next.animal, population$info$next.animal + counter[2] - counter.start[2]-1, length.out= counter[2] -counter.start[2]))
+          tmp222 = seq(population$info$next.animal, population$info$next.animal + counter[2] - counter.start[2]-1, length.out= counter[2] -counter.start[2])
+          population$breeding[[generation]][[16]] <- c(population$breeding[[generation]][[16]] , tmp222)
           population$info$next.animal <- population$info$next.animal + counter[2] - counter.start[2]
           population$breeding[[generation]][[17]] <- c(population$breeding[[generation]][[17]], rep(NA ,counter[1]-counter.start[1])) # Time of death
           population$breeding[[generation]][[18]] <- c(population$breeding[[generation]][[18]], rep(NA ,counter[2]-counter.start[2]))
@@ -2328,16 +2493,35 @@ creating.diploid <- function(population=NULL,
 
 
           population$breeding[[generation]][[39]] <- c(population$breeding[[generation]][[39]], rep(NA, counter[1]-counter.start[1])) ## time point of death
-          population$breeding[[generation]][[40]] <- c(population$breeding[[generation]][[40]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[40]] <- c(population$breeding[[generation]][[40]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[41]] <- c(population$breeding[[generation]][[41]], rep(NA, counter[1]-counter.start[1])) ## culling type
-          population$breeding[[generation]][[42]] <- c(population$breeding[[generation]][[42]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[42]] <- c(population$breeding[[generation]][[42]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[43]] <- c(population$breeding[[generation]][[43]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
-          population$breeding[[generation]][[44]] <- c(population$breeding[[generation]][[44]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[44]] <- c(population$breeding[[generation]][[44]], rep(NA, counter[2]-counter.start[2]))
 
           population$breeding[[generation]][[45]] <- c(population$breeding[[generation]][[45]], rep(NA, counter[1]-counter.start[1])) ## time point of first pheno
-          population$breeding[[generation]][[46]] <- c(population$breeding[[generation]][[46]], rep(NA, counter[1]-counter.start[1]))
+          population$breeding[[generation]][[46]] <- c(population$breeding[[generation]][[46]], rep(NA, counter[2]-counter.start[2]))
+
+          if(counter[1] > counter.start[1]){
+            population$breeding[[generation]][[47]] <- cbind(population$breeding[[generation]][[47]], rbind(generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            generation, 1, counter.start[1]:(counter[1]-1),
+                                                                                                            tmp111,
+                                                                                                            tmp111,
+                                                                                                            tmp111)) # pedigree (no errors)
+          }
+
+          if(counter[2] > counter.start[2]){
+            population$breeding[[generation]][[48]] <- cbind(population$breeding[[generation]][[48]], rbind(generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            generation, 2, counter.start[2]:(counter[2]-1),
+                                                                                                            tmp222,
+                                                                                                            tmp222,
+                                                                                                            tmp222))
+          }
+
 
           population$info$founder_pools = unique(c(population$info$founder_pools, founder.pool))
           population$info$founder_multi = if(length(population$info$founder_pools)>1){TRUE} else{FALSE}
@@ -2779,7 +2963,16 @@ creating.diploid <- function(population=NULL,
         # scaling of QTL effects
         if(!population$info$bv.calculated){
           if(use.recalculate.manual){
+
+            ttt = length(population$info$bv.random.activ)==0
+            if(ttt){
+              population$info$bv.random.activ = shuffle.traits
+            }
             population = recalculate.manual(population, cohorts = name.cohort_temp)
+            if(ttt){
+              population$info$bv.random.activ = NULL
+
+            }
             population$info$bv.calculated = TRUE
           }
         }
@@ -2844,7 +3037,7 @@ creating.diploid <- function(population=NULL,
 
           newA <- S %*% M %*% solve(S)
 
-          diag(newA) <- diag(newA) + 0.0000001 # Avoid numerical issues with inversion
+          diag(newA) <- diag(newA) + 0.001 # Avoid numerical issues with inversion
           newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
           if(verbose) cat("new suggested genetic correlation matrix:\n")
           shuffle.cor <- newA
@@ -3146,6 +3339,12 @@ E.g. The entire human genome has a size of ~33 Morgan."))
     population$info$one.sex.mode <- TRUE
   } else if(length(population$info$one.sex.mode)==0){
     population$info$one.sex.mode <- FALSE
+  }
+
+  if(database.sex.mode){
+    population$info$database.sex.mode <- TRUE
+  } else{
+    population$info$database.sex.mode <- FALSE
   }
 
   return(population)

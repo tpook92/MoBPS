@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param recombination.function Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())
 #' @examples
 #' data(ex_pop)
-#' child_gamete <- breeding.intern(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
+#' child_gamete <- breeding.intern2(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
 #'                                 population = ex_pop)
 #' @return Inherited parent gamete
 #' @export
@@ -385,7 +385,7 @@ breeding.intern2 <- function(info.parent, parent,  population , mutation.rate = 
 
 
   if(gene.editing==TRUE){
-    hap_sequence <- compute.snps_single(population, new.poc, new.mut, new.origin, decodeOriginsU=decodeOriginsU)
+    hap_sequence <- computing.snps_single(population, new.poc, new.mut, new.origin, decodeOriginsU=decodeOriginsU)
     ed_info <- population$info$editing_info[[length(population$info$editing_info)]]
     edits_p <- numeric(nr.edits)
     edits <- 0

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Calculate breeding values
+#' Add additional diverse material to a population
 #'
-#' Internal function to calculate the breeding value of a given individual
+#' Function to simulate and add additional diverse material to a population
 #' @param population Population list
 #' @param pop1 Population to start with as founder pool (default: NULL - generation from pool.gen/database/cohorts)
 #' @param export.pop1 Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initialising this multiple times
@@ -43,6 +43,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param store.comp.times If TRUE store computation times in $info$comp.times.general (default: TRUE)
 #' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
 #' @return population list with newly added individuals
+#' @examples
+#' data(ex_pop)
+#' population <- add.diversity(ex_pop, pool.gen  = 1, target.gen = 5)
 #' @export
 
 add.diversity = function(population,

@@ -12,7 +12,7 @@ get.geno(
   chromosome = "all",
   export.alleles = FALSE,
   non.genotyped.as.missing = FALSE,
-  use.id = FALSE,
+  use.id = TRUE,
   array = NULL,
   remove.missing = TRUE
 )
@@ -32,7 +32,7 @@ get.geno(
 
 \item{non.genotyped.as.missing}{Set to TRUE to replace non-genotyped markers with NA}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{array}{Use only markers available on the array}
 

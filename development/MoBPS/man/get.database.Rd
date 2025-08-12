@@ -12,11 +12,13 @@ get.database(
   avoid.merging = FALSE,
   per.individual = FALSE,
   id = NULL,
+  db.names = NULL,
   id.all.copy = FALSE,
   id.last = FALSE,
   keep.order = FALSE,
   class = NULL,
-  verbose = TRUE
+  verbose = TRUE,
+  sex.filter = 0
 )
 }
 \arguments{
@@ -34,6 +36,8 @@ get.database(
 
 \item{id}{Individual IDs to search/collect in the database}
 
+\item{db.names}{MoPBS internal names (SexNr_Generation)}
+
 \item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
 
 \item{id.last}{Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)}
@@ -43,9 +47,11 @@ get.database(
 \item{class}{Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)}
 
 \item{verbose}{Set to FALSE to not display any prints}
+
+\item{sex.filter}{Set to 1 to only include males and set 2 to only include females in database (default: 0)}
 }
 \value{
-Combine gen/database/cohorts to a joined database
+Matrix with combined gen/database/cohorts
 }
 \description{
 Function to derive a database based on gen/database/cohorts

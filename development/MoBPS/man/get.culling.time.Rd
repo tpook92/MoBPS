@@ -2,14 +2,14 @@
 % Please edit documentation in R/get.culling.time.R
 \name{get.culling.time}
 \alias{get.culling.time}
-\title{Derive class}
+\title{Derive culling time}
 \usage{
 get.culling.time(
   population,
   database = NULL,
   gen = NULL,
   cohorts = NULL,
-  use.id = FALSE,
+  use.id = TRUE,
   use.all.copy = TRUE
 )
 }
@@ -22,7 +22,7 @@ get.culling.time(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 }
@@ -30,7 +30,7 @@ get.culling.time(
 Class of in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the class for each individual
+Function to derive time point of culling for each individual
 }
 \examples{
 data(ex_pop)

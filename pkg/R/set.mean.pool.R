@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,9 +19,9 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive founder pool
+#' Set differences between founder pool
 #'
-#' Function to devide the founder pool of individuals
+#' Function to scale trait for genetic differences based on founder pools
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export (THIS CAN ONLY BE APPLIED ON FOUNDERS)
 #' @param gen Quick-insert for database (vector of all generations to export) (THIS CAN ONLY BE APPLIED ON FOUNDERS, if empty -> default: 1)
@@ -32,8 +32,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param reference Target mean is compared again the reference (default: "pool" - average genomic value in the respective pool, alt: "all")
 #' @param max.effects Maximum number of locations in the genome that will be assigned an effect for pool-based correction
 #' @examples
-#' data(ex_pop)
-#' get.pool.founder(ex_pop, gen=2)
+#' population = creating.diploid(nsnp = 100, nindi = 10, n.additive = 100, founder.pool = 1)
+#' population = creating.diploid(population=population, nindi = 10,
+#'   founder.pool = 2)
+#' population = set.mean.pool(population, mean = c(100,110))
 #' @return Class of in gen/database/cohorts selected individuals
 #' @export
 
@@ -99,7 +101,7 @@ set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
 
   population$info$real.bv.add[[trait]] = rbind(population$info$real.bv.add[[trait]], add_real.bv.add)
 
-  if(population$info$bv.calculated){
+  if(population$info$bv.calculated && get.ngen(population)==1){
 
     for(index5 in 1:nrow(database)){
       temp1 = get.pool.founder(population, database = database[index5,])

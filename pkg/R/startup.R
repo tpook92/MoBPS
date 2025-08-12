@@ -1,38 +1,44 @@
-'#
-  Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
-
-Copyright (C) 2017 -- 2020  Torsten Pook
-
-This program is free software; you can redistribute it and/or
-modify it under the terms of the GNU General Public License
-as published by the Free Software Foundation; either version 3
-of the License, or (at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-'#
-
 .onAttach <- function(libname, pkgname) {
+  mobps_info <- utils::sessionInfo()$otherPkgs$MoBPS
+  miraculix_loaded <- requireNamespace("miraculix", quietly = TRUE)
 
+  msg <- paste0(
+    "#############################################################\n",
+    "############ Modular Breeding Program Simulator #############\n",
+    "#############################################################\n",
+    "############## Version: ", mobps_info$Version, " (", mobps_info$Date, ") ###############\n",
+    "#############################################################\n"
+  )
 
-    packageStartupMessage(
-paste0("#############################################################
-############ Modular Breeding Program Simulator #############
-#############################################################
-################ Version: ", utils::sessionInfo()$otherPkgs$MoBPS$Version, " (",utils::sessionInfo()$otherPkgs$MoBPS$Date,") ###############
-######## To update to the most recent stable version: #######
-## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##
-#############################################################
-################ Web-interface: www.mobps.de ################
-### Extended documentation: www.github.com/tpook92/MoBPS ####
-#############################################################"))
+  if (miraculix_loaded) {
+    miraculix_info <- utils::sessionInfo()$otherPkgs$miraculix
+    msg <- paste0(
+      msg,
+      "######## Miraculix detected and successfully loaded #########\n",
+      "##################### Version: ", miraculix_info$Version, " ######################\n"
+    )
 
+    if (length(miraculix_info$Version) != 1 || miraculix_info$Version != "1.5.1.1") {
+      msg <- paste0(msg, "###### Consider upgrading miraculix to version 1.5.1.1 ######\n")
+    }
+  } else {
+    msg <- paste0(
+      msg,
+      "#################### Miraculix not found. ###################\n",
+      "######## Consider installing to speed-up computations #######\n"
+    )
+  }
 
+  msg <- paste0(
+    msg,
+    "#############################################################\n",
+    "######## To update to the most recent stable version: #######\n",
+    "## devtools::install_github('tpook92/MoBPS', subdir='pkg') ##\n",
+    "#############################################################\n",
+    "################ Web-interface: www.mobps.de ################\n",
+    "### Extended documentation: www.github.com/tpook92/MoBPS ####\n",
+    "#############################################################"
+  )
+
+  packageStartupMessage(msg)
 }

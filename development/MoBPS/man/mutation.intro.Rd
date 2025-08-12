@@ -4,20 +4,30 @@
 \alias{mutation.intro}
 \title{Mutation intro}
 \usage{
-mutation.intro(population, gen, sex, individual.nr, qtl.posi, haplo.set = 1)
+mutation.intro(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  qtl.posi,
+  target.variant = NULL,
+  haplo.set = 1
+)
 }
 \arguments{
 \item{population}{Population list}
 
-\item{gen}{Generation of the individual to introduce a mutation in}
+\item{gen}{Quick-insert for database (vector of all generations to export)}
 
-\item{sex}{Sex of the individual to introduce a mutation in}
+\item{database}{Groups of individuals to consider for the export}
 
-\item{individual.nr}{Individual Nr. of the individual to introduce a mutation in}
+\item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
 \item{qtl.posi}{Marker number to mutate}
 
-\item{haplo.set}{Select chromosome set (default: 1 , alt: 2)}
+\item{target.variant}{target variant to obtain (( if haplotype already is correct do not introduce a mutation ))}
+
+\item{haplo.set}{Select chromosome set (default: 1 , alt: 2, 1:2 (to edit both))}
 }
 \value{
 Population-List with mutated marker for the selected individual
@@ -27,5 +37,5 @@ Function to change the base-pair in a specific loci
 }
 \examples{
 data(ex_pop)
-ex_pop <- mutation.intro(ex_pop, 1,1,1, qtl.posi=100)
+ex_pop <- mutation.intro(ex_pop, database = cbind(1,1,1), qtl.posi=100)
 }

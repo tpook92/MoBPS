@@ -2,7 +2,7 @@
 % Please edit documentation in R/set.mean.pool.R
 \name{set.mean.pool}
 \alias{set.mean.pool}
-\title{Derive founder pool}
+\title{Set differences between founder pool}
 \usage{
 set.mean.pool(
   population,
@@ -39,9 +39,11 @@ set.mean.pool(
 Class of in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide the founder pool of individuals
+Function to scale trait for genetic differences based on founder pools
 }
 \examples{
-data(ex_pop)
-get.pool.founder(ex_pop, gen=2)
+population = creating.diploid(nsnp = 100, nindi = 10, n.additive = 100, founder.pool = 1)
+population = creating.diploid(population=population, nindi = 10,
+  founder.pool = 2)
+population = set.mean.pool(population, mean = c(100,110))
 }

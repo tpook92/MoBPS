@@ -7,7 +7,14 @@
 creating.phenotypic.transform(
   population,
   phenotypic.transform.function = NULL,
-  trait = 1
+  trait = 1,
+  test.h2 = TRUE,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  h2 = seq(0.05, 0.5, by = 0.05),
+  export.h2 = FALSE,
+  n.sample = 1000
 )
 }
 \arguments{
@@ -15,14 +22,31 @@ creating.phenotypic.transform(
 
 \item{phenotypic.transform.function}{Phenotypic transformation to apply}
 
-\item{trait}{Trait for which a transformation is to be applied
-data(ex_pop)
-trafo <- function(x){ return(x^2)}
-ex_pop <- creating.phenotypic.transform(ex_pop, phenotypic.transform.function=trafo)}
+\item{trait}{Trait for which a transformation is to be applied}
+
+\item{test.h2}{Set to FALSE to not perform heritability check}
+
+\item{gen}{Quick-insert for database (vector of all generations to export)}
+
+\item{database}{Groups of individuals to consider for the export}
+
+\item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{h2}{Vector of heritability input to test (before introducing noise from trafo; default: seq(0.05,0.5, by = 0.05))}
+
+\item{export.h2}{Set TRUE to export matrix of heritability before/after transformation}
+
+\item{n.sample}{Sample size to use in test.h2 (default: 1000)}
 }
 \value{
 Population-list with a new phenotypic transformation function
 }
 \description{
 Function to perform create a transformation of phenotypes
+}
+\examples{
+data(ex_pop)
+trafo <- function(x){return(x^2)}
+population <- creating.phenotypic.transform(ex_pop, phenotypic.transform.function=trafo,
+n.sample = 100)
 }

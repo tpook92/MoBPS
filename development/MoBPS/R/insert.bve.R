@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -30,7 +30,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' bv <- get.bv(ex_pop, gen=2)
+#' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 #' ex_pop <- insert.bve(ex_pop, bves=new.bve)
 #' @return Population-List with newly entered estimated breeding values
@@ -105,9 +105,9 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
           population$breeding[[gen]][[sex]][[nr]][[15]][population$breeding[[gen]][[sex]][[nr]][[15]]<temp1] <- temp1[population$breeding[[gen]][[sex]][[nr]][[15]]<temp1]
         } else{
           population$breeding[[gen]][[sex]][[nr]][[15]] <- temp1
-          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 || ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>temp1){
-            if(temp1>0){
-              population$breeding[[gen]][[sex]][[nr]][[24]] <- population$breeding[[gen]][[sex]][[nr]][[24]][,1:temp1]
+          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 || ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>max(temp1)){
+            if(max(temp1)>0){
+              population$breeding[[gen]][[sex]][[nr]][[24]] <- population$breeding[[gen]][[sex]][[nr]][[24]][,1:max(temp1)]
             } else{
               population$breeding[[gen]][[sex]][[nr]][24] <- list(NULL) ## Only single bracket to not reduce length of list
             }
@@ -130,9 +130,9 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
   return(population)
 }
 
-#' Manually enter estimated breeding values
+#' Manually enter phenotypes
 #'
-#' Function to manually enter estimated breeding values
+#' Function to manually enter phenotypes
 #' @param population Population list
 #' @param phenos Matrix of phenotypes to enter (one row per individual with 1 element coding individual name)
 #' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
@@ -140,10 +140,10 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' bv <- get.bv(ex_pop, gen=2)
+#' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 #' ex_pop <- insert.pheno(ex_pop, phenos=new.bve)
-#' @return Population-List with newly entered estimated breeding values
+#' @return Population-List with newly entered phenotypes
 #' @export
 #'
 insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, count.only.increase=TRUE){
@@ -160,10 +160,10 @@ insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, coun
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' bv <- get.bv(ex_pop, gen=2)
+#' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 #' ex_pop <- insert.bv(ex_pop, bvs=new.bve)
-#' @return Population-List with newly entered estimated breeding values
+#' @return Population-List with newly entered breeding values
 #' @export
 #'
 insert.bv <- function(population, bvs, na.override = FALSE,  count=1, count.only.increase=TRUE){

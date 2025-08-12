@@ -2,7 +2,7 @@
 % Please edit documentation in R/kinship.development.R
 \name{kinship.development}
 \alias{kinship.development}
-\title{Devolopment of genetic/breeding value}
+\title{Development of genetic/breeding value}
 \usage{
 kinship.development(
   population,

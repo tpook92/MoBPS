@@ -16,7 +16,7 @@ get.maf(population, database = NULL, gen = NULL, cohorts = NULL)
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 }
 \value{
-Allele frequency of the alternative allele
+Allele frequency of the minor allele
 }
 \description{
 Function to calculate minor allele frequencies

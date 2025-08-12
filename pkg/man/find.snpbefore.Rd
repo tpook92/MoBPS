@@ -15,5 +15,5 @@ find.snpbefore(position, snp.position)
 SNP-position of the target position
 }
 \description{
-Internal function for the detection on which position each marker is
+Internal function for the detection on which overall position each marker is
 }

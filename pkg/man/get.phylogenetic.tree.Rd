@@ -11,7 +11,7 @@ get.phylogenetic.tree(
   gen = NULL,
   cohorts = NULL,
   method = NULL,
-  individual.names = NULL,
+  use.id = TRUE,
   circular = FALSE
 )
 }
@@ -28,7 +28,7 @@ get.phylogenetic.tree(
 
 \item{method}{Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"}
 
-\item{individual.names}{Names of the individuals in the database ((default are MoBPS internal names based on position))}
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{circular}{Set to TRUE to generate a fan/circular layout tree}
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param array Use only markers available on the array
 #' @param remove.missing Remove markers not genotyped in any individual from the export
 #' @examples
@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromosome="all", export.alleles=FALSE,
-                     non.genotyped.as.missing=FALSE, use.id=FALSE, array = NULL, remove.missing = TRUE){
+                      non.genotyped.as.missing=FALSE, use.id=TRUE, array = NULL, remove.missing = TRUE){
 
   if(length(chromosome)==1 && chromosome=="all"){
     subsetting <- FALSE
@@ -89,9 +89,15 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
   end.chromo <- population$info$cumsnp
 
   relevant.snps <- NULL
-  for(index in chromosome){
-    relevant.snps <- c(relevant.snps, start.chromo[index]:end.chromo[index])
+
+  if(length(chromosome)==length(start.chromo)){
+    relevant.snps = start.chromo[min(chromosome)]:end.chromo[max(chromosome)]
+  } else{
+    for(index in chromosome){
+      relevant.snps <- c(relevant.snps, start.chromo[index]:end.chromo[index])
+    }
   }
+
   nsnp <- length(relevant.snps)
 
   titel <- t(population$info$snp.base[,relevant.snps])
@@ -119,7 +125,7 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
       if(!population$info$miraculix){
         rindex <- 1
         for(index in animals[3]:animals[4]){
-          data[, before + rindex] <- colSums(compute.snps(population,animals[1], animals[2],index, decodeOriginsU=decodeOriginsU))[relevant.snps]
+          data[, before + rindex] <- colSums(computing.snps(population,animals[1], animals[2],index, decodeOriginsU=decodeOriginsU))[relevant.snps]
           rindex <- rindex + 1
         }
       }
@@ -129,18 +135,22 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, chromoso
 
   rownames(data) <- population$info$snp.name[relevant.snps]
 
+
   if(non.genotyped.as.missing){
     is_genotyped <- get.genotyped.snp(population, database = database)[relevant.snps,]
   } else{
-    is_genotyped <- matrix(TRUE, nrow=nrow(data), ncol=ncol(data))
+    is_genotyped = TRUE
   }
   if(length(array)>0){
+    if(!non.genotyped.as.missing){
+      is_genotyped <- matrix(TRUE, nrow=nrow(data), ncol=ncol(data))
+    }
     is_genotyped[!population$info$array.markers[[array]], ] <- FALSE
   }
   if(sum(!is_genotyped)>0){
     data[!is_genotyped] <- NA
   }
-  if(remove.missing){
+  if(remove.missing && sum(is.na(data[,1]))>0){
     data <- data[rowMeans(is.na(data))<1,,drop=FALSE]
   }
 

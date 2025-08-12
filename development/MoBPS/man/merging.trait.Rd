@@ -46,5 +46,6 @@ Generation of the trait in a starting population
 }
 \examples{
 population <- creating.diploid(nsnp=1000, nindi=100)
-population <- creating.trait(population, n.additive=100)
+population <- creating.trait(population, n.additive=c(100,100))
+population <- merging.trait(population, merge = c(1,2))
 }

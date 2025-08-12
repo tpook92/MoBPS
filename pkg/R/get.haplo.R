@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
-#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param array Use only markers available on the array
 #' @param remove.missing Remove markers not genotyped in any individual from the export
 #' @examples
@@ -39,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosome="all", export.alleles=FALSE,
-                     non.genotyped.as.missing=FALSE, use.id=FALSE, array = NULL, remove.missing = TRUE){
+                     non.genotyped.as.missing=FALSE, use.id=TRUE, array = NULL, remove.missing = TRUE){
 
   if(length(chromosome)==1 && chromosome=="all"){
     chromosome <- 1:length(population$info$snp)
@@ -126,7 +126,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
           } else if(population$info$miraculix){
             data[, before + c(rindex,rindex+1)] <- miraculix::computeSNPS(population,animals[1], animals[2] , index, what="haplo")[relevant.snps,]
           } else{
-            data[, before + c(rindex,rindex+1)] <- t(compute.snps(population,animals[1], animals[2],index, decodeOriginsU=decodeOriginsU)[,relevant.snps])
+            data[, before + c(rindex,rindex+1)] <- t(computing.snps(population,animals[1], animals[2],index, decodeOriginsU=decodeOriginsU)[,relevant.snps])
           }
           rindex <- rindex + 2
         }
@@ -162,7 +162,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
     data[!is_genotyped] <- NA
   }
   if(remove.missing){
-    data <- data[rowMeans(is.na(data))<1,]
+    data <- data[rowMeans(is.na(data))<1,,drop = FALSE]
   }
 
   if(use.id){

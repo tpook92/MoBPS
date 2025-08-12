@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -463,7 +463,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
 
   if(gene.editing==TRUE){
-    hap_sequence <- compute.snps_single(population, new.poc, new.mut, new.origin, decodeOriginsU=decodeOriginsU)
+    hap_sequence <- computing.snps_single(population, new.poc, new.mut, new.origin, decodeOriginsU=decodeOriginsU)
     ed_info <- population$info$editing_info[[length(population$info$editing_info)]]
     edits_p <- numeric(nr.edits)
     edits <- 0

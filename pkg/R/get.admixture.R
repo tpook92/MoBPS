@@ -1,9 +1,9 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 Azadeh Hassanpour, azadeh.hassanpour@uni-goettingen.de
 
-Copyright (C) 2017 -- 2021  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -67,53 +67,54 @@ get.admixture <- function(population, geno=NULL, gen=NULL, database=NULL, cohort
       stop("Incorrect input for dimensionality (d) of the Admixture plot!")
     }
 
+    if(plot){
+
+      if(requireNamespace("RColorBrewer")){
+        qual_col_pals = RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
+        col_vector = unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
+        used_color <- sample(col_vector, nrow(Q_est))
+      } else{
+        used_color <- 1:nrow(Q_est)
+        if(nrow(Q_est)>8){
+          warning("At most 8 colors supported in admixture plot when not using RColorBrewer")
+        }
+      }
+
+      if(sort){
+        order <- NULL
+        for(index in 1:d){
+          if(length(order)< ncol(Q_est)){
+            if(length(order)==0 ){
+              remaining <- 1:ncol(Q_est)
+            } else{
+              remaining <- (1:ncol(Q_est))[-order]
+            }
+
+            sorting <- sort(Q_est[index, remaining], index.return=TRUE, decreasing=TRUE)
+            order <- c(order, remaining[sorting$ix[sorting$x>sort.cutoff]])
+
+          }
+
+        }
+      } else{
+        order <- 1:ncol(Q_est)
+      }
+
+      a <- graphics::barplot(Q_est[,order], col=used_color, border=NA)
+
+      graphics::axis(1, at=a, labels = colnames(geno)[order], las=2)
+    }
+
+    colnames(Q_est) <- colnames(geno)
+
+    return(Q_est)
 
   } else{
-    stop("The R-package alstructure is required to generate admixture plots. \n
+    warning("The R-package alstructure is required to generate admixture plots. \n
          Please install via github before use!\n
          install_github('storeylab/alstructure')")
   }
 
 
-  if(plot){
 
-    if(requireNamespace("RColorBrewer")){
-      qual_col_pals = RColorBrewer::brewer.pal.info[RColorBrewer::brewer.pal.info$category == 'qual',]
-      col_vector = unlist(mapply(RColorBrewer::brewer.pal, qual_col_pals$maxcolors, rownames(qual_col_pals)))
-      used_color <- sample(col_vector, nrow(Q_est))
-    } else{
-      used_color <- 1:nrow(Q_est)
-      if(nrow(Q_est)>8){
-        warning("At most 8 colors supported in admixture plot when not using RColorBrewer")
-      }
-    }
-
-    if(sort){
-      order <- NULL
-      for(index in 1:d){
-        if(length(order)< ncol(Q_est)){
-          if(length(order)==0 ){
-            remaining <- 1:ncol(Q_est)
-          } else{
-            remaining <- (1:ncol(Q_est))[-order]
-          }
-
-          sorting <- sort(Q_est[index, remaining], index.return=TRUE, decreasing=TRUE)
-          order <- c(order, remaining[sorting$ix[sorting$x>sort.cutoff]])
-
-        }
-
-      }
-    } else{
-      order <- 1:ncol(Q_est)
-    }
-
-    a <- graphics::barplot(Q_est[,order], col=used_color, border=NA)
-
-    graphics::axis(1, at=a, labels = colnames(geno)[order], las=2)
-  }
-
-  colnames(Q_est) <- colnames(geno)
-
-  return(Q_est)
 }

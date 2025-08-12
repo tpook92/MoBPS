@@ -14,7 +14,8 @@ get.pca(
   components = c(1, 2),
   plot = TRUE,
   pch = 1,
-  export.color = FALSE
+  export.color = FALSE,
+  use.id = FALSE
 )
 }
 \arguments{
@@ -37,9 +38,11 @@ get.pca(
 \item{pch}{Point type in the PCA plot}
 
 \item{export.color}{Set to TRUE to export the per point coloring}
+
+\item{use.id}{Set TRUE to display IDs instead of dots in the PCA plot}
 }
 \value{
-Genotype data for in gen/database/cohorts selected individuals
+Principle components of gen/database/cohorts selected individuals
 }
 \description{
 Function to perform a principle component analysis

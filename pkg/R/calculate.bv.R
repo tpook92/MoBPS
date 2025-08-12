@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -93,7 +93,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         stop("Usage of miraculix without being installed!")
       }
     } else{
-      hap <- compute.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+      hap <- computing.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
       geno_self <- colSums(hap)
       if(multi_pool){
         haplo_self <- hap
@@ -124,7 +124,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
           stop("Usage of miraculix without being installed!")
         }
       } else{
-        hap <- compute.snps(population, index_mother[1], index_mother[2], index_mother[3],
+        hap <- computing.snps(population, index_mother[1], index_mother[2], index_mother[3],
                             import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
                             bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
         geno_mother <- colSums(hap)
@@ -140,7 +140,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
           stop("Usage of miraculix without being installed!")
         }
       } else{
-        hap <- compute.snps(population, index_father[1], index_father[2], index_father[3],
+        hap <- computing.snps(population, index_father[1], index_father[2], index_father[3],
                             import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
                             bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
         geno_father <- colSums(hap)

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.uhat.R
 \name{get.uhat}
 \alias{get.uhat}
-\title{Derive ID on an individual}
+\title{Export estimated SNP effects}
 \usage{
 get.uhat(population, extend = FALSE, plot = TRUE, trait.plot = 1)
 }
@@ -19,5 +19,11 @@ get.uhat(population, extend = FALSE, plot = TRUE, trait.plot = 1)
 matrix with estimated marker effects
 }
 \description{
-Function to derive the internal ID given to each individual
+Function to export estimated SNP effects
+}
+\examples{
+data(ex_pop)
+population = breeding.diploid(ex_pop, bve.gen = 2:3, genotyped.gen = 2:3,
+ bve = TRUE, estimate.u = TRUE)
+get.uhat(population)
 }

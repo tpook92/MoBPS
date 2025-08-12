@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,26 +19,28 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Export underlying true breeding values
+#' Export founder pool
 #'
-#' Function to export underlying true breeding values
+#' Function to export founder pool
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param ids AA
+#' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param plot Set TRUE to generate a visualization of genetic origins
 #' @examples
 #' data(ex_pop)
-#' get.bv(ex_pop, gen=2)
-#' @return Genomic value of in gen/database/cohorts selected individuals
+#' get.pool(ex_pop, gen=2)
+#' @return Founder pool of in gen/database/cohorts selected individuals
 #' @export
 
 
 get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids = NULL,
-                      plot = FALSE, import.position.calculation=NULL, decodeOriginsU=decodeOriginsR){
+                      plot = FALSE, import.position.calculation=NULL, decodeOriginsU=decodeOriginsR,
+                     use.id = TRUE){
 
   database <- get.database(population, gen = gen, database = database,
                            cohorts = cohorts, id = ids)
@@ -144,6 +146,26 @@ get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids
     }
   }
 
+  before = 0
+  names <- numeric(nindi)
+  for(row in 1:nrow(database)){
+    animals <- database[row,]
+    nanimals <- database[row,4] - database[row,3] +1
+    if(nanimals>0){
+      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
+      before <- before + nanimals
+    }
+  }
+
+  if(use.id){
+    tmp1 <- get.id(population, database = database)
+  } else{
+    tmp1 <- names
+  }
+
+  tmp1 = paste0(rep(tmp1, each = 2), c("_1", "_2"))
+
+  colnames(segments) = tmp1
 
   if(plot){
     plot(0,-10, ylim=c(0,ncol(segments)), xlim=c(0, nrow(segments)), xlab="SNPs", ylab="haplotypes", yaxt="n")

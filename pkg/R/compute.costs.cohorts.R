@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -37,11 +37,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
-#' compute.costs.cohorts(ex_pop, gen=1:5, genotyping.costs=25, json=FALSE)
+#' computing.costs.cohorts(ex_pop, gen=1:5, genotyping.costs=25, json=FALSE)
 #' @return Cost-table for selected gen/database/cohorts of a population-list
 #' @export
 
-compute.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=NULL, json=TRUE,
+computing.costs.cohorts <- function(population, gen=NULL, database=NULL, cohorts=NULL, json=TRUE,
                           phenotyping.costs = NULL, genotyping.costs = 0, housing.costs=NULL, fix.costs= 0, fix.costs.annual = 0,
                           profit.per.bv = 1, interest.rate = 1, verbose=TRUE){
 

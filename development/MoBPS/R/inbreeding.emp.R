@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -27,14 +27,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix
+#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' inbreeding <- inbreeding.emp(population=ex_pop, database=cbind(3,1,1,25))
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
-inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, use.id=FALSE){
+inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, use.id=TRUE){
 
 
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){

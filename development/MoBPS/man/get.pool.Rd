@@ -2,7 +2,7 @@
 % Please edit documentation in R/get.pool.R
 \name{get.pool}
 \alias{get.pool}
-\title{Export underlying true breeding values}
+\title{Export founder pool}
 \usage{
 get.pool(
   population,
@@ -12,7 +12,8 @@ get.pool(
   ids = NULL,
   plot = FALSE,
   import.position.calculation = NULL,
-  decodeOriginsU = decodeOriginsR
+  decodeOriginsU = decodeOriginsR,
+  use.id = TRUE
 )
 }
 \arguments{
@@ -31,14 +32,16 @@ get.pool(
 \item{import.position.calculation}{Function to calculate recombination point into adjacent/following SNP}
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
+
+\item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 }
 \value{
-Genomic value of in gen/database/cohorts selected individuals
+Founder pool of in gen/database/cohorts selected individuals
 }
 \description{
-Function to export underlying true breeding values
+Function to export founder pool
 }
 \examples{
 data(ex_pop)
-get.bv(ex_pop, gen=2)
+get.pool(ex_pop, gen=2)
 }

@@ -1,8 +1,8 @@
 '#
   Authors
-Torsten Pook, torsten.pook@uni-goettingen.de
+Torsten Pook, torsten.pook@wur.nl
 
-Copyright (C) 2017 -- 2020  Torsten Pook
+Copyright (C) 2017 -- 2025  Torsten Pook
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,14 +19,15 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Derive age point
+#' Derive variance components
 #'
-#' Function to devide age point for each individual (Same as time.point unless copy.individual is used for aging)
+#' Function to derive variance components
 #' @param population Population list
 #' @examples
 #' data(ex_pop)
-#' get.age.point(ex_pop, gen=2)
-#' @return Time point selected gen/database/cohorts-individuals are born
+#' population = breeding.diploid(ex_pop, bve = TRUE, bve.gen = 2)
+#' get.variance.components(population)
+#' @return Estimated variance components
 #' @export
 
 get.variance.components <- function(population){
