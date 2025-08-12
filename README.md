@@ -1,11 +1,3 @@
-# Announcement Workshop
-
-The next MoBPS workshop will be in-person in Wageningen on April 28 & 29. 
-
-For registration see https://wias.crs.wur.nl/courses/details/1632/
-
-The subsequent workshop is planned to be fully remote/online and will most likely be in Spring 2026
-
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
 A manuscript for the package is published in G3 Genes Genomes Genetics (https://academic.oup.com/g3journal/article/10/6/1915/6026363)
@@ -30,6 +22,23 @@ A separate publication of the web-based framework is also published in G3 (https
 # Update
 
 Updates since initial release:
+
+
+### Version 1.12.20 (17.04.25)
+
+Default individual name is now individual IDs (numbers from 1, 2, ... in order of generation) instead of "M132_124" etc.
+
+Added Workshop material from 2025 WIAS Workshop
+
+Added additional mixblup features to MoBPS (DGV-PBLUP is still in process of development!)
+
+### Version 1.11.83 (17.04.25)
+
+Added features for modelling of traits with non-gaussian phenotypes (class/binary traits in creating.phenotypic.transform)
+
+Improved computing speed of get.database() when handling high number of individuals
+
+Added various small utility function to extract pedigree-based inbreeding, mutation, renaming cohorts
 
 ### Version 1.11.53 (24.06.24)
 
