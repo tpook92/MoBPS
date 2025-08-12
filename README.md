@@ -1,10 +1,10 @@
 # Announcement Workshop
 
-The next MoBPS workshop will be fully remotely / online on October 24 & 25. 
+The next MoBPS workshop will be in-person in Wageningen on April 28 & 29. 
 
 For registration see https://wias.crs.wur.nl/courses/details/1632/
 
-The next in-person workshop in Wageningen will be in March 2025 (details will follow soon)
+The subsequent workshop is planned to be fully remote/online and will most likely be in Spring 2026
 
 # MoBPS
 This repository contains our R-package MoBPS and the associated packages (miraculix/RandomFieldsUtils/MoBPSmaps).
