@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
+#' @param id Individual IDs to search/collect in the database
 #' @param geno Manually provided genotype dataset to use instead of gen/database/cohorts
 #' @param d dimensions to consider in admixture plot (default: automatically estimate a reasonable number)
 #' @param verbose Set to FALSE to not display any prints
@@ -39,12 +40,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.admixture <- function(population, geno=NULL, gen=NULL, database=NULL, cohorts= NULL, d=NULL, verbose=TRUE, plot=TRUE, sort=FALSE, sort.cutoff=0.01){
+get.admixture <- function(population, geno=NULL, gen=NULL, database=NULL, cohorts= NULL, id = NULL, d=NULL, verbose=TRUE, plot=TRUE, sort=FALSE, sort.cutoff=0.01){
 
   if (requireNamespace("alstructure", quietly = TRUE)) {
 
     if(length(geno)==0){
-      geno <- get.geno(population, gen=gen, database=database, cohorts=cohorts)
+      geno <- get.geno(population, gen=gen, database=database, cohorts=cohorts, id = id)
     }
 
 

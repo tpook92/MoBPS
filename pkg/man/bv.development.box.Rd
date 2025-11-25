@@ -27,7 +27,7 @@ bv.development.box(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{bvrow}{Which traits to display (for multiple traits separte plots (par(mfrow)))}
+\item{bvrow}{Which traits to display (for multiple traits separate plots (par(mfrow)))}
 
 \item{json}{If TRUE extract which cohorts to plot according to the json-file used in json.simulation}
 

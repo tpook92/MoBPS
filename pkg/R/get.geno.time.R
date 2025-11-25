@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param use.all.copy Set to TRUE to extract phenotyping
 #' @examples
@@ -34,9 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return genotyping timepoint
 #' @export
 
-get.geno.time <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE, use.all.copy = TRUE){
+get.geno.time <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, use.all.copy = TRUE){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- rep(NA, n.animals)

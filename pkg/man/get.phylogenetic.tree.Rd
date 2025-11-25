@@ -10,6 +10,7 @@ get.phylogenetic.tree(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   method = NULL,
   use.id = TRUE,
   circular = FALSE
@@ -25,6 +26,8 @@ get.phylogenetic.tree(
 \item{gen}{Quick-insert for database (vector of all generations to consider)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to consider)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{method}{Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"}
 

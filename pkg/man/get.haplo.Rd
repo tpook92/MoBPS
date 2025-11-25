@@ -9,6 +9,7 @@ get.haplo(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   chromosome = "all",
   export.alleles = FALSE,
   non.genotyped.as.missing = FALSE,
@@ -26,6 +27,8 @@ get.haplo(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{chromosome}{Limit the genotype output to a selected chromosome (default: "all")}
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
@@ -42,7 +45,7 @@ get.haplo(
 Haplotype data for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide haplotypes of selected individuals
+Function to derive haplotypes of selected individuals
 }
 \examples{
 data(ex_pop)

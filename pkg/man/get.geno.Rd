@@ -9,6 +9,7 @@ get.geno(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   chromosome = "all",
   export.alleles = FALSE,
   non.genotyped.as.missing = FALSE,
@@ -26,6 +27,8 @@ get.geno(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{chromosome}{Limit the genotype output to a selected chromosome (default: "all")}
 
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
@@ -42,7 +45,7 @@ get.geno(
 Genotype data for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide genotypes of selected individuals
+Function to derive genotypes of selected individuals
 }
 \examples{
 data(ex_pop)

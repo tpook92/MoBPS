@@ -22,6 +22,6 @@ Function to manually enter phenotypes (with repeated records)
 \examples{
 data(ex_pop)
 bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
-new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
-ex_pop <- insert.bve(ex_pop, bves=new.bve)
+new.bve <- cbind( colnames(bv), 1, bv[,1]) ## Unrealistic but you do not get better than this!
+ex_pop <- insert.pheno.single(ex_pop, phenos=new.bve)
 }

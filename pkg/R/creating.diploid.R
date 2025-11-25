@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population Population list
 #' @param nsnp Number of markers to generate (Split equally across chromosomes (chr.nr) unless vector is used)
 #' @param nindi Number of individuals to generate (you can also provide number males / females in a vector)
+#' @param nqtl Number of QTLs to generate (this will be a subset of the generated SNPs; default: NULL; all SNPs are potential QTLs)
 #' @param name.cohort Name of the newly added cohort
 #' @param generation Generation to which newly individuals are added (default: 1)
 #' @param founder.pool Founder pool an individual is assign to (default: 1)
@@ -67,7 +68,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param var.target Target variance for each trait
 #' @param qtl.position.shared Set to TRUE to put QTL effects on the same markers for different traits
 #' @param trait.cor Target correlation between QTL-based traits (underlying true genomic values)
-#' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
+#' @param trait.cor.include Vector of traits to be included in the modelling of correlated traits (default: all - needs to match with trait.cor)
 #' @param n.additive Number of additive QTL with effect size drawn from a gaussian distribution
 #' @param n.dominant Number of dominant QTL with effect size drawn from a gaussian distribution
 #' @param n.overdominant Number of overdominant QTL with effect size drawn from absolute value of a gaussian distribution
@@ -98,7 +99,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.locations Number of locations / environments to consider for the GxE model
 #' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
 #' @param location.name Same of the different locations / environments used
-#' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
+#' @param dominant.only.positive Set to TRUE to always assign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param exclude.snps Vector contain markers on which no QTL effects are placed
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
@@ -125,16 +126,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param progress.bar Set to FALSE to not use progress bars in any application of breeding.diploid() downstream (Keep log-files lean!)
 ###### Data storage
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
-#' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
+#' @param miraculix.dataset Set FALSE to deactivate miraculix package for dataset generation
 #' @param add.chromosome.ends Add chromosome ends as recombination points
 #' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
 #' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
 ###### Internal
-#' @param skip.rest Internal variable needed when adding multipe chromosomes jointly
+#' @param skip.rest Internal variable needed when adding multiple chromosomes jointly
 #' @param enter.bv Internal parameter
-#' @param internal Dont touch!
-#' @param internal.geno Dont touch!
-#' @param internal.dataset Dont touch!
+#' @param internal Do not touch!
+#' @param internal.geno Do not touch!
+#' @param internal.dataset Do not touch!
 # OLD
 #' @param nbits Bits available in MoBPS-bit-storing
 #' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
@@ -155,6 +156,7 @@ creating.diploid <- function(population=NULL,
                              #### General
                              nsnp=0,
                              nindi=0,
+                             nqtl=0,
                              name.cohort=NULL,
                              generation=1,
                              founder.pool = 1,
@@ -294,6 +296,9 @@ creating.diploid <- function(population=NULL,
   if(length(trait.cor.include)>0){
     shuffle.traits = trait.cor.include
   }
+
+  qtl_position = NULL
+  nonqtl_position = NULL
 
   name.cohort_temp = name.cohort
 
@@ -1294,6 +1299,25 @@ creating.diploid <- function(population=NULL,
         cum_snp <- cumsum(c(population$info$snp, nsnp))
         snpdata <- c(population$info$snp, nsnp)
 
+        if(nqtl>0){
+
+          qtl_position = sort(sample(sum(snpdata), nqtl))
+          nonqtl_position = (1:sum(snpdata))[-qtl_position]
+          exclude.snps = nonqtl_position
+
+          if(verbose){
+            cat(paste0(length(qtl_position), " loci were assigned as QTL.\n", length(nonqtl_position), " additional loci / SNPs remain.\n"))
+          }
+
+        } else{
+          qtl_position = NULL
+          nonqtl_position = NULL
+        }
+
+        if(length(exclude.snps)==0 && length(population) > 0 && length(population$info$nonqtl_position) > 0){
+          exclude.snps = population$info$nonqtl_position
+        }
+
         if(qtl.position.shared){
 
           n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2+ n.overdominant+ n.equal.overdominant)
@@ -2067,6 +2091,9 @@ creating.diploid <- function(population=NULL,
         population$info$bv.random.variance <- bv.random.variance
         population$info$snps.equidistant <- snps.equidistant
         population$info$origin.gen <- 1L
+        population$info$qtl.position = "placeholder"
+        population$info$qtl.equidistant = FALSE
+
         population$info$cumsnp <- nsnp
         population$info$bp <- bp
         population$info$snp.name <- snp.name
@@ -2086,6 +2113,9 @@ creating.diploid <- function(population=NULL,
         population$info$default.parameter.value = list()
         population$info$chromosome.name <- chr.opt
         population$info$size.scaling = size.scaling
+
+
+
         population$info$founder_pools = founder.pool
         population$info$founder_multi = FALSE
         population$info$founder_multi_calc = FALSE
@@ -2098,6 +2128,11 @@ creating.diploid <- function(population=NULL,
         population$info$litter.effect.active <- FALSE
         population$info$pen.effect.active <- FALSE
         population$info$max.time.point = time.point
+        population$info$last.sigma.e.redo = FALSE
+        population$info$ever.rt = FALSE
+        population$info$ever.dup = FALSE
+        population$info$recalculate.possible = FALSE
+
 
         if(miraculix){
           test_matrix = matrix(stats::rbinom(5000, 1, 0.5), ncol = 2)
@@ -2901,6 +2936,15 @@ creating.diploid <- function(population=NULL,
         population$info$pheno.correlation <- diag(1L, bv.total)
       }
       if(length(new.residual.correlation)>0){
+
+        if(sum(new.residual.correlation==1) > ncol(new.residual.correlation)){
+
+          if (requireNamespace("Matrix", quietly = TRUE)) {
+            if(verbose) cat("Residual correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+            new.residual.correlation = as.matrix(Matrix::nearPD(new.residual.correlation)$mat)
+          }
+
+        }
         population$info$pheno.correlation <- t(chol(new.residual.correlation))
       }
       if(bv.total>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<bv.total)){
@@ -2984,7 +3028,7 @@ creating.diploid <- function(population=NULL,
               population$info$founder_multi_calc = TRUE            }
           }
         }
-        population <- breeding.diploid(population, verbose = FALSE)
+        population <- breeding.diploid(population, verbose = FALSE, use.recalculate.manual = FALSE)
         population$info$founder_multi_calc = population$info$founder_multi
 
         bvs <- get.bv(population, gen=1)
@@ -3042,6 +3086,15 @@ creating.diploid <- function(population=NULL,
           if(verbose) cat("new suggested genetic correlation matrix:\n")
           shuffle.cor <- newA
           if(verbose) print(round(shuffle.cor, digits=3))
+        }
+
+        if(sum(shuffle.cor==1) > ncol(shuffle.cor)){
+
+          if (requireNamespace("Matrix", quietly = TRUE)) {
+            if(verbose) cat("Genetic correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+            shuffle.cor = as.matrix(Matrix::nearPD(shuffle.cor)$mat)
+          }
+
         }
 
         LT <- chol(shuffle.cor)
@@ -3106,7 +3159,7 @@ creating.diploid <- function(population=NULL,
             new.add = do.call(rbind, add.list)
             new.mult = do.call(rbind, mult.list)
 
-            # DONT REMOVE NULL - MORE WORK NEEDED HERE!
+            # DO NOT REMOVE NULL - MORE WORK NEEDED HERE!
             if(length(new.add)==0){
 
             } else{
@@ -3268,7 +3321,7 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
       if(population$info$founder_multi_calc && ((length(population$info$founder_pools) + 1) > length(population$info$bypool_list[[1]]))){
-        population = breeding.diploid(population)
+        population = breeding.diploid(population, use.recalculate.manual = FALSE)
       }
 
       activ_bv <- 1:population$info$bv.nr
@@ -3278,12 +3331,6 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
       if(use.recalculate.manual){
         population = recalculate.manual(population, cohorts = name.cohort_temp, store.comp.times= store.comp.times)
-
-#        if(store.comp.times){
-#          population$info$comp.times.general[nrow(population$info$comp.times.general)-1, ] = population$info$comp.times.general[nrow(population$info$comp.times.general)-1, ] +
-#            population$info$comp.times.general[nrow(population$info$comp.times.general), ]
-#          population$info$comp.times.general = population$info$comp.times.general[-nrow(population$info$comp.times.general), ,drop = FALSE]
-#        }
 
       } else{
         for(sex in 1:2){
@@ -3313,7 +3360,7 @@ E.g. The entire human genome has a size of ~33 Morgan."))
       population$info$bv.calculated = TRUE
     }
 
-    population <- breeding.diploid(population, verbose = verbose)
+    population <- breeding.diploid(population, verbose = verbose, use.recalculate.manual = FALSE)
 
 
     class(population) <- "population"
@@ -3332,6 +3379,47 @@ E.g. The entire human genome has a size of ~33 Morgan."))
     }
 
   }
+
+  # recalculate - manual check:
+  {
+    population$info$recalculate.possible = TRUE
+
+    if(length(unlist(population$info$real.bv.mult)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(unlist(population$info$real.bv.dice)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(population$info$real.bv.add) > 1){
+      for(index in 1:(length(population$info$real.bv.add)-1)){
+        if(is.matrix(population$info$real.bv.add[[index]]) && sum(population$info$real.bv.add[[index]][,7:8] != 0)>0){
+          population$info$recalculate.possible = FALSE
+        }
+      }
+    }
+  }
+
+
+
+  if(length(qtl_position) > 0){
+    population$info$nonqtl_position = nonqtl_position
+    population$info$qtl_position = qtl_position
+
+    tmp = rep(FALSE, length(qtl_position) + length(nonqtl_position))
+    tmp[qtl_position] = TRUE
+    population = add.array(population, marker.included = tmp,
+                           array.name = "onlyQTL")
+    population = add.array(population, marker.included = !tmp,
+                           array.name = "onlySNP")
+
+    if(verbose){
+      cat("Added additional arrays 'onlyQTL' & 'onlySNP'.\n'onlySNP' has been set as default for any breeding value estimation.\n")
+    }
+  }
+
+
 
   population$info$max.time.point = max(population$info$max.time.point, time.point)
 

@@ -28,8 +28,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param adapt.bve Modify previous breeding value estimations by scaling (default: FALSE)
-#' @param adapt.pheno Modify previous phenotypes by scaling (default: FALSE)
+#' @param adapt.bve Modify previous breeding value estimations by scaling (default: TRUE)
+#' @param adapt.pheno Modify previous phenotypes by scaling (default: TRUE)
 #' @param adapt.sigma.e Set to TRUE to scale sigma.e values used based on scaling
 #' @param verbose Set to TRUE to display prints
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
@@ -52,6 +52,23 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
   n_traits <- population$info$bv.nr
 
   if(length(traits)>0){
+
+    if(is.character(traits[1])){
+        for(index in 1:length(traits)){
+          tmp = which(population$info$trait.name == traits[index])
+          if(length(tmp)==1){
+            traits[index] = tmp
+          }
+
+        }
+
+      traits = as.numeric(traits)
+
+      if(sum(is.na(traits)) > 0){
+        stop("Traits not correctly linked. Check input in traits")
+      }
+    }
+
     mean.target_temp = rep(NA, n_traits)
     var.target_temp = rep(NA, n_traits)
     mean.target_temp[traits] = mean.target
@@ -186,16 +203,18 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
 
   if(adapt.sigma.e){
     population$info$last.sigma.e.value = population$info$last.sigma.e.value * modi1
+  } else{
+    population$info$last.sigma.e.redo = TRUE
   }
 
-  if(length(population$info$e0)>0){
-    population$info$e0 = NULL
+  if(length(population$info$e0_mat)>0){
+    population$info$e0_mat = NULL
   }
-  if(length(population$info$e1)>0){
-    population$info$e1 = NULL
+  if(length(population$info$e1_mat)>0){
+    population$info$e1_mat = NULL
   }
-  if(length(population$info$e2)>0){
-    population$info$e2 = NULL
+  if(length(population$info$e2_mat)>0){
+    population$info$e2_mat = NULL
   }
 
 

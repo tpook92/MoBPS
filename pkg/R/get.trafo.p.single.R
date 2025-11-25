@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
 #' @examples
 #' data(ex_pop)
@@ -36,10 +37,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Estimated breeding value of in gen/database/cohorts selected individuals
 #' @export
 
-get.trafo.p.single <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
-  
-  database <- get.database(population, gen, database, cohorts)
-  
+get.trafo.p.single <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
+
+  database <- get.database(population, gen, database, cohorts, id = id)
+
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- list()
   before <- 1
@@ -51,14 +52,14 @@ get.trafo.p.single <- function(population, database=NULL, gen=NULL, cohorts=NULL
       names[before] <- paste(if(animals[2]==1) "M" else "F", index ,"_", animals[1], sep="")
       before <- before +1
     }
-    
+
   }
-  
+
   if(use.id){
     names(data) <- get.id(population, database = database)
   } else{
     names(data) <- names
   }
-  
+
   return(data)
 }

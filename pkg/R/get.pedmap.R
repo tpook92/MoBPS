@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
@@ -41,11 +42,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Ped and map-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, non.genotyped.as.missing=FALSE,
+get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
+                       non.genotyped.as.missing=FALSE,
                        use.id=TRUE){
 
 
-  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, export.alleles=FALSE)
+  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, id = id, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
   if(length(path)==0){
     path <- "population"
@@ -70,7 +72,7 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
   haplo2 <- t(haplo[,(1:(ncol(haplo)/2))*2])
   if(non.genotyped.as.missing){
 
-    is_genotyped <- t(get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts))
+    is_genotyped <- t(get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts, id = id))
     if(sum(!is_genotyped)>0){
       haplo1[!is_genotyped] <- "N"
       haplo2[!is_genotyped] <- "N"
@@ -82,7 +84,7 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
   ped[ped==0] <- "A"
   ped[ped==1] <- "C"
 
-  family.base <- get.database(population, gen=gen, database=database, cohorts=cohorts)
+  family.base <- get.database(population, gen=gen, database=database, cohorts=cohorts, id = id)
   n.animals <- sum(family.base[,4]-family.base[,3]+1)
   family <- sex.s <- numeric(n.animals)
   tillnow <- 1
@@ -93,7 +95,7 @@ get.pedmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=N
       tillnow <- tillnow + diff(family.base[index,3:4]) +1
     }
   }
-  pedi <- get.pedigree(population, database = family.base, id=use.id)
+  pedi <- get.pedigree(population, database = family.base, use.id=use.id)
   pedfile <- cbind(family, pedi[,1],pedi[,2],pedi[,3],sex.s,0,ped)
 
 

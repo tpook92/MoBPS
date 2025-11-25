@@ -9,6 +9,7 @@ get.pheno(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   use.all.copy = FALSE,
   use.id = TRUE
 )
@@ -21,6 +22,8 @@ get.pheno(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 

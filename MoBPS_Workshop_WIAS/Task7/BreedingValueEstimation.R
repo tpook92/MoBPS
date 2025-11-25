@@ -50,7 +50,7 @@ if(FALSE){
                                  selection.m.cohorts = paste0("Cohort_11_M"),
                                  selection.f.cohorts = paste0("Cohort_11_F"),
                                  share.genotyped = 0.2)
-  
+
   ## knowing that mobps will automatically use the last generation of individuals if no information is provided:
   for(index in 1:10){
     population <- breeding.diploid(population, breeding.size = 100,
@@ -59,7 +59,7 @@ if(FALSE){
   # Generation of non-genotyped individuals
   population <- breeding.diploid(population, breeding.size = 100,
                                  share.genotyped = 0.2)
-  
+
 }
 
 
@@ -171,8 +171,6 @@ pop1 = breeding.diploid(population, genotyped.database = best_individuals)
 
 A = diag(3000)
 system.time(A%*%A)
-
-
 
 
 population = creating.diploid(nsnp = 1000, nindi = 100, n.additive = 100,

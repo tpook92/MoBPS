@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param depth.pedigree Depth of the pedigree in generations
 #' @param storage.save The closer this is to 1 the more strict older animals will be filtered out of the pedigree (default: 1.1, min: 1)
 #' @param use.id Set to TRUE to extract individual IDs
@@ -47,13 +48,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 
 
-get.pedigree.visual = function(population, database=NULL, gen=NULL, cohorts=NULL, depth.pedigree = 3,
+get.pedigree.visual = function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, depth.pedigree = 3,
                     storage.save = 1.1, use.id = TRUE, cex = NULL, path=NULL,
                     showgraph = TRUE,
                     outline = FALSE, compact = FALSE){
 
   if (requireNamespace("visPedigree", quietly = TRUE)) {
-    database <- get.database(population, gen, database, cohorts)
+    database <- get.database(population, gen, database, cohorts, id = id)
 
     if(depth.pedigree==Inf){
       pedigree.database <- get.database(population, gen=1:max(database[,1]))

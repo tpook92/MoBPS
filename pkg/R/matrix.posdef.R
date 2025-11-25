@@ -19,14 +19,14 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 '#
 
-#' Projection positive definit
+#' Projection positive definite
 #'
-#' Function to project a matrix in the space of positive definit matrices
+#' Function to project a matrix in the space of positive definite matrices
 #' @param A Input matrix to project
 #' @param verbose Set to FALSE to not display any prints
 #' @param matrix.name This is just for internal prints
 #' @param epsilon This factor is added to the diagonal to avoid numerical issues with semi-definit matrices
-#' @return Positive definit matrix
+#' @return Positive definite matrix
 #' @export
 
 matrix.posdef <- function(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 0.0000001){

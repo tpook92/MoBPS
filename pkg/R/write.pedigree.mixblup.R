@@ -63,7 +63,7 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
 
     new.pedigree.database <- pedigree.database <- database
     remaining.depth <- depth.pedigree
-    while(remaining.depth>0){
+    while(remaining.depth>0 && length(new.pedigree.database) > 0){
       parents <- get.pedigree(population, database = new.pedigree.database, raw=TRUE, include.error = include.error)
       m_parents <- rbind(parents[parents[,5]==1,4:6], parents[parents[,8]==1,7:9])
       f_parents <- rbind(parents[parents[,5]==2,4:6], parents[parents[,8]==2,7:9])
@@ -129,7 +129,7 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
     pedigree.database <- get.database(population, database = unique(pedigree.database))
   }
 
-  pedigree_table <- get.pedigree(population, database = pedigree.database, id=TRUE, include.error = include.error)
+  pedigree_table <- get.pedigree(population, database = pedigree.database, use.id = TRUE, include.error = include.error)
 
   add <- pedigree_table[which(!duplicated(as.character(pedigree_table))[-(1:nrow(pedigree_table))]) + nrow(pedigree_table)]
   add = add[add!=0]

@@ -7,11 +7,11 @@
 miesenberger.index(V, G, V1 = NULL, RG = NULL, r, w, zw = NULL)
 }
 \arguments{
-\item{V}{Phenotypic covarianz matrix}
+\item{V}{Phenotypic covariance matrix}
 
-\item{G}{Genomic covarianz matrix}
+\item{G}{Genomic covariance matrix}
 
-\item{V1}{Inverted phenotypic covarianz matrix}
+\item{V1}{Inverted phenotypic covariance matrix}
 
 \item{RG}{Genomic correlation matrix}
 

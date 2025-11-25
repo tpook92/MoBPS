@@ -33,7 +33,7 @@ get.pedigree(
 
 \item{use.id}{Set to TRUE to extract individual IDs}
 
-\item{id}{Replaced by use.id ((consistency with all other get.xxx functions))}
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{use.first.copy}{Set to TRUE to use database-position of the first copy of an individual (default: FALSE)}
 

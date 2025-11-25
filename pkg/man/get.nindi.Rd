@@ -9,6 +9,7 @@ get.nindi(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   extended = FALSE,
   count.copy = FALSE
 )
@@ -21,6 +22,8 @@ get.nindi(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{extended}{Set to TRUE to export information on number of phenotyped, genotyped, and both pheno&genotyped individuals}
 

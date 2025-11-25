@@ -9,6 +9,7 @@ get.genotyped.snp(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   export.alleles = FALSE,
   use.id = TRUE,
   array = NULL
@@ -23,6 +24,8 @@ get.genotyped.snp(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{export.alleles}{If TRUE export underlying alleles instead of just 012}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
@@ -33,7 +36,7 @@ get.genotyped.snp(
 Binary Coded is/isnot genotyped level for in gen/database/cohorts selected individuals
 }
 \description{
-Function to devide which markers are genotyped for the selected individuals
+Function to derive which markers are genotyped for the selected individuals
 }
 \examples{
 data(ex_pop)

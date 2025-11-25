@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param ids AA
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
@@ -38,12 +38,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, ids = NULL,
+get.pool <- function(population, gen= NULL, database = NULL, cohorts = NULL, id = NULL,
                       plot = FALSE, import.position.calculation=NULL, decodeOriginsU=decodeOriginsR,
                      use.id = TRUE){
 
   database <- get.database(population, gen = gen, database = database,
-                           cohorts = cohorts, id = ids)
+                           cohorts = cohorts, id = id)
 
   nindi = sum(database[,4]-database[,3]+1)
 

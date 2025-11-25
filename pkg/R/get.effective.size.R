@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @examples
 #' data(ex_pop)
 #' get.effective.size(population=ex_pop, gen=5)
@@ -33,8 +34,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.effective.size <- function(population, gen=NULL, database=NULL, cohorts=NULL){
-  geno <- get.geno(population, gen = gen, database=database, cohorts=cohorts)
+get.effective.size <- function(population, gen=NULL, database=NULL, cohorts=NULL, id = NULL){
+  geno <- get.geno(population, gen = gen, database=database, cohorts=cohorts, id = id)
   ldinfo <- ld.decay(population, genotype.dataset = geno, type="cm", plot= FALSE)
   effs <- numeric(length(ldinfo[[3]]$x))
   for(index in 1:length(ldinfo[[3]]$x)){

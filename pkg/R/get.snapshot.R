@@ -21,11 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive snapshot of selected individuals
 #'
-#' Function to devide snapshot of genotyping/phenotyping state of selected individuals
+#' Function to derive snapshot of genotyping/phenotyping state of selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param phenotype.data Set to TRUE to include information of number of phenotypes generated
 #' @param gain.data Set to TRUE to add information on changes in genetic level between cohorts (default: FALSE)
 #' @param digits Number of digits provided for the gain.data output (default: 3)
@@ -37,15 +38,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Snapshot-matrix
 #' @export
 
-#save(file = "C:/Users/pook001/OneDrive - Wageningen University & Research/temp.RData", list = c("population"))
-#cohorts = "E-line_piglets_5_M"
-# get.snapshot(population, cohorts = "E-line_piglets_5_M")
-# get.snapshot(ex_pop, gen = 2)
-get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, phenotype.data = FALSE, gain.data = FALSE,
+
+get.snapshot = function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
+                        phenotype.data = FALSE, gain.data = FALSE,
                         digits = 3, use.all.copy = TRUE, time.diff = NA){
 
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
 
   ids = get.id(population, database = database)

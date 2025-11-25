@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 demiraculix <- function(population){
 
   if(!population$info$miraculix){
-    warning("Miraculix is not active. Why do you use this function?")
+    cat("Miraculix is not active. Why do you use this function?\n")
     return(population)
   } else{
     population$info$miraculix <- FALSE

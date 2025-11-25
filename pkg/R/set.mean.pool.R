@@ -101,6 +101,32 @@ set.mean.pool = function(population, pool = NULL, mean = NULL, trait = NULL,
 
   population$info$real.bv.add[[trait]] = rbind(population$info$real.bv.add[[trait]], add_real.bv.add)
 
+
+  {
+    if(length(unlist(population$info$real.bv.mult)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(unlist(population$info$real.bv.dice)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(population$info$real.bv.add) > 1){
+      for(index in 1:(length(population$info$real.bv.add)-1)){
+        if(is.matrix(population$info$real.bv.add[[index]]) && sum(population$info$real.bv.add[[index]][,7:8] != 0)>0){
+          population$info$recalculate.possible = FALSE
+        }
+      }
+    }
+
+    population$info$e0_activ = NULL
+    population$info$e1_activ = NULL
+    population$info$e2_activ = NULL
+    population$info$e0_mat = NULL
+    population$info$e1_mat = NULL
+    population$info$e2_mat = NULL
+  }
+
   if(population$info$bv.calculated && get.ngen(population)==1){
 
     for(index5 in 1:nrow(database)){

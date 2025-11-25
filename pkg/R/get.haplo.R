@@ -21,11 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive haplotypes of selected individuals
 #'
-#' Function to devide haplotypes of selected individuals
+#' Function to derive haplotypes of selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param non.genotyped.as.missing Set to TRUE to replace non-genotyped markers with NA
@@ -38,7 +39,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Haplotype data for in gen/database/cohorts selected individuals
 #' @export
 
-get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromosome="all", export.alleles=FALSE,
+get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, id = NULL, chromosome="all", export.alleles=FALSE,
                      non.genotyped.as.missing=FALSE, use.id=TRUE, array = NULL, remove.missing = TRUE){
 
   if(length(chromosome)==1 && chromosome=="all"){
@@ -84,7 +85,7 @@ get.haplo<- function(population, database=NULL, gen=NULL, cohorts= NULL, chromos
 
   }
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   start.chromo <- cumsum(c(1,population$info$snp)[-(length(population$info$snp)+1)])
   end.chromo <- population$info$cumsnp

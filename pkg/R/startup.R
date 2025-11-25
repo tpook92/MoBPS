@@ -18,8 +18,8 @@
       "##################### Version: ", miraculix_info$Version, " ######################\n"
     )
 
-    if (length(miraculix_info$Version) != 1 || miraculix_info$Version != "1.5.1.1") {
-      msg <- paste0(msg, "###### Consider upgrading miraculix to version 1.5.1.1 ######\n")
+    if (length(miraculix_info$Version) != 1 || miraculix_info$Version != "1.6.0.2") {
+      msg <- paste0(msg, "###### Consider upgrading miraculix to version 1.6.0.2 ######\n")
     }
   } else {
     msg <- paste0(

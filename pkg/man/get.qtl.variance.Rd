@@ -4,7 +4,13 @@
 \alias{get.qtl.variance}
 \title{QTL effect variance extraction}
 \usage{
-get.qtl.variance(population, gen = NULL, database = NULL, cohorts = NULL)
+get.qtl.variance(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  id = NULL
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.qtl.variance(population, gen = NULL, database = NULL, cohorts = NULL)
 \item{database}{Groups of individuals to consider}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to consider)}
+
+\item{id}{Individual IDs to search/collect in the database}
 }
 \value{
 matrix with SNP / Chr / estimated effect variance

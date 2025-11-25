@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to simulate and add additional diverse material to a population
 #' @param population Population list
 #' @param pop1 Population to start with as founder pool (default: NULL - generation from pool.gen/database/cohorts)
-#' @param export.pop1 Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initialising this multiple times
+#' @param export.pop1 Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initializing this multiple times
 #' @param breeding.size Number of individuals to generate (default: 100)
 #' @param selection.rate Proportion of individuals to select in each breeding cycle (default: 0.5)
 #' @param pool.gen Generations of individuals to consider as founder pool to start from (default: NULL)

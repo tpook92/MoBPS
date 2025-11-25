@@ -10,6 +10,7 @@ get.dendrogram.trait(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   traits = NULL,
   type = "pheno"
 )
@@ -24,6 +25,8 @@ get.dendrogram.trait(
 \item{gen}{Quick-insert for database (vector of all generations to consider)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to consider)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{traits}{Traits to include in the dendrogram (default: all traits)}
 

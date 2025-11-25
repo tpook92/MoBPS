@@ -32,9 +32,9 @@ bv.standardization(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{adapt.bve}{Modify previous breeding value estimations by scaling (default: FALSE)}
+\item{adapt.bve}{Modify previous breeding value estimations by scaling (default: TRUE)}
 
-\item{adapt.pheno}{Modify previous phenotypes by scaling (default: FALSE)}
+\item{adapt.pheno}{Modify previous phenotypes by scaling (default: TRUE)}
 
 \item{verbose}{Set to TRUE to display prints}
 

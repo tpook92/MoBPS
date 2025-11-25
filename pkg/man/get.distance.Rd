@@ -12,9 +12,11 @@ get.distance(
   gen1 = NULL,
   database1 = NULL,
   cohorts1 = NULL,
+  id1 = NULL,
   gen2 = NULL,
   database2 = NULL,
   cohorts2 = NULL,
+  id2 = NULL,
   database.list = NULL,
   gen.list = NULL,
   cohorts.list = NULL
@@ -35,11 +37,15 @@ get.distance(
 
 \item{cohorts1}{Quick-insert for database (vector of names of cohorts to consider)}
 
+\item{id1}{Individual IDs to search/collect in the database}
+
 \item{gen2}{Quick-insert for database (vector of all generations to consider)}
 
 \item{database2}{Second Groups of individuals to consider}
 
 \item{cohorts2}{Quick-insert for database (vector of names of cohorts to consider)}
+
+\item{id2}{Individual IDs to search/collect in the database}
 
 \item{database.list}{List of databases to consider (use when working with more than 2 populations)}
 

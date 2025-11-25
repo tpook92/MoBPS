@@ -9,7 +9,7 @@ get.pool(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  ids = NULL,
+  id = NULL,
   plot = FALSE,
   import.position.calculation = NULL,
   decodeOriginsU = decodeOriginsR,
@@ -25,7 +25,7 @@ get.pool(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
-\item{ids}{AA}
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{plot}{Set TRUE to generate a visualization of genetic origins}
 

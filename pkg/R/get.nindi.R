@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param count.copy Set to TRUE to double count individuals if multiple copies of an individual are included in gen/database/cohorts
 #' @param extended Set to TRUE to export information on number of phenotyped, genotyped, and both pheno&genotyped individuals
 #' @return Numeric value
@@ -35,13 +36,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.nindi <- function(population, database=NULL, gen=NULL, cohorts= NULL, extended = FALSE, count.copy = FALSE){
+get.nindi <- function(population, database=NULL, gen=NULL, cohorts= NULL, id = NULL, extended = FALSE, count.copy = FALSE){
 
-  if(length(gen)==0 && length(database)==0 && length(gen)==0){
+  if(length(gen)==0 && length(database)==0 && length(cohorts)==0){
     gen = 1:get.ngen(population)
   }
 
-  ids = get.id(population, gen = gen, database = database, cohorts = cohorts)
+  ids = get.id(population, gen = gen, database = database, cohorts = cohorts, id = id)
 
   if(count.copy){
     nindi = length(ids)

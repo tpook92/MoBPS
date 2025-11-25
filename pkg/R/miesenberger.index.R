@@ -22,9 +22,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Miesenberger Index
 #'
 #' Function to selection index weights according to Miesenberger 1997
-#' @param V1 Inverted phenotypic covarianz matrix
-#' @param V Phenotypic covarianz matrix
-#' @param G Genomic covarianz matrix
+#' @param V1 Inverted phenotypic covariance matrix
+#' @param V Phenotypic covariance matrix
+#' @param G Genomic covariance matrix
 #' @param RG Genomic correlation matrix
 #' @param r reliability for the breeding value estimation
 #' @param w relative weighting of each trait (per genetic SD)

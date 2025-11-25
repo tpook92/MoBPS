@@ -7,7 +7,7 @@
 bit.snps(bit.seq, nbits, population = NULL, from.p.bit = 1)
 }
 \arguments{
-\item{bit.seq}{bitweise gespeicherte SNP-Sequenz}
+\item{bit.seq}{bitwise stored SNP sequence}
 
 \item{nbits}{Number of usable bits (default: 30)}
 

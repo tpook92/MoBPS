@@ -28,11 +28,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param selection.size Number of selected individuals as parents (default: all individuals in selection.m/f.gen/database/gen - alt: positive numbers)
 #' @param selection.m.gen,selection.m.cohorts,selection.m.database Generations/cohorts/groups available for selection of first/paternal parent
 #' @param selection.f.gen,selection.f.cohorts,selection.f.database Generations available for selection of maternal parent
-#' @param selection.criteria What to use in the selection proces (default: "bve", alt: "bv", "pheno", "random", "offpheno")
+#' @param selection.criteria What to use in the selection process (default: "bve", alt: "bv", "pheno", "random", "offpheno")
 #' @param max.selection.fullsib Maximum number of individual to select from the same family (same sire & dam)
 #' @param max.selection.halfsib Maximum number of individual to select from the same family (same sire or same dam)
 #' @param class.m,class.f For selection only individuals from this class (included in selection.m/f.gen/database/cohorts) will be considered for selection (default: 0 - which is all individuals if never used class elsewhere)
-#' @param add.class.cohorts Inital classes of cohorts used in selection.m/f.cohorts are automatically added to class.m/f (default: TRUE)
+#' @param add.class.cohorts Initial classes of cohorts used in selection.m/f.cohorts are automatically added to class.m/f (default: TRUE)
 #' @param multiple.bve Way to handle multiple traits in selection (default: "add" - use values directly in an index, alt: "ranking" - ignore values but only use ranking per trait)
 #' @param selection.index.weights.m,selection.index.weights.f Weighting between traits (default: 1)
 #' @param selection.index.scale.m,selection.index.scale.f Default: "bv_sd"; Set to "pheno_sd" when using gains per phenotypic SD, "unit" when using gains per unit, "bve" when using estimated breeding values
@@ -44,12 +44,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param best.selection.criteria.m,best.selection.criteria.f Criteria to calculate this ratio (default: "bv", alt: "bve", "pheno")
 #' @param best.selection.manual.ratio.m,best.selection.manual.ratio.f vector containing probability to draw from for every individual (e.g. c(0.1,0.2,0.7))
 #' @param best.selection.manual.reorder Set to FALSE to not use the order from best to worst selected individual but plain order based on database-order
-#' @param selection.m.random.prob,selection.f.random.prob Use this parameter to control the probablity of each individual to be selected when doing random selection
+#' @param selection.m.random.prob,selection.f.random.prob Use this parameter to control the probability of each individual to be selected when doing random selection
 #' @param reduced.selection.panel.m,reduced.selection.panel.f Use only a subset of individuals of the potential selected ones ("Split in user-interface")
 #' @param threshold.selection.index Selection index on which to access (matrix which one index per row)
 #' @param threshold.selection.value Minimum value in the selection index selected individuals have to have
 #' @param threshold.selection.sign Pick all individuals above (">") the threshold. Alt: ("<", "=", "<=", ">=")
-#' @param threshold.selection.criteria Criterium on which to evalute the index (default: "bve", alt: "bv", "pheno")
+#' @param threshold.selection.criteria Criterium on which to evaluate the index (default: "bve", alt: "bv", "pheno")
 #' @param remove.duplicates Set to FALSE to select the same individual multiple times when the gen/database/cohorts for selection contains it multiple times
 #' @param selection.m.miesenberger,selection.f.miesenberger Use Weighted selection index according to Miesenberger 1997 for paternal/maternal selection
 #' @param miesenberger.trafo Ignore all eigenvalues below this threshold and apply dimension reduction (default: 0 - use all)
@@ -69,10 +69,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param ogc.ub.sKin.increase This corresponds to the upper bound (current sKin + ogc.ub.sKin.increase) as ub.sKin in optiSel
 #' @param ogc.lb.BV.increase This corresponds to the lower bound (current BV + ogc.lb.BV.increase) as lb.BV in optiSel
 #' @param ogc.c1 Only applicable when TN-version of OGC is available
+#' @param ogc.isCandidate Only applicable when TN-version of OGC is available
 #' @param ogc.plots Only applicable when TN-version of OGC is available
 #' @param ogc.freq Only applicable when B4F-version of OGC is available
 #' @param ogc.weight Only applicable when B4F-version of OGC is available
-#' @param selection.skip Set to FALSE in case no selection of individuals should be performed (just skips some unnessary computations)
+#' @param selection.skip Set to FALSE in case no selection of individuals should be performed (just skips some unneccessary computations)
 #### Generation of new individuals
 #' @param breeding.size Number of individuals to generate (default: 0, use vector with two entries to control offspring per sex)
 #' @param breeding.size.litter Number of litters to generate (default: NULL - use breeding.size; only single positive number input allowed)
@@ -82,7 +83,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sex.s Specify which newly added individuals are male (1) or female (2)
 #' @param add.gen Generation you want to add the new individuals to (default: New generation)
 #' @param share.genotyped Share of individuals newly generated individuals that are genotyped (Default: 0). Also applies if individuals are copied with copy.individual
-#' @param phenotyping.child Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)
+#' @param phenotyping.child Starting phenotypes of newly generated individuals (default: "zero", alt: "mean" of both parents, "obs" - regular observation)
 #' @param fixed.effects.p Parametrization for the fixed effects (default: c(0,0..,0), if multiple different parametrizations are possible use a matrix with one parametrization per row)
 #' @param fixed.effects.freq Frequency of each different parametrization of the fixed effects
 #' @param new.class Migration level of newly generated individuals (default: 0 / use vector for different classes for different sexes)
@@ -129,8 +130,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param combine Copy existing individuals (e.g. to merge individuals from different groups in a joined cohort). Individuals to use are used as the first parent
 #' @param copy.individual Set TRUE to generate a copy of an already existing individual. If only one of the sexes has individuals to select from it will automatically detect with sex to chose. Otherwise the first/male parent will be copied
 #' @param copy.individual.m,copy.individual.f If TRUE generate exactly one copy of all selected male/female in a new cohort (or more by setting breeding.size)
-#' @param copy.individual.keep.pheno Set to FALSE to not keep phenotypes in case of use of copying individuals instead of regular meoisis
-#' @param copy.individual.keep.bve Set to FALSE to not keep estimated breeding value in case of use of copying individuals instead of regular meoisis
+#' @param copy.individual.keep.pheno Set to FALSE to not keep phenotypes in case of use of copying individuals instead of regular meiosis
+#' @param copy.individual.keep.bve Set to FALSE to not keep estimated breeding value in case of use of copying individuals instead of regular meiosis
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
 #' @param pedigree.error Share of errors in the pedigree (default: 0; vector with two entries for errors on male/female side)
@@ -143,7 +144,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param genotyped.remove.all.copy Set to FALSE to only change the genotyping state of this particular copy of an individual (default: TRUE)
 #' @param genotyped.selected Set to TRUE to genotype all selected individuals
 #### Phenotyping (already existing individuals)
-#' @param phenotyping Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
+#' @param phenotyping Quick access to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
 #' @param phenotyping.gen,phenotyping.cohorts,phenotyping.database Generations/cohorts/groups from which to generate additional phenotypes
 #' @param n.observation Number of phenotypic observations generated per trait and per individuals (use repeatability to control correlation between observations)
 #' @param phenotyping.class Classes of individuals for which to generate phenotypes (default: NULL --> all classes)
@@ -151,7 +152,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param repeatability Set this to control the share of the residual variance (sigma.e) that is permanent (there for each observation)
 #' @param multiple.observation If an already phenotyped trait is phenotyped again this will on NOT lead to an additional phenotyped observation unless this is set to TRUE
 #' @param phenotyping.selected Set to TRUE to phenotype all selected individuals
-#' @param share.phenotyped Share of the individuals to phenotype (use vector for different probablities for different traits)
+#' @param share.phenotyped Share of the individuals to phenotype (use vector for different probabilities for different traits)
 #' @param offpheno.parents.gen,offpheno.parents.database,offpheno.parents.cohorts Generations/groups/cohorts to consider to derive phenotype from offspring phenotypes
 #' @param offpheno.offspring.gen,offpheno.offspring.cohorts,offpheno.offspring.database Active generations/cohorts/groups for import of offspring phenotypes
 #' @param sigma.e Enviromental standard deviation (default: use sigma.e from last run / usually fit by use of heritability; if never provided: 10; used in BVE for variance components if manually set)
@@ -179,9 +180,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param remove.effect.position If TRUE remove real QTLs in breeding value estimation
 #' @param estimate.add.gen.var If TRUE estimate additive genetic variance and heritability based on parent model
 #' @param estimate.pheno.var If TRUE estimate total variance in breeding value estimation
-#' @param bve.avoid.duplicates If set to FALSE multiple generatations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)
+#' @param bve.avoid.duplicates If set to FALSE multiple generations of the same individual can be used in the bve (only possible by using copy.individual to generate individuals)
 #' @param calculate.reliability Set TRUE to calculate a reliability when performing Direct-Mixed-Model BVE
-#' @param estimate.reliability Set TRUE to estimate the reliablity in the BVE by calculating the correlation between estimated and real breeding values
+#' @param estimate.reliability Set TRUE to estimate the reliability in the BVE by calculating the correlation between estimated and real breeding values
 #' @param bve.input.phenotype Select what to use in BVE (default: own phenotype ("own"), offspring phenotype ("off"), their average ("mean") or a weighted average ("weighted"))
 #' @param mas.bve If TRUE use marker assisted selection in the breeding value estimation
 #' @param mas.markers Vector containing markers to be used in marker assisted selection
@@ -193,24 +194,24 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.mean.between Select if you want to use the "bve", "bv", "pheno" or "bvepheno" to form the mean (default: "bvepheno" - if available bve, else pheno)
 #' @param bve.exclude.fixed.effects Vector of fixed effects to ignore in the BVE (default: NULL)
 #' @param bve.beta.hat.approx Set to FALSE to use the true underlying value for beta_hat for the fixed effect in the direct BVE model. rrBLUP, BGLR, sommer will always estimate beta_hat.
-#' @param bve.per.sample.sigma.e Set to FALSE to deactivate the use of a heritablity based on the number of observations generated per sample
+#' @param bve.per.sample.sigma.e Set to FALSE to deactivate the use of a heritability based on the number of observations generated per sample
 #' @param bve.p_i.list Vector of allele frequencies to be used when calculating the genomic relationship matrix (default: calculate them based on Z)
 #' @param bve.p_i.gen,bve.p_i.database,bve.p_i.cohorts Generations/cohorts/groups to use when manually calculating allele frequencies for genomic relationship matrix
 #' @param bve.p_i.exclude.nongenotyped Set to TRUE to exclude non-genotyped individuals when calculating allele frequencies for genomic relationship matrix standardization
 #' @param bve.use.all.copy Set to TRUE to use phenotypes and genotyped status from all copies of an individual instead of just the provided ones in the bve.gen/database/cohorts (default: FALSE)
 #' @param bve.pedigree.error Set to FALSE to ignore/correct for any pedigree errors
 #### Software for breeding value estimation
-#' @param mobps.bve If TRUE predict BVEs in direct estimation with assumed known heritablity (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)
+#' @param mobps.bve If TRUE predict BVEs in direct estimation with assumed known heritability (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)
 #' @param mixblup.bve Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)
 #' @param blupf90.bve Set to TRUE to activate breeding value estimation via BLUPF90 (requires blupf90 software!)
-#' @param mixblup.skip Set to TRUE to skip the actualy system call to MiXBLUP and only write the MiXBLUP files
-#' @param blupf90.skip Set to TRUE to skip the actualy system calls of blupf90 and only write the blupf90 input files
+#' @param mixblup.skip Set to TRUE to skip the actually system call to MiXBLUP and only write the MiXBLUP files
+#' @param blupf90.skip Set to TRUE to skip the actually system calls of blupf90 and only write the blupf90 input files
 #' @param mixblup.reliability Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)
 #' @param mixblup.jeremie Set to TRUE to use Jeremies suggested MiXBLUP settings
 #' @param emmreml.bve If TRUE use REML estimator from R-package EMMREML in breeding value estimation
 #' @param rrblup.bve If TRUE use REML estimator from R-package rrBLUP in breeding value estimation
 #' @param sommer.bve If TRUE use REML estimator from R-package sommer in breeding value estimation
-#' @param sommer.multi.bve Set TRUE to use a mulit-trait model in the R-package sommer for BVE
+#' @param sommer.multi.bve Set TRUE to use a multi-trait model in the R-package sommer for BVE
 #' @param BGLR.bve If TRUE use BGLR to perform breeding value estimation
 #' @param pseudo.bve If set to TRUE the breeding value estimation will be simulated with resulting accuracy pseudo.bve.accuracy (default: 1)
 #' @param pseudo.bve.accuracy The accuracy to be obtained in the "pseudo" - breeding value estimation
@@ -287,7 +288,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param estimate.u If TRUE estimate u in breeding value estimation (Y = Xb + Zu + e)
 #' @param fast.uhat Set to FALSE to  derive inverse of A in rrBLUP (only required when this becomes numerical unstable otherwise)
 #' @param gwas.u If TRUE estimate u via GWAS (relevant for gene editing)
-#' @param approx.residuals If FALSE calculate the variance for each marker separatly instead of using a set variance (doesnt change order - only p-values)
+#' @param approx.residuals If FALSE calculate the variance for each marker separatly instead of using a set variance (does not change order - only p-values)
 #' @param gwas.gen,gwas.cohorts,gwas.database Generations/cohorts/groups to consider in GWAS analysis
 #' @param gwas.group.standard If TRUE standardize phenotypes by group mean
 #' @param y.gwas.used What y value to use in GWAS study (Default: "pheno", alt: "bv", "bve")
@@ -325,7 +326,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param duplication.recombination Average number of recombinations per 1 length uit of duplication (default: 1)
 #' @param gen.architecture.m,gen.architecture.f Genetic architecture for male/female individuals (default: 0 - no transformation)
 #' @param add.architecture List with two vectors containing (A: length of chromosomes, B: position in cM of SNPs)
-#' @param intern.func Chose which function will be used for simulation of meosis (default: 0, alt: 1,2) - can be faster for specific cases
+#' @param compute.grandparent.contribution compute share of genome inherited from each grandparent based on recombination points (default: FALSE)
+#' @param intern.func Chose which function will be used for simulation of meiosis (default: 0, alt: 1,2) - can be faster for specific cases
 #### Advanced memory savings
 #' @param delete.haplotypes Generations for with haplotypes of founders can be deleted from population list for memory reduction (default: NULL)
 #' @param delete.recombi Generations for which recombination points can be deleted from the population list for memory reduction (default: NULL)
@@ -370,10 +372,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.bv.observation.gen,new.bv.observation.cohorts,new.bv.observation.database (OLD! use phenotyping.gen/cohorts/database) Vector of generation from which to generate additional phenotypes
 #' @param best1.from.group,best1.from.cohort (OLD!- use selection.m.database/cohorts) Groups of individuals to consider as First Parent / Father (also female individuals are possible)
 #' @param best2.from.group,best2.from.cohort (OLD!- use selection.f.database/cohorts) Groups of individuals to consider as Second Parent / Mother (also male individuals are possible)
-#' @param new.bv.observation (OLD! - use phenotyping) Quick acces to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
+#' @param new.bv.observation (OLD! - use phenotyping) Quick access to phenotyping for (all: "all", non-phenotyped: "non_obs", non-phenotyped male: "non_obs_m", non-phenotyped female: "non_obs_f")
 #' @param reduce.group (OLD! - use culling modules) Groups of individuals for reduce to a new size (by changing class to -1)
 #' @param reduce.group.selection (OLD! - use culling modules) Selection criteria for reduction of groups (cf. selection.m / selection.f - default: "random")
-#' @param new.bv.child (OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "mean" of both parents, "obs" - regular observation, "zero" - 0)
+#' @param new.bv.child (OLD! - use phenotyping.child) Starting phenotypes of newly generated individuals (default: "zero", alt: "mean" of both parents, "obs" - regular observation)
 #' @param computation.A (OLD! - use relationship.matrix) Method to calculate relationship matrix for the breeding value estimation (Default: "vanRaden", alt: "pedigree", "CE", "non_stand", "CE2", "CM")
 #' @param computation.A.ogc (OLD! use relationship.matrix.ogc) Method to calculate pedigree matrix in OGC (Default: "pedigree", alt: "vanRaden", "CE", "non_stand", "CE2", "CM")
 #' @param new.phenotype.correlation (OLD! - use new.residual.correlation!) Correlation of the simulated enviromental variance
@@ -390,10 +392,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param recalculate.manual.subset Maximum number of individuals to process at the same time (( genotypes are in memory ))
 #' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
 #' @param parallel.internal Internal parameter for the parallelization
-#' @param varg Experimental parameter for Tobias Niehoff (dont touch!)
+#' @param varg Experimental parameter for Tobias Niehoff (do not touch!)
 #' @param next.id Id to assign to first next individual generated
 #' @param gain.stats Set to FALSE to not compute genetic gains compared to previous generation (selection)
-#' @param copy.individual.use,copy.individual.use2 Use this to skip copying some entries from the internal storage ((minor speed up - this will be automized soon))
+#' @param copy.individual.use,copy.individual.use2 Use this to skip copying some entries from the internal storage ((minor speed up))
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- breeding.diploid(population, breeding.size=100, selection.size=c(25,25))
@@ -426,7 +428,7 @@ breeding.diploid <- function(population,
                              selection.index.gen = NULL,
                              selection.index.database = NULL,
                              selection.index.cohorts = NULL,
-                              selection.highest = c(TRUE,TRUE),
+                              selection.highest = TRUE,
                               ignore.best = 0,
                               best.selection.ratio.m = 1,
                               best.selection.ratio.f = NULL,
@@ -465,6 +467,7 @@ breeding.diploid <- function(population,
                               ogc.ub.sKin.increase = NULL,
                               ogc.lb.BV.increase = NULL,
                              ogc.c1 = NULL,
+                             ogc.isCandidate = NULL,
                              ogc.plots = TRUE,
                              ogc.weight = NULL,
                              ogc.freq = NULL,
@@ -729,8 +732,8 @@ breeding.diploid <- function(population,
                               y.gwas.used = "pheno",
                               gene.editing.offspring = FALSE,
                               gene.editing.best = FALSE,
-                              gene.editing.offspring.sex = c(TRUE,TRUE),
-                              gene.editing.best.sex = c(TRUE,TRUE),
+                              gene.editing.offspring.sex = TRUE,
+                              gene.editing.best.sex = TRUE,
                               nr.edits = 0,
 
                               #### Culling
@@ -742,7 +745,7 @@ breeding.diploid <- function(population,
                               culling.time = Inf,
                               culling.name = "Not_named",
                               culling.bv1 = 0,
-                              culling.share1 = 0,
+                              culling.share1 = NULL,
                               culling.bv2 = NULL,
                               culling.share2 = NULL,
                               culling.index = 0,
@@ -780,7 +783,7 @@ breeding.diploid <- function(population,
                               delete.same.origin = FALSE,
                               save.recombination.history = FALSE,
                               store.sparse = FALSE,
-                              storage.save=1.5,
+                              storage.save=1.05,
 
                               #### Tracking/Reporting of breeding actions & computing time
                               verbose=TRUE,
@@ -841,8 +844,9 @@ breeding.diploid <- function(population,
                               multiple.bve.scale.f = NULL,
 
                               #### Other
-                              use.recalculate.manual = FALSE,
+                              use.recalculate.manual = NULL,
                              recalculate.manual.subset = 5000,
+                             compute.grandparent.contribution = FALSE,
                               size.scaling = NULL,
                               parallel.internal = FALSE,
                               varg = FALSE,
@@ -852,6 +856,28 @@ breeding.diploid <- function(population,
                              copy.individual.use2 = NULL){
 
 
+
+  {
+    # can be deleted with version 1.13
+    if(length(population$info$recalculate.possible)==0){
+      population$info$recalculate.possible = FALSE
+    }
+    if(length(population$info$ever.dup)==0){
+      population$info$ever.dup = FALSE
+    }
+    if(length(population$info$ever.rt)==0){
+      population$info$ever.rt = FALSE
+    }
+  }
+
+
+
+  if(length(use.recalculate.manual)==0){
+    use.recalculate.manual = population$info$recalculate.possible
+  }
+  if(length(use.recalculate.manual)==0){
+    use.recalculate.manual = FALSE
+  }
 
   if(population$info$miraculix){
 
@@ -864,6 +890,16 @@ breeding.diploid <- function(population,
 
 
   }
+
+  if(duplication.rate > 0){
+    population$info$ever.dup = TRUE
+  }
+  if(intern.func == 3){
+    population$info$ever.rt = TRUE
+  }
+
+  dup_activ = population$info$ever.dup
+  rt_activ = population$info$ever.rt
 
   if(length(population$info$database.sex.mode)==0){
     population$info$database.sex.mode = FALSE
@@ -879,6 +915,25 @@ breeding.diploid <- function(population,
 
   if(length(next.id)==1){
     population$info$next.animal = next.id
+  }
+
+  if(length(selection.highest)==1){
+    selection.highest = rep(selection.highest, 2)
+  }
+
+  if(length(gene.editing.offspring.sex)==1){
+    gene.editing.offspring.sex = rep(gene.editing.offspring.sex, 2)
+  }
+
+  if(length(gene.editing.best.sex)==1){
+    gene.editing.best.sex = rep(gene.editing.best.sex, 2)
+  }
+
+
+  # ogc.mobps.tn + ogc.mobps.tobias are functions that can not be shared
+  if(FALSE){
+    ogc.mobps.tn = NULL
+    ogc.mobps.tobias = NULL
   }
 
   if(sum(pedigree.error) > 0 || sum(pedigree.unknown) > 0 || length(population$info$pedigree_error)==0){
@@ -1051,9 +1106,30 @@ breeding.diploid <- function(population,
           report.accuracy = FALSE
         }
 
-        if(use.recalculate.manual){
-          bv.ignore.traits = 1:population$info$bv.nr
+
+        if(length(new.bv.child)>0){
+          phenotyping.child <- new.bv.child
         }
+
+        if(length(phenotyping.child)==0){
+          if(copy.individual){
+            if(length(n.observation)>0 & sum(n.observation)>0){
+              phenotyping.child <- "addobs"
+            } else{
+              phenotyping.child <- "keep"
+            }
+
+          } else{
+            phenotyping.child <- "zero"
+          }
+
+        }
+
+        if(phenotyping.child != "zero"){
+          use.recalculate.manual = FALSE
+        }
+
+
 
         if(length(selection.criteria)>0){
           selection.criteria[selection.criteria=="ebv"] = "bve"
@@ -1516,12 +1592,15 @@ breeding.diploid <- function(population,
     }
 
 
-
-    if(length(pen.assignments)==0 && length(population$info$pen.effect.covariance)>0 && sum(abs(population$info$pen.effect.covariance))>0){
-      pen.assignments <- TRUE
-    } else{
-      pen.assignments <- FALSE
+    if(length(pen.assignments)==0){
+      if( (length(population$info$pen.effect.covariance)>0 && sum(abs(population$info$pen.effect.covariance))>0)){
+        pen.assignments <- TRUE
+      } else{
+        pen.assignments <- FALSE
+      }
     }
+
+
 
     if(length(pen.size)==0){
       pen.size <- population$info$pen.size
@@ -1560,6 +1639,8 @@ breeding.diploid <- function(population,
       population$info$one.sex.mode <- FALSE
     }
 
+
+
     if(export.relationship.matrix){
       bve <- TRUE
     }
@@ -1580,6 +1661,9 @@ breeding.diploid <- function(population,
       }
     }
 
+    if(length(bve.array)==0 && length(population$info$qtl_position)>0){
+      bve.array = "onlySNP"
+    }
 
     if(length(bve.array)>0){
       temp1 <- which(population$info$array.name == bve.array)
@@ -1590,6 +1674,8 @@ breeding.diploid <- function(population,
         stop("Input for bve.array can not be assigned! Check your input!")
       }
     }
+
+
 
     if((genotyped.array)!=1){
       temp1 <- which(population$info$array.name == genotyped.array)
@@ -1645,11 +1731,7 @@ breeding.diploid <- function(population,
     }
 
 
-    if(length(bv.ignore.traits)>0){
-      temp123 <- setdiff(population$info$bv.random.activ , bv.ignore.traits)
-    } else{
-      temp123 <- population$info$bv.random.activ
-    }
+
 
     {
 
@@ -1812,7 +1894,9 @@ breeding.diploid <- function(population,
         selection.m <- "function"
       }
     }
-    if(length(culling.share1) > 1 || culling.share1>0 || (length(culling.share2)>0 && culling.share2>0)){
+
+
+    if(length(culling.share1) > 1 || (length(culling.share1)==1 && culling.share1>0) || (length(culling.share2)>0 && culling.share2>0)){
       culling <- TRUE
     } else{
       culling <- FALSE
@@ -1820,22 +1904,27 @@ breeding.diploid <- function(population,
 
     culling.database <- get.database(population, gen=culling.gen, database=culling.database, cohorts=culling.cohorts)
 
-    if(length(culling.database)>0){
+    if(length(culling.database) > 0 && length(culling.share1)==0){
+
       culling = TRUE
 
-      if(length(culling.share1) ==1 && length(culling.share2)==0 && culling.share1 == 0){
+      culling.share1 = 1
 
-        culling.share1 = 1
-        if(verbose){
-          cat("No culling share provided. Cull all individuals in culling.gen/database/cohorts.\n")
-        }
-
+      if(verbose){
+        cat("No culling share provided. Cull all individuals in culling.gen/database/cohorts.\n")
       }
     }
 
-    if(length(new.bv.child)>0){
-      phenotyping.child <- new.bv.child
+    if(length(culling.database) > 0 && length(culling.share1)==1 && culling.share1 > 0){
+      culling = TRUE
     }
+
+    if(length(culling.share1)==0){
+      culling.share1 = 0
+    }
+
+
+
 
     if(length(computation.A)>0){
       relationship.matrix <- computation.A
@@ -1995,6 +2084,11 @@ breeding.diploid <- function(population,
     }
 
     selection.size.calc <- FALSE
+
+    if(length(population$info$one.sex.mode)>0 && population$info$one.sex.mode && length(selection.size)==1){
+      selection.size = c(selection.size, 0)
+    }
+
     if(length(selection.size)==1){
       selection.size <- rep(selection.size,2)
     }
@@ -2056,7 +2150,10 @@ breeding.diploid <- function(population,
         selection.f.database <- cbind(max(which(population$info$size[,2]>0)),2)
       } else{
         if(population$info$one.sex.mode){
-          if(verbose) cat("No individuals as second parent were provided! \n")
+          if(!(selection.size[1]>0 && selection.size[2]==0) && !(same.sex.activ && same.sex.sex == 0) && !(selfing.mating && selfing.sex == 0)){
+            if(verbose) cat("No individuals as second parent were provided! \n")
+
+          }
         } else{
           if(verbose) cat("No individuals for selection provided (female side). Non available.\n")
         }
@@ -2149,19 +2246,20 @@ breeding.diploid <- function(population,
     }
 
 
-    if(length(phenotyping.child)==0){
-      if(copy.individual){
-        if(length(n.observation)>0 & sum(n.observation)>0){
-          phenotyping.child <- "addobs"
-        } else{
-          phenotyping.child <- "keep"
-        }
-
-      } else{
-        phenotyping.child <- "zero"
-      }
-
+    if(copy.individual && use.recalculate.manual){
+      use.recalculate.manual = FALSE
     }
+
+    if(use.recalculate.manual){
+      bv.ignore.traits = 1:population$info$bv.nr
+    }
+
+    if(length(bv.ignore.traits)>0){
+      temp123 <- setdiff(population$info$bv.random.activ , bv.ignore.traits)
+    } else{
+      temp123 <- population$info$bv.random.activ
+    }
+
 
     if(length(n.observation)==0){
       if(copy.individual){
@@ -2309,12 +2407,23 @@ breeding.diploid <- function(population,
     }
 
     if(length(new.phenotype.correlation)>0){
+
       new.residual.correlation <- new.phenotype.correlation
     }
 
 
 
     if(length(new.residual.correlation)>0){
+
+      if(sum(new.residual.correlation==1) > ncol(new.residual.correlation)){
+
+        if (requireNamespace("Matrix", quietly = TRUE)) {
+          if(verbose) cat("Residual correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+          new.residual.correlation = as.matrix(Matrix::nearPD(new.residual.correlation)$mat)
+        }
+
+      }
+
       population$info$pheno.correlation <- t(chol(new.residual.correlation))
     }
     if(length(new.breeding.correlation)>0){
@@ -2549,36 +2658,40 @@ breeding.diploid <- function(population,
       if(verbose) cat("Derive genomic values of founders. \n")
 
 
-      for(index in 1:length(population$breeding)){
-        for(sex in 1:2){
-          nanimals <- length(population$breeding[[index]][[sex]])
-          if(nanimals >0){
-            for(nr.animal in 1:nanimals){
-              activ_bv <- population$info$bv.random.activ
-              if(length(population$info$bv.calculated.partly)>0){
-                activ_bv <- setdiff(activ_bv, population$info$bv.calculated.partly)
-              }
-              if(length(activ_bv)>0){
-                temp_out <- calculate.bv(population, index, sex, nr.animal,
-                                         activ_bv, import.position.calculation=import.position.calculation,
-                                         decodeOriginsU=decodeOriginsU,
-                                         store.effect.freq=store.effect.freq,
-                                         bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE,
-                                         bv.ignore.traits=bv.ignore.traits)
-                population$breeding[[index]][[6+sex]][activ_bv,nr.animal] <- temp_out[[1]]
-                population$breeding[[index]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0
-
-                if(length(temp123)>0){
-                  population$breeding[[index]][[sex]][[nr.animal]][[26]] <- temp123
+      if(use.recalculate.manual){
+        population = recalculate.manual(population, gen = 1:get.ngen(population))
+      } else{
+        for(index in 1:length(population$breeding)){
+          for(sex in 1:2){
+            nanimals <- length(population$breeding[[index]][[sex]])
+            if(nanimals >0){
+              for(nr.animal in 1:nanimals){
+                activ_bv <- population$info$bv.random.activ
+                if(length(population$info$bv.calculated.partly)>0){
+                  activ_bv <- setdiff(activ_bv, population$info$bv.calculated.partly)
                 }
+                if(length(activ_bv)>0){
+                  temp_out <- calculate.bv(population, index, sex, nr.animal,
+                                           activ_bv, import.position.calculation=import.position.calculation,
+                                           decodeOriginsU=decodeOriginsU,
+                                           store.effect.freq=store.effect.freq,
+                                           bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE,
+                                           bv.ignore.traits=bv.ignore.traits)
+                  population$breeding[[index]][[6+sex]][activ_bv,nr.animal] <- temp_out[[1]]
+                  population$breeding[[index]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0
 
-                if(store.effect.freq){
-                  if(length(population$info$store.effect.freq) < index || length(population$info$store.effect.freq[[index]])==0){
-                    colnames(temp_out[[2]]) <- c("Homo0", "Hetero", "Homo1")
-                    rownames(temp_out[[2]]) <- population$info$snp.name[population$info$effect.p]
-                    population$info$store.effect.freq[[index]] <- temp_out[[2]]
-                  } else{
-                    population$info$store.effect.freq[[index]] <- population$info$store.effect.freq[[index]] + temp_out[[2]]
+                  if(length(temp123)>0){
+                    population$breeding[[index]][[sex]][[nr.animal]][[26]] <- temp123
+                  }
+
+                  if(store.effect.freq){
+                    if(length(population$info$store.effect.freq) < index || length(population$info$store.effect.freq[[index]])==0){
+                      colnames(temp_out[[2]]) <- c("Homo0", "Hetero", "Homo1")
+                      rownames(temp_out[[2]]) <- population$info$snp.name[population$info$effect.p]
+                      population$info$store.effect.freq[[index]] <- temp_out[[2]]
+                    } else{
+                      population$info$store.effect.freq[[index]] <- population$info$store.effect.freq[[index]] + temp_out[[2]]
+                    }
                   }
                 }
               }
@@ -2586,6 +2699,7 @@ breeding.diploid <- function(population,
           }
         }
       }
+
       population$info$bv.calculated <- TRUE
     }
 
@@ -2682,10 +2796,11 @@ breeding.diploid <- function(population,
     }
 
 
-    # Compute sigma.e to fullfil a target heritablity in the reference population
+
+    # Compute sigma.e to fullfil a target heritability in the reference population
     if(length(heritability)>0){
 
-      if(length(population$info$last.sigma.e.database)==0 || !(nrow(population$info$last.sigma.e.database)==nrow(sigma.e.database) && prod(population$info$last.sigma.e.database==sigma.e.database)==1) || length(heritability)>0 && (length(population$info$last.sigma.e.heritability)==0 || prod(population$info$last.sigma.e.heritability==heritability)==0)){
+      if(length(population$info$last.sigma.e.database)==0 || !(nrow(population$info$last.sigma.e.database)==nrow(sigma.e.database) && prod(population$info$last.sigma.e.database==sigma.e.database)==1) || length(heritability)>0 && (length(population$info$last.sigma.e.heritability)==0 || prod(population$info$last.sigma.e.heritability==heritability)==0) || (length(population$info$last.sigma.e.redo)==1 && population$info$last.sigma.e.redo)){
         if(verbose) cat("Start deriving enviromental variance (according to given heritability).\n")
         if(length(heritability)!=population$info$bv.nr){
           heritability <- rep(heritability, length.out = population$info$bv.nr)
@@ -2847,6 +2962,8 @@ breeding.diploid <- function(population,
           }
 
         }
+
+        population$info$last.sigma.e.redo = FALSE
       } else{
         sigma.e <- population$info$last.sigma.e.value
       }
@@ -3851,7 +3968,7 @@ breeding.diploid <- function(population,
         if(remove.effect.position){
           to_remove <- c(to_remove, population$info$effect.p)
         }
-        if(length(bve.array)){
+        if(length(bve.array)>0){
           to_remove <- c(to_remove, which(!population$info$array.markers[[bve.array]]))
         }
 
@@ -3868,6 +3985,8 @@ breeding.diploid <- function(population,
 
           if(miraculix && exists("Z.code")){
             if (requireNamespace("miraculix", quietly = TRUE)) {
+
+              # not implemented in miraculix and would be lot of work for only little bit faster
               Z.code <- as.matrix(Z.code)
               Z.code <- miraculix::genomicmatrix(Z.code[-to_remove,])
               #Z.code <- miraculix::zeroNthGeno(Z.code, to_remove) ### currently not implemented in miraculix
@@ -4744,11 +4863,10 @@ breeding.diploid <- function(population,
                 to_enter = is.na(diag(res_cor))
                 diag(res_cor)[is.na(diag(res_cor))] = sigma.e2.rest[bve.keeps][is.na(diag(res_cor))]
 
-                for(index in which(to_enter & population$info$phenotypic.transform[bve.keeps])){
-                  res_cor[index,index] = res_cor[index,index] * (scaler[bve.keeps][index]^2)
-                }
                 if(sum(to_enter)>0){
-
+                  for(index in which(to_enter & population$info$phenotypic.transform[bve.keeps])){
+                    res_cor[index,index] = res_cor[index,index] * (scaler[bve.keeps][index]^2)
+                  }
                 }
 
                 res_cor[is.na(res_cor)] = 0
@@ -5228,7 +5346,7 @@ breeding.diploid <- function(population,
             if (requireNamespace("genio", quietly = TRUE)) {
 
               options("scipen"=999)
-              ped_tmp = get.pedigree(population, database = database_genotyped, id = TRUE, include.error = bve.pedigree.error)
+              ped_tmp = get.pedigree(population, database = database_genotyped, use.id = TRUE, include.error = bve.pedigree.error)
               sex_tmp = get.pedigree(population, database = database_genotyped, raw = TRUE, include.error = bve.pedigree.error)[,2]
 
               fam = data.frame(fam = rep(1, nrow(dense)), id = ped_tmp[,1], pat = ped_tmp[,2],
@@ -5239,22 +5357,35 @@ breeding.diploid <- function(population,
               bim = data.frame(chr = map_tmp[,1], id = map_tmp[,2], posg = map_tmp[,3],
                                pos = map_tmp[,4], ref = rep("A", nrow(map_tmp)), alt = rep("C", nrow(map_tmp)))
 
-              genio::write_plink(file=mixblup.path.genofile2, X = geno, fam = fam, bim = bim)
-            } else if(mixblup.jeremie){
+              if(miraculix){
+                if(nrow(geno) < nrow(bim)){
+                  bim = bim[-to_remove,]
+
+                }
+                genio::write_plink(file=mixblup.path.genofile2, X = geno, fam = fam, bim = bim)
+              } else{
+                if(nrow(Zt) < nrow(bim)){
+                  bim = bim[-to_remove,]
+
+                }
+                genio::write_plink(file=mixblup.path.genofile2, X = Zt, fam = fam, bim = bim)
+              }
+
+            } else{
 
               stop("Trying to write PLINK binary files without genio package. Please install!")
             }
           }
 
 
-          if(length(geno)>0){
+          if(exists("geno") && length(geno)>0){
             dim_geno = dim(geno)
             rm(geno)
           } else{
             dim_geno = c(0,0)
           }
 
-          if(length(dense)>0){
+          if(exists("dense") && length(dense)>0){
             dim_dense = dim(dense)
             rm(dense)
 
@@ -5493,7 +5624,8 @@ breeding.diploid <- function(population,
           }
 
           if(mixblup.restart){
-            if(sum(dir()=="Solunf") == 0){
+            # && sum(dir()=="startval_mixblup.new")==0  is never needed?
+            if(sum(dir()=="Solunf") == 0 && sum(dir()=="solutions_mixblup.dat")==0 ){
               warning("Files for mixblup option !RESTART not found! Not use !RESTART flag")
             } else{
               utils::write.table(file=mixblup.path.inputfile, "!RESTART", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
@@ -5536,7 +5668,12 @@ breeding.diploid <- function(population,
               sigma.g[bven] <- sqrt(stats::var(y_real2[,bven], na.rm = TRUE))
             }
 
-
+            if(population$info$phenotypic.transform[bven] &&  length(population$info$realized.sd ) > 0){
+              scaler =  population$info$scaler[bven]
+              sigma.g[bven] = sigma.g[bven] * scaler
+            } else{
+              scaler = NULL
+            }
 
           }
           if(estimate.pheno.var){
@@ -5652,6 +5789,15 @@ breeding.diploid <- function(population,
               t2 <- as.numeric(Sys.time())
 
               u_hat <- cbind(u_hat, test$u)
+
+              # Vu values when estimating SNP effects not corresponding to sigma g
+              if(verbose){
+                ## cat(paste0("Variance components in BVE: sigma_g^2 = ", round(test$Vu, digits=4), "; sigma_e^2 = ", round(test$Ve, digits=4), " ; h^2 = ", round(test$Vu / (test$Vu + test$Ve), digits=3), "\n"))
+              }
+
+              last_var_gen[bven] = (test$Vu)
+              last_var_res[bven] = (test$Ve)
+              last_var_h2[bven] = (test$Vu / (test$Vu + test$Ve))
             } else{
               if (requireNamespace("rrBLUP", quietly = TRUE)) {
                 test <- rrBLUP::mixed.solve(y[,bven], K = A, X = X_fixed1, method="REML", bounds = c(1e-9,1e9))
@@ -6644,30 +6790,31 @@ breeding.diploid <- function(population,
 
           }
         }
-        if(report.accuracy){
-          y_real_report <- NULL
-          y_hat_report <- NULL
-          for(index in 1:nrow(bve.insert.database)){
-            activ.base <- bve.insert.database[index,]
-            if(diff(activ.base[3:4])>=0){
-              y_real_report <- cbind(y_real_report, population$breeding[[activ.base[1]]][[activ.base[2]+6]][,activ.base[3]:activ.base[4], drop=FALSE], deparse.level = 0)
-              y_hat_report <- cbind(y_hat_report, population$breeding[[activ.base[1]]][[activ.base[2]+2]][,activ.base[3]:activ.base[4], drop=FALSE], deparse.level = 0)
-            }
+      }
+
+      if(report.accuracy){
+        y_real_report <- NULL
+        y_hat_report <- NULL
+        for(index in 1:nrow(bve.insert.database)){
+          activ.base <- bve.insert.database[index,]
+          if(diff(activ.base[3:4])>=0){
+            y_real_report <- cbind(y_real_report, population$breeding[[activ.base[1]]][[activ.base[2]+6]][,activ.base[3]:activ.base[4], drop=FALSE], deparse.level = 0)
+            y_hat_report <- cbind(y_hat_report, population$breeding[[activ.base[1]]][[activ.base[2]+2]][,activ.base[3]:activ.base[4], drop=FALSE], deparse.level = 0)
           }
-
-          y_hat_report[y_hat_report==0] <- NA
-          if(verbose) cat("Correlation between genetic values and BVE (parent-mean BVE):\n")
-          acc <- suppressWarnings(stats::cor(t(y_real_report), t(y_hat_report), use="pairwise.complete.obs"))
-
-
-          if(sum(is.na(acc))>0){
-            acc[is.na(acc)] <- 0
-          }
-          if(verbose) cat(diag(acc))
-          if(verbose) cat("\n")
         }
 
+        y_hat_report[y_hat_report==0] <- NA
+        if(verbose) cat("Correlation between genetic values and BVE (parent-mean BVE):\n")
+        acc <- suppressWarnings(stats::cor(t(y_real_report), t(y_hat_report), use="pairwise.complete.obs"))
+
+
+        if(sum(is.na(acc))>0){
+          acc[is.na(acc)] <- 0
+        }
+        if(verbose) cat(diag(acc))
+        if(verbose) cat("\n")
       }
+
     } else if(pseudo.bve){
 
       ## Simulate a breeding value estimation
@@ -6917,7 +7064,7 @@ breeding.diploid <- function(population,
             duplicates = (duplicated(ids[length(ids):1]))[length(ids):1]
 
             if(remove.duplicates && sum(duplicates)>0){
-              possible_animals = possible_animals[!duplicates,]
+              possible_animals = possible_animals[!duplicates,,drop = FALSE]
             }
 
 
@@ -7744,7 +7891,9 @@ breeding.diploid <- function(population,
         if(exists("ogc.mobps.tn") && is.function(get("ogc.mobps.tn"))){
           ## MoBPS-TN contains a propitiatory version of OGC that is not publically available
           contribution = ogc.mobps.tn(population = population, animallist = animallist,
-                                      ogc.c1 = ogc.c1, plots = ogc.plots,
+                                      ogc.c1 = ogc.c1,
+                                      ogc.isCandidate = ogc.isCandidate,
+                                      plots = ogc.plots,
                                       relationship.matrix.ogc = relationship.matrix.ogc,
                                       depth.pedigree.ogc = depth.pedigree.ogc,
                                       bve.pedigree.error = bve.pedigree.error,
@@ -8563,7 +8712,7 @@ breeding.diploid <- function(population,
           same.sex.activ <- TRUE
           same.sex.sex <- selfing.sex <- 1
         } else if(nrow(best[[2]])==0){
-          if(same.sex.activ==FALSE || same.sex.sex < 1){
+          if(same.sex.activ==FALSE || same.sex.sex > 0){
             if(verbose){
               if(!dh.mating && !selfing.mating) cat("No females / second parents (selection.f.gen/database/cohorts) provided for reproduction. Automatically allow male X male (first parent x first parent) matings.\n")
             }
@@ -8582,7 +8731,7 @@ breeding.diploid <- function(population,
         if(verbose) cat("Start generation of new individuals.\n")
       }
 
-      pb_temp <- round(breeding.size.total/100)
+      pb_temp <- round(breeding.size.total/25)
 
       if(generation.cores>1){
         generation.cores <- min(ceiling(breeding.size.total/100), generation.cores)
@@ -8639,7 +8788,14 @@ breeding.diploid <- function(population,
         } else{
           assigned <- 0
           while(assigned < breeding.size.total){
-            next_pen <- min(sample(pen.size[,1],1, prob = pen.size[,2]), breeding.size.total-assigned)
+
+            if(nrow(pen.size)==1){
+              next_pen <- min(pen.size[,1], breeding.size.total-assigned)
+
+            } else{
+              next_pen <- min(sample(pen.size[,1],1, prob = pen.size[,2]), breeding.size.total-assigned)
+
+            }
             if(pen.by.litter){
               assignment[1:next_pen + assigned] <- population$info$next.pen
             } else{
@@ -9574,7 +9730,9 @@ breeding.diploid <- function(population,
                                               gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
                                               gen.architecture=gen.architecture.m,
                                               decodeOriginsU=decodeOriginsU,
-                                              recombination.function = recombination.function)
+                                              recombination.function = recombination.function,
+                                              grandsib_activ = compute.grandparent.contribution, dup_activ = dup_activ, rt_activ = rt_activ
+              )
               child2 <- child1
             } else{
               child2 <- breeding.intern.activ(info.mother, mother, population,
@@ -9584,7 +9742,9 @@ breeding.diploid <- function(population,
                                               gene.editing=(gene.editing.offspring * gene.editing.offspring.sex[1]) , nr.edits= nr.edits,
                                               gen.architecture=gen.architecture.f,
                                               decodeOriginsU=decodeOriginsU,
-                                              recombination.function = recombination.function)
+                                              recombination.function = recombination.function,
+                                              grandsib_activ = compute.grandparent.contribution, dup_activ = dup_activ, rt_activ = rt_activ
+              )
               child1 <- child2
             }
           } else if(copy.individual){
@@ -9599,7 +9759,9 @@ breeding.diploid <- function(population,
                                             gene.editing=(gene.editing.offspring*gene.editing.offspring.sex[1]), nr.edits= nr.edits,
                                             gen.architecture=gen.architecture.m,
                                             decodeOriginsU=decodeOriginsU,
-                                            recombination.function = recombination.function)
+                                            recombination.function = recombination.function,
+                                            grandsib_activ = compute.grandparent.contribution, dup_activ = dup_activ, rt_activ = rt_activ
+            )
 
             child2 <- breeding.intern.activ(info.mother, mother, population,
                                             mutation.rate, remutation.rate, recombination.rate * rec2,
@@ -9608,7 +9770,9 @@ breeding.diploid <- function(population,
                                             gene.editing=(gene.editing.offspring * gene.editing.offspring.sex[1]) , nr.edits= nr.edits,
                                             gen.architecture=gen.architecture.f,
                                             decodeOriginsU=decodeOriginsU,
-                                            recombination.function = recombination.function)
+                                            recombination.function = recombination.function,
+                                            grandsib_activ = compute.grandparent.contribution, dup_activ = dup_activ, rt_activ = rt_activ
+            )
           }
 
 
@@ -9674,6 +9838,7 @@ breeding.diploid <- function(population,
             is.obs <- FALSE
           }
 
+          #stop()
           if(phenotyping.child=="obs"){
             child_temp[[15]] <- n.observation * is.obs
           } else if(phenotyping.child=="addobs"){
@@ -9710,7 +9875,8 @@ breeding.diploid <- function(population,
           }
 
 
-          if(population$info$pen.effect.active){
+          if(pen.assignments){
+          #if( population$info$pen.effect.active){
             child_temp[[30]] <- pen_effects_matrix[,which(assignment[animal.nr]==pen_uni)]
             child_temp[[32]] <- assignment[animal.nr]
           } else{
@@ -10154,12 +10320,25 @@ breeding.diploid <- function(population,
 
 
 
-          if(sum(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]]) > 0 && is.na(population$breeding[[current.gen+1]][[sex+42]][current.size[sex]])){
-            population$breeding[[current.gen+1]][[sex+42]][current.size[sex]] = time.point
-          }
+          if(copy.individual){
 
-          if(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] == 1 && is.na(population$breeding[[current.gen+1]][[sex+44]][current.size[sex]])){
-            population$breeding[[current.gen+1]][[sex+44]][current.size[sex]] = time.point
+            if(sum(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[15]]) > 0 && is.na(population$breeding[[current.gen+1]][[sex+42]][current.size[sex]])){
+              population$breeding[[current.gen+1]][[sex+42]][current.size[sex]] = time.point
+            }
+
+            if(population$breeding[[current.gen+1]][[sex]][[current.size[sex]]][[16]] == 1 && is.na(population$breeding[[current.gen+1]][[sex+44]][current.size[sex]])){
+              population$breeding[[current.gen+1]][[sex+44]][current.size[sex]] = time.point
+            }
+
+          } else{
+
+            if(sum(child_temp[[15]]) > 0){
+              population$breeding[[current.gen+1]][[sex+42]][current.size[sex]] = time.point
+            }
+
+            if(child_temp[[16]] == 1){
+              population$breeding[[current.gen+1]][[sex+44]][current.size[sex]] = time.point
+            }
           }
 
 
@@ -10170,7 +10349,7 @@ breeding.diploid <- function(population,
             tock2 <- as.numeric(Sys.time())
             bv_stuff <- bv_stuff+tock2-tock
           }
-          if(display.progress & verbose & generation.cores==1 & (breeding.size.total < 100 || animal.nr%%pb_temp==0)){
+          if(display.progress & verbose & generation.cores==1 & (breeding.size.total < 25 || animal.nr%%pb_temp==0)){
             utils::setTxtProgressBar(pb, animal.nr)
           }
 

@@ -2,9 +2,9 @@
 % Please edit documentation in R/matrix.posdef.R
 \name{matrix.posdef}
 \alias{matrix.posdef}
-\title{Projection positive definit}
+\title{Projection positive definite}
 \usage{
-matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 0.0000001)
+matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 1e-07)
 }
 \arguments{
 \item{A}{Input matrix to project}
@@ -16,8 +16,8 @@ matrix.posdef(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 0.0000001)
 \item{epsilon}{This factor is added to the diagonal to avoid numerical issues with semi-definit matrices}
 }
 \value{
-Positive definit matrix
+Positive definite matrix
 }
 \description{
-Function to project a matrix in the space of positive definit matrices
+Function to project a matrix in the space of positive definite matrices
 }

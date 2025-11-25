@@ -81,17 +81,18 @@ get.qtl.effects <- function(population){
 #' @param database Groups of individuals to consider
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
+#' @param id Individual IDs to search/collect in the database
 #' @examples
 #' data(ex_pop)
 #' effects <- get.qtl.variance(ex_pop)
 #' @return matrix with SNP / Chr / estimated effect variance
 #' @export
 
-get.qtl.variance <- function(population, gen=NULL, database=NULL, cohorts=NULL){
+get.qtl.variance <- function(population, gen=NULL, database=NULL, cohorts=NULL, id = NULL){
   if(length(gen)==0 && length(database)==0 && length(cohorts)==0){
     gen <- 1
   }
-  geno <- get.geno(population, gen=gen, database=database, cohorts=cohorts)
+  geno <- get.geno(population, gen=gen, database=database, cohorts=cohorts, id = id)
 
   marker_variance <- list()
   for(index in 1:(length(population$info$real.bv.add)-1)){

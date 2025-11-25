@@ -55,7 +55,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.real.bv If TRUE delete the simulated traits added before
 #' @param shuffle.traits Combine different traits into a joined trait
-#' @param shuffle.cor Target Correlation between shuffeled traits
+#' @param shuffle.cor Target Correlation between shuffled traits
 #' @param real.bv.add Single Marker effects
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
@@ -72,7 +72,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param template.chip Import genetic map and chip from a species ("cattle", "chicken", "pig")
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
 #' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
-#' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
+#' @param chr.nr Vector containing the associated chromosome for each marker (default: all on the same)
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
 #' @param snp.name Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)

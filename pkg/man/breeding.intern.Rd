@@ -20,7 +20,10 @@ breeding.intern(
   nr.edits = 0,
   gen.architecture = 0,
   decodeOriginsU = MoBPS::decodeOriginsR,
-  recombination.function = MoBPS::recombination.function.haldane
+  recombination.function = MoBPS::recombination.function.haldane,
+  dup_activ = FALSE,
+  rt_activ = FALSE,
+  grandsib_activ = FALSE
 )
 }
 \arguments{
@@ -55,6 +58,12 @@ breeding.intern(
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 
 \item{recombination.function}{Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())}
+
+\item{dup_activ}{Internal parameter to check if duplications have to be simulated}
+
+\item{rt_activ}{Internal parameter to check if RTs have to be simulated}
+
+\item{grandsib_activ}{Internal parameter to check if grandsibling contributions have to be calculated}
 }
 \value{
 Inherited parent gamete

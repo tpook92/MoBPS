@@ -55,7 +55,7 @@ founder.simulation(
 )
 }
 \arguments{
-\item{nindi}{number of inidividuals to generate in a random dataset}
+\item{nindi}{number of individuals to generate in a random dataset}
 
 \item{sex.quota}{Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")}
 
@@ -79,7 +79,7 @@ founder.simulation(
 
 \item{vcf}{Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)}
 
-\item{chr.nr}{Vector containing the assosiated chromosome for each marker (default: all on the same)}
+\item{chr.nr}{Vector containing the associated chromosome for each marker (default: all on the same)}
 
 \item{bp}{Vector containing the physical position (bp) for each marker (default: 1,2,3...)}
 

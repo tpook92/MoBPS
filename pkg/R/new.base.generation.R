@@ -28,7 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param base.cohorts Vector containing all cohorts to be used as new base generations
 #' @param delete.previous.gen Delete all data before base.gen (default: FALSE)
 #' @param delete.breeding.totals Delete all breeding totals before base.gen (default: FALSE)
-#' @param delete.bve.data Deleta all previous bve data (default: FALSE)
+#' @param delete.bve.data Delete all previous bve data (default: FALSE)
 #' @param add.chromosome.ends Add chromosome ends as recombination points
 #' @param founder.pool AAA
 #' @examples
@@ -68,14 +68,14 @@ new.base.generation <- function(population, base.gen=NULL,
   for(gen in base.gen){
     take <- which(population$info$origin.gen==gen)
     if(length(take)==1){
-      origin_code <- population$info$origin.gen[take]
+      origin_code <- take
     } else{
       if(population$info$miraculix){
         if(length(population$info$origin.gen)<64){
           population$info$origin.gen <- c(population$info$origin.gen, as.integer(gen))
           origin_code <- length(population$info$origin.gen)
         } else{
-          warning("To many origin generation!")
+          warning("Too many origin generation!")
           warning("Delete second lowest origin.gen")
           switch_gen <- sort(population$info$origin.gen, index.return=TRUE)$ix[2]
           population$info$origin.gen[switch_gen] <- as.integer(gen)

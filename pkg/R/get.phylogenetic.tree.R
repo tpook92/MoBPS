@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
+#' @param id Individual IDs to search/collect in the database
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param circular Set to TRUE to generate a fan/circular layout tree
@@ -39,11 +40,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.phylogenetic.tree <- function(population, path=NULL, database=NULL,
-                           gen=NULL, cohorts=NULL, method=NULL, use.id = TRUE,
+                           gen=NULL, cohorts=NULL, id = NULL, method=NULL, use.id = TRUE,
                            circular = FALSE){
 
   if (requireNamespace("NAM", quietly = TRUE)){
-    database <- get.database(population, gen, database, cohorts)
+    database <- get.database(population, gen, database, cohorts, id = id)
 
     GD <- t(get.geno(population, database = database, use.id = use.id))
 

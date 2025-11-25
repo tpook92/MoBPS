@@ -21,11 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive age point
 #'
-#' Function to devide age point for each individual (Same as time.point unless copy.individual is used for aging)
+#' Function to derive age point for each individual (Same as time.point unless copy.individual is used for aging)
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
 #' data(ex_pop)
@@ -33,9 +34,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Time point selected gen/database/cohorts-individuals are born
 #' @export
 
-get.age.point <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
+get.age.point <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- rep(0, n.animals)

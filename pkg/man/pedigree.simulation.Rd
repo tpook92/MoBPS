@@ -93,7 +93,7 @@ pedigree.simulation(
 
 \item{vcf}{Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)}
 
-\item{chr.nr}{Vector containing the assosiated chromosome for each marker (default: all on the same)}
+\item{chr.nr}{Vector containing the associated chromosome for each marker (default: all on the same)}
 
 \item{bp}{Vector containing the physical position (bp) for each marker (default: 1,2,3...)}
 
@@ -181,7 +181,7 @@ pedigree.simulation(
 
 \item{shuffle.traits}{Combine different traits into a joined trait}
 
-\item{shuffle.cor}{Target Correlation between shuffeled traits}
+\item{shuffle.cor}{Target Correlation between shuffled traits}
 
 \item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
 

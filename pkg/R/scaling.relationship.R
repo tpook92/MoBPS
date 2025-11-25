@@ -23,8 +23,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to scale relationship matricies
 #' @param A Population list
-#' @param Z AA
-#' @param p AA
+#' @param Z genotype matrix
+#' @param p allele frequency
 #' @return scaled genomic relationship matrix
 
 scaling.relationship = function(A, Z, p){

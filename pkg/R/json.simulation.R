@@ -32,7 +32,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @param miraculix.cores Number of cores used in miraculix applications (default: 1)
 #' @param skip.population Set to TRUE to not execute breeding actions (only cost/time estimation will be performed)
-#' @param miraculix.chol Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is actived
+#' @param miraculix.chol Set to FALSE to manually deactive the use of miraculix for any cholesky decompostion even though miraculix is active
 #' @param time.check Set to TRUE to automatically check simulation run-time before executing breeding actions
 #' @param time.max Maximum length of the simulation in seconds when time.check is active
 #' @param export.population Path were to export the population to (at state selected in export.gen/timepoint)
@@ -41,7 +41,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param export.cor Set TRUE to export correlation matrices
 #' @param fixed.generation.order Vector containing the order of cohorts to generate (Advanced // Testing Parameter!)
 #' @param generation.cores Number of cores used for the generation of new individuals (This will only be active when generating more than 500 individuals)
-#' @param manual.select.check Set to FALSE to not automatically remove cohorts from Manual select with they lead to an invalite breeding scheme
+#' @param manual.select.check Set to FALSE to not automatically remove cohorts from Manual select with they lead to an invalid breeding scheme
 #' @examples
 #' data(ex_json)
 #' \donttest{population <- json.simulation(total=ex_json)}
@@ -1897,66 +1897,12 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
           # Correct Scaling
           snp.before <- cumsum(c(0,population$info$snp))
 
+          active_sub <- subpopulation_info[1,1]
 
-          ## REASON?!
-          if(TRUE){
-            for(index in 1:n_traits){
-              if(length(population$info$real.bv.add[[index]])>0){
-                t <- population$info$real.bv.add[[index]]
-                take <- sort(t[,1]+ snp.before[t[,2]], index.return=TRUE)
-                t <- t[take$ix,,drop=FALSE]
-                take <- sort(t[,1]+ t[,2] * 10^10)
-                keep <- c(0,which(diff(take)!=0), length(take))
-                if(length(keep) <= nrow(t)){
-                  for(index2 in 2:(length(keep))){
-                    t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
-                  }
-                  population$info$real.bv.add[[index]] <- t[keep,]
-                }
-              }
-            }
-          }
+          standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
+          population = bv.standardization(population, mean.target = traitmean, var.target = as.numeric(trait_matrix[,4])^2,
+                                          cohorts = standard_cohort)
 
-
-          ## Variance Standardization
-          for(index in 1:n_traits){
-            new_var <- as.numeric(trait_matrix[index,4])^2
-
-            if(population$info$bv.calculated==FALSE){
-              population <- breeding.diploid(population, verbose=verbose)
-            }
-            active_sub <- subpopulation_info[1,1]
-            standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
-            var_test <- stats::var(get.bv(population, cohorts= standard_cohort)[index,])
-            test1 <- TRUE
-            if(length(population$info$real.bv.add[[index]])>0){
-              population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
-              test1 <- FALSE
-            }
-            if(length(population$info$real.bv.mult[[index]])>0){
-              population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
-              test1 <- FALSE
-            }
-            if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
-
-          }
-          population$info$bv.calculated <- FALSE
-
-          ## Mean Standardization
-          for(index in 1:n_traits){
-
-            if(population$info$bv.calculated==FALSE){
-              population <- breeding.diploid(population, verbose=verbose)
-            }
-            active_sub <- subpopulation_info[1,1]
-            standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
-            mean_test <- mean(get.bv(population, cohorts= standard_cohort)[index,])
-
-
-            population$info$base.bv[index] <- traitmean[index] + population$info$base.bv[index] - mean_test
-
-          }
-          population$info$bv.calculated <- FALSE
 
           ## Add Major QTL
           for(index in 1:n_traits){
@@ -2032,6 +1978,7 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
                       population$info$bv.calculated <- FALSE
                       if(subpop==1){
                         population <- breeding.diploid(population, verbose=verbose)
+
                         population$info$bv.calculated <- FALSE
                       }
                     }
@@ -2055,6 +2002,10 @@ json.simulation <- function(file=NULL, log=NULL, total=NULL, fast.mode=FALSE,
         population$breeding[[1]][[5]] <- mig_m
         population$breeding[[1]][[6]] <- mig_f
 
+      }
+
+      if(population$info$bv.calculated==FALSE){
+        population <- breeding.diploid(population, verbose=verbose)
       }
 
     }
