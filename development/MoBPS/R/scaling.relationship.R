@@ -31,7 +31,7 @@ scaling.relationship = function(A, Z, p){
   p1 = 4 * sum(p * p )
   if(sum(class(Z) == "genomicmatrix")>0){
     invisible(utils::capture.output(
-      p2 = 2 * miraculix::vectorGeno(p, Z),
+      {p2 <- 2 * miraculix::vectorGeno(p, Z)},
       type = "output"
     ))
 
