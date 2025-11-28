@@ -4750,9 +4750,24 @@ breeding.diploid <- function(population,
 
         use_beta = bv_ids %in% pi_ids
 
-        beta_hat <-  colMeans(y[use_beta,,drop = FALSE], na.rm=TRUE) # Rest faellt weg! (X' R^-1 X)^-1 X' R^-1 y
-        beta_hat_check <- colMeans(y_real[use_beta,,drop = FALSE], na.rm=TRUE)
-        beta_hat_var <- diag(stats::var(y[use_beta,,drop = FALSE], use = "pairwise.complete.obs"))
+        if(sum(use_beta) > 0){
+          beta_hat <-  colMeans(y[use_beta,,drop = FALSE], na.rm=TRUE) # Rest faellt weg! (X' R^-1 X)^-1 X' R^-1 y
+          beta_hat_check <- colMeans(y_real[use_beta,,drop = FALSE], na.rm=TRUE)
+          beta_hat_var <- diag(stats::var(y[use_beta,,drop = FALSE], use = "pairwise.complete.obs"))
+        } else{
+
+          if(!(rrblup.bve | sommer.bve | BGLR.bve)){
+            if(verbose){
+              cat("Estimation of fixed effects / intercepts requires bve.p_i - individuals to be part of the evaluation.\n Derive intercepts based on overall population average")
+            }
+            warning("Estimation of fixed effects / intercepts requires bve.p_i - individuals to be part of the evaluation.\n Derive intercepts based on overall population average")
+
+          }
+          beta_hat <-  colMeans(y, na.rm=TRUE) # Rest faellt weg! (X' R^-1 X)^-1 X' R^-1 y
+          beta_hat_check <- colMeans(y_real, na.rm=TRUE)
+          beta_hat_var <- diag(stats::var(y, use = "pairwise.complete.obs"))
+        }
+
 
       } else{
         beta_hat <-  colMeans(y, na.rm=TRUE) # Rest faellt weg! (X' R^-1 X)^-1 X' R^-1 y

@@ -1,7 +1,7 @@
 Package: MoBPS
 Type: Package
 Title: Modular Breeding Program Simulator
-Version: 1.13.5
+Version: 1.13.6
 Authors@R: c(
     person(given = "Torsten", family = "Pook", role = c("aut", "cre"),
            email = "torsten.pook@wur.nl", comment = c(ORCID = "0000-0001-7874-8500")),
