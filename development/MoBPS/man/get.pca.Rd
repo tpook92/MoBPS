@@ -10,6 +10,7 @@ get.pca(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   coloring = "group",
   components = c(1, 2),
   plot = TRUE,
@@ -28,6 +29,8 @@ get.pca(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{coloring}{Coloring by "group", "sex", "plain"}
 

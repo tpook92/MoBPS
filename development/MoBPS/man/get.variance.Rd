@@ -4,7 +4,13 @@
 \alias{get.variance}
 \title{Derive variances components (add/dom)}
 \usage{
-get.variance(population, gen = NULL, database = NULL, cohorts = NULL)
+get.variance(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  id = NULL
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.variance(population, gen = NULL, database = NULL, cohorts = NULL)
 \item{database}{Groups of individuals to consider for the export}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 }
 \value{
 Table with realized narrow/broad-sense heritability, sigma_g,a,d

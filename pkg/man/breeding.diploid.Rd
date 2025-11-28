@@ -171,6 +171,7 @@ breeding.diploid(
   sigma.e.gen = NULL,
   sigma.e.cohorts = NULL,
   sigma.e.database = NULL,
+  sigma.e.variance.correction = "none",
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
   phenotyping.trafo.parameter = NULL,
@@ -189,7 +190,7 @@ breeding.diploid(
   bve.insert.gen = NULL,
   bve.insert.cohorts = NULL,
   bve.insert.database = NULL,
-  variance.correction = "none",
+  variance.correction.bve = "none",
   bve.class = NULL,
   sigma.g = NULL,
   sigma.g.gen = NULL,
@@ -212,13 +213,16 @@ breeding.diploid(
   bve.grandparent.mean = FALSE,
   bve.mean.between = "bvepheno",
   bve.exclude.fixed.effects = NULL,
-  bve.beta.hat.approx = TRUE,
+  bve.beta.hat.approx = FALSE,
   bve.per.sample.sigma.e = TRUE,
   bve.p_i.list = NULL,
   bve.p_i.gen = NULL,
   bve.p_i.database = NULL,
   bve.p_i.cohorts = NULL,
   bve.p_i.exclude.nongenotyped = FALSE,
+  bve.varcomp.gen = NULL,
+  bve.varcomp.database = NULL,
+  bve.varcomp.cohorts = NULL,
   bve.use.all.copy = FALSE,
   bve.pedigree.error = TRUE,
   mobps.bve = TRUE,
@@ -691,6 +695,8 @@ breeding.diploid(
 
 \item{sigma.e.gen, sigma.e.cohorts, sigma.e.database}{Generations/cohorts/groups to consider when estimating sigma.e when using heritability}
 
+\item{sigma.e.variance.correction}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
+
 \item{new.residual.correlation}{Correlation of the simulated residual variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (only impacts non-QTL based traits. Needs to be fit in creating.diploid/trait for QTL-based traits)}
@@ -719,7 +725,7 @@ breeding.diploid(
 
 \item{bve.insert.gen, bve.insert.cohorts, bve.insert.database}{Generations/Groups/Cohorts of individuals to compute breeding values for (default: all groups in bve.database)}
 
-\item{variance.correction}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
+\item{variance.correction.bve}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
 
 \item{bve.class}{Consider only individuals of those class classes in breeding value estimation (default: NULL - use all)}
 
@@ -765,7 +771,7 @@ breeding.diploid(
 
 \item{bve.per.sample.sigma.e}{Set to FALSE to deactivate the use of a heritability based on the number of observations generated per sample}
 
-\item{bve.p_i.list}{Vector of allele frequencies to be used when calculating the genomic relationship matrix (default: calculate them based on Z)}
+\item{bve.p_i.list}{Vector of allele frequencies to be used when calculating the genomic relationship matrix (default: calculate them based on Z). This is also used in OGC.}
 
 \item{bve.p_i.gen, bve.p_i.database, bve.p_i.cohorts}{Generations/cohorts/groups to use when manually calculating allele frequencies for genomic relationship matrix}
 

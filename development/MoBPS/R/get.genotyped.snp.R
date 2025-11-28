@@ -21,11 +21,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Derive which markers are genotyped of selected individuals
 #'
-#' Function to devide which markers are genotyped for the selected individuals
+#' Function to derive which markers are genotyped for the selected individuals
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param export.alleles If TRUE export underlying alleles instead of just 012
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param array Use only markers available on the array
@@ -35,10 +36,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Binary Coded is/isnot genotyped level for in gen/database/cohorts selected individuals
 #' @export
 
-get.genotyped.snp <- function(population, database=NULL, gen=NULL, cohorts=NULL, export.alleles=FALSE, use.id=TRUE,
+get.genotyped.snp <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
+                              export.alleles=FALSE, use.id=TRUE,
                               array = NULL){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   if(length(array)>0){
     temp1 <- which(population$info$array.name == array)

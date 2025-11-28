@@ -9,7 +9,8 @@ insert.bv(
   bvs,
   na.override = FALSE,
   count = 1,
-  count.only.increase = TRUE
+  count.only.increase = TRUE,
+  all.copys = TRUE
 )
 }
 \arguments{

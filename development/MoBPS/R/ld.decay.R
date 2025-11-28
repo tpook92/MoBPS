@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Generate LD pot
 #' @param population Population list
 #' @param genotype.dataset Genotype dataset (default: NULL - just to save computation time when get.geno was already run)
-#' @param dist Manuel input of marker distances to analyse
+#' @param dist Manuel input of marker distances to analyze
 #' @param step Stepsize to calculate LD
 #' @param max Maximum distance between markers to consider for LD-plot
 #' @param max.cases Maximum number of marker pairs to consider of each distance (default: 100; randomly sampled!)

@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param sort Set to FALSE to not sort markers according to position on the genome
 #' @examples
 #' data(ex_pop)
@@ -33,13 +34,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Matrix with allele frequencies in the QTLs
 #' @export
 
-get.effect.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL, sort=FALSE){
+get.effect.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, sort=FALSE){
 
   order <- population$info$effect.p
   if(sort){
     order <- sort(order)
   }
-  genos <- get.geno(population, gen = gen, database = database, cohorts = cohorts)[order,]
+  genos <- get.geno(population, gen = gen, database = database, cohorts = cohorts, id = id)[order,]
 
 
   effects <- cbind(rowSums(genos==0), rowSums(genos==1), rowSums(genos==2))

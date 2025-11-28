@@ -1659,3 +1659,13 @@ however non of the content-related changes should be critical for CRAN submissio
 We decided to not wait till miraculix reappears on CRAN since the submission process of the associated packages
 RandomFieldsUtils and RandomFields will most likely still take quite a while on those packages are only
 enhancing MoBPS but not manditory in any way.
+
+## CRAN Notes 3
+This is a resubmission of the MoBPS package. 
+Incoming check will report a NOTE as I changed affiliation and primary mail since last release.
+This new version fixes the issue brought up on August 29 by removing the link to our web-interface.
+In addition, various additional updates to the functionality of the package have been done.
+An exact list of all changes can be found at https://github.com/tpook92/MoBPS/commits/master.
+
+Within our package, we include calls to external commercial software via system().
+All these are enhancements of the software but not manditory, hence no SystemRequirements was set.

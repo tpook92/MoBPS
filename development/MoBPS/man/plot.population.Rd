@@ -20,7 +20,7 @@
 \item{...}{remaining stuff}
 }
 \value{
-Summary of the population list including number of individuals, genone length and trait overview
+Summary of the population list including number of individuals, genome length and trait overview
 }
 \description{
 Basic plot of the population list

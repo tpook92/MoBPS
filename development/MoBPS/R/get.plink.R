@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
@@ -44,12 +45,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return binary plink-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosome="all",
+get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL, chromosome="all",
                       non.genotyped.as.missing=FALSE, fam.id = FALSE, type = 0, use.id = TRUE,
                       bve.pedigree.error = TRUE){
 
-  if (requireNamespace("miraculix", quietly = TRUE)) {
-    database = get.database(population, gen = gen, database = database, cohorts = cohorts)
+  if (requireNamespace("miraculix", quietly = TRUE) & requireNamespace("genio", quietly = TRUE)) {
+    database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
     nindi = get.nindi(population, database = database)
     if(type ==0){
       geno <- get.geno(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id)
@@ -120,7 +121,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
     genio::write_plink(file=path, X = geno, fam = fam, bim = bim)
 
   } else{
-    stop("Use of get.plink() requires the R-package genio! Please install before use.")
+    print("Use of get.plink() requires the R-package genio and miraculix! Please install before use.")
   }
 
 }

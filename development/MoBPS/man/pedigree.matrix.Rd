@@ -12,7 +12,7 @@ pedigree.matrix(
   depth.pedigree = 7,
   start.kinship = NULL,
   elements = NULL,
-  storage.save = 1.5,
+  storage.save = 1.05,
   verbose = TRUE
 )
 }

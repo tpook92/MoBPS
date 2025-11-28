@@ -45,7 +45,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
                                start.kinship=NULL,
                                elements = NULL,
                                mult = 1,
-                               storage.save=1.5,
+                               storage.save=1.05,
                                verbose=TRUE,
                         include.error = TRUE,
                         elements.copy = FALSE){
@@ -234,7 +234,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
   ## Potential export individual id in the pedigree - more efficient for high number of copies!
   #info.indi <- get.pedigree(population, database=pedigree.database)
-  info.indi_id <- get.pedigree(population, database=pedigree.database, id=TRUE, include.error = include.error)
+  info.indi_id <- get.pedigree(population, database=pedigree.database, use.id=TRUE, include.error = include.error)
 
   #info.indi <-  info.indi[!duplicated(info.indi_id[,1]),,drop = FALSE]
   info.indi_id <-  info.indi_id[!duplicated(info.indi_id[,1]),,drop = FALSE]
@@ -327,7 +327,7 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 pedigree.matrix <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                         start.kinship=NULL,
                         elements = NULL,
-                        storage.save=1.5,
+                        storage.save=1.05,
                         verbose=TRUE){
 
   A <- kinship.exp(population = population, gen=gen, database=database,

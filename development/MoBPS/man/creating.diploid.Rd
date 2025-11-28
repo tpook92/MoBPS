@@ -8,6 +8,7 @@ creating.diploid(
   population = NULL,
   nsnp = 0,
   nindi = 0,
+  nqtl = 0,
   name.cohort = NULL,
   generation = 1,
   founder.pool = 1,
@@ -129,6 +130,8 @@ creating.diploid(
 
 \item{nindi}{Number of individuals to generate (you can also provide number males / females in a vector)}
 
+\item{nqtl}{Number of QTLs to generate (this will be a subset of the generated SNPs; default: NULL; all SNPs are potential QTLs)}
+
 \item{name.cohort}{Name of the newly added cohort}
 
 \item{generation}{Generation to which newly individuals are added (default: 1)}
@@ -205,7 +208,7 @@ creating.diploid(
 
 \item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
-\item{trait.cor.include}{Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)}
+\item{trait.cor.include}{Vector of traits to be included in the modelling of correlated traits (default: all - needs to match with trait.cor)}
 
 \item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
@@ -267,7 +270,7 @@ creating.diploid(
 
 \item{base.bv}{Intercept of underlying true genomic values (excluding all QTL effects, default: 100)}
 
-\item{dominant.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
+\item{dominant.only.positive}{Set to TRUE to always assign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
 
 \item{exclude.snps}{Vector contain markers on which no QTL effects are placed}
 
@@ -317,7 +320,7 @@ creating.diploid(
 
 \item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
 
-\item{miraculix.dataset}{Set FALSE to deactive miraculix package for dataset generation}
+\item{miraculix.dataset}{Set FALSE to deactivate miraculix package for dataset generation}
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
 
@@ -325,15 +328,15 @@ creating.diploid(
 
 \item{store.comp.times}{Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating}
 
-\item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
+\item{skip.rest}{Internal variable needed when adding multiple chromosomes jointly}
 
 \item{enter.bv}{Internal parameter}
 
-\item{internal}{Dont touch!}
+\item{internal}{Do not touch!}
 
-\item{internal.geno}{Dont touch!}
+\item{internal.geno}{Do not touch!}
 
-\item{internal.dataset}{Dont touch!}
+\item{internal.dataset}{Do not touch!}
 
 \item{nbits}{Bits available in MoBPS-bit-storing}
 

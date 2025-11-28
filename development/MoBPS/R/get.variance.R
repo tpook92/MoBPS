@@ -26,15 +26,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @return Table with realized narrow/broad-sense heritability, sigma_g,a,d
 #' @examples
 #' data(ex_pop)
 #' get.variance(ex_pop, gen = 2)
 #' @export
 #'
-get.variance = function(population, gen = NULL, database = NULL, cohorts = NULL){
+get.variance = function(population, gen = NULL, database = NULL, cohorts = NULL, id = NULL){
 
-  database = get.database(population, gen, database, cohorts)
+  database = get.database(population, gen, database, cohorts, id = id)
 
   bv = get.bv(population, database = database)
   pheno = get.pheno(population, database = database)

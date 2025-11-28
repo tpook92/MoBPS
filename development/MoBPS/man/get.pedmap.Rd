@@ -10,6 +10,7 @@ get.pedmap(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   non.genotyped.as.missing = FALSE,
   use.id = TRUE
 )
@@ -24,6 +25,8 @@ get.pedmap(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{non.genotyped.as.missing}{Set to TRUE to replaced non-genotyped entries with "./."}
 

@@ -4,7 +4,7 @@
 \alias{get.maf}
 \title{Calculate minor allele frequencies}
 \usage{
-get.maf(population, database = NULL, gen = NULL, cohorts = NULL)
+get.maf(population, database = NULL, gen = NULL, cohorts = NULL, id = NULL)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +14,8 @@ get.maf(population, database = NULL, gen = NULL, cohorts = NULL)
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 }
 \value{
 Allele frequency of the minor allele

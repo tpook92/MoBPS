@@ -29,7 +29,7 @@ new.base.generation(
 
 \item{delete.breeding.totals}{Delete all breeding totals before base.gen (default: FALSE)}
 
-\item{delete.bve.data}{Deleta all previous bve data (default: FALSE)}
+\item{delete.bve.data}{Delete all previous bve data (default: FALSE)}
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
 

@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param chromosome Limit the genotype output to a selected chromosome (default: "all")
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
@@ -41,11 +42,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return VCF-file for in gen/database/cohorts selected individuals
 #' @export
 
-get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, chromosome="all",
+get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
+                    chromosome="all",
                     non.genotyped.as.missing=FALSE, use.id = FALSE,
                     file.append = FALSE){
 
-  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, chromosome=chromosome, export.alleles=FALSE)
+  haplo <- get.haplo(population, database=database, gen=gen, cohorts=cohorts, id = id, chromosome=chromosome, export.alleles=FALSE)
   # haplo <- get.haplo(population, gen=1)
   if(length(path)==0){
     path <- "population.vcf"
@@ -86,7 +88,7 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   vcfgeno <- matrix(paste0(haplo[,(1:(ncol(haplo)/2))*2-1], "|", haplo[,(1:(ncol(haplo)/2))*2]), ncol=ncol(haplo)/2)
 
   if(non.genotyped.as.missing){
-    is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts)
+    is_genotyped <- get.genotyped.snp(population, gen=gen, database = database, cohorts=cohorts, id = id)
 
     if(sum(!is_genotyped)>0){
       vcfgeno[!is_genotyped] <- "./."
@@ -103,7 +105,7 @@ get.vcf <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL
   vcfgenofull <- cbind(chr.nr, as.numeric(bp), snpname, ref, alt, ".", "PASS", ".", "GT", vcfgeno)
 
   if(!file.append){
-    vcfgenofull <- rbind(c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", get.pedigree(population, database=database, gen=gen, cohorts = cohorts, id=use.id)[,1]),vcfgenofull)
+    vcfgenofull <- rbind(c("#CHROM", "POS", "ID", "REF", "ALT", "QUAL", "FILTER", "INFO", "FORMAT", get.pedigree(population, database=database, gen=gen, cohorts = cohorts, id = id, use.id=use.id)[,1]),vcfgenofull)
   }
 
   headerfile <- rbind(

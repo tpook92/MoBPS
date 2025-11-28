@@ -59,7 +59,7 @@ creating.trait(
   remove.invalid.qtl = TRUE,
   randomSeed = NULL,
   verbose = TRUE,
-  use.recalculate.manual = FALSE,
+  use.recalculate.manual = NULL,
   new.phenotype.correlation = NULL,
   shuffle.traits = NULL,
   shuffle.cor = NULL,
@@ -79,7 +79,7 @@ creating.trait(
 
 \item{trait.cor}{Target correlation between QTL-based traits (underlying true genomic values)}
 
-\item{trait.cor.include}{Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)}
+\item{trait.cor.include}{Vector of traits to be included in the modelling of correlated traits (default: all - needs to match with trait.cor)}
 
 \item{n.additive}{Number of additive QTL with effect size drawn from a gaussian distribution}
 
@@ -137,7 +137,7 @@ creating.trait(
 
 \item{gxe.combine}{Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)}
 
-\item{dominant.only.positive}{Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
+\item{dominant.only.positive}{Set to TRUE to always assign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE}
 
 \item{exclude.snps}{Marker were no QTL are simulated on}
 

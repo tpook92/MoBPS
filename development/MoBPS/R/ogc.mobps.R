@@ -109,6 +109,11 @@ ogc.mobps = function(population, animallist,
         Zt[,index] <- colSums(computing.snps(population, animallist[index,1], animallist[index,2], animallist[index,3], import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE))
       }
     }
+
+    animal_ids = numeric(nrow(animallist))
+    for(index in 1:nrow(animallist)){
+      animal_ids[index] = population$breeding[[animallist[index,1]]][[animallist[index,2] + 14]][animallist[index,1]]
+    }
   }
 
   # Verwandtschaftsmatrix:
@@ -174,11 +179,21 @@ ogc.mobps = function(population, animallist,
     A <- crossprod(Zt) / nrow(Zt)
   }
 
-  id_A = numeric(nrow(A))
-  for(index in 1:nrow(A)){
-    id_A[index] = get.id(population, database = animallist[index,c(1,2,3,3), drop = FALSE])
+
+  if(relationship.matrix.ogc != "kinship" || relationship.matrix.ogc != "pedigree" ){
+    colnames(A) = rownames(A) = animal_ids
+  } else{
+
+    # order is already correct when not using pedigree-matrix
+
+    id_A = numeric(nrow(A))
+    for(index in 1:nrow(A)){
+      id_A[index] = get.id(population, database = animallist[index,c(1,2,3,3), drop = FALSE])
+    }
+    A = A[as.character(id_A), as.character(id_A)]
+
   }
-  A = A[as.character(id_A), as.character(id_A)]
+
 
 
   Indiv <- paste0("Indi", 1:length(BV))

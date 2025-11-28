@@ -30,7 +30,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 scaling.relationship = function(A, Z, p){
   p1 = 4 * sum(p * p )
   if(sum(class(Z) == "genomicmatrix")>0){
-    p2 = 2 * miraculix::vectorGeno(p, Z)
+    invisible(utils::capture.output(
+      p2 = 2 * miraculix::vectorGeno(p, Z),
+      type = "output"
+    ))
+
   } else{
     p2 = 2 * colSums(Z * p)
   }

@@ -9,6 +9,7 @@ get.effect.freq(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   sort = FALSE
 )
 }
@@ -20,6 +21,8 @@ get.effect.freq(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{sort}{Set to FALSE to not sort markers according to position on the genome}
 }

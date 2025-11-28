@@ -311,10 +311,10 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   #removed
   if(length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0){
 
-    database = get.database(population, database, per.individual = TRUE)
+    database = get.database(population, database= database, per.individual = TRUE)
 
     if(length(genotyped)>0){
-      geno_type = get.genotyped(population, database = database) == genotyped
+      geno_typed = get.genotyped(population, database = database) == genotyped
 
     } else{
       geno_typed = rep(TRUE, nrow(database))

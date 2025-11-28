@@ -26,7 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.gen Number of generations to simulate (default: 100)
 #' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
 #' @param nsnp number of markers to generate in a random dataset
-#' @param nindi number of inidividuals to generate in a random dataset
+#' @param nindi number of individuals to generate in a random dataset
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
 #' @param nfinal Number of final individuals to include (default: nindi)
 #' @param sex.quota.final Share of female individuals in the final generation
@@ -50,7 +50,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param position.scaling Manual scaling of snp.position
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
 #' @param vcf.maxsnp Maximum number of SNPs to include in the genotype file (default: Inf)
-#' @param chr.nr Vector containing the assosiated chromosome for each marker (default: all on the same)
+#' @param chr.nr Vector containing the associated chromosome for each marker (default: all on the same)
 #' @param bp Vector containing the physical position (bp) for each marker (default: 1,2,3...)
 #' @param bpcm.conversion Convert physical position (bp) into a cM position (default: 0 - not done)
 #' @param snp.name Vector containing the name of each marker (default ChrXSNPY - XY chosen accordingly)
@@ -196,7 +196,6 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
       graphics::par(oldpar)
     },
     error = function(e) {}))
-    #on.exit(graphics::par(oldpar))
     graphics::par(mfrow=c(1, plot.ld + plot.allele.freq ))
   }
 

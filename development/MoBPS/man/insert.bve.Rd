@@ -10,7 +10,8 @@ insert.bve(
   type = "bve",
   na.override = FALSE,
   count = 1,
-  count.only.increase = TRUE
+  count.only.increase = TRUE,
+  all.copys = TRUE
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ Function to manually enter estimated breeding values
 }
 \examples{
 data(ex_pop)
-bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
+bv <- get.bv(ex_pop, gen=2)
 new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 ex_pop <- insert.bve(ex_pop, bves=new.bve)
 }

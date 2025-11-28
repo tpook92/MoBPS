@@ -26,15 +26,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @examples
 #' data(ex_pop)
 #' get.allele.freq(ex_pop, gen = 1)
 #' @return Allele frequency of the alternative allele
 #' @export
 
-get.allele.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL){
+get.allele.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL){
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   Z = get.geno(population, database = database)
 

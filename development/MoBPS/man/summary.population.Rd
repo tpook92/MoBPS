@@ -12,7 +12,7 @@
 \item{...}{additional arguments affecting the summary produced}
 }
 \value{
-Summary of the population list including number of individuals, genone length and trait overview
+Summary of the population list including number of individuals, genome length and trait overview
 }
 \description{
 Summary of the population list

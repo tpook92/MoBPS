@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names
 #' @param keep.order To not change order of individuals when ids are provided (default: TRUE)
 #' @examples
@@ -34,9 +35,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Individual ID for in gen/database/cohorts selected individuals
 #' @export
 
-get.cohorts.individual <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE, keep.order = FALSE){
+get.cohorts.individual <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, keep.order = FALSE){
 
-  database <- get.database(population, gen, database, cohorts, keep.order = keep.order, per.individual = TRUE)
+  database <- get.database(population, gen, database, cohorts, id = id, keep.order = keep.order, per.individual = TRUE)
 
   cohorts_list = get.cohorts(population, extended = TRUE)[,c(2,3,4,6,7)]
   storage.mode(cohorts_list) = "numeric"

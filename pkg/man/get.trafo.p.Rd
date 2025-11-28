@@ -30,15 +30,12 @@ get.trafo.p(
 \item{include}{Which observations to include in the calculation (default: NULL (all))}
 }
 \value{
-Estimated breeding value of in gen/database/cohorts selected individuals
+Parameter input used in the transformation function
 }
 \description{
-Function to export parametrization of the fixed effects
+Function to export parametrization of the fixed effects in transformation function
 }
 \examples{
 data(ex_pop)
-population <- add.fixed.effects(ex_pop, fixed.effects = cbind(1,5))
-population <- breeding.diploid(population, heritability = 0.3,
-fixed.effects.p = rbind(c(1,0), c(0,1)), phenotyping.gen=2)
-get.fixed.effects.p(population, gen=2)
+get.trafo.p(ex_pop, gen = 2)
 }

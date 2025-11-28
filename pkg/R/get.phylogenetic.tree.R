@@ -89,10 +89,10 @@ get.phylogenetic.tree <- function(population, path=NULL, database=NULL,
 
 
     } else{
-      stop("Generation of phylogenetic trees requires the phylogram R-package!")
+      print("Generation of phylogenetic trees requires the phylogram R-package!")
     }
   } else{
-    stop("Generation of phylogenetic trees requires the NAM R-package!")
+    print("Generation of phylogenetic trees requires the NAM R-package!")
   }
 
 }

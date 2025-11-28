@@ -14,7 +14,7 @@ if(requireNamespace("miraculix", quietly = TRUE)){
 
 ### add parameter options for Cloning, Selfing, DH-Production
 total=ex_json
-total <- jsonlite::read_json(path="C:/Users/pook001/Downloads/Simple Sheep.json")
+total <- jsonlite::read_json(path="C:/Users/pook001/OneDrive - Wageningen University & Research/MoBPS_Workshop_WIAS_2025/Task2/Simple Sheep Advanced_baseline.json")
 total <- jsonlite::read_json(path="HyLine FT.json")
 population = json.simulation("HyLine FT.json", fast.mode = FALSE,
                              verbose =T, size.scaling = 0.01)
@@ -29,7 +29,7 @@ population = json.simulation("C:/Users/pook001/Downloads/HyLine FT.json", fast.m
 
 fast.mode <- FALSE
 rep.max <- 1
-size.scaling <- 0.1
+size.scaling <- 1
 beta.shape1 <- 1
 beta.shape2 <- 1
 progress.bars <- FALSE
@@ -655,9 +655,9 @@ fixed.generation.order <- NULL
     }
 
     if(export.cor){
-      
+
       return(list(cor_gen, cor_pheno))
-      
+
     }
 
     # Correct nodes are Founders
@@ -1837,66 +1837,12 @@ fixed.generation.order <- NULL
         # Correct Scaling
         snp.before <- cumsum(c(0,population$info$snp))
 
+        active_sub <- subpopulation_info[1,1]
 
-        ## REASON?!
-        if(TRUE){
-          for(index in 1:n_traits){
-            if(length(population$info$real.bv.add[[index]])>0){
-              t <- population$info$real.bv.add[[index]]
-              take <- sort(t[,1]+ snp.before[t[,2]], index.return=TRUE)
-              t <- t[take$ix,,drop=FALSE]
-              take <- sort(t[,1]+ t[,2] * 10^10)
-              keep <- c(0,which(diff(take)!=0), length(take))
-              if(length(keep) <= nrow(t)){
-                for(index2 in 2:(length(keep))){
-                  t[keep[index2],3:5] <- colSums(t[(keep[index2-1]+1):keep[index2],3:5, drop=FALSE])
-                }
-                population$info$real.bv.add[[index]] <- t[keep,]
-              }
-            }
-          }
-        }
+        standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
+        population = bv.standardization(population, mean.target = traitmean, var.target = as.numeric(trait_matrix[,4])^2,
+                           cohorts = standard_cohort)
 
-
-        ## Variance Standardization
-        for(index in 1:n_traits){
-          new_var <- as.numeric(trait_matrix[index,4])^2
-
-          if(population$info$bv.calculated==FALSE){
-            population <- breeding.diploid(population, verbose=verbose)
-          }
-          active_sub <- subpopulation_info[1,1]
-          standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
-          var_test <- stats::var(get.bv(population, cohorts= standard_cohort)[index,])
-          test1 <- TRUE
-          if(length(population$info$real.bv.add[[index]])>0){
-            population$info$real.bv.add[[index]][,3:5] <- population$info$real.bv.add[[index]][,3:5] * sqrt(  new_var / var_test)
-            test1 <- FALSE
-          }
-          if(length(population$info$real.bv.mult[[index]])>0){
-            population$info$real.bv.mult[[index]][,5:13] <- population$info$real.bv.mult[[index]][,5:13] * sqrt(  new_var / var_test)
-            test1 <- FALSE
-          }
-          if(test1 && verbose) cat("You entered a trait without quantitative loci. Is this intentional?\n")
-
-        }
-        population$info$bv.calculated <- FALSE
-
-        ## Mean Standardization
-        for(index in 1:n_traits){
-
-          if(population$info$bv.calculated==FALSE){
-            population <- breeding.diploid(population, verbose=verbose)
-          }
-          active_sub <- subpopulation_info[1,1]
-          standard_cohort <- population$info$cohorts[which(founder_pop==active_sub),1]
-          mean_test <- mean(get.bv(population, cohorts= standard_cohort)[index,])
-
-
-          population$info$base.bv[index] <- traitmean[index] + population$info$base.bv[index] - mean_test
-
-        }
-        population$info$bv.calculated <- FALSE
 
         ## Add Major QTL
         for(index in 1:n_traits){
@@ -1971,7 +1917,8 @@ fixed.generation.order <- NULL
                     population$info$real.bv.add[[active_trait]] <- rbind(population$info$real.bv.add[[active_trait]], add.effects)
                     population$info$bv.calculated <- FALSE
                     if(subpop==1){
-                      population <- breeding.diploid(population, verbose=verbose)
+                        population <- breeding.diploid(population, verbose=verbose)
+
                       population$info$bv.calculated <- FALSE
                     }
                   }
@@ -1995,6 +1942,10 @@ fixed.generation.order <- NULL
       population$breeding[[1]][[5]] <- mig_m
       population$breeding[[1]][[6]] <- mig_f
 
+    }
+
+    if(population$info$bv.calculated==FALSE){
+      population <- breeding.diploid(population, verbose=verbose)
     }
 
   }

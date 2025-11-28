@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
 #' data(ex_pop)
@@ -33,17 +34,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Pen ID for in gen/database/cohorts selected individuals
 #' @export
 
-get.pen <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
+get.pen <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
 
-  if(!population$info$pen.effect.active){
-    warning("no pen effects simulated")
-    return()
-  }
-
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   n.animals <- sum(database[,4] - database[,3] +1)
-  data <- numeric(n.animals)
+  data <- rep(NA, n.animals)
   before <- 0
   names <- numeric(n.animals)
 
@@ -56,7 +52,11 @@ get.pen <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TR
       names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
       for(index in animals[3]:animals[4]){
         before <- before + 1
-        data[before] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[32]]
+        tmp = population$breeding[[animals[1]]][[animals[2]]][[index]][[32]]
+        if(length(tmp)==1){
+          data[before] <- tmp
+
+        }
       }
     }
 

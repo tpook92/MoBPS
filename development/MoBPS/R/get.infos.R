@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @return Info list [[1]] phenotypes [[2]] genomic values [[3]] Z [[4/5/6]] additive/epistatic/dice marker effects
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
@@ -33,14 +34,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' get.infos(ex_pop, gen=2)
 #' @export
 
-get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
+get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
 
   if(length(population$info$origin.gen)>0){
     population$info$origin.gen <- as.integer(population$info$origin.gen)
   } else{
     population$info$origin.gen <- 1:64L
   }
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   pheno <- get.pheno(population, database=database, use.id=use.id)
   bv <- get.bv(population, database=database, use.id=use.id)

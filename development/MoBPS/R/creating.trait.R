@@ -24,7 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Generation of the trait in a starting population
 #' @param population Population list
 #' @param trait.cor Target correlation between QTL-based traits (underlying true genomic values)
-#' @param trait.cor.include Vector of traits to be included in the modelling of corrlated traits (default: all - needs to match with trait.cor)
+#' @param trait.cor.include Vector of traits to be included in the modelling of correlated traits (default: all - needs to match with trait.cor)
 #' @param qtl.position.shared Set to TRUE to put QTL effects on the same markers for different traits
 #' @param n.traits Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
@@ -40,7 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
 #' @param gamma.shape1 Default: 1
 #' @param gamma.shape2 Default: 1
-#' @param dominant.only.positive Set to TRUE to always asign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
+#' @param dominant.only.positive Set to TRUE to always assign the heterozygous variant with the higher of the two homozygous effects (e.g. hybrid breeding); default: FALSE
 #' @param var.additive.l Variance of additive QTL
 #' @param var.dominant.l Variance of dominante QTL
 #' @param var.overdominant.l Variance of overdominante QTL
@@ -145,13 +145,14 @@ creating.trait <- function(population,
                            #### Other
                            randomSeed=NULL,
                            verbose=TRUE,
-                           use.recalculate.manual = FALSE,
+                           use.recalculate.manual = NULL,
                            new.phenotype.correlation=NULL,
                            shuffle.traits=NULL,
                            shuffle.cor= NULL,
                            bv.total = 0){
 
 
+  {
   if(n.traits>0){
     if(bv.total>0){
       warning("bv.total has been overwritten with value from n.traits")
@@ -165,7 +166,7 @@ creating.trait <- function(population,
   if(length(trait.cor.include)>0){
     shuffle.traits = trait.cor.include
   }
-
+  }
   # GxE Trait generation module
   {
     if(length(n.locations)>0 && n.locations > 1 && length(gxe.correlation)==0){
@@ -258,6 +259,7 @@ creating.trait <- function(population,
     }
   }
 
+  {
   if(length(randomSeed)>0){
     set.seed(randomSeed)
   }
@@ -438,7 +440,7 @@ creating.trait <- function(population,
     }
   }
 
-
+}
 
   if(length(population)>0){
     if(length(real.bv.add)==0 && replace.traits==FALSE){
@@ -1033,6 +1035,16 @@ creating.trait <- function(population,
     population$info$pheno.correlation <- diag(1L, bv.total)
   }
   if(length(new.residual.correlation)>0){
+
+    if(sum(new.residual.correlation==1) > ncol(new.residual.correlation)){
+
+      if (requireNamespace("Matrix", quietly = TRUE)) {
+        if(verbose) cat("Residual correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+        new.residual.correlation = as.matrix(Matrix::nearPD(new.residual.correlation)$mat)
+      }
+
+    }
+
     population$info$pheno.correlation <- t(chol(new.residual.correlation))
   }
   if(bv.total>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<bv.total)){
@@ -1160,10 +1172,14 @@ creating.trait <- function(population,
           population$info$founder_multi_calc = TRUE            }
       }
     }
-    population <- breeding.diploid(population, verbose = FALSE)
 
 
     population$info$founder_multi_calc = population$info$founder_multi
+
+    #stop()
+    ## only needed for creating.trait()
+    population$info$bv.calculated = FALSE
+    population <- breeding.diploid(population, verbose = FALSE)
 
 
     bvs <- get.bv(population, gen=1)
@@ -1209,6 +1225,15 @@ creating.trait <- function(population,
       if(verbose) cat("new suggested genetic correlation matrix:\n")
       shuffle.cor <- newA
       if(verbose) print(round(shuffle.cor, digits=3))
+    }
+
+    if(sum(shuffle.cor==1) > ncol(shuffle.cor)){
+
+      if (requireNamespace("Matrix", quietly = TRUE)) {
+        if(verbose) cat("Genetic correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+        shuffle.cor = as.matrix(Matrix::nearPD(shuffle.cor)$mat)
+      }
+
     }
 
     LT <- chol(shuffle.cor)
@@ -1401,10 +1426,41 @@ creating.trait <- function(population,
     }
   }
 
-  if(use.recalculate.manual){
-    population = recalculate.manual(population, gen = 1:get.ngen(population))
-    population$info$bv.calculated = TRUE
+  # recalculate - manual check:
+  {
+    if(length(unlist(population$info$real.bv.mult)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(unlist(population$info$real.bv.dice)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(population$info$real.bv.add) > 1){
+      for(index in 1:(length(population$info$real.bv.add)-1)){
+        if(is.matrix(population$info$real.bv.add[[index]]) && sum(population$info$real.bv.add[[index]][,7:8] != 0)>0){
+          population$info$recalculate.possible = FALSE
+        }
+      }
+    }
+
+    if(max(population$info$real.bv.length) < population$info$bv.nr){
+      population$info$recalculate.possible = FALSE
+    }
+
+    population$info$e0_activ = NULL
+    population$info$e1_activ = NULL
+    population$info$e2_activ = NULL
+    population$info$e0_mat = NULL
+    population$info$e1_mat = NULL
+    population$info$e2_mat = NULL
   }
+  #stop()
+
+
+  population$info$bv.calculated = FALSE
+  population = breeding.diploid(population, verbose=FALSE, use.recalculate.manual = use.recalculate.manual)
+
 
   population$info$pool_effects_calc = FALSE
   population$info$pool_list = NULL
@@ -1413,17 +1469,10 @@ creating.trait <- function(population,
   if(bv.standard){
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target, set.zero = set.zero)
 
-    if(use.recalculate.manual){
-      population = recalculate.manual(population, gen = 1:get.ngen(population))
-      population$info$bv.calculated = TRUE
-    }
+      population$info$bv.calculated = FALSE
+      population = breeding.diploid(population, verbose=FALSE, use.recalculate.manual = use.recalculate.manual)
 
   }
-
-
-
-  # Calculation of initial genomic values
-  population <- breeding.diploid(population, verbose=FALSE)
 
   if(length(trait_location)>0){
     population$info$trait.location = trait_location

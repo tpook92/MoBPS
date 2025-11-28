@@ -9,6 +9,7 @@ get.snapshot(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   phenotype.data = FALSE,
   gain.data = FALSE,
   digits = 3,
@@ -25,6 +26,8 @@ get.snapshot(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{phenotype.data}{Set to TRUE to include information of number of phenotypes generated}
 
 \item{gain.data}{Set to TRUE to add information on changes in genetic level between cohorts (default: FALSE)}
@@ -39,7 +42,7 @@ get.snapshot(
 Snapshot-matrix
 }
 \description{
-Function to devide snapshot of genotyping/phenotyping state of selected individuals
+Function to derive snapshot of genotyping/phenotyping state of selected individuals
 }
 \examples{
 data(ex_pop)

@@ -13,7 +13,7 @@ kinship.exp(
   start.kinship = NULL,
   elements = NULL,
   mult = 1,
-  storage.save = 1.5,
+  storage.save = 1.05,
   verbose = TRUE,
   include.error = TRUE,
   elements.copy = FALSE

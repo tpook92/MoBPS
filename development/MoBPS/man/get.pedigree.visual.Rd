@@ -9,6 +9,7 @@ get.pedigree.visual(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   depth.pedigree = 3,
   storage.save = 1.1,
   use.id = TRUE,
@@ -27,6 +28,8 @@ get.pedigree.visual(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{depth.pedigree}{Depth of the pedigree in generations}
 

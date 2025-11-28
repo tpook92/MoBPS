@@ -121,7 +121,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
     genio::write_plink(file=path, X = geno, fam = fam, bim = bim)
 
   } else{
-    stop("Use of get.plink() requires the R-package genio and miraculix! Please install before use.")
+    print("Use of get.plink() requires the R-package genio and miraculix! Please install before use.")
   }
 
 }

@@ -39,6 +39,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param delete.same.origin If TRUE delete recombination points when genetic origin of adjacent segments is the same
 #' @param recombination.function Function used to calculate position of recombination events (default: MoBPS::recombination.function.haldane())
+#' @param dup_activ Internal parameter to check if duplications have to be simulated
+#' @param rt_activ Internal parameter to check if RTs have to be simulated
+#' @param grandsib_activ Internal parameter to check if grandsibling contributions have to be calculated
 #' @examples
 #' data(ex_pop)
 #' child_gamete <- breeding.intern7(info.parent = c(1,1,1), parent = ex_pop$breeding[[1]][[1]][[1]],
@@ -52,7 +55,10 @@ breeding.intern7 <- function(info.parent, parent,  population , mutation.rate = 
                             gene.editing=FALSE, nr.edits= 0,
                             gen.architecture=0,
                             decodeOriginsU=MoBPS::decodeOriginsR,
-                            recombination.function=MoBPS::recombination.function.haldane){
+                            recombination.function=MoBPS::recombination.function.haldane,
+                            dup_activ = TRUE,
+                            rt_activ = TRUE,
+                            grandsib_activ = TRUE){
   n_snps <- sum(population$info$snp)
   if(gen.architecture==0){
     length.total <- population$info$length.total

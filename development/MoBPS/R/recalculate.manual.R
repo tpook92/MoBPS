@@ -52,9 +52,9 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
     tick <- as.numeric(Sys.time())
   }
 
-  if((length(e0)==0 && length(population$info$e0)==0) ||
-     (length(e1)==0 && length(population$info$e1)==0) ||
-     (length(e2)==0 && length(population$info$e2)==0)){
+  if((length(e0)==0 && length(population$info$e0_mat)==0) ||
+     (length(e1)==0 && length(population$info$e1_mat)==0) ||
+     (length(e2)==0 && length(population$info$e2_mat)==0)){
 
     effect_matrix0 = effect_matrix1 = effect_matrix2 = matrix(0, ncol = sum(population$info$snp), nrow = population$info$bv.nr)
 
@@ -64,9 +64,9 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
       effect_matrix2[index,population$info$real.bv.add[[index]][,6]] = population$info$real.bv.add[[index]][,5]
     }
 
-    population$info$e0 = effect_matrix0
-    population$info$e1 = effect_matrix1
-    population$info$e2 = effect_matrix2
+    population$info$e0_mat = effect_matrix0
+    population$info$e1_mat = effect_matrix1
+    population$info$e2_mat = effect_matrix2
 
     population$info$e0_activ = which(colSums(abs(effect_matrix0))>0)
     population$info$e1_activ = which(colSums(abs(effect_matrix1))>0)
@@ -74,13 +74,13 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
   }
 
   if(length(e0)==0){
-    e0  =population$info$e0
+    e0  =population$info$e0_mat
   }
   if(length(e1)==0){
-    e1  =population$info$e1
+    e1  =population$info$e1_mat
   }
   if(length(e2)==0){
-    e2  =population$info$e2
+    e2  =population$info$e2_mat
   }
   e0_activ = population$info$e0_activ
   e1_activ = population$info$e1_activ

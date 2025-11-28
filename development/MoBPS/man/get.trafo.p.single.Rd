@@ -9,6 +9,7 @@ get.trafo.p.single(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   use.id = TRUE
 )
 }
@@ -21,18 +22,17 @@ get.trafo.p.single(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)}
 }
 \value{
-Estimated breeding value of in gen/database/cohorts selected individuals
+List with transformation parameters per observation
 }
 \description{
-Function to export parametrization of the fixed effects
+Function to export parametrization of the fixed effects in transformation function
 }
 \examples{
 data(ex_pop)
-population <- add.fixed.effects(ex_pop, fixed.effects = cbind(1,5))
-population <- breeding.diploid(population, heritability = 0.3,
-fixed.effects.p = rbind(c(1,0), c(0,1)), phenotyping.gen=2)
-get.fixed.effects.p(population, gen=2)
+get.trafo.p.single(ex_pop, gen = 2)
 }

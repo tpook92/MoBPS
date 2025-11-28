@@ -86,7 +86,7 @@ get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohor
 
     geno_dend
   } else{
-    warning("Use of NAM without being installed!")
+    print("Use of NAM without being installed!")
 
   }
 

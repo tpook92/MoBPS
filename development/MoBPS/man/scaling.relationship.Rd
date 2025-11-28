@@ -9,9 +9,9 @@ scaling.relationship(A, Z, p)
 \arguments{
 \item{A}{Population list}
 
-\item{Z}{AA}
+\item{Z}{genotype matrix}
 
-\item{p}{AA}
+\item{p}{allele frequency}
 }
 \value{
 scaled genomic relationship matrix

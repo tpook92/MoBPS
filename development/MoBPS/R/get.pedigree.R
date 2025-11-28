@@ -26,13 +26,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param founder.zero Parents of founders are displayed as "0" (default: TRUE)
 #' @param raw Set to TRUE to not convert numbers into Sex etc.
 #' @param use.id Set to TRUE to extract individual IDs
 #' @param use.first.copy Set to TRUE to use database-position of the first copy of an individual (default: FALSE)
 #' @param include.error Set to TRUE to include errors simulated in the pedigree
 #' @param depth Depth (1) for parents, (2) for grandparents, (3) for grandgrandparents etc.
-#' @param id Replaced by use.id ((consistency with all other get.xxx functions))
 #' @examples
 #' data(ex_pop)
 #' pedigree = get.pedigree(ex_pop, gen=2)
@@ -44,17 +44,14 @@ get.pedigree <- function(population, database=NULL, gen=NULL, cohorts=NULL, foun
                               raw=FALSE, use.id=TRUE, id = NULL, use.first.copy = FALSE, include.error = FALSE,
                          depth = 1){
 
-  if(length(id)>0){
-    use.id = id
-  }
 
   if(population$info$pedigree_error || use.first.copy || depth > 1){
     pedigree = get.pedigree_old(population, database=database, gen=gen, cohorts=cohorts, founder.zero=founder.zero,
-                                raw=raw, use.id = use.id, id=id, use.first.copy = use.first.copy, include.error = include.error,
+                                raw=raw, use.id = use.id, use.first.copy = use.first.copy, include.error = include.error,
                                 depth = depth)
   } else{
 
-    database <- get.database(population, gen, database, cohorts)
+    database <- get.database(population, gen, database, cohorts, id = id)
     n.animals <- sum(database[,4] - database[,3] +1)
 
     pedigree <- matrix(0, nrow=n.animals, ncol=3 + 6 * raw)

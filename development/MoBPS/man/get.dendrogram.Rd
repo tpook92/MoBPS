@@ -10,6 +10,7 @@ get.dendrogram(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   method = NULL,
   individual.names = NULL
 )
@@ -25,6 +26,8 @@ get.dendrogram(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to consider)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{method}{Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"}
 
 \item{individual.names}{Names of the individuals in the database ((default are MoBPS internal names based on position))}
@@ -33,7 +36,7 @@ get.dendrogram(
 Dendrogram plot for genotypes
 }
 \description{
-Function calculate a dendogram
+Function calculate a dendrogram
 }
 \examples{
 data(ex_pop)

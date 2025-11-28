@@ -10,6 +10,7 @@ get.admixture(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
+  id = NULL,
   d = NULL,
   verbose = TRUE,
   plot = TRUE,
@@ -27,6 +28,8 @@ get.admixture(
 \item{database}{Groups of individuals to consider}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to consider)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{d}{dimensions to consider in admixture plot (default: automatically estimate a reasonable number)}
 

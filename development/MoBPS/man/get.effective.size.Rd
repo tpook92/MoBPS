@@ -4,7 +4,13 @@
 \alias{get.effective.size}
 \title{Estimate effective population size}
 \usage{
-get.effective.size(population, gen = NULL, database = NULL, cohorts = NULL)
+get.effective.size(
+  population,
+  gen = NULL,
+  database = NULL,
+  cohorts = NULL,
+  id = NULL
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -14,6 +20,8 @@ get.effective.size(population, gen = NULL, database = NULL, cohorts = NULL)
 \item{database}{Groups of individuals to consider for the export}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 }
 \value{
 Estimated effective population size

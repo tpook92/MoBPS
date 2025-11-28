@@ -27,7 +27,7 @@ check.parents(
 \item{still.check}{Internal parameter (avoid.mating.parent check)}
 }
 \value{
-logical with TRUE if relatedness does not excced max.rel / FALSE otherwise.
+logical with TRUE if relatedness does not exceed max.rel / FALSE otherwise.
 }
 \description{
 Internal function to check the relatedness between two individuals

@@ -40,7 +40,7 @@ bit.storing <- function(snpseq, nbits){
 #' Decoding of bitwise-storing in R
 #'
 #' Function for decoding in bitwise-storing in R (only 30 of 32 bits are used!)
-#' @param bit.seq bitweise gespeicherte SNP-Sequenz
+#' @param bit.seq bitwise stored SNP sequence
 #' @param nbits Number of usable bits (default: 30)
 #' @param population Population list
 #' @param from.p.bit Bit to start on

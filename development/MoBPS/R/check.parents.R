@@ -31,7 +31,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @examples
 #' data(ex_pop)
 #' check.parents(ex_pop, info.father=c(4,1,1,1), info.mother=c(4,2,1,1))
-#' @return logical with TRUE if relatedness does not excced max.rel / FALSE otherwise.
+#' @return logical with TRUE if relatedness does not exceed max.rel / FALSE otherwise.
 #' @export
 
 

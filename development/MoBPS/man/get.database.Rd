@@ -17,6 +17,8 @@ get.database(
   id.last = FALSE,
   keep.order = FALSE,
   class = NULL,
+  genotyped = NULL,
+  npheno = NULL,
   verbose = TRUE,
   sex.filter = 0
 )
@@ -45,6 +47,10 @@ get.database(
 \item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
 
 \item{class}{Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)}
+
+\item{genotyped}{Only include individuals that are genotyped (TRUE) or not-genotyped (FALSE); default: NULL (all individuals)}
+
+\item{npheno}{Only include individuals with the certain number of phenotypes generated (default: NULL (all individuals))}
 
 \item{verbose}{Set to FALSE to not display any prints}
 

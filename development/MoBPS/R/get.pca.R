@@ -27,6 +27,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param coloring Coloring by "group", "sex", "plain"
 #' @param components Default: c(1,2) for the first two principle components
 #' @param pch Point type in the PCA plot
@@ -39,10 +40,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Principle components of gen/database/cohorts selected individuals
 #' @export
 
-get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, coloring="group",
+get.pca <- function(population, path=NULL,  database=NULL, gen=NULL, cohorts=NULL, id = NULL, coloring="group",
                     components = c(1,2), plot = TRUE, pch=1, export.color=FALSE, use.id = FALSE){
 
-  database <- get.database(population, gen, database, cohorts, avoid.merging= if(coloring=="group"){TRUE} else{FALSE})
+  database <- get.database(population, gen, database, cohorts, id = id, avoid.merging= if(coloring=="group"){TRUE} else{FALSE})
 
   geno <- get.geno(population, database = database)
 

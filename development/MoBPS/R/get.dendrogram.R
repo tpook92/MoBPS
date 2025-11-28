@@ -22,12 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Dendrogram
 #'
-#' Function calculate a dendogram
+#' Function calculate a dendrogram
 #' @param population Population list
 #' @param path provide a path if the dendrogram would be saved as a png-file
 #' @param database Groups of individuals to consider
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
+#' @param id Individual IDs to search/collect in the database
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
 #' @param individual.names Names of the individuals in the database ((default are MoBPS internal names based on position))
 #' @examples
@@ -37,10 +38,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, method=NULL, individual.names = NULL){
+get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL, method=NULL, individual.names = NULL){
 
   if (requireNamespace("NAM", quietly = TRUE)){
-    database <- get.database(population, gen, database, cohorts)
+    database <- get.database(population, gen, database, cohorts, id = id)
 
     GD <- t(get.geno(population, database = database))
 
@@ -85,7 +86,7 @@ get.dendrogram <- function(population, path=NULL, database=NULL, gen=NULL, cohor
 
     geno_dend
   } else{
-    warning("Use of NAM without being installed!")
+    print("Use of NAM without being installed!")
 
   }
 

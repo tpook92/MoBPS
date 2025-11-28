@@ -28,15 +28,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
 #' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
+#' @param all.copys Set FALSE to only enter target values for a specific copy of the individual (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
+#' bv <- get.bv(ex_pop, gen=2)
 #' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
 #' ex_pop <- insert.bve(ex_pop, bves=new.bve)
 #' @return Population-List with newly entered estimated breeding values
 #' @export
 
-insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count=1, count.only.increase=TRUE){
+insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count=1, count.only.increase=TRUE, all.copys = TRUE){
 
   add <- 2
   if(type=="bv"){
@@ -47,14 +48,69 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
     add <- 16
   }
 
+  # check if the old formatting is used:
+
+  suppressWarnings({
+    old_format = (ncol(bves)-1)==population$info$bv.nr && ((substr(bves[1,1], start=1, stop=1) %in% c("F", "M")) || (!is.na(as.numeric(bves[1,1]) && (as.integer(bves[1,1]) == as.numeric(bves[1,1])))))
+  })
+
+
+  if(!old_format){
+    if(nrow(bves) == population$info$bv.nr && (ncol(bves)-1)!=population$info$bv.nr){
+      bves = cbind(colnames(bves), t(bves))
+    }
+
+    if(ncol(bves) == population$info$bv.nr){
+      bves = cbind(rownames(bves), bves)
+    }
+  }
+
+
+
   if((ncol(bves)-1)!=population$info$bv.nr){
     stop("Number of traits entered does not match with population! \n Enter NA colums if you dont want to overwrite a trait")
   }
 
-  sex <- as.numeric(substr(bves[,1], start=1, stop=1)=="F")+1
-  split <- unlist(strsplit(bves[,1], split=c("_")))
-  gen <- as.numeric(split[1:length(sex)*2])
-  nr <- as.numeric(substr(split[1:length(sex)*2-1], start=2, stop=100))
+  is_id <- !(substr(bves[1,1], start=1, stop=1) %in% c("F", "M"))
+
+  if(is_id){
+
+    position = get.database(population, id = bves[,1], keep.order = TRUE)[,1:3,drop=FALSE]
+    sex = position[,2]
+    gen = position[,1]
+    nr = position[,3]
+
+  } else{
+    sex <- as.numeric(substr(bves[,1], start=1, stop=1)=="F")+1
+    split <- unlist(strsplit(bves[,1], split=c("_")))
+    gen <- as.numeric(split[1:length(sex)*2])
+    nr <- as.numeric(substr(split[1:length(sex)*2-1], start=2, stop=100))
+  }
+
+
+  # check if the dataset in general contains duplicates
+  if(all.copys && prod(1==as.numeric(population$info$cohorts[-1,10]) - as.numeric(population$info$cohorts[-nrow(population$info$cohorts),11]))!=1){
+
+    sex_list = list()
+    gen_list = list()
+    nr_list = list()
+    index_list = list()
+    for(index in 1:length(nr)){
+      list_copies = population$breeding[[gen[index]]][[sex[index]]][[nr[index]]][[21]]
+      if(nrow(list_copies) > 1){
+        gen_list[[index]] = list_copies[,1]
+        sex_list[[index]] = list_copies[,2]
+        nr_list[[index]] = list_copies[,3]
+        index_list[[index]] = rep(index, nrow(list_copies))
+      }
+    }
+    sex = unlist(sex_list)
+    gen = unlist(gen_list)
+    nr = unlist(nr_list)
+    bves = bves[unlist(index_list),]
+
+  }
+
 
   databases <- cbind(gen, sex, nr)
 
@@ -138,6 +194,7 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 #' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
 #' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
+#' @param all.copys Set FALSE to only enter target values for a specific copy of the individual (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
@@ -146,8 +203,9 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 #' @return Population-List with newly entered phenotypes
 #' @export
 #'
-insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, count.only.increase=TRUE){
-  population <- insert.bve(population, bves=phenos, type="pheno", na.override=na.override, count=count, count.only.increase = count.only.increase)
+insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, count.only.increase=TRUE, all.copys = TRUE){
+  population <- insert.bve(population, bves=phenos, type="pheno", na.override=na.override, count=count,
+                           count.only.increase = count.only.increase, all.copys = all.copys)
 }
 
 #' Manually enter breeding values
@@ -158,6 +216,7 @@ insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, coun
 #' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
 #' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
 #' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
+#' @param all.copys Set FALSE to only enter target values for a specific copy of the individual (default: TRUE)
 #' @examples
 #' data(ex_pop)
 #' bv <- get.bv(ex_pop, gen=2, use.id = FALSE)
@@ -166,6 +225,7 @@ insert.pheno <- function(population, phenos, na.override = FALSE,  count=1, coun
 #' @return Population-List with newly entered breeding values
 #' @export
 #'
-insert.bv <- function(population, bvs, na.override = FALSE,  count=1, count.only.increase=TRUE){
-  population <- insert.bve(population, bves=bvs, type="bv", na.override=na.override, count=count, count.only.increase = count.only.increase)
+insert.bv <- function(population, bvs, na.override = FALSE,  count=1, count.only.increase=TRUE, all.copys = TRUE){
+  population <- insert.bve(population, bves=bvs, type="bv", na.override=na.override, count=count,
+                           count.only.increase = count.only.increase, all.copys = all.copys)
 }

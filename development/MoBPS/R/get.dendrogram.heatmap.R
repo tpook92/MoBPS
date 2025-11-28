@@ -22,12 +22,13 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Dendrogram Heatmap
 #'
-#' Function calculate a dendogram heat
+#' Function calculate a dendrogram heat
 #' @param population Population list
 #' @param path provide a path if the dendrogram would be saved as a png-file
 #' @param database Groups of individuals to consider
 #' @param gen Quick-insert for database (vector of all generations to consider)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to consider)
+#' @param id Individual IDs to search/collect in the database
 #' @param method Method used to calculate genetic distances (default: "Nei", alt: "Rogers", "Prevosti", "Modified Rogers"
 #' @param individual.names Names of the individuals in the database ((default are MoBPS internal names based on position))
 #' @param traits Traits to include in the dendrogram (default: all traits)
@@ -41,11 +42,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 
-get.dendrogram.heatmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL,
+get.dendrogram.heatmap <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
                                    method = NULL, individual.names = NULL, traits = NULL, type="pheno"){
 
   if (requireNamespace("NAM", quietly = TRUE)){
-    database <- get.database(population, gen, database, cohorts)
+    database <- get.database(population, gen, database, cohorts, id = id)
 
     if(length(traits)==0){
       traits <- 1:population$info$bv.nr

@@ -246,6 +246,35 @@ merging.trait <- function(population,
   }
 
 
+  {
+    if(length(unlist(population$info$real.bv.mult)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(unlist(population$info$real.bv.dice)) > 1){
+      population$info$recalculate.possible = FALSE
+    }
+
+    if(length(population$info$real.bv.add) > 1){
+      for(index in 1:(length(population$info$real.bv.add)-1)){
+        if(is.matrix(population$info$real.bv.add[[index]]) && sum(population$info$real.bv.add[[index]][,7:8] != 0)>0){
+          population$info$recalculate.possible = FALSE
+        }
+      }
+    }
+
+    if(max(population$info$real.bv.length) < population$info$bv.nr){
+      population$info$recalculate.possible = FALSE
+    }
+
+    population$info$e0_activ = NULL
+    population$info$e1_activ = NULL
+    population$info$e2_activ = NULL
+    population$info$e0_mat = NULL
+    population$info$e1_mat = NULL
+    population$info$e2_mat = NULL
+  }
+
   # Calculation of initial genomic values
   population$info$bv.calculated = FALSE
   population <- breeding.diploid(population, verbose=FALSE)

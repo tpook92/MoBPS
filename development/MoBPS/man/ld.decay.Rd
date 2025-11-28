@@ -28,7 +28,7 @@ ld.decay(
 
 \item{chromosome}{Only consider a specific chromosome in calculations (default: 1)}
 
-\item{dist}{Manuel input of marker distances to analyse}
+\item{dist}{Manuel input of marker distances to analyze}
 
 \item{step}{Stepsize to calculate LD}
 

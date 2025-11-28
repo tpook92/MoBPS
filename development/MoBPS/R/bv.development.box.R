@@ -29,7 +29,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
-#' @param bvrow Which traits to display (for multiple traits separte plots (par(mfrow)))
+#' @param bvrow Which traits to display (for multiple traits separate plots (par(mfrow)))
 #' @param json If TRUE extract which cohorts to plot according to the json-file used in json.simulation
 #' @param ylim Set this to fix the y-axis of the plot
 #' @param fix_mfrow Set TRUE to not use mfrow - use for custom plots

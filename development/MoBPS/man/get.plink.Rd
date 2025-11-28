@@ -10,6 +10,7 @@ get.plink(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   chromosome = "all",
   non.genotyped.as.missing = FALSE,
   fam.id = FALSE,
@@ -28,6 +29,8 @@ get.plink(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{chromosome}{Limit the genotype output to a selected chromosome (default: "all")}
 

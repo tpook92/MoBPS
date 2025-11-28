@@ -9,6 +9,7 @@ get.snapshot.single(
   database = NULL,
   gen = NULL,
   cohorts = NULL,
+  id = NULL,
   phenotype.data = FALSE,
   gain.data = FALSE,
   digits = 3,
@@ -29,6 +30,8 @@ get.snapshot.single(
 \item{gen}{Quick-insert for database (vector of all generations to export)}
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
+
+\item{id}{Individual IDs to search/collect in the database}
 
 \item{phenotype.data}{Set to TRUE to include information of number of phenotypes generated}
 

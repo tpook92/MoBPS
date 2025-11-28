@@ -26,6 +26,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @examples
 #' data(ex_pop)
@@ -33,7 +34,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Phenotypes for in gen/database/cohorts selected individuals
 #' @export
 
-get.pen.effect <- function(population, database=NULL, gen=NULL, cohorts=NULL, use.id=TRUE){
+get.pen.effect <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
 
   if(!population$info$pen.effect.active){
     warning("no pen effects simulated")
@@ -41,7 +42,7 @@ get.pen.effect <- function(population, database=NULL, gen=NULL, cohorts=NULL, us
   }
 
 
-  database <- get.database(population, gen, database, cohorts)
+  database <- get.database(population, gen, database, cohorts, id = id)
 
   n.animals <- sum(database[,4] - database[,3] +1)
   data <- matrix(NA, ncol=n.animals, nrow=population$info$bv.nr)

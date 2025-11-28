@@ -33,6 +33,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE)
 #' @param id.last Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)
 #' @param class Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)
+#' @param genotyped Only include individuals that are genotyped (TRUE) or not-genotyped (FALSE); default: NULL (all individuals)
+#' @param npheno Only include individuals with the certain number of phenotypes generated (default: NULL (all individuals))
 #' @param per.individual Set TRUE to obtain a database with one row per individual instead of concatenating (default: FALSE)
 #' @param sex.filter Set to 1 to only include males and set 2 to only include females in database (default: 0)
 #' @param verbose Set to FALSE to not display any prints
@@ -45,7 +47,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE,
                         per.individual = FALSE, id=NULL, db.names = NULL, id.all.copy=FALSE, id.last=FALSE,
-                        keep.order = FALSE, class = NULL, verbose = TRUE,
+                        keep.order = FALSE, class = NULL, genotyped = NULL, npheno = NULL,
+                        verbose = TRUE,
                         sex.filter = 0){
 
   if(length(id)>0 && (length(gen)>0 || length(database)>0 || length(cohorts) > 0 )){
@@ -305,28 +308,37 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
 
   database <- unique(database)
 
-  if(length(class)>0){
+  #removed
+  if(length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0){
 
-    class_db = get.class(population, database = database)
+    database = get.database(population, database= database, per.individual = TRUE)
 
-    temp_db = matrix(0, nrow = length(class_db), ncol = 3)
-    current = 1
-    for(index in 1:nrow(database)){
-      n_indi = database[index,4] - database[index,3] + 1
-      temp_db[current:(current + n_indi -1),1] = database[index,1]
-      temp_db[current:(current + n_indi -1),2] = database[index,2]
-      temp_db[current:(current + n_indi -1),3] = database[index,3]:database[index,4]
-      current = current + n_indi
+    if(length(genotyped)>0){
+      geno_typed = get.genotyped(population, database = database) == genotyped
+
+    } else{
+      geno_typed = rep(TRUE, nrow(database))
     }
 
-    keep = rep(FALSE, length(class_db))
-    for(index in 1:length(class)){
-      keep[class_db == class[index]] = TRUE
+    if(length(class)>0){
+      class_type = get.class(population, database = database) %in% class
+
+    } else{
+      class_type = rep(TRUE, nrow(database))
     }
 
-    temp_db = temp_db[keep,,drop=FALSE]
+    if(length(npheno)>0){
+      pheno_type = colSums(get.npheno(population, database = database)) == npheno
 
-    database = get.database(population, database = temp_db)
+    } else{
+      pheno_type = rep(TRUE, nrow(database))
+    }
+
+    keep = geno_typed & class_type & pheno_type
+
+    database = database[keep,]
+    database = get.database(population, database = database)
+
   }
 
   if(per.individual){

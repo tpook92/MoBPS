@@ -29,9 +29,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database1 First Groups of individuals to consider
 #' @param gen1 Quick-insert for database (vector of all generations to consider)
 #' @param cohorts1 Quick-insert for database (vector of names of cohorts to consider)
+#' @param id1 Individual IDs to search/collect in the database
 #' @param database2 Second Groups of individuals to consider
 #' @param gen2 Quick-insert for database (vector of all generations to consider)
 #' @param cohorts2 Quick-insert for database (vector of names of cohorts to consider)
+#' @param id2 Individual IDs to search/collect in the database
 #' @param database.list List of databases to consider (use when working with more than 2 populations)
 #' @param gen.list Quick-insert for database (vector of all generations to consider)
 #' @param cohorts.list Quick-insert for database (vector of names of cohorts to consider)
@@ -42,15 +44,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.distance <- function(population, type="nei", marker = "all", per.marker=FALSE,
-                              gen1 = NULL, database1 = NULL, cohorts1 = NULL,
-                             gen2 = NULL, database2 = NULL, cohorts2= NULL,
+                              gen1 = NULL, database1 = NULL, cohorts1 = NULL, id1 = NULL,
+                             gen2 = NULL, database2 = NULL, cohorts2= NULL, id2 = NULL,
                              database.list = NULL, gen.list = NULL, cohorts.list = NULL){
 
   if(length(marker)==1 && marker=="all"){
     marker <- 1:sum(population$info$snp)
   }
-  database1 <- get.database(population, gen1, database1, cohorts1)
-  database2 <- get.database(population, gen2, database2, cohorts2)
+  database1 <- get.database(population, gen1, database1, cohorts1, id = id1)
+  database2 <- get.database(population, gen2, database2, cohorts2, id = id2)
 
   if(!is.list(database.list)){
     database.list <- list()

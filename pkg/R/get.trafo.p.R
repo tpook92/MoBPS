@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #' Export parametrization of fixed effects
 #'
-#' Function to export parametrization of the fixed effects
+#' Function to export parametrization of the fixed effects in transformation function
 #' @param population Population list
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
@@ -31,11 +31,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param include Which observations to include in the calculation (default: NULL (all))
 #' @examples
 #' data(ex_pop)
-#' population <- add.fixed.effects(ex_pop, fixed.effects = cbind(1,5))
-#' population <- breeding.diploid(population, heritability = 0.3,
-#' fixed.effects.p = rbind(c(1,0), c(0,1)), phenotyping.gen=2)
-#' get.fixed.effects.p(population, gen=2)
-#' @return Estimated breeding value of in gen/database/cohorts selected individuals
+#' get.trafo.p(ex_pop, gen = 2)
+#' @return Parameter input used in the transformation function
 #' @export
 
 get.trafo.p <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, include = NULL){

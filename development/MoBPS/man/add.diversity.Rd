@@ -66,7 +66,7 @@ add.diversity(
 
 \item{pop1}{Population to start with as founder pool (default: NULL - generation from pool.gen/database/cohorts)}
 
-\item{export.pop1}{Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initialising this multiple times}
+\item{export.pop1}{Default: FALSE. Exporting this is helpful if add.diversity is used frequently to avoid initializing this multiple times}
 }
 \value{
 population list with newly added individuals
