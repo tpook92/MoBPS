@@ -4,7 +4,12 @@
 \alias{add.array}
 \title{Add a genotyping array}
 \usage{
-add.array(population, marker.included = TRUE, array.name = NULL)
+add.array(
+  population,
+  marker.included = TRUE,
+  array.name = NULL,
+  verbose = TRUE
+)
 }
 \arguments{
 \item{population}{population list}
@@ -12,6 +17,8 @@ add.array(population, marker.included = TRUE, array.name = NULL)
 \item{marker.included}{Vector with number of SNP entries coding if each marker is on the array (TRUE/FALSE)}
 
 \item{array.name}{Name of the added array}
+
+\item{verbose}{Set to FALSE to not display any prints}
 }
 \value{
 Population list

@@ -51,10 +51,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param hom0 Vector containing the first allelic variant in each marker (default: 0)
 #' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
 ###### Genotype data
-#' @param dataset SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi
+#' @param dataset SNP dataset, use "random", "macs", "allhetero", "all0" when generating a dataset via nsnp,nindi
 #' @param freq frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)
-#' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
-#' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
+#' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies for SNPs
+#' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies for SNPs
+#' @param qtl.beta.shape1 First parameter of the beta distribution for simulating allele frequencies for QTLs
+#' @param qtl.beta.shape2 Second parameter of the beta distribution for simulating allele frequencies for SNPs
+#' @param macs.ne Target effective population size when using MaCS simulator (default: 100)
+#' @param macs.freq.correction Set to FALSE to not obtain target allele frequency distribution (default: TRUE)
 #' @param share.genotyped Share of individuals genotyped in the founders
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
@@ -77,6 +81,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.overdominant Number of overdominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param whitening Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied
 #' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
 #' @param gamma.shape1 Default: 1
 #' @param gamma.shape2 Default: 1
@@ -185,6 +190,10 @@ creating.diploid <- function(population=NULL,
                              freq="beta",
                              beta.shape1=1,
                              beta.shape2=1,
+                             qtl.beta.shape1 = NULL,
+                             qtl.beta.shape2 = NULL,
+                             macs.ne = 100,
+                             macs.freq.correction = TRUE,
                              share.genotyped=0,
                              genotyped.s=NULL,
                              vcf=NULL,
@@ -276,7 +285,8 @@ creating.diploid <- function(population=NULL,
                              position.scaling=FALSE,
                              shuffle.cor=NULL,
                              shuffle.traits=NULL,
-                             bv.total=0
+                             bv.total=0,
+                             whitening = FALSE
                              ){
 
 
@@ -1085,7 +1095,11 @@ creating.diploid <- function(population=NULL,
       }
 
 
-
+      if(length(freq) == sum(nsnp) && sum(nsnp) > 1 && length(qtl.beta.shape1)>0 && length(qtl.beta.shape2) > 0){
+        fixed_freq = !is.na(freq)
+      } else{
+        fixed_freq = rep(FALSE, sum(nsnp))
+      }
 
       if(sum(nsnp)>0 && length(freq)==1 && freq=="beta"){
         freq <- stats::rbeta(sum(nsnp), shape1=beta.shape1, shape2=beta.shape2)
@@ -1096,6 +1110,9 @@ creating.diploid <- function(population=NULL,
       if(length(freq)>1 && length(freq)>sum(nsnp)){
         nsnp <- length(freq)
       }
+
+
+
       if(length(freq)>0 && sum(is.na(freq))>0){
         replace <- which(is.na(freq))
         freq[replace] <- stats::rbeta(sum(is.na(freq)), shape1=beta.shape1, shape2=beta.shape2)
@@ -1307,6 +1324,16 @@ creating.diploid <- function(population=NULL,
 
           if(verbose){
             cat(paste0(length(qtl_position), " loci were assigned as QTL.\n", length(nonqtl_position), " additional loci / SNPs remain.\n"))
+          }
+
+          if(length(fixed_freq) > 0 && length(qtl.beta.shape1) > 0 && length(qtl.beta.shape2) > 0){
+            if(length(freq)>0 && sum(!fixed_freq)>0){
+              replace <- intersect(which(!fixed_freq), qtl_position)
+              if(length(replace) > 0){
+                freq[replace] <- stats::rbeta(length(replace), shape1=qtl.beta.shape1, shape2=qtl.beta.shape2)
+              }
+              freq <- as.numeric(freq)
+            }
           }
 
         } else{
@@ -1652,11 +1679,11 @@ creating.diploid <- function(population=NULL,
 
 
               if(effect.distribution == "gauss"){
-                d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
-                d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+                d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
               } else{
-                d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
-                d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+                d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
               }
 
               effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
@@ -1754,6 +1781,112 @@ creating.diploid <- function(population=NULL,
         } else{
           dataset <- matrix((c(stats::rbinom(nindi*2*sum(nsnp),1,freq))),ncol=nindi*2, nrow=sum(nsnp))
         }
+      }
+
+      if(length(dataset)==1 && !is.list(dataset) && dataset=="macs"){
+
+        if (requireNamespace("AlphaSimR", quietly = TRUE)) {
+
+
+          output = AlphaSimR::runMacs2(nInd = nindi, nChr = length(nsnp), segSites = nsnp, Ne = macs.ne)
+
+          dataset_macs = t(AlphaSimR::pullSegSiteHaplo(output))
+
+          if(!macs.freq.correction){
+
+            dataset = dataset_macs
+
+          } else{
+            sampling_freq = rowMeans(dataset_macs)/2
+
+
+
+            if(sum(freq > 0.5) > 0){
+              turn_around = freq > 0.5
+              freq[freq > 0.5] = 1-freq[freq > 0.5]
+            } else{
+              turn_around = rep(FALSE, length(freq))
+            }
+
+            aa = graphics::hist(sampling_freq,  breaks = seq(0,0.5,by =0.025), plot = FALSE)
+            bb = graphics::hist(freq, breaks = seq(0,0.5,by =0.025), plot = FALSE)
+
+            ratio_macs = aa$density / bb$density
+            factor_macs = 1 / min(ratio_macs) * 1.1 ## some buffer to simulate enough sites
+
+            output = AlphaSimR::runMacs2(nInd = nindi, nChr = length(nsnp), segSites = ceiling(nsnp * factor_macs), Ne = macs.ne)
+            dataset_macs = t(AlphaSimR::pullSegSiteHaplo(output))
+
+            new_freq = rowMeans(dataset_macs)/2
+
+            acceptance = rep(0, nrow(dataset_macs))
+            for(index in 1:nrow(dataset_macs)){
+              window = ceiling(new_freq[index] / 0.025)
+              acceptance[index] = min(ratio_macs) / ratio_macs[window]
+            }
+
+            #sum(acceptance)
+
+            fullfilled = TRUE
+            tmp = cumsum(c(1,ceiling(nsnp * factor_macs)))
+            failed = 0
+            sum(acceptance)
+            while(fullfilled){
+              fullfilled = FALSE
+              keep = (stats::rbinom(length(acceptance), 1, prob = acceptance))
+
+              n_fail = 0
+              for(index in 1:length(nsnp)){
+                if(sum(keep[tmp[index]:(tmp[index+1]-1)]) < nsnp[index]){
+                  fullfilled = TRUE
+                  n_fail = n_fail + 1
+                }
+              }
+              print(n_fail)
+              failed = failed + 1
+
+              if(failed%%100 == 0){
+                acceptance = acceptance + 0.05
+                acceptance[acceptance > 1] = 1
+                if(verbose) cat("MaCS allele frequency correction slow. Increase acceptance rate.\n")
+              }
+
+            }
+
+            for(index in 1:length(nsnp)){
+              if(sum(keep[tmp[index]:(tmp[index+1]-1)]) > nsnp[index]){
+                set_false = sample(which(keep[tmp[index]:(tmp[index+1]-1)]==1), sum(keep[tmp[index]:(tmp[index+1]-1)])-nsnp[index])
+                keep[tmp[index]:(tmp[index+1]-1)][set_false] = FALSE
+              }
+            }
+
+            dataset = dataset_macs[which(keep==1),]
+
+            if(sum(turn_around) > 0){
+              dataset[turn_around,] = 1 - dataset[turn_around,]
+            }
+
+
+          }
+
+          storage.mode(dataset) = "integer"
+
+
+          if(miraculix && length(chr.nr)==0 && miraculix.dataset){
+            suppressWarnings(dataset <- list(miraculix::as.matrix.haplomatrix(dataset)))
+          } else if(miraculix && miraculix.dataset){
+            dataset_tmp = dataset
+            dataset <- list()
+            for(chr_index in 1:length(chr.opt)){
+              suppressWarnings(dataset[[chr_index]] <- miraculix::as.matrix.haplomatrix(dataset_tmp[chr.nr==chr.opt[chr_index],]))
+            }
+          }
+
+        } else{
+          stop("Use of MaCS without having installed AlphaSimR")
+        }
+
+
       }
 
       if(length(dataset)==1 && !is.list(dataset) && dataset=="all0"){
@@ -3098,11 +3231,35 @@ creating.diploid <- function(population=NULL,
         }
 
         LT <- chol(shuffle.cor)
+
+        if(whitening){
+          prior_cor = stats::cor(t(get.bv(population, gen = 1)))
+
+          eig <- eigen(prior_cor)
+          # inverse square root of A
+          LT2 <- eig$vectors %*% diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
+          # check
+          #L %*% prior_cor %*% t(L)
+          #t(LT) %*% L %*% prior_cor %*% t(L) %*% LT
+          LT_old = LT
+          LT = t(LT2) %*% LT
+
+          #t(LT_old) %*% LT_old
+          #t(LT) %*% prior_cor %*% LT
+          #t(LT) %*% LT
+        }
+
+
         if(nrow(LT)!=length(shuffle.traits)){
           stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
         } else{
 
-          population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+          if(whitening){
+            population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% prior_cor %*% LT
+          } else{
+            population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+          }
+
           if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
             warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
           }
@@ -3110,7 +3267,6 @@ creating.diploid <- function(population=NULL,
           store.add <- population$info$real.bv.add
           store.mult <- population$info$real.bv.mult
           store.dice <- population$info$real.bv.dice
-
 
           col <- 1
           for(index in shuffle.traits){

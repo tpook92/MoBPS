@@ -175,6 +175,10 @@ breeding.diploid(
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
   phenotyping.trafo.parameter = NULL,
+  phenotyping.remove.gen = NULL,
+  phenotyping.remove.cohorts = NULL,
+  phenotyping.remove.database = NULL,
+  phenotyping.remove.all.copy = TRUE,
   bve = FALSE,
   bve.gen = NULL,
   bve.cohorts = NULL,
@@ -223,7 +227,9 @@ breeding.diploid(
   bve.varcomp.gen = NULL,
   bve.varcomp.database = NULL,
   bve.varcomp.cohorts = NULL,
+  bve.vc.last = FALSE,
   bve.use.all.copy = FALSE,
+  bve.insert.all.copy = TRUE,
   bve.pedigree.error = TRUE,
   mobps.bve = TRUE,
   mixblup.bve = FALSE,
@@ -271,6 +277,7 @@ breeding.diploid(
   mixblup.skip = FALSE,
   blupf90.skip = FALSE,
   mixblup.restart = FALSE,
+  mixblup.startval_check = FALSE,
   mixblup.nopeek = FALSE,
   mixblup.calcinbr.s = FALSE,
   mixblup.multiple.records = FALSE,
@@ -286,6 +293,7 @@ breeding.diploid(
   mixblup.dgv = FALSE,
   mixblup.dgv.freq = NULL,
   mixblup.dgv.effect = NULL,
+  mixblup.tmpdir = NULL,
   blupf90.path = NULL,
   renumf90.path = NULL,
   blupf90.path.pedfile = NULL,
@@ -703,6 +711,10 @@ breeding.diploid(
 
 \item{phenotyping.trafo.parameter}{Additional input parameter for phenotypic transformation function}
 
+\item{phenotyping.remove.gen, phenotyping.remove.cohorts, phenotyping.remove.database}{Generation/cohorts/groups from which to remove all phenotyping data}
+
+\item{phenotyping.remove.all.copy}{Set to FALSE to not remove phenotyping information of other copies of the individual (default: TRUE)}
+
 \item{bve}{If TRUE perform a breeding value estimation (default: FALSE)}
 
 \item{bve.gen, bve.cohorts, bve.database}{Generations/Groups/Cohorts of individuals to consider in breeding value estimation (default: NULL)}
@@ -777,7 +789,13 @@ breeding.diploid(
 
 \item{bve.p_i.exclude.nongenotyped}{Set to TRUE to exclude non-genotyped individuals when calculating allele frequencies for genomic relationship matrix standardization}
 
+\item{bve.varcomp.gen, bve.varcomp.cohorts, bve.varcomp.database}{Generations/cohorts/groups based on which variance components are derived (Default: All individuals in BVE; individuals have to be part of the evaluation)}
+
+\item{bve.vc.last}{Set to TRUE to use the last variance components in the breeding value estimation (Default: FALSE)}
+
 \item{bve.use.all.copy}{Set to TRUE to use phenotypes and genotyped status from all copies of an individual instead of just the provided ones in the bve.gen/database/cohorts (default: FALSE)}
+
+\item{bve.insert.all.copy}{Set to FALSE to avoid entering the EBV for all copies of an individual}
 
 \item{bve.pedigree.error}{Set to FALSE to ignore/correct for any pedigree errors}
 
@@ -873,6 +891,8 @@ breeding.diploid(
 
 \item{mixblup.restart}{Set to TRUE to set the !RESTART flag in MiXBLUP (requires a "Solunf" file in the working directory)}
 
+\item{mixblup.startval_check}{Set to TRUE to set the !StartVal_Check flag in MiXBLUP (check if !RESTART can be used)}
+
 \item{mixblup.nopeek}{Set to TRUE to set the !NOPEEK flag in MiXBLUP}
 
 \item{mixblup.calcinbr.s}{Set to TRUE to set the !CalcInbr flag to S}
@@ -902,6 +922,8 @@ breeding.diploid(
 \item{mixblup.dgv.freq}{Path of allele frequency file for DGV-PBLUP}
 
 \item{mixblup.dgv.effect}{Path of SNP effect file for DGV-PBLUP}
+
+\item{mixblup.tmpdir}{Path to write temporary files to (default: Working directory)}
 
 \item{blupf90.path}{Provide path to blupf90 (default is your working directory: Windows: ./blupf90+.exe ; Linux ./blupf90+.exe)}
 

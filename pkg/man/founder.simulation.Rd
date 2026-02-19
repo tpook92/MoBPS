@@ -39,6 +39,8 @@ founder.simulation(
   template.chip = NULL,
   beta.shape1 = 1,
   beta.shape2 = 1,
+  macs.ne = 100,
+  macs.freq.correction = TRUE,
   map = NULL,
   verbose = TRUE,
   vcf.maxsnp = Inf,
@@ -122,6 +124,10 @@ founder.simulation(
 \item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies}
 
 \item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
+
+\item{macs.ne}{Target effective population size when using MaCS simulator (default: 100)}
+
+\item{macs.freq.correction}{Set to FALSE to not obtain target allele frequency distribution (default: TRUE)}
 
 \item{map}{map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()}
 

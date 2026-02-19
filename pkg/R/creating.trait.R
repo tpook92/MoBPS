@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param n.equal.overdominant Number of overdominant QTL with equal effect size
 #' @param n.qualitative Number of qualitative epistatic QTL
 #' @param n.quantitative Number of quantitative epistatic QTL
+#' @param whitening Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied
 #' @param effect.distribution Set to "gamma" for gamma distribution effects with gamma.shape1, gamma.shape2 instead of gaussian (default: "gauss")
 #' @param gamma.shape1 Default: 1
 #' @param gamma.shape2 Default: 1
@@ -149,7 +150,8 @@ creating.trait <- function(population,
                            new.phenotype.correlation=NULL,
                            shuffle.traits=NULL,
                            shuffle.cor= NULL,
-                           bv.total = 0){
+                           bv.total = 0,
+                           whitening = FALSE){
 
 
   {
@@ -807,11 +809,11 @@ creating.trait <- function(population,
 
 
           if(effect.distribution == "gauss"){
-            d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
-            d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])))
+            d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+            d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
           } else{
-            d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
-            d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2))
+            d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+            d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
           }
 
           effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
@@ -1160,6 +1162,7 @@ creating.trait <- function(population,
     }
   }
 
+
   if(length(shuffle.traits)>0){
     if(length(shuffle.traits)==1){
       shuffle.traits <- which(population$info$bv.random==FALSE)
@@ -1179,7 +1182,7 @@ creating.trait <- function(population,
     #stop()
     ## only needed for creating.trait()
     population$info$bv.calculated = FALSE
-    population <- breeding.diploid(population, verbose = FALSE)
+    population <- breeding.diploid(population, verbose = FALSE, use.recalculate.manual = FALSE)
 
 
     bvs <- get.bv(population, gen=1)
@@ -1237,11 +1240,35 @@ creating.trait <- function(population,
     }
 
     LT <- chol(shuffle.cor)
+
+    if(whitening){
+      prior_cor = stats::cor(t(get.bv(population, gen = 1)))
+
+      eig <- eigen(prior_cor)
+      # inverse square root of A
+      LT2 <- eig$vectors %*% diag(1 / sqrt(eig$values)) %*% t(eig$vectors)
+      # check
+      #L %*% prior_cor %*% t(L)
+      #t(LT) %*% L %*% prior_cor %*% t(L) %*% LT
+      LT_old = LT
+      LT = t(LT2) %*% LT
+
+      #t(LT_old) %*% LT_old
+      #t(LT) %*% prior_cor %*% LT
+      #t(LT) %*% LT
+    }
+
+
     if(nrow(LT)!=length(shuffle.traits)){
       stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
     } else{
 
-      population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+      if(whitening){
+        population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% prior_cor %*% LT
+      } else{
+        population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+      }
+
       if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
         warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
       }

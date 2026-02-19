@@ -58,6 +58,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param hom1 Vector containing the second allelic variant in each marker (default: 1)
 #' @param beta.shape1 First parameter of the beta distribution for simulating allele frequencies
 #' @param beta.shape2 Second parameter of the beta distribution for simulating allele frequencies
+#' @param macs.ne Target effective population size when using MaCS simulator (default: 100)
+#' @param macs.freq.correction Set to FALSE to not obtain target allele frequency distribution (default: TRUE)
 #' @param map map-file that contains up to 5 colums (Chromsome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
 #' @param plot.ld Set FALSE to not generate the LD plot (default; TRUE)
 #' @param plot.allele.freq Set FALSE to not generate the allele frequency spectrum plot (default: TRUE)
@@ -91,6 +93,8 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                template.chip=NULL,
                                beta.shape1=1,
                                beta.shape2=1,
+                               macs.ne = 100,
+                               macs.freq.correction = TRUE,
                                map=NULL,
                                verbose=TRUE,
                                vcf.maxsnp=Inf,
@@ -138,6 +142,8 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                  template.chip = template.chip,
                                  beta.shape1 = beta.shape1,
                                  beta.shape2 = beta.shape2,
+                                 macs.ne = macs.ne,
+                                 macs.freq.correction = macs.freq.correction,
                                  map = map,
                                  verbose=FALSE,
                                  vcf.maxsnp = vcf.maxsnp)

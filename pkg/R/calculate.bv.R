@@ -181,7 +181,12 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
       for(activ_pool in activ_pools){
 
         if(multi_pool){
-          real.bv.adds = population$info$bypool_list[[bven]][[activ_pool+1]]
+          if(length(population$info$bypool_list[[bven]])>0 && length(population$info$bypool_list[[bven]][[activ_pool+1]]) > 0){
+            real.bv.adds = population$info$bypool_list[[bven]][[activ_pool+1]]
+          } else{
+            real.bv.adds = NULL
+          }
+
         } else{
           real.bv.adds <- population$info$real.bv.add[[bven]]
         }

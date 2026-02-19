@@ -97,7 +97,7 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
     index_list = list()
     for(index in 1:length(nr)){
       list_copies = population$breeding[[gen[index]]][[sex[index]]][[nr[index]]][[21]]
-      if(nrow(list_copies) > 1){
+      if(nrow(list_copies) >= 1){
         gen_list[[index]] = list_copies[,1]
         sex_list[[index]] = list_copies[,2]
         nr_list[[index]] = list_copies[,3]
@@ -161,7 +161,7 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
           population$breeding[[gen]][[sex]][[nr]][[15]][population$breeding[[gen]][[sex]][[nr]][[15]]<temp1] <- temp1[population$breeding[[gen]][[sex]][[nr]][[15]]<temp1]
         } else{
           population$breeding[[gen]][[sex]][[nr]][[15]] <- temp1
-          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 || ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>max(temp1)){
+          if(length(population$breeding[[gen]][[sex]][[nr]][[24]])>0 && ncol(population$breeding[[gen]][[sex]][[nr]][[24]])>max(temp1)){
             if(max(temp1)>0){
               population$breeding[[gen]][[sex]][[nr]][[24]] <- population$breeding[[gen]][[sex]][[nr]][[24]][,1:max(temp1)]
             } else{

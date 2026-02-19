@@ -63,7 +63,8 @@ creating.trait(
   new.phenotype.correlation = NULL,
   shuffle.traits = NULL,
   shuffle.cor = NULL,
-  bv.total = 0
+  bv.total = 0,
+  whitening = FALSE
 )
 }
 \arguments{
@@ -184,6 +185,8 @@ creating.trait(
 \item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
 
 \item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+
+\item{whitening}{Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied}
 }
 \value{
 Population-list with one or more additional new traits

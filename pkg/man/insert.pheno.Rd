@@ -23,6 +23,8 @@ insert.pheno(
 \item{count}{Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))}
 
 \item{count.only.increase}{Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)}
+
+\item{all.copys}{Set FALSE to only enter target values for a specific copy of the individual (default: TRUE)}
 }
 \value{
 Population-List with newly entered phenotypes

@@ -22,6 +22,8 @@ get.grm(
 \arguments{
 \item{population}{Population list}
 
+\item{geno}{Manually provided genotype matrix (SNP x Indi)}
+
 \item{database}{Groups of individuals to consider for the export}
 
 \item{gen}{Quick-insert for database (vector of all generations to export)}

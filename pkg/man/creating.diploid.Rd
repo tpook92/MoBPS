@@ -35,6 +35,10 @@ creating.diploid(
   freq = "beta",
   beta.shape1 = 1,
   beta.shape2 = 1,
+  qtl.beta.shape1 = NULL,
+  qtl.beta.shape2 = NULL,
+  macs.ne = 100,
+  macs.freq.correction = TRUE,
   share.genotyped = 0,
   genotyped.s = NULL,
   vcf = NULL,
@@ -120,7 +124,8 @@ creating.diploid(
   position.scaling = FALSE,
   shuffle.cor = NULL,
   shuffle.traits = NULL,
-  bv.total = 0
+  bv.total = 0,
+  whitening = FALSE
 )
 }
 \arguments{
@@ -176,13 +181,21 @@ creating.diploid(
 
 \item{hom1}{Vector containing the second allelic variant in each marker (default: 1)}
 
-\item{dataset}{SNP dataset, use "random", "allhetero" "all0" when generating a dataset via nsnp,nindi}
+\item{dataset}{SNP dataset, use "random", "macs", "allhetero", "all0" when generating a dataset via nsnp,nindi}
 
 \item{freq}{frequency of allele 1 when randomly generating a dataset (default: "beta" with parameters beta.shape1, beta.shape2; Use "same" when generating additional individuals and using the same allele frequencies)}
 
-\item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies}
+\item{beta.shape1}{First parameter of the beta distribution for simulating allele frequencies for SNPs}
 
-\item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies}
+\item{beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies for SNPs}
+
+\item{qtl.beta.shape1}{First parameter of the beta distribution for simulating allele frequencies for QTLs}
+
+\item{qtl.beta.shape2}{Second parameter of the beta distribution for simulating allele frequencies for SNPs}
+
+\item{macs.ne}{Target effective population size when using MaCS simulator (default: 100)}
+
+\item{macs.freq.correction}{Set to FALSE to not obtain target allele frequency distribution (default: TRUE)}
 
 \item{share.genotyped}{Share of individuals genotyped in the founders}
 
@@ -355,6 +368,8 @@ creating.diploid(
 \item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
 
 \item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+
+\item{whitening}{Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied}
 }
 \value{
 Population-list

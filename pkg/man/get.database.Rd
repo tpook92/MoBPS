@@ -13,6 +13,7 @@ get.database(
   per.individual = FALSE,
   id = NULL,
   db.names = NULL,
+  id.first = NULL,
   id.all.copy = FALSE,
   id.last = FALSE,
   keep.order = FALSE,
@@ -40,7 +41,9 @@ get.database(
 
 \item{db.names}{MoPBS internal names (SexNr_Generation)}
 
-\item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE)}
+\item{id.first}{Set to TRUE to reduce gen/database/cohort to first copy of an individual (default: FALSE for gen/database/cohort (within the considered) , TRUE for id)}
+
+\item{id.all.copy}{Set to TRUE to show all copies of an individual in the database (default: FALSE for ID, TRUE for gen/database/cohort (within the considered))}
 
 \item{id.last}{Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)}
 

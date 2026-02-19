@@ -161,6 +161,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param new.residual.correlation Correlation of the simulated residual variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (only impacts non-QTL based traits. Needs to be fit in creating.diploid/trait for QTL-based traits)
 #' @param phenotyping.trafo.parameter Additional input parameter for phenotypic transformation function
+#' @param phenotyping.remove.gen,phenotyping.remove.cohorts,phenotyping.remove.database Generation/cohorts/groups from which to remove all phenotyping data
+#' @param phenotyping.remove.all.copy Set to FALSE to not remove phenotyping information of other copies of the individual (default: TRUE)
 #### Breeding value estimation
 #' @param bve If TRUE perform a breeding value estimation (default: FALSE)
 #' @param bve.gen,bve.cohorts,bve.database Generations/Groups/Cohorts of individuals to consider in breeding value estimation (default: NULL)
@@ -168,6 +170,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param depth.pedigree Depth of the pedigree in generations (default: 7)
 #' @param singlestep.active Set FALSE remove all individuals without genomic data from the breeding value estimation
 #' @param bve.varcomp.gen,bve.varcomp.cohorts,bve.varcomp.database Generations/cohorts/groups based on which variance components are derived (Default: All individuals in BVE; individuals have to be part of the evaluation)
+#' @param bve.vc.last Set to TRUE to use the last variance components in the breeding value estimation (Default: FALSE)
 #' @param bve.ignore.traits Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in selection.index.weights.m/.w)
 #' @param bve.array Array to use in the breeding value estimation (default: NULL; chose largest possible based on used individuals in BVE)
 #' @param bve.imputation Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available
@@ -201,6 +204,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.p_i.gen,bve.p_i.database,bve.p_i.cohorts Generations/cohorts/groups to use when manually calculating allele frequencies for genomic relationship matrix
 #' @param bve.p_i.exclude.nongenotyped Set to TRUE to exclude non-genotyped individuals when calculating allele frequencies for genomic relationship matrix standardization
 #' @param bve.use.all.copy Set to TRUE to use phenotypes and genotyped status from all copies of an individual instead of just the provided ones in the bve.gen/database/cohorts (default: FALSE)
+#' @param bve.insert.all.copy Set to FALSE to avoid entering the EBV for all copies of an individual
 #' @param bve.pedigree.error Set to FALSE to ignore/correct for any pedigree errors
 #### Software for breeding value estimation
 #' @param mobps.bve If TRUE predict BVEs in direct estimation with assumed known heritability (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)
@@ -259,6 +263,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mixblup.tac Set to TRUE to use the !TAC flag in MixBLUP
 #' @param mixblup.multiple.records Set to TRUE to write multiple phenotypic records for an individual
 #' @param mixblup.restart Set to TRUE to set the !RESTART flag in MiXBLUP (requires a "Solunf" file in the working directory)
+#' @param mixblup.startval_check Set to TRUE to set the !StartVal_Check flag in MiXBLUP (check if !RESTART can be used)
 #' @param mixblup.nopeek Set to TRUE to set the !NOPEEK flag in MiXBLUP
 #' @param mixblup.calcinbr.s Set to TRUE to set the !CalcInbr flag to S
 #' @param mixblup.attach Set TRUE to just extent the existing genotype file instead of writting it completely new
@@ -268,6 +273,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param mixblup.dgv Set TRUE to use DGV-PBLUP (Only applicable with TAC-BLUP)
 #' @param mixblup.dgv.freq Path of allele frequency file for DGV-PBLUP
 #' @param mixblup.dgv.effect Path of SNP effect file for DGV-PBLUP
+#' @param mixblup.tmpdir Path to write temporary files to (default: Working directory)
 #' @param blupf90.path.inputfile Path from where to import the blupf90 inputfile
 #' @param blupf90.path.datafile Path from where to import the blupf90 data file
 #' @param blupf90.path.genofile Path from where to import the blupf90 genotype file
@@ -585,6 +591,10 @@ breeding.diploid <- function(population,
                               new.breeding.correlation = NULL,
                              phenotyping.trafo.parameter = NULL,
 
+                             phenotyping.remove.gen = NULL,
+                             phenotyping.remove.cohorts = NULL,
+                             phenotyping.remove.database = NULL,
+                             phenotyping.remove.all.copy = TRUE,
                               #### Breeding value estimation
                               bve = FALSE,
                               bve.gen = NULL,
@@ -634,7 +644,9 @@ breeding.diploid <- function(population,
                              bve.varcomp.gen = NULL,
                              bve.varcomp.database = NULL,
                              bve.varcomp.cohorts = NULL,
+                             bve.vc.last = FALSE,
                              bve.use.all.copy = FALSE,
+                             bve.insert.all.copy = TRUE,
                              bve.pedigree.error = TRUE,
 
                               #### Software for breeding value estimation
@@ -685,6 +697,7 @@ breeding.diploid <- function(population,
                               mixblup.skip = FALSE,
                              blupf90.skip = FALSE,
                              mixblup.restart = FALSE,
+                             mixblup.startval_check = FALSE,
                              mixblup.nopeek = FALSE,
                              mixblup.calcinbr.s = FALSE,
                               mixblup.multiple.records = FALSE,
@@ -701,6 +714,8 @@ breeding.diploid <- function(population,
                               mixblup.dgv = FALSE,
                               mixblup.dgv.freq = NULL,
                               mixblup.dgv.effect = NULL,
+
+                             mixblup.tmpdir = NULL,
 
                              blupf90.path=NULL,
                              renumf90.path = NULL,
@@ -862,6 +877,54 @@ breeding.diploid <- function(population,
                              copy.individual.use2 = NULL){
 
 
+
+
+  if(bve.vc.last){
+
+    if(length(population$info$last.vc) > 0){
+
+      if(population$info$last.vc[[3]] == "mixblup"){
+
+        mixblup.genetic.cov = population$info$last.vc[[1]]
+        mixblup.residual.cov = population$info$last.vc[[2]]
+
+        sigma.g = sqrt(diag(population$info$last.vc[[1]]))
+        sigma.e = sqrt(diag(population$info$last.vc[[2]]))
+
+      } else{
+
+        sigma.g = sqrt(population$info$last.vc[[1]])
+        sigma.e = sqrt(population$info$last.vc[[2]])
+      }
+    } else{
+      warning("No prior variance components exist. bve.vc.last is set to FALSE.")
+    }
+  }
+
+  if(requireNamespace("parallelly", quietly = TRUE)){
+    max_cores = parallelly::availableCores()
+
+    if(length(generation.cores) > 0 && generation.cores > max_cores){
+      generation.cores = max_cores
+      if(verbose){
+        cat("More cores requested than available - automatically reduce number of cores in generation.cores.\n")
+      }
+    }
+
+    if(length(miraculix.cores) > 0 && miraculix.cores > max_cores){
+      miraculix.cores = max_cores
+      if(verbose){
+        cat("More cores requested than available - automatically reduce number of cores in miraculix.cores.\n")
+      }
+    }
+
+    if(length(mixblup.numproc) > 0 && mixblup.numproc > max_cores){
+      mixblup.numproc = max_cores
+      if(verbose){
+        cat("More cores requested than available - automatically reduce number of cores in mixblup.numproc.\n")
+      }
+    }
+  }
 
   {
     # can be deleted with version 1.13
@@ -1962,6 +2025,7 @@ breeding.diploid <- function(population,
     genotyped.database <- get.database(population, genotyped.gen, genotyped.database, genotyped.cohorts)
 
     genotyped.remove.database <- get.database(population, genotyped.remove.gen, genotyped.remove.database, genotyped.remove.cohorts)
+    phenotyping.remove.database <- get.database(population, phenotyping.remove.gen, phenotyping.remove.database, phenotyping.remove.cohorts)
 
     bve.gen.input <- bve.gen
     bve.database.input <- bve.database
@@ -1989,7 +2053,6 @@ breeding.diploid <- function(population,
         bve.database <- get.database(population,  database= bve.database)
       }
     }
-
 
     if(length(sigma.g.gen)==0 && length(sigma.g.cohorts)==0 && length(sigma.g.database)==0){
       sigma.g.gen <- bve.gen.input
@@ -3078,6 +3141,31 @@ breeding.diploid <- function(population,
               population$breeding[[activ[index3,1]]][[activ[index3,2]]][[activ[index3,3]]][[16]] <- 0
               population$breeding[[activ[index3,1]]][[activ[index3,2]]][[activ[index3,3]]][[22]] <- numeric(0)
             }
+
+          }
+        }
+      }
+    }
+
+    if(length(phenotyping.remove.database) > 0){
+
+      for(index in 1:nrow(phenotyping.remove.database)){
+        for(index2 in phenotyping.remove.database[index,3]:phenotyping.remove.database[index,4]){
+
+          to_remove = c(phenotyping.remove.database[index,1:2], index2,index2)
+          if(phenotyping.remove.all.copy){
+            to_remove = population$breeding[[to_remove[1]]][[to_remove[2]]][[to_remove[3]]][[21]]
+          } else{
+            to_remove = t(to_remove)
+          }
+
+          for(index3 in 1:nrow(to_remove)){
+            population$breeding[[to_remove[index3,1]]][[to_remove[index3,2]]][[to_remove[index3,3]]][[15]] = rep(0, population$info$bv.nr)
+            population$breeding[[to_remove[index3,1]]][[to_remove[index3,2]]][[to_remove[index3,3]]][[24]] = numeric(0)
+            population$breeding[[to_remove[index3,1]]][[to_remove[index3,2]]][[to_remove[index3,3]]][[27]] = list()
+
+            population$breeding[[to_remove[index3,1]]][[to_remove[index3,2]+8]][,to_remove[index3,3]] = NA
+            population$breeding[[to_remove[index3,1]]][[to_remove[index3,2]+42]][to_remove[index3,3]] = NA
 
           }
         }
@@ -4276,6 +4364,25 @@ breeding.diploid <- function(population,
                       new_geno = rep(TRUE, nrow(dense))
                     }
 
+                    if(mixblup.dgv){
+
+                      if(length(population$info$mixblup_lastfreq) > 0){
+
+                        if(nrow(geno) != nrow(population$info$mixblup_lastfreq)){
+                          if(verbose){
+                            cat(paste0("Number of SNPs in MoBPS:", nrow(geno), "\n"))
+                            cat(paste0("Number of SNPs in LastMiXBLUP:", nrow(population$info$mixblup_lastfreq), "\n"))
+                          }
+                          if(max(population$info$mixblup_lastfreq[,1]) <= nrow(geno)){
+                            if(verbose){
+                              cat(paste0("Remove additional SNPs from MoBPS to match previous MiXBLUP files.\n"))
+
+                            }
+                            geno = geno[population$info$mixblup_lastfreq[,1],]
+                          }
+                        }
+                      }
+                    }
 
                     for(index in (1:nrow(dense))[new_geno]){
                       dense[index,2] <- paste0(geno[,index], collapse = "")
@@ -4485,6 +4592,27 @@ breeding.diploid <- function(population,
                       new_geno = rep(TRUE, nrow(dense))
                     }
 
+                    if(mixblup.dgv){
+
+                      if(length(population$info$mixblup_lastfreq) > 0){
+
+                        if(nrow(geno) != nrow(population$info$mixblup_lastfreq)){
+                          if(verbose){
+                            cat(paste0("Number of SNPs in MoBPS:", nrow(geno), "\n"))
+                            cat(paste0("Number of SNPs in LastMiXBLUP:", nrow(population$info$mixblup_lastfreq), "\n"))
+                          }
+                          if(max(population$info$mixblup_lastfreq[,1]) <= nrow(geno)){
+                            if(verbose){
+                              cat(paste0("Remove additional SNPs from MoBPS to match previous MiXBLUP files.\n"))
+
+                            }
+                            geno = geno[population$info$mixblup_lastfreq[,1],]
+                          }
+                        }
+                      }
+                    }
+
+
                     for(index in (1:nrow(dense))[new_geno]){
                       dense[index,2] <- paste0(geno[,index], collapse = "")
                     }
@@ -4547,6 +4675,26 @@ breeding.diploid <- function(population,
                       new_geno = rep(TRUE, nrow(dense))
                     }
 
+                    if(mixblup.dgv){
+
+                      if(length(population$info$mixblup_lastfreq) > 0){
+
+                        if(nrow(Zt) != nrow(population$info$mixblup_lastfreq)){
+                          if(verbose){
+                            cat(paste0("Number of SNPs in MoBPS:", nrow(Zt), "\n"))
+                            cat(paste0("Number of SNPs in LastMiXBLUP:", nrow(population$info$mixblup_lastfreq), "\n"))
+                          }
+                          if(max(population$info$mixblup_lastfreq[,1]) <= nrow(Zt)){
+                            if(verbose){
+                              cat(paste0("Remove additional SNPs from MoBPS to match previous MiXBLUP files.\n"))
+
+                            }
+                            Zt = Zt[population$info$mixblup_lastfreq[,1],]
+                          }
+                        }
+                      }
+                    }
+
                     for(index in (1:nrow(dense))[new_geno]){
                       dense[index,2] <- paste0(Zt[,index], collapse = "")
                     }
@@ -4605,6 +4753,26 @@ breeding.diploid <- function(population,
                     new_geno = !(dense[,1] %in% already_exists)
                   } else{
                     new_geno = rep(TRUE, nrow(dense))
+                  }
+
+                  if(mixblup.dgv){
+
+                    if(length(population$info$mixblup_lastfreq) > 0){
+
+                      if(nrow(Zt) != nrow(population$info$mixblup_lastfreq)){
+                        if(verbose){
+                          cat(paste0("Number of SNPs in MoBPS:", nrow(Zt), "\n"))
+                          cat(paste0("Number of SNPs in LastMiXBLUP:", nrow(population$info$mixblup_lastfreq), "\n"))
+                        }
+                        if(max(population$info$mixblup_lastfreq[,1]) <= nrow(Zt)){
+                          if(verbose){
+                            cat(paste0("Remove additional SNPs from MoBPS to match previous MiXBLUP files.\n"))
+
+                          }
+                          Zt = Zt[population$info$mixblup_lastfreq[,1],]
+                        }
+                      }
+                    }
                   }
 
                   for(index in (1:nrow(dense))[new_geno]){
@@ -5691,14 +5859,23 @@ breeding.diploid <- function(population,
               warning("Files for mixblup option !RESTART not found! Not use !RESTART flag")
             } else{
               utils::write.table(file=mixblup.path.inputfile, "!RESTART", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
-
             }
+          }
+
+          if(mixblup.startval_check){
+            utils::write.table(file=mixblup.path.inputfile, "!StartVal_Check", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
 
           }
+
           if(mixblup.nopeek){
             utils::write.table(file=mixblup.path.inputfile, "!NOPEEK", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
           }
 
+          if(length(mixblup.tmpdir)>0){
+            utils::write.table(file=mixblup.path.inputfile, "", append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+            utils::write.table(file=mixblup.path.inputfile, cbind("TMPDIR ", mixblup.tmpdir), append = TRUE, row.names = FALSE, col.names = FALSE , quote=FALSE)
+
+          }
           if(store.comp.times.bve){
             mixblup_time[12] <- as.numeric(Sys.time())
           }
@@ -6036,6 +6213,7 @@ breeding.diploid <- function(population,
               solani = "Solani.txt"
               solfix = "Solfix.txt"
               relani = "Relani.txt"
+              freqfile = "calculated_all_freq.dat"
               if(mixblup.hpblup || mixblup.jeremie){
                 solani = "Solani.out"
                 solfix = "Solfix.out"
@@ -6051,6 +6229,13 @@ breeding.diploid <- function(population,
               tick_mix = Sys.time()
               system(paste0(mixblup.path, " ", mixblup.path.inputfile, if(mixblup.debug){" -Dmst > mixblup_debug.log"} else{""}), intern=verbose&&mixblup.verbose,
                      ignore.stdout=!(verbose&&mixblup.verbose), ignore.stderr=!(verbose&&mixblup.verbose))
+
+              if (file.exists(freqfile)) {
+
+                mixblup_freq = as.matrix(utils::read.table(freqfile))
+                population$info$mixblup_lastfreq = mixblup_freq
+              }
+
 
               tack_mix = Sys.time()
               if(verbose) cat(paste0("Finished MiXBLUP BVE\nEstimate took ", round(as.numeric(tack_mix)-as.numeric(tick_mix), digits = 2), " seconds.\n"))
@@ -6773,13 +6958,50 @@ breeding.diploid <- function(population,
 
       }
 
-      for(index in (1:nrow(loop_elements))[bve.insert]){
-        population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
-      }
-      if(calculate.reliability || estimate.reliability || mixblup.reliability){
+      if(bve.insert.all.copy){
+
         for(index in (1:nrow(loop_elements))[bve.insert]){
-          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_reli[index,bve.keeps]
+          tmp = population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]]][[loop_elements[index,2]]][[21]]
+
+          if(length(tmp)>3){
+            for(index2 in 1:nrow(tmp)){
+              population$breeding[[tmp[index2,1]]][[tmp[index2,2]+2]][bve.keeps, tmp[index2,3]] <- y_hat[index,bve.keeps]
+            }
+          } else{
+            population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
+          }
         }
+
+      } else{
+        for(index in (1:nrow(loop_elements))[bve.insert]){
+          population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+2]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
+        }
+      }
+
+
+
+      if(calculate.reliability || estimate.reliability || mixblup.reliability){
+        if(bve.insert.all.copy){
+
+          for(index in (1:nrow(loop_elements))[bve.insert]){
+            tmp = population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]]][[loop_elements[index,2]]][[21]]
+
+            if(length(tmp)>3){
+              for(index2 in 1:nrow(tmp)){
+                population$breeding[[tmp[index2,1]]][[tmp[index2,2]+18]][bve.keeps, tmp[index2,3]] <- y_hat[index,bve.keeps]
+              }
+            } else{
+              population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_hat[index,bve.keeps]
+            }
+          }
+
+        } else{
+          for(index in (1:nrow(loop_elements))[bve.insert]){
+            population$breeding[[loop_elements[index,4]]][[loop_elements[index,5]+18]][bve.keeps, loop_elements[index,2]] <- y_reli[index,bve.keeps]
+          }
+
+        }
+
       }
 
       if(report.accuracy){
@@ -6830,6 +7052,35 @@ breeding.diploid <- function(population,
         if(verbose) cat("\n")
       }
 
+
+      ##### store last variance components
+
+      if(TRUE){
+
+
+        if(mixblup.bve){
+
+          vcs = list(
+            gen_cor,
+            res_cor,
+            "mixblup"
+          )
+
+        } else{
+
+          vcs = list(
+            sigma.e2.hat,
+            sigma.a2.hat,
+            "mobps"
+          )
+
+        }
+        population$info$last.vc = vcs
+
+      }
+
+
+
     } else if(bve.parent.mean || bve.grandparent.mean){
       addpheno <- FALSE
       if(bve.mean.between=="pheno"){
@@ -6863,10 +7114,27 @@ breeding.diploid <- function(population,
               }
             }
             bve_import[bve_import==0] <- NA
-            population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2] <- colMeans(bve_import, na.rm=TRUE)
-            if(sum(is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2]))>0){
-              population$breeding[[activ.base[1]]][[activ.base[2]+2]][is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2]),index2] <- 0
+
+            if(bve.insert.all.copy){
+
+              tmp = population$breeding[[activ.base[1]]][[activ.base[2]]][[index2]][[21]]
+
+              to_insert = colMeans(bve_import, na.rm=TRUE)
+              if(sum(is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2]))>0){
+                to_insert = 0
+              }
+
+              for(index3 in 1:nrow(tmp)){
+                population$breeding[[tmp[index3,1]]][[tmp[index3,2]+2]][, tmp[index3,3]] <- to_insert
+              }
+
+            } else{
+              population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2] <- colMeans(bve_import, na.rm=TRUE)
+              if(sum(is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2]))>0){
+                population$breeding[[activ.base[1]]][[activ.base[2]+2]][is.na(population$breeding[[activ.base[1]]][[activ.base[2]+2]][,index2]),index2] <- 0
+              }
             }
+
 
           }
         }
@@ -6935,14 +7203,35 @@ breeding.diploid <- function(population,
       }
 
       # Enter BVE
-      cindex <- 1
-      for(index in 1:nrow(bve.insert.database)){
-        k.database <- bve.insert.database[index,]
-        if(diff(k.database[3:4])>=0){
-          # t() not needed just to be safe when using multiple individuals at once later
-          population$breeding[[k.database[[1]]]][[2+k.database[[2]]]][,k.database[3]:k.database[4]] <- t(y_hat[cindex:(cindex+k.database[4]-k.database[3]),])
-          cindex <- cindex + k.database[4] - k.database[3] +1
+      if(bve.insert.all.copy){
+
+        cindex = 1
+        for(index in 1:nrow(bve.insert.database)){
+          for(index3 in bve.insert.database[index,3]:bve.insert.database[index,4]){
+
+            tmp = population$breeding[[bve.insert.database[index,1]]][[bve.insert.database[index,2]]][[index3]][[21]]
+
+            for(index2 in 1:nrow(tmp)){
+              population$breeding[[tmp[index2,1]]][[tmp[index2,2]+2]][, tmp[index2,3]] <- y_hat[cindex,]
+            }
+
+            cindex = cindex + 1
+          }
         }
+
+      } else{
+
+        cindex <- 1
+        for(index in 1:nrow(bve.insert.database)){
+          k.database <- bve.insert.database[index,]
+          if(diff(k.database[3:4])>=0){
+            # t() not needed just to be safe when using multiple individuals at once later
+            population$breeding[[k.database[[1]]]][[2+k.database[[2]]]][,k.database[3]:k.database[4]] <- t(y_hat[cindex:(cindex+k.database[4]-k.database[3]),])
+            cindex <- cindex + k.database[4] - k.database[3] +1
+          }
+        }
+
+
       }
 
       if(report.accuracy){
@@ -6988,6 +7277,9 @@ breeding.diploid <- function(population,
       }
       population$info$gwas_hat[[length(population$info$gwas_hat)+1]] <- gwas_hat
     }
+
+
+
 
     if(store.comp.times.bve){
       comp.times.bve[5] <- as.numeric(Sys.time())
@@ -7964,6 +8256,8 @@ breeding.diploid <- function(population,
     }
 
 
+
+
     if(ogc){
       if (requireNamespace("optiSel", quietly = TRUE)) {
         animallist <- rbind(cbind(best[[1]],1), cbind(best[[2]],2))
@@ -8043,8 +8337,7 @@ breeding.diploid <- function(population,
 
 
       } else{
-        warning("Optimum genetic contribution only possible if optiSel R-package is installed. Skip OGC! \n")
-        return()
+        stop("Optimum genetic contribution only possible if optiSel R-package is installed. Skip OGC! \n")
       }
     }
 
@@ -8536,13 +8829,13 @@ breeding.diploid <- function(population,
   }
 
   if(copy.m.check){
-    cat("Modify breeding size to be in-line with selection size.\n")
+    if(verbose) cat("Modify breeding size to be in-line with selection size.\n")
     breeding.size[1] = selection.size[1]
     breeding.size.total = sum(breeding.size)
   }
 
   if(copy.f.check){
-    cat("Modify breeding size to be in-line with selection size.\n")
+    if(verbose) cat("Modify breeding size to be in-line with selection size.\n")
     breeding.size[2] = selection.size[2]
     breeding.size.total = sum(breeding.size)
 

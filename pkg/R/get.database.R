@@ -30,7 +30,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param id Individual IDs to search/collect in the database
 #' @param db.names MoPBS internal names (SexNr_Generation)
 #' @param keep.order To not change order of individuals when ids are provided (default: FALSE)
-#' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE)
+#' @param id.first Set to TRUE to reduce gen/database/cohort to first copy of an individual (default: FALSE for gen/database/cohort (within the considered) , TRUE for id)
+#' @param id.all.copy Set to TRUE to show all copies of an individual in the database (default: FALSE for ID, TRUE for gen/database/cohort (within the considered))
 #' @param id.last Set to TRUE to use the last copy of an individual for the database (default: FALSE - pick first copy)
 #' @param class Only include individuals of the following classes in the database (can also be vector with multiple classes; default: ALL)
 #' @param genotyped Only include individuals that are genotyped (TRUE) or not-genotyped (FALSE); default: NULL (all individuals)
@@ -46,7 +47,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
 get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid.merging=FALSE,
-                        per.individual = FALSE, id=NULL, db.names = NULL, id.all.copy=FALSE, id.last=FALSE,
+                        per.individual = FALSE, id=NULL, db.names = NULL, id.first = NULL, id.all.copy=FALSE, id.last=FALSE,
                         keep.order = FALSE, class = NULL, genotyped = NULL, npheno = NULL,
                         verbose = TRUE,
                         sex.filter = 0){
@@ -74,7 +75,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
 
     database = get.database(population, gen=gen, database=database, cohorts=cohorts, avoid.merging=avoid.merging,
                             per.individual = per.individual, id=id, db.names = NULL, id.all.copy=id.all.copy, id.last=id.last,
-                            keep.order = keep.order, class = class, verbose = verbose)
+                            keep.order = keep.order, class = class, genotyped = genotyped, npheno = npheno, verbose = verbose)
     return(database)
 
   }
@@ -127,6 +128,11 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
       which_nr <- activ - n.animals[which_coh] + db[which_coh,3] - 1
       database[k,] <- c(db[which_coh,1:2], which_nr, which_nr)
       k <- k + 1
+    }
+
+    if(length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0 || sex.filter != 0){
+      database = get.database(population, database = database, genotyped = genotyped,
+                              npheno = npheno, class = class, sex.filter = sex.filter)
     }
 
     if(keep.order){
@@ -356,5 +362,34 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     database = database_full
   }
 
+  if((length(id.first) > 0 && id.first)|| id.last){
+
+    ids = get.id(population, database = database)
+    if(sum(duplicated(ids)) > 0 ){
+
+      if(length(id.first) > 0 && id.first){
+        database = get.database(population, database = database, per.individual = TRUE)[!duplicated(ids),]
+      } else{
+        database = get.database(population, database = database, per.individual = TRUE)[!duplicated(ids[length(ids):1])[length(ids):1],]
+      }
+      if(!per.individual)
+      database = get.database(population, database = database)
+    }
+  }
+
+  if(id.all.copy){
+
+    database = get.database(population, database = database, per.individual = TRUE)
+
+    database_list <- list()
+
+    for(index in 1:nrow(database)){
+      database_list[[index]] <- t(population$breeding[[database[index,1]]][[database[index,2]]][[database[index,3]]][[21]])
+    }
+
+    database_tmp = matrix(unlist(database_list), ncol = 3, byrow = TRUE)
+
+    database = get.database(population, database = database_tmp, per.individual = per.individual)
+  }
   return(database)
 }

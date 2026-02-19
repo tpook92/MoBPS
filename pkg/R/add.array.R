@@ -25,6 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population population list
 #' @param marker.included Vector with number of SNP entries coding if each marker is on the array (TRUE/FALSE)
 #' @param array.name Name of the added array
+#' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
 #' population <- add.array(ex_pop, marker.included = c(TRUE, FALSE), array.name="Half-density")
@@ -32,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 add.array <- function(population, marker.included = TRUE,
-                      array.name = NULL){
+                      array.name = NULL, verbose = TRUE){
 
   if(length(array.name)==0){
     array.name = paste0("Array_", length(population$info$array.name)+1)
@@ -48,9 +49,21 @@ add.array <- function(population, marker.included = TRUE,
     marker.included <- rep(marker.included, length.out = sum(population$info$snp))
   }
 
-  population$info$array.name = c(population$info$array.name, array.name)
-  population$info$array.markers[[length(population$info$array.markers)+1]] = marker.included
-  population$info$array.is_subset =  c(population$info$array.is_subset , prod(marker.included)!=1)
+  if(length(population$info$array.name) > 0 && sum(array.name == population$info$array.name)==1){
+
+    if(verbose){
+      cat("Array name has been previously used. Replace array with the new marker panel.")
+    }
+    replace = which(array.name == population$info$array.name)
+
+    population$info$array.name[replace] =  array.name
+    population$info$array.markers[[replace]] = marker.included
+    population$info$array.is_subset[replace] =  prod(marker.included)!=1
+  } else{
+    population$info$array.name = c(population$info$array.name, array.name)
+    population$info$array.markers[[length(population$info$array.markers)+1]] = marker.included
+    population$info$array.is_subset =  c(population$info$array.is_subset , prod(marker.included)!=1)
+  }
 
   return(population)
 }
