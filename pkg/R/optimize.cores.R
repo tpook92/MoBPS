@@ -47,6 +47,7 @@ optimize.cores <- function(population = NULL, test.size = 2500, max.cores = 10, 
   }
 
 
+  if(verbose) {print(cbind(1:max.cores, t))}
   if(verbose) {cat(paste0("Suggested number of cores is ", which.min(t)))}
   if(plot) { plot(t, ylab="computing time in seconds", xlab="number of cores", ylim = c(0, max(t)))}
   population$info$generation.cores = which.min(t)

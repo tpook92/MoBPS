@@ -50,8 +50,8 @@ get.recombi <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = 
         data[[rindex]] <-  list()
 
         colnamed <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")
-        data[[rindex]][[1]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[1]]
-        data[[rindex]][[2]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[2]]
+        data[[rindex]][[1]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[1]] / population$info$recombination.precision
+        data[[rindex]][[2]] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[2]] / population$info$recombination.precision
         if(population$info$miraculix){
           if (requireNamespace("miraculix", quietly = TRUE)) {
             decode <- miraculix::decodeOrigins

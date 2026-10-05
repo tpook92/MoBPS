@@ -31,11 +31,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' kinship <- kinship.emp(population=ex_pop, database=cbind(2,1,1,25))
+#' kinship <- get.kinship.emp(population=ex_pop, database=cbind(2,1,1,25))
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
-kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=FALSE, use.id=TRUE){
+get.kinship.emp <-  function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, sym=TRUE, use.id=TRUE){
 
 
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
@@ -99,17 +99,35 @@ kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, 
       }
 
   }
-  if(sym==TRUE){
-    if (sym == TRUE) {
+  if(sym){
+
       for (i in 1:n) {
         kinship[i, 1:i] <- kinship[1:i, i]
       }
-    }
+
   }
   colnames(kinship) <- rownames(kinship) <- col_names
 
   return(kinship)
 }
+
+#' Empirical kinship
+#'
+#' Function to compute empirical kinship for a set of individuals
+#' @param population Population list
+#' @param animals List of animals to compute kinship for
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param sym If True derive matrix entries below principle-diagonal
+#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' kinship <- kinship.emp(population=ex_pop, database=cbind(2,1,1,25))
+#' @return Empirical kinship matrix (IBD-based since Founders)
+#' @export
+#'
+kinship.emp <- get.kinship.emp
 
 #' Approximate empirical kinship
 #'
@@ -127,7 +145,7 @@ kinship.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, 
 #' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
 #' @export
 #'
-kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=200, hbd.obs=50){
+get.kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, ibd.obs=200, hbd.obs=50){
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
     database <- get.database(population, gen=gen, database=database, cohorts=cohorts)
     animals <- list()
@@ -237,6 +255,23 @@ kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=N
 }
 
 
+#' Approximate empirical kinship
+#'
+#' Function to compute empirical kinship for a set of individuals (not all pairs of individuals are evaluated)
+#' @param population Population list
+#' @param animals List of animals to compute kinship for
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param ibd.obs Number of Individual pairs to sample for IBD estimation
+#' @param hbd.obs Number of Individuals to sample for HBD estimation
+#' @examples
+#' data(ex_pop)
+#' kinship.emp.fast(population=ex_pop,gen=2)
+#' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
+#' @export
+#'
+kinship.emp.fast <- get.kinship.emp.fast
 
 
 
@@ -257,7 +292,7 @@ kinship.emp.fast <- function(population=NULL, animals=NULL, gen=NULL, database=N
 #' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
 #' @export
 #'
-kinship.emp.fast.between <- function(population=NULL, gen1=NULL, database1=NULL, cohorts1=NULL, gen2=NULL, database2=NULL, cohorts2=NULL,ibd.obs=50){
+get.kinship.emp.fast.between <- function(population=NULL, gen1=NULL, database1=NULL, cohorts1=NULL, gen2=NULL, database2=NULL, cohorts2=NULL,ibd.obs=50){
   if(length(gen1)>0 || length(database1)>0 || length(cohorts1)>0){
     database1 <- get.database(population, gen=gen1, database=database1, cohorts=cohorts1)
     animals1 <- list()
@@ -356,3 +391,23 @@ kinship.emp.fast.between <- function(population=NULL, gen1=NULL, database1=NULL,
 
   return(c(ibd))
 }
+
+
+#' Approximate empirical kinship
+#'
+#' Function to compute empirical kinship for a set of individuals (not all pairs of individuals are evaluated)
+#' @param population Population list
+#' @param database1 First Groups of individuals to consider for the export
+#' @param gen1 Quick-insert for database1 (vector of all generations to export)
+#' @param cohorts1 Quick-insert for database1 (vector of names of cohorts to export)
+#' @param database2 Second Groups of individuals to consider for the export
+#' @param gen2 Quick-insert for database2 (vector of all generations to export)
+#' @param cohorts2 Quick-insert for database2 (vector of names of cohorts to export)
+#' @param ibd.obs Number of Individual pairs to sample for IBD estimation
+#' @examples
+#' data(ex_pop)
+#' kinship.emp.fast(population=ex_pop,gen=2)
+#' @return Empirical kinship matrix (IBD-based since Founders) per gen/database/cohort
+#' @export
+#'
+ kinship.emp.fast.between <- get.kinship.emp.fast.between

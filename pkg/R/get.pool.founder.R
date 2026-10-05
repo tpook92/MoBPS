@@ -76,3 +76,5 @@ get.pool.founder <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
 
   return(data)
 }
+
+

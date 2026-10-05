@@ -37,8 +37,19 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Population-List with newly entered estimated breeding values
 #' @export
 
-insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count=1, count.only.increase=TRUE, all.copys = TRUE){
+insert <- function(population, bves, type="bve", na.override = FALSE,  count=NULL, count.only.increase=TRUE, all.copys = TRUE){
 
+  if(type == "bve" && length(count) == 0){
+    count = 0
+  }
+
+  if(type == "bv" && length(count) == 0){
+    count = 0
+  }
+
+  if(type == "pheno" && length(count) == 0){
+    count = 1
+  }
   add <- 2
   if(type=="bv"){
     add <- 6
@@ -96,7 +107,7 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
     nr_list = list()
     index_list = list()
     for(index in 1:length(nr)){
-      list_copies = population$breeding[[gen[index]]][[sex[index]]][[nr[index]]][[21]]
+      list_copies = mat3(population$breeding[[gen[index]]][[sex[index]]][[nr[index]]][[21]])
       if(nrow(list_copies) >= 1){
         gen_list[[index]] = list_copies[,1]
         sex_list[[index]] = list_copies[,2]
@@ -114,7 +125,7 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 
   databases <- cbind(gen, sex, nr)
 
-  groups <- unique(databases[,1:2])
+  groups <- unique(databases[,1:2,drop = FALSE])
 
   for(index in 1:nrow(groups)){
     activ <- databases[,1]==groups[index,1] & databases[,2]==groups[index,2]
@@ -185,6 +196,26 @@ insert.bve <- function(population, bves, type="bve", na.override = FALSE,  count
 
   return(population)
 }
+
+#' Manually enter estimated breeding values
+#'
+#' Function to manually enter estimated breeding values
+#' @param population Population list
+#' @param bves Matrix of breeding values to enter (one row per individual with 1 element coding individual name)
+#' @param type which time of values to input (default: "bve", alt: "bv", "pheno")
+#' @param na.override Set to TRUE to also enter NA values (Default: FALSE - those entries will be skipped)
+#' @param count Counting for economic cost calculation (default: 1 - (one observation (for "pheno"), one genotyping (for "bve")))
+#' @param count.only.increase Set to FALSE to reduce the number of observation for a phenotype to "count" (default: TRUE)
+#' @param all.copys Set FALSE to only enter target values for a specific copy of the individual (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' bv <- get.bv(ex_pop, gen=2)
+#' new.bve <- cbind( colnames(bv), bv[,1]) ## Unrealistic but you do not get better than this!
+#' ex_pop <- insert.bve(ex_pop, bves=new.bve)
+#' @return Population-List with newly entered estimated breeding values
+#' @export
+
+insert.bve <- insert
 
 #' Manually enter phenotypes
 #'

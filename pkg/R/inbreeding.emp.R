@@ -30,11 +30,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
 #' @examples
 #' data(ex_pop)
-#' inbreeding <- inbreeding.emp(population=ex_pop, database=cbind(3,1,1,25))
+#' inbreeding <- get.inbreeding.emp(population=ex_pop, database=cbind(3,1,1,25))
 #' @return Empirical kinship matrix (IBD-based since Founders)
 #' @export
 
-inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, use.id=TRUE){
+get.inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NULL, cohorts=NULL, use.id=TRUE){
 
 
   if(length(animals)==0 || length(gen)>0 || length(database)>0 || length(cohorts)>0){
@@ -43,7 +43,9 @@ inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NUL
     for(index in 1:nrow(database)){
       if(diff(database[index,3:4])>=0){
         for(index2 in database[index,3]:database[index,4]){
-          animals[[length(animals)+1]] <- population$breeding[[database[index,1]]][[database[[index,2]]]][[index2]]
+
+          tmp = population$breeding[[database[index,1]]][[database[index,2]]][[index2]][[21]]
+          animals[[length(animals)+1]] <- population$breeding[[tmp[1]]][[tmp[2]]][[tmp[3]]]
         }
       }
 
@@ -101,3 +103,21 @@ inbreeding.emp <- function(population=NULL, animals=NULL, gen=NULL, database=NUL
 
   return(inbreeding)
 }
+
+
+#' Empirical kinship
+#'
+#' Function to compute empirical kinship for a set of individuals)
+#' @param population Population list
+#' @param animals List of animals to compute kinship for
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param use.id Set TRUE to use animal IDs for column/row-names in the output matrix (default: TRUE)
+#' @examples
+#' data(ex_pop)
+#' inbreeding <- inbreeding.emp(population=ex_pop, database=cbind(3,1,1,25))
+#' @return Empirical kinship matrix (IBD-based since Founders)
+#' @export
+
+inbreeding.emp <- get.inbreeding.emp

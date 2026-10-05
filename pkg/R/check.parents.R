@@ -41,13 +41,13 @@ check.parents <- function(population, info.father, info.mother, max.rel=2,
   if(max.rel==2 && avoid.mating.parent){
 
     if(still.check){
-      p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]]
-      p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[8]]
-      p3 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]]
-      p4 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[8]]
+      p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]][1:3]
+      p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]][4:6]
+      p3 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]][1:3]
+      p4 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]][4:6]
 
-      check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
-        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
+      check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1:3] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1:3]) +
+        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1:3] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1:3])
 
       return(c(TRUE, check))
     } else{
@@ -55,22 +55,22 @@ check.parents <- function(population, info.father, info.mother, max.rel=2,
     }
 
   }  else{
-    p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]]
-    p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[8]]
-    p3 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]]
-    p4 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[8]]
+    p1 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]][1:3]
+    p2 <- population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[7]][4:6]
+    p3 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]][1:3]
+    p4 <- population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[7]][4:6]
 
-    check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
-      prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
+    check <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1:3] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1:3]) +
+      prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1:3] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1:3])
 
     check1 = check2 = 0
     if(avoid.mating.parent){
 
-      check1 <- prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1,] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1,]) +
-        prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1,] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1,])
+      check1 <- prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1:3] == population$breeding[[p3[1]]][[p3[2]]][[p3[3]]][[21]][1:3]) +
+        prod(population$breeding[[info.father[1]]][[info.father[2]]][[info.father[3]]][[21]][1:3] == population$breeding[[p4[1]]][[p4[2]]][[p4[3]]][[21]][1:3])
 
-      check2 <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1,] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1,]) +
-        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1,] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1,])
+      check2 <- prod(population$breeding[[p1[1]]][[p1[2]]][[p1[3]]][[21]][1:3] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1:3]) +
+        prod(population$breeding[[p2[1]]][[p2[2]]][[p2[3]]][[21]][1:3] == population$breeding[[info.mother[1]]][[info.mother[2]]][[info.mother[3]]][[21]][1:3])
 
     }
 

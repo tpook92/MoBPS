@@ -69,8 +69,8 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
 
   if(copy.individual){
     info.mother <- info.father
-    child1 <- list(father[[1]], father[[3]], father[[5]], father[[7]], father[[11]], 0, if(length(father)>19){father[[19]]} else{0})
-    child2 <- list(father[[2]], father[[4]], father[[6]], father[[8]], father[[12]], 0, if(length(father)>19){father[[20]]} else{0})
+    child1 <- list(father[[1]], father[[3]], father[[5]], father[[7]][1:3], father[[11]], 0, if(length(father)>19){father[[19]]} else{0})
+    child2 <- list(father[[2]], father[[4]], father[[6]], father[[7]][4:6], father[[12]], 0, if(length(father)>19){father[[20]]} else{0})
   } else{
     child1 <- breeding.intern(info.father, father, population,
                               mutation.rate, remutation.rate, recombination.rate,
@@ -173,7 +173,7 @@ generation.individual <- function(indexb, population, info_father_list, info_mot
   child[[20]] <- child2[[7]]
 
   if(copy.individual){
-    child[[21]] <-  matrix(info.father[1:3], nrow=1)
+    child[[21]] <-  as.integer(info.father[1:3])
   }
 
   child[[23]] <- "placeholder"

@@ -23,7 +23,11 @@ breeding.intern(
   recombination.function = MoBPS::recombination.function.haldane,
   dup_activ = FALSE,
   rt_activ = FALSE,
-  grandsib_activ = FALSE
+  grandsib_activ = FALSE,
+  nsnp = 0,
+  length_total = 0,
+  length_max = 0,
+  recom_prec = 1
 )
 }
 \arguments{
@@ -64,6 +68,14 @@ breeding.intern(
 \item{rt_activ}{Internal parameter to check if RTs have to be simulated}
 
 \item{grandsib_activ}{Internal parameter to check if grandsibling contributions have to be calculated}
+
+\item{nsnp}{internal parameter}
+
+\item{length_total}{internal parameter}
+
+\item{length_max}{internal parameter}
+
+\item{recom_prec}{internal parameter}
 }
 \value{
 Inherited parent gamete

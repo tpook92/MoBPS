@@ -11,7 +11,8 @@ get.id(
   cohorts = NULL,
   id = NULL,
   use.id = TRUE,
-  keep.order = FALSE
+  keep.order = FALSE,
+  intern = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.id(
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{keep.order}{To not change order of individuals when ids are provided (default: FALSE)}
+
+\item{intern}{Set to TRUE to skip naming of matrix colums/rows}
 }
 \value{
 Individual ID for in gen/database/cohorts selected individuals

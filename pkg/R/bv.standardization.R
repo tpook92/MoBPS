@@ -217,6 +217,7 @@ bv.standardization <- function(population, mean.target=NA, var.target=NA, gen=NU
     population$info$e2_mat = NULL
   }
 
+  population = breeding.diploid(population)
 
   return(population)
 }

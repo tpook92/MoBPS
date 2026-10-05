@@ -28,13 +28,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
+#' @param intern Set to TRUE to skip naming of matrix colums/rows
 #' @examples
 #' data(ex_pop)
 #' get.bve(ex_pop, gen=2)
 #' @return Estimated breeding value of in gen/database/cohorts selected individuals
 #' @export
 
-get.bve <- get.ebv <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
+get.bve <- get.ebv <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, intern = FALSE){
 
   database <- get.database(population, gen, database, cohorts, id = id)
 
@@ -54,10 +55,13 @@ get.bve <- get.ebv <- function(population, database=NULL, gen=NULL, cohorts=NULL
 
   rownames(data) <- population$info$trait.name
 
-  if(use.id){
-    colnames(data) <- get.id(population, database = database)
-  } else{
-    colnames(data) <- names
+  if(!intern){
+    if(use.id){
+      colnames(data) <- get.id(population, database = database)
+    } else{
+      colnames(data) <- names
+    }
+
   }
 
   return(data)

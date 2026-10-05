@@ -50,7 +50,7 @@ get.pheno.single <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
       animals <- database[row,]
 
       for(index in database[row,3]:database[row,4]){
-        copies <- population$breeding[[animals[1]]][[animals[2]]][[index]][[21]]
+        copies <- mat3(population$breeding[[animals[1]]][[animals[2]]][[index]][[21]])
         n_obs <- numeric(population$info$bv.nr)
 
         phenos <- matrix(NA, nrow=population$info$bv.nr, ncol = 0)

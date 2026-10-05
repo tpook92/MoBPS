@@ -65,20 +65,34 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
     if(length(bve.class)==0){
       news <- population$breeding[[k.database[1]]][[k.database[2]+14]][k.database[3]:k.database[4]]
       if(length(news)>0){
-        if(bve.avoid.duplicates){
-          to_add <- which(!duplicated(c(used, news)))
-          to_add <- to_add[to_add > length(used)] - length(used)
-
-        } else{
+        if(!bve.avoid.duplicates){
           to_add <- 1:length(news)
+        } else{
+
+          aa = min(news)
+          bb = max(used,0)
+          if( aa > bb){
+            to_add <- which(!duplicated(news))
+          } else{
+
+            aa = max(news)
+            bb = min(used)
+            if( aa < bb){
+              to_add <- which(!duplicated(news))
+            } else{
+              to_add <- which(match(news, used, nomatch = 0L) == 0L & !duplicated(news))
+            }
+          }
         }
 
-        adding <- news[to_add]
 
 
-        kn <- length(adding)
+
+        kn <- length(to_add)
+
         start <- c(start, max(start) + kn)
         if(kn>0){
+          adding <- news[to_add]
           if(store.which.adding){
             full_adding <- c(full_adding, to_add + prior3)
           }
@@ -111,9 +125,11 @@ derive.loop.elements <- function(population, bve.database, bve.class, bve.avoid.
             copy_elements[1:non_kn + non_prior,4] <- k.database[1]
             copy_elements[1:non_kn + non_prior,5] <- k.database[2]
 
-            for(check_id in 1:non_kn){
-              copy_elements[check_id + non_prior,6] <- which(used==non_adding[check_id])
-            }
+
+            copy_elements[1:non_kn + non_prior,6] = match(non_adding, used)
+            #for(check_id in 1:non_kn){
+            #  copy_elements[check_id + non_prior,6] <- which(used==non_adding[check_id])
+            #}
             non_prior <- non_prior + non_kn
 
 

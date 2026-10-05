@@ -10,13 +10,13 @@ kinship.development(
   gen = NULL,
   cohorts = NULL,
   json = FALSE,
-  ibd.obs = 50,
-  hbd.obs = 10,
+  ibd.obs = 200,
+  hbd.obs = 200,
   display.cohort.name = FALSE,
   display.time.point = FALSE,
   equal.spacing = FALSE,
   time_reorder = FALSE,
-  display.hbd = FALSE
+  display.inbreeding = TRUE
 )
 }
 \arguments{
@@ -42,7 +42,7 @@ kinship.development(
 
 \item{time_reorder}{Set TRUE to order cohorts according to the time point of generation}
 
-\item{display.hbd}{Set to TRUE to also display HBD in plot}
+\item{display.inbreeding}{Set to TRUE to also display HBD in plot}
 }
 \value{
 Estimated of avg. kinship/inbreeding based on IBD/HBD

@@ -30,6 +30,8 @@ creating.trait(
   base.bv = NULL,
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
+  litter.effect.covariance = NULL,
+  pen.effect.covariance = NULL,
   is.maternal = NULL,
   is.paternal = NULL,
   fixed.effects = NULL,
@@ -60,10 +62,6 @@ creating.trait(
   randomSeed = NULL,
   verbose = TRUE,
   use.recalculate.manual = NULL,
-  new.phenotype.correlation = NULL,
-  shuffle.traits = NULL,
-  shuffle.cor = NULL,
-  bv.total = 0,
   whitening = FALSE
 )
 }
@@ -117,6 +115,10 @@ creating.trait(
 \item{new.residual.correlation}{Correlation of the simulated enviromental variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
+
+\item{litter.effect.covariance}{Covariance matrix of the litter effect (default: no effects)}
+
+\item{pen.effect.covariance}{Covariance matrix of the pen effect (default: no effects)}
 
 \item{is.maternal}{Vector coding if a trait is caused by a maternal effect (Default: all FALSE)}
 
@@ -177,14 +179,6 @@ creating.trait(
 \item{verbose}{Set to FALSE to not display any prints}
 
 \item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
-
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
-
-\item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
-
-\item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
-
-\item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
 \item{whitening}{Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied}
 }

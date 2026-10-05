@@ -9,7 +9,7 @@ insert.bve(
   bves,
   type = "bve",
   na.override = FALSE,
-  count = 1,
+  count = NULL,
   count.only.increase = TRUE,
   all.copys = TRUE
 )

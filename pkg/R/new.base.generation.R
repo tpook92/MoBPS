@@ -119,18 +119,27 @@ new.base.generation <- function(population, base.gen=NULL,
           }
 
           if(miraculix){
-            population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::computeSNPS(population, gen, sex, nr, what="haplo", output_compressed=TRUE)
+
+            tmp111 = check.copy(population, c(gen,sex,nr))
+
+
+            population$breeding[[gen]][[sex]][[nr]][[9]] <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], what="haplo", output_compressed=TRUE)
           } else{
             snps <- computing.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU)
             population$breeding[[gen]][[sex]][[nr]][[9]] <- snps[1,]
             population$breeding[[gen]][[sex]][[nr]][[10]] <- snps[2,]
           }
 
-          population$breeding[[gen]][[sex]][[nr]][[1]] <- c(0, sum(population$info$length))
-          population$breeding[[gen]][[sex]][[nr]][[2]] <- c(0, sum(population$info$length))
+          if(population$info$recombination.precision != 1){
+            population$breeding[[gen]][[sex]][[nr]][[1]] <- as.integer(c(0, sum(population$info$length)) * population$info$recombination.precision)
+            population$breeding[[gen]][[sex]][[nr]][[2]] <- as.integer(c(0,sum(population$info$length)) * population$info$recombination.precision)
+          } else{
+            population$breeding[[gen]][[sex]][[nr]][[1]] <- c(0, sum(population$info$length))
+            population$breeding[[gen]][[sex]][[nr]][[2]] <- c(0,sum(population$info$length))
+          }
           if(add.chromosome.ends==TRUE){
-            population$breeding[[gen]][[sex]][[nr]][[1]] <- population$info$length.total
-            population$breeding[[gen]][[sex]][[nr]][[2]] <- population$info$length.total
+            population$breeding[[gen]][[sex]][[nr]][[1]] <- population$info$length.total.precision
+            population$breeding[[gen]][[sex]][[nr]][[2]] <- population$info$length.total.precision
           }
           population$breeding[[gen]][[sex]][[nr]][[3]] <- numeric(0)
           population$breeding[[gen]][[sex]][[nr]][[4]] <- numeric(0)

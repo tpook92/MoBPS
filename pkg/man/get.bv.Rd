@@ -10,7 +10,8 @@ get.bv(
   gen = NULL,
   cohorts = NULL,
   id = NULL,
-  use.id = TRUE
+  use.id = TRUE,
+  intern = FALSE
 )
 }
 \arguments{
@@ -25,6 +26,8 @@ get.bv(
 \item{id}{Individual IDs to search/collect in the database}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
+
+\item{intern}{Set to TRUE to skip naming of matrix colums/rows}
 }
 \value{
 Genomic value of in gen/database/cohorts selected individuals

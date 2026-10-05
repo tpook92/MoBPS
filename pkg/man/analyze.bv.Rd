@@ -9,8 +9,9 @@ analyze.bv(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
+  id = NULL,
   bvrow = "all",
-  advanced = FALSE,
+  add = "none",
   use.all.copy = FALSE
 )
 }
@@ -23,9 +24,11 @@ analyze.bv(
 
 \item{cohorts}{Quick-insert for database (vector of names of cohorts to export)}
 
+\item{id}{Individual IDs to search/collect in the database}
+
 \item{bvrow}{Which traits to display}
 
-\item{advanced}{Set to TRUE to also look at offspring pheno}
+\item{add}{Set to "stored", "msv", "offpheno", "empirical" to also include this metric in the calculation}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 }

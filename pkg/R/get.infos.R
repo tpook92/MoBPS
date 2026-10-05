@@ -56,7 +56,9 @@ get.infos<- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NUL
 
   if(population$info$miraculix){
     if (requireNamespace("miraculix", quietly = TRUE)) {
-      Z <- miraculix::computeSNPS(population, loop_elements[,1], loop_elements[,2], loop_elements[,3],
+
+      tmp111 = check.copy(population, loop_elements[,1:3])
+      Z <- miraculix::computeSNPS(population, tmp111[,1], tmp111[,2], tmp111[,3],
                                   what="geno", output_compressed=FALSE)
     } else{
       stop("Usage of miraculix without being installed!")

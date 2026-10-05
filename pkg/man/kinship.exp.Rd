@@ -16,7 +16,8 @@ kinship.exp(
   storage.save = 1.05,
   verbose = TRUE,
   include.error = TRUE,
-  elements.copy = FALSE
+  elements.copy = FALSE,
+  export.pedigree = FALSE
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ kinship.exp(
 \item{include.error}{Set to FALSE to ignore/correct any errors in the pedigree}
 
 \item{elements.copy}{Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)}
+
+\item{export.pedigree}{Set to TRUE export the pedigree (including individuals added through pedigree-depth)}
 }
 \value{
 Pedigree-based kinship matrix for in gen/database/cohort selected individuals

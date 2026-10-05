@@ -1,0 +1,25 @@
+TITLE MoBPS v1.15.28 at 2026-10-02 17:19:34.735676
+
+DATAFILE MiXBLUP_files/data.txt !MISSING -99
+animal I
+perm I
+mean I
+phen1 T
+phen2 T
+phen3 T
+
+PEDFILE MiXBLUP_files/pedigree.txt !CalcInbr
+animal I
+sire I
+dam I
+
+PARFILE MiXBLUP_files/parfile.txt
+
+MODEL
+phen1 ~ mean !RANDOM  perm G(animal)
+phen2 ~ mean !RANDOM  perm G(animal)
+phen3 ~ mean !RANDOM  perm G(animal)
+
+SOLVING
+!MAXIT 5000
+!hpblup

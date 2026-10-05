@@ -29,13 +29,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param id Individual IDs to search/collect in the database
 #' @param use.all.copy Set to TRUE to extract phenotyping
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
+#' @param intern Set to TRUE to skip naming of matrix colums/rows
 #' @examples
 #' data(ex_pop)
 #' get.pheno(ex_pop, gen=2)
 #' @return Phenotypes for in gen/database/cohorts selected individuals
 #' @export
 
-get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.all.copy = FALSE, use.id=TRUE){
+get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.all.copy = FALSE, use.id=TRUE,
+                       intern = FALSE){
 
   database <- get.database(population, gen, database, cohorts, id = id)
 
@@ -49,10 +51,10 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = N
     for(row in 1:nrow(database)){
       animals <- database[row,]
       nanimals <- database[row,4] - database[row,3] +1
-      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
+      #names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
 
       for(index in database[row,3]:database[row,4]){
-        copies <- population$breeding[[animals[1]]][[animals[2]]][[index]][[21]]
+        copies <- mat3(population$breeding[[animals[1]]][[animals[2]]][[index]][[21]])
         n_obs <- numeric(population$info$bv.nr)
 
         for(rows in 1:nrow(copies)){
@@ -73,26 +75,54 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = N
     for(row in 1:nrow(database)){
       animals <- database[row,]
       nanimals <- database[row,4] - database[row,3] +1
+      indices <- animals[3]:animals[4]
+
       if(nanimals>0){
 
-        names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
-        for(index in animals[3]:animals[4]){
-          before <- before + 1
-          data[,before] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[15]]
-        }
+
+        tmp <- population$breeding[[animals[1]]][[animals[2]]]
+
+        vals <- lapply(tmp[indices], `[[`, 15L)
+
+        cols <- before + seq_len(nanimals)
+
+        data[, cols] <- matrix(
+          unlist(vals, use.names = FALSE),
+          nrow = nrow(data)
+        )
+
+        before <- before + nanimals
+
       }
 
     }
   }
 
-  row_names <- paste("Trait", 1:population$info$bv.nr)
+  if(!use.id){
+    before = 0
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      nanimals <- database[row,4] - database[row,3] +1
+      if(nanimals>0){
+
+        names[(before+1):(before+nanimals)] <- paste0(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1])
+        before <- before + nanimals
+
+      }
+
+    }
+  }
+  row_names <- population$info$trait.name
   rownames(data) <- row_names
 
-  if(use.id){
-    colnames(data) <- get.id(population, database = database)
-  } else{
-    colnames(data) <- names
+  if(!intern){
+    if(use.id){
+      colnames(data) <- get.id(population, database = database)
+    } else{
+      colnames(data) <- names
+    }
   }
+
 
   return(data)
 }

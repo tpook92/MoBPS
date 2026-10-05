@@ -27,20 +27,20 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param nr Number of the individual to edit
 #' @param nr.edits Number of edits to perform
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in MoBPS-bit-storing
 #' @param population Population list
 #' @return animal after genome editing
 
 
-edit_animal <- function(population, gen, sex, nr, nr.edits, decodeOriginsU=decodeOriginsR,
-                        bit.storing=FALSE, nbits=30){
+edit_animal <- function(population, gen, sex, nr, nr.edits, decodeOriginsU=decodeOriginsR){
 
   animal <- population$breeding[[gen]][[sex]][[nr]]
+
+
   if(length(population$info$miraculix)>0 && population$info$miraculix){
-    haplo <- miraculix::computeSNPS(population, gen, sex, nr, output_compressed=FALSE, what="haplo")
+    tmp111 = check.copy(population, c(gen,sex,nr))
+    haplo <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], output_compressed=FALSE, what="haplo")
   } else{
-    haplo <- computing.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE)
+    haplo <- computing.snps(population, gen, sex, nr, decodeOriginsU=decodeOriginsU)
   }
   geno <- colSums(haplo)
 #  multi <- rep(2, sum(population$info$snp))

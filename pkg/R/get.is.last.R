@@ -50,7 +50,7 @@ get.is.last <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = 
       for(index2 in database[row,3]:database[row,4]){
 
         copies = population$breeding[[animals[1]]][[animals[2]]][[index2]][[21]]
-        copies = copies[nrow(copies),]
+        copies = copies[(length(copies)-2) : length(copies)]
 
         if(prod(copies == c(animals[1:2], index2))==1){
           data[before + 1] = TRUE

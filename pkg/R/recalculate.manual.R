@@ -88,27 +88,51 @@ recalculate.manual = function(population, gen = NULL, database=NULL, cohorts = N
 
   database = get.database(population, gen = gen, database = database, cohorts = cohorts)
 
+  bv_tmp = population$info$bv.ignore.traits.ever
+
   for(index in 1:nrow(database)){
     geno = get.geno(population, database = database[index,])
     bvs = 0
     if(length(e0_activ)>0){
-      bvs = bvs + (e0)[,e0_activ,drop = FALSE] %*% (geno[e0_activ,,drop = FALSE]==0)
+      g0_tmp = geno[e0_activ,,drop = FALSE]
+      #bvs = bvs + (e0)[,e0_activ,drop = FALSE] %*% (g0_tmp == 0L)
+
+      bvs = bvs + (e0)[,e0_activ,drop = FALSE] %*% equal_double(g0_tmp, 0L)
     }
     if(length(e1_activ)>0){
-      bvs = bvs + (e1)[,e1_activ,drop = FALSE] %*% (geno[e1_activ,,drop = FALSE]==1)
+      if(length(e0_activ)>0 && length(e0_activ)==length(e1_activ) && prod(e0_activ==e1_activ)){
+        g1_tmp = g0_tmp
+      } else{
+        g1_tmp = geno[e1_activ,,drop = FALSE]
+      }
+      #bvs = bvs + (e1)[,e1_activ,drop = FALSE] %*% (g1_tmp==1L)
+
+      bvs = bvs + (e1)[,e1_activ,drop = FALSE] %*% equal_double(g1_tmp,1L)
     }
     if(length(e2_activ)>0){
-      bvs = bvs + (e2)[,e2_activ,drop = FALSE] %*% (geno[e2_activ,,drop = FALSE]==2)
+
+      if(length(e0_activ)>0 && length(e0_activ)==length(e2_activ) && prod(e0_activ==e2_activ)){
+        g2_tmp = g0_tmp
+      } else if(length(e1_activ)>0 && length(e1_activ)==length(e2_activ) && prod(e1_activ==e2_activ)){
+        g2_tmp = g1_tmp
+      } else {
+        g2_tmp = geno[e2_activ,,drop = FALSE]
+      }
+      #bvs = bvs + (e2)[,e2_activ,drop = FALSE] %*% (g2_tmp==2L)
+
+      bvs = bvs + (e2)[,e2_activ,drop = FALSE] %*% equal_double(g2_tmp,2L)
     }
     bvs = bvs + population$info$base.bv
 
     population$breeding[[database[index,1]]][[database[index,2]+6]][,database[index,3]:database[index,4]] = bvs
 
-    for(index2 in database[index,3]:database[index,4]){
-      population$breeding[[database[index,1]]][[database[index,2]]][[index2]][[25]] <- TRUE
-      population$breeding[[database[index,1]]][[database[index,2]]][[index2]][[26]] <- temp123
-
+    if(bv_tmp){
+      for(index2 in database[index,3]:database[index,4]){
+        population$breeding[[database[index,1]]][[database[index,2]]][[index2]][[25]] <- TRUE
+        population$breeding[[database[index,1]]][[database[index,2]]][[index2]][[26]] <- temp123
+      }
     }
+
   }
 
   if(store.comp.times){

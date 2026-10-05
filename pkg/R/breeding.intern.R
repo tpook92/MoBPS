@@ -41,6 +41,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param dup_activ Internal parameter to check if duplications have to be simulated
 #' @param rt_activ Internal parameter to check if RTs have to be simulated
 #' @param grandsib_activ Internal parameter to check if grandsibling contributions have to be calculated
+#' @param nsnp internal parameter
+#' @param length_total internal parameter
+#' @param length_max internal parameter
+#' @param recom_prec internal parameter
 
 #' @examples
 #' data(ex_pop)
@@ -58,8 +62,14 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
                              recombination.function=MoBPS::recombination.function.haldane,
                              dup_activ = FALSE,
                              rt_activ = FALSE,
-                             grandsib_activ = FALSE){
+                             grandsib_activ = FALSE,
+                            nsnp = 0,
+                            length_total = 0,
+                            length_max = 0,
+                            recom_prec = 1){
 
+
+  new_rec = TRUE ## setting this to FALSE will revert to use the old R based implementation instead of C++ based
 
   parent_rec1 = parent[[1]]
   parent_rec2 = parent[[2]]
@@ -68,9 +78,14 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   parent_ori1 = parent[[5]]
   parent_ori2 = parent[[6]]
 
-  n_snps <- sum(population$info$snp)
+  if(nsnp==0){
+    nsnp <- sum(population$info$snp)
+    length_total = population$info$length.total
+    length_max = max(length_total)
+    recom_prec = population$info$recombination.precision
+  }
   if(gen.architecture==0){
-    length.total <- population$info$length.total
+    length.total <- length_total
   } else{
     length.total <- population$info$gen.architecture[[gen.architecture]]$length.total
 
@@ -83,14 +98,14 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
           p_before <- population$info$snp.position[before]
           new_p_before <- population$info$gen.architecture[[gen.architecture]]$snp.position[before]
         } else{
-          p_before <- population$info$length.total[1]
+          p_before <- length_total[1]
           new_p_before <-length.total[1]
         }
-        if(before<n_snps){
+        if(before<nsnp){
           p_after <- population$info$snp.position[before+1]
           new_p_after <- population$info$gen.architecture[[gen.architecture]]$snp.position[before+1]
         } else{
-          p_after <- population$info$length.total[length(population$info$length.total)]
+          p_after <- length_total[length(length_total)]
           new_p_after <- length.total[length(length.total)]
         }
 
@@ -105,17 +120,18 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   # Ausserhalb von breeding.intern berechnen
   if(length(recom.f.indicator)!=0){
     # Fuer Polynom Numerische Bestimmung anstrengend?
-    recom.f.indicator <- rbind(recom.f.indicator, c(length.total[n.chromosome+1],0))
+    recom.f.indicator <- rbind(recom.f.indicator, c(length_max,0))
     indicator.vol <- sum((recom.f.indicator[-1,1] -recom.f.indicator[-nrow(recom.f.indicator),1])*recom.f.indicator[-nrow(recom.f.indicator),2])
     recom.vol <- indicator.vol #+ polynom.vol
   } else{
-    recom.vol <- length.total[n.chromosome+1]*recombination.rate
+    recom.vol <- length_max*recombination.rate
   }
 
   valid = FALSE
   is_carrier = NULL
   rt = numeric(0)
   while(!valid){
+
     rt = numeric(0)
     valid = TRUE
 
@@ -134,15 +150,24 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
         }
       }
     } else{
-      porc <- recombination.function(noc, length.total[n.chromosome+1]) #Position der Rekombinationspunkte
+      porc <- recombination.function(noc, length_max) #Position der Rekombinationspunkte
     }
 
 
-    porc_temp = porc
+    if(recom_prec > 1){
+      porc_temp = as.integer(porc * recom_prec)
+    } else{
+      porc_temp = porc
+
+    }
+
+
+    #start.point <- stats::rbinom(n.chromosome,1,0.5) * (1:n.chromosome) #Wechsel zu Beginn des Chromosoms
+    start_tmp = length.total[which(stats::runif(n.chromosome) < 0.5)]
 
     if(dup_activ){
       if(duplication.rate>0){
-        porc.d <- sortd(c(porc, 0, length.total[n.chromosome+1]))
+        porc.d <- sortd(c(porc, 0, length_max))
         rpod <- c(0, (stats::rbinom(noc,1,duplication.rate) * 2:(noc+1)),0)
         pod <- porc.d[rpod]
         pod2 <- rep(0,length(pod))
@@ -155,7 +180,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
           activ.chromosome <- sum(pod[count] > length.total)
           length.d <- stats::rexp(1, rate=(1/duplication.length)) * (-1)^(stats::rbinom(1,1,0.5))
           pod2[count] <- max(min(pod[count]+ length.d, porc.d[index+1], length.total[activ.chromosome+1]),porc.d[index-1], length.total[activ.chromosome])
-          if(pod2[count]==(porc.d[index])|| sum(length.total[start.point]==porc.d[index])){
+          if(pod2[count]==(porc.d[index])|| sum(start_tmp==porc.d[index])){
             add.one[count] <- 1
           }
           count <- count+1
@@ -173,10 +198,24 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
 
 
-    start.point <- stats::rbinom(n.chromosome,1,0.5) * (1:n.chromosome) #Wechsel zu Beginn des Chromosoms
-    porc <- sortd((c(length.total[start.point],porc))) # Sortieren der Rekombinationspunkte
-    #Fuege bvei irrelevante Punkte hinzu die in jedemfall Ausserhalb des Gens liegen
-    porc <- c(-1,porc,length.total[n.chromosome+1]+1)
+
+    if(new_rec && !is.unsorted(porc)){
+
+      porc <- merge_porc(
+        start_tmp,
+        porc,
+        length_max
+      )
+
+    } else{
+      porc <- sortd((c(start_tmp,porc))) # Sortieren der Rekombinationspunkte
+      porc <- c(-1,porc,length_max+1)
+
+    }
+
+    if(recom_prec >1){
+      porc = as.integer(porc * recom_prec)
+    }
 
     if(rt_activ && (length(parent[[35]])>0 || length(parent[[36]])>0)){
 
@@ -286,14 +325,31 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
     }
 
   } else{
+    store_mut = list()
     mut_bool = c(TRUE,TRUE)
     dup_bool = c(FALSE, FALSE)
   }
 
-  start1 = findInterval(porc, parent_rec1)
-  start2 =  findInterval(porc, parent_rec2)
-  end1 = findInterval(porc, parent_rec1, left.open = TRUE)
-  end2 = findInterval(porc, parent_rec2, left.open = TRUE)
+  if(new_rec){
+
+    fi <- find_intervals_joint(
+      porc,
+      parent_rec1,
+      parent_rec2
+    )
+
+    start1 <- fi$start1
+    start2 <- fi$start2
+    end1   <- fi$end1
+    end2   <- fi$end2
+
+  } else{
+    start1 = findInterval(porc, parent_rec1)
+    start2 =  findInterval(porc, parent_rec2)
+    end1 = findInterval(porc, parent_rec1, left.open = TRUE)
+    end2 = findInterval(porc, parent_rec2, left.open = TRUE)
+  }
+
 
   tmp1 = -2
   tmp2 = logical(0)
@@ -315,8 +371,8 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
         # duplication section in the middle of a chromosome
 
         # if the adjacting porcs are because of a start.point recombination some duplication sections have to be excluded
-        leftb <- sum(porc[index]==porc) - sum(porc[index] == length.total[start.point])
-        rightb <- sum(porc[index+1]==porc) - sum(porc[index+1] == length.total[start.point])
+        leftb <- sum(porc[index]==porc) - sum(porc[index] == start_tmp)
+        rightb <- sum(porc[index+1]==porc) - sum(porc[index+1] == start_tmp)
 
         activ.dup3 <- (1-leftb) * (dup[[activ]][,1] <= porc[index+1]) * (dup[[activ]][,1] == porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
         activ.dup4 <- (1-rightb) * (dup[[activ]][,1] == porc[index+1]) * (dup[[activ]][,1] >= porc[index]) * ((dup[[activ]][,8] == 1) + (dup[[activ]][,8] == 3))
@@ -335,71 +391,98 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   activ <- 1
 
 
-  for(index in 1:(length(porc)-1)){
+  if(new_rec){
 
-    if(activ==1){
-      tmps = start1[index]
-      tmpe = end1[index+1]
-      rec_activ = parent_rec1
-      ori_activ = parent_ori1
-    } else{
-      tmps = start2[index]
-      tmpe = end2[index+1]
-      rec_activ = parent_rec2
-      ori_activ = parent_ori2
+    res <- breeding_loop(
+      porc = porc,
+      start1 = start1,
+      start2 = start2,
+      end1 = end1,
+      end2 = end2,
+      parent_rec1 = parent_rec1,
+      parent_rec2 = parent_rec2,
+      parent_ori1 = parent_ori1,
+      parent_ori2 = parent_ori2,
+      mut_bool = mut_bool,
+      store_mut = store_mut,
+      parent_mut1 = if (is.null(parent_mut1)) integer(0) else parent_mut1,
+      parent_mut2 = if (is.null(parent_mut2)) integer(0) else parent_mut2,
+      recombination_precision = recom_prec,
+      tmp1 = -2
+    )
+
+    new.poc    <- res$new.poc
+    new.mut    <- res$new.mut
+    new.origin <- res$new.origin
+    tmp1       <- res$tmp1
+  } else{
+    for(index in 1:(length(porc)-1)){
+
+      if(activ==1){
+        tmps = start1[index]
+        tmpe = end1[index+1]
+        rec_activ = parent_rec1
+        ori_activ = parent_ori1
+      } else{
+        tmps = start2[index]
+        tmpe = end2[index+1]
+        rec_activ = parent_rec2
+        ori_activ = parent_ori2
+      }
+
+      if(tmps == tmpe){
+        activ.porc = NULL
+      } else{
+        activ.porc = (tmps + 1):tmpe
+      }
+
+      if(mut_bool[activ]){
+        activ.mut <- tmp2
+      } else{
+        activ.mut <- (store_mut[[activ]]<porc[index+1]) & (store_mut[[activ]]>porc[index])
+      }
+
+
+      tmp8 = porc[index+1]
+      save1 <- tmp1!=tmp8
+
+      if(save1){
+        tmp1 = tmp8
+        new.poc <- c(new.poc, rec_activ[activ.porc], tmp1)
+      }
+
+      if(length(activ.mut)>0){
+        new.mut <- c(new.mut, parent[[activ+2]][activ.mut])
+      }
+
+      start <- tmps
+      tmp3 = max(start, tmpe)
+
+      if(start == 0){
+        start = 1
+      }
+
+      tmp3 = min(length(ori_activ), tmp3)
+
+      if(start <= tmp3){
+        activ.origin <- start:tmp3
+      } else{
+        activ.origin = numeric(0)
+        tmp3 = -1
+      }
+
+      if(porc[index+1]>0 && save1){
+        new.origin <- c(new.origin, ori_activ[activ.origin])
+      }
+
+      activ <- 3 - activ
     }
-
-    if(tmps == tmpe){
-      activ.porc = NULL
-    } else{
-      activ.porc = (tmps + 1):tmpe
-    }
-
-    if(mut_bool[activ]){
-      activ.mut <- tmp2
-    } else{
-      activ.mut <- (store_mut[[activ]]<porc[index+1]) & (store_mut[[activ]]>porc[index])
-    }
-
-
-    tmp8 = porc[index+1]
-    save1 <- tmp1!=tmp8
-
-    if(save1){
-      tmp1 = tmp8
-      new.poc <- c(new.poc, rec_activ[activ.porc], tmp1)
-    }
-
-    if(length(activ.mut)>0){
-      new.mut <- c(new.mut, parent[[activ+2]][activ.mut])
-    }
-
-    start <- tmps
-    tmp3 = max(start, tmpe)
-
-    if(start == 0){
-      start = 1
-    }
-
-    tmp3 = min(length(ori_activ), tmp3)
-
-    if(start <= tmp3){
-      activ.origin <- start:tmp3
-    } else{
-      activ.origin = numeric(0)
-      tmp3 = -1
-    }
-
-    if(porc[index+1]>0 && save1){
-      new.origin <- c(new.origin, ori_activ[activ.origin])
-    }
-
-    activ <- 3 - activ
+    new.poc <- new.poc[-length(new.poc)]
   }
-  new.poc <- new.poc[-length(new.poc)]
+
 
   # mutation process
-  n_mut <- stats::rbinom(1,n_snps, mutation.rate)
+  n_mut <- stats::rbinom(1,nsnp, mutation.rate)
   if(length(new.mut)==0){
     n_remut <- 0
   } else{
@@ -409,7 +492,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
   if(n_mut==0){
     mutationen <- integer(0)
   } else{
-    mutationen <- sample(1:n_snps, n_mut)
+    mutationen <- sample(1:nsnp, n_mut)
   }
 
   if(length(new.mut)>0){
@@ -488,14 +571,14 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
         new_p_before <- population$info$snp.position[before]
         p_before <- population$info$gen.architecture[[gen.architecture]]$snp.position[before]
       } else{
-        new_p_before <- population$info$length.total[1]
+        new_p_before <- length_total[1]
         p_before <-length.total[1]
       }
-      if(before<n_snps){
+      if(before<nsnp){
         new_p_after <- population$info$snp.position[before+1]
         p_after <- population$info$gen.architecture[[gen.architecture]]$snp.position[before+1]
       } else{
-        new_p_after <- population$info$length.total[length(population$info$length.total)]
+        new_p_after <- length_max
         p_after <- length.total[length(length.total)]
       }
       share <- (new.poc[index]-p_before) / (p_after-p_before)
@@ -505,10 +588,14 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
 
   if(length(new.poc)!=(length(new.origin)+1)){
+
+    print(porc)
+    print(new.poc)
+    print(new.origin)
+
     stop("recombination inconsistency!")
 
   }
-
 
   if(gene.editing){
     hap_sequence <- computing.snps_single(population, new.poc, new.mut, new.origin, decodeOriginsU=decodeOriginsU)
@@ -539,7 +626,7 @@ breeding.intern <- function(info.parent, parent,  population , mutation.rate = 1
 
     share_a <- sum(segment_length[(1:length(segment_length)%%2)==1])/maxl
   } else{
-    share_a = 0
+    share_a = NULL
   }
 
   return(list(new.poc, new.mut, new.origin, info.parent, new.dup, porc, share_a, porc_temp, rt))

@@ -26,13 +26,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param population Population list
 #' @param use.snp.nr Set to TRUE to display SNP number and not SNP name
 #' @param morgan.position.per.chromosome Set to FALSE to Morgan position continuously over the genome
+#' @param array Use only markers available on the array
+#' @param mixblup.last Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)
 #' @examples
 #' data(ex_pop)
 #' map <- get.map(ex_pop)
 #' @return Genomic map of the population list
 #' @export
 
-get.map <- function(population, use.snp.nr=FALSE, morgan.position.per.chromosome = TRUE){
+get.map <- function(population, use.snp.nr=FALSE, morgan.position.per.chromosome = TRUE,
+                    array = NULL,
+                    mixblup.last = FALSE){
   chr.nr <- snp.nr <- cm.positions <-numeric(sum(population$info$snp))
   start <- 1
   for(index in 1:length(population$info$snp)){
@@ -57,6 +61,24 @@ get.map <- function(population, use.snp.nr=FALSE, morgan.position.per.chromosome
   mapfile[is.na(mapfile)] <- 0
 
   colnames(mapfile) <- c("Chromosome", "SNP ID", "Morgan position", "BP position")
+
+  if(length(array)>0){
+    temp1 <- which(population$info$array.name == array)
+    if(length(temp1)==1){
+      array <- temp1
+    }
+    if(!is.numeric(array)){
+      stop("Input for array can not be assigned! Check your input!")
+    }
+  }
+  relevant.snps = 1:nrow(mapfile)
+
+  if(mixblup.last & length(population$info$mixblup_lastfreq) > 0){
+    relevant.snps = intersect(relevant.snps, population$info$mixblup_lastfreq[,1])
+  }
+  if(length(array)>0){
+    relevant.snps = intersect(which(population$info$array.markers[[array]]), relevant.snps)
+  }
 
   return(mapfile)
 }

@@ -38,7 +38,7 @@ add.combi <- function(population, trait, combi.weights, trait.name = NULL){
 
   if(trait > population$info$bv.nr){
     if(trait == (population$info$bv.nr+1)){
-      population <- creating.trait(population, bv.total=trait, verbose=FALSE)
+      population <- creating.trait(population, n.traits = trait, verbose=FALSE)
     } else{
       stop("Illegal trait to enter a trait combination")
     }

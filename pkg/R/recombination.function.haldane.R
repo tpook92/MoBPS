@@ -30,6 +30,15 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 recombination.function.haldane = function(noc, length.genome){
-  rec = stats::runif(noc,0,length.genome)
+
+
+  # rec = stats::runif(noc,0,length.genome)
+
+  # new sampling procedure to ensure POC are already sorted
+  if (noc == 0L) return(numeric(0))
+
+  x <- stats::rexp(noc + 1L)
+  rec = length.genome * cumsum(x)[seq_len(noc)] / sum(x)
+
   return(rec)
 }

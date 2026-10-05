@@ -13,10 +13,7 @@ computing.snps(
   import.position.calculation = NULL,
   from_p = 1,
   to_p = Inf,
-  decodeOriginsU = decodeOriginsR,
-  bit.storing = FALSE,
-  nbits = 30,
-  output_compressed = FALSE
+  decodeOriginsU = decodeOriginsR
 )
 }
 \arguments{
@@ -37,12 +34,6 @@ computing.snps(
 \item{to_p}{Last SNP to consider}
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
-
-\item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 }
 \value{
 haplotypes for the selected individual

@@ -52,17 +52,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param effect.size.equal.over Effect size of the QTLs in n.equal.overdominant
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.traits If TRUE delete the simulated traits added before
-#' @param shuffle.cor OLD! Use trait.cor - Target Correlation between traits
-#' @param shuffle.traits OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)
 #' @param real.bv.add Single Marker effects
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
 #' @param bve.mult.factor Multiplicate trait value times this
 #' @param bve.poly.factor Potency trait value over this
 #' @param base.bv Average genetic value of a trait
-#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
 #' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
+#' @param litter.effect.covariance Covariance matrix of the litter effect (default: no effects)
+#' @param pen.effect.covariance Covariance matrix of the pen effect (default: no effects)
 #' @param trait.name Name of the trait generated
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
 #' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization()
@@ -81,7 +80,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param gxe.combine Set to FALSE to not view the same trait from different locations / environments as the sample trait in the prediction model (default: TRUE)
 #' @param location.name Same of the different locations / environments used
 #' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
-#' @param bv.total OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' population <- creating.trait(population, n.additive=100)
@@ -115,6 +113,8 @@ creating.trait <- function(population,
                            base.bv=NULL,
                            new.residual.correlation=NULL,
                            new.breeding.correlation=NULL,
+                           litter.effect.covariance = NULL,
+                           pen.effect.covariance = NULL,
                            is.maternal=NULL,
                            is.paternal=NULL,
                            fixed.effects=NULL,
@@ -147,28 +147,14 @@ creating.trait <- function(population,
                            randomSeed=NULL,
                            verbose=TRUE,
                            use.recalculate.manual = NULL,
-                           new.phenotype.correlation=NULL,
-                           shuffle.traits=NULL,
-                           shuffle.cor= NULL,
-                           bv.total = 0,
                            whitening = FALSE){
 
 
-  {
-  if(n.traits>0){
-    if(bv.total>0){
-      warning("bv.total has been overwritten with value from n.traits")
-    }
-    bv.total = n.traits
+  if(length(trait.cor)==1){
+    trait.cor = matrix(c(1, trait.cor,
+                         trait.cor, 1), ncol = 2)
   }
 
-  if(length(trait.cor)>0){
-    shuffle.cor = trait.cor
-  }
-  if(length(trait.cor.include)>0){
-    shuffle.traits = trait.cor.include
-  }
-  }
   # GxE Trait generation module
   {
     if(length(n.locations)>0 && n.locations > 1 && length(gxe.correlation)==0){
@@ -231,16 +217,16 @@ creating.trait <- function(population,
 
       # GxE will always result in a multi-trait model
 
-      if(length(shuffle.cor)==0){
-        shuffle.cor = diag(1, n_traits)
-        shuffle.traits = 1:n_traits
+      if(length(trait.cor)==0){
+        trait.cor = diag(1, n_traits)
+        trait.cor.include = 1:n_traits
       }
       n.locations = ncol(gxe.correlation)
-      if(length(shuffle.cor)>0){
+      if(length(trait.cor)>0){
 
-        shuffle.cor =   gxe.correlation  %x% shuffle.cor
-        if(length(shuffle.traits)>0){
-          shuffle.traits = rep(shuffle.traits, n.locations) + sort(rep(1:n.locations*n_traits - n_traits, length(shuffle.traits)))
+        trait.cor =   gxe.correlation  %x% trait.cor
+        if(length(trait.cor.include)>0){
+          trait.cor.include = rep(trait.cor.include, n.locations) + sort(rep(1:n.locations*n_traits - n_traits, length(trait.cor.include)))
         }
       }
 
@@ -252,10 +238,10 @@ creating.trait <- function(population,
       trait_location = rep(1:n.locations, each = n_traits)
       trait_nr =  rep(1:n_traits, n.locations)
 
-      colnames(shuffle.cor) = rownames(shuffle.cor) = trait.name
+      colnames(trait.cor) = rownames(trait.cor) = trait.name
       if(verbose && n.locations > 1 && n_traits > 1){
         cat("Used genetic correlation matrix:\n")
-        print(shuffle.cor)
+        print(trait.cor)
       }
 
     }
@@ -287,10 +273,6 @@ creating.trait <- function(population,
   }
 
   preserve.bve <- length(population)==0
-
-  if(length(new.phenotype.correlation)>0){
-    new.residual.correlation <- new.phenotype.correlation
-  }
 
   if(!is.list(var.additive.l) ){
     var.additive.l <- list(var.additive.l)
@@ -868,17 +850,17 @@ creating.trait <- function(population,
   }
 
   nbv <- max(length(real.bv.add), length(real.bv.mult), length(real.bv.dice), if(length(trait_sum)>1){length(trait_sum)} else{0})
-  if(nbv >= bv.total){
-    bv.total <- nbv
+  if(nbv >= n.traits){
+    n.traits <- nbv
     bv.calc <- nbv
-    bv.random <- rep(FALSE, bv.total)
+    bv.random <- rep(FALSE, n.traits)
     bv.random.variance <- c(rep(0, nbv))
   }
-  if(bv.total > nbv){
-    if(length(polygenic.variance)< (bv.total - nbv)){
-      polygenic.variance <- rep(polygenic.variance, bv.total - nbv)
+  if(n.traits > nbv){
+    if(length(polygenic.variance)< (n.traits - nbv)){
+      polygenic.variance <- rep(polygenic.variance, n.traits - nbv)
     }
-    bv.random <- c(rep(FALSE, nbv), rep(TRUE, bv.total - nbv))
+    bv.random <- c(rep(FALSE, nbv), rep(TRUE, n.traits - nbv))
 
     bv.random.variance <- c(rep(0, nbv), polygenic.variance)
     bv.calc <- nbv +1
@@ -899,7 +881,7 @@ creating.trait <- function(population,
   population$info$bv.random <- bv.random
   population$info$bv.random.variance <- bv.random.variance
 
-  population$info$phenotypic.transform <- rep(FALSE, bv.total)
+  population$info$phenotypic.transform <- rep(FALSE, n.traits)
   population$info$phenotypic.transform.function <- list()
 
 
@@ -914,67 +896,69 @@ creating.trait <- function(population,
   store8 <- population$info$bve.mult.factor
   store9 <- population$info$bve.poly.factor
   store10 <- population$info$base.bv
+  store13 <- population$info$is.lis
 
   if(length(is.maternal)==0){
-    population$info$is.maternal <- rep(FALSE, bv.total)
+    population$info$is.maternal <- rep(FALSE, n.traits)
   } else{
-    if(length(is.maternal)==bv.total){
+    if(length(is.maternal)==n.traits){
       population$info$is.maternal <- is.maternal
     } else {
-      population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = bv.total - length(population$info$is.materal)))
+      population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = n.traits - length(population$info$is.materal)))
     }
 
   }
   if(length(is.paternal)==0){
-    population$info$is.paternal <- rep(FALSE, bv.total)
+    population$info$is.paternal <- rep(FALSE, n.traits)
   } else{
-    if(length(is.paternal)==bv.total){
+    if(length(is.paternal)==n.traits){
       population$info$is.paternal <- is.paternal
     } else {
-      population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = bv.total - length(population$info$is.paternal)))
+      population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = n.traits - length(population$info$is.paternal)))
     }
   }
 
 
 
-  population$info$is.combi <- rep(FALSE, bv.total)
+  population$info$is.combi <- rep(FALSE, n.traits)
+  population$info$is.lis <- rep(FALSE, n.traits)
 
 
   if(length(bve.mult.factor)==0){
-    population$info$bve.mult.factor <- rep(1L, bv.total)
+    population$info$bve.mult.factor <- rep(1L, n.traits)
   } else{
 
-    if(length(bve.mult.factor)==bv.total){
+    if(length(bve.mult.factor)==n.traits){
       population$info$bve.mult.factor <- bve.mult.factor
     } else {
-      population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = bv.total - length(population$info$bve.mult.factor)))
+      population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = n.traits - length(population$info$bve.mult.factor)))
     }
   }
 
   if(length(bve.poly.factor)==0){
-    population$info$bve.poly.factor <- rep(1L, bv.total)
+    population$info$bve.poly.factor <- rep(1L, n.traits)
   } else{
 
-    if(length(bve.poly.factor)==bv.total){
+    if(length(bve.poly.factor)==n.traits){
       population$info$bve.poly.factor <- bve.poly.factor
     } else {
-      population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = bv.total - length(population$info$bve.poly.factor)))
+      population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = n.traits - length(population$info$bve.poly.factor)))
     }
 
   }
   if(length(base.bv)==0){
-    population$info$base.bv <- rep(100L, bv.total)
+    population$info$base.bv <- rep(100L, n.traits)
   } else{
 
-    if(length(base.bv)==bv.total){
+    if(length(base.bv)==n.traits){
       population$info$base.bv <- base.bv
     } else {
-      population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = bv.total - length(population$info$base.bv)))
+      population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = n.traits - length(population$info$base.bv)))
     }
   }
 
 
-  if(bv.total>0 ||length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
+  if(n.traits>0 ||length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
     population$info$bve <- TRUE
     if(is.list(real.bv.add)){
       population$info$real.bv.add <- real.bv.add
@@ -995,7 +979,7 @@ creating.trait <- function(population,
       population$info$real.bv.dice <- list(real.bv.dice)
     }
 
-    population$info$bv.nr <- bv.total
+    population$info$bv.nr <- n.traits
     population$info$bv.calc <- bv.calc
 
     population$info$real.bv.length <- c(length(population$info$real.bv.add),
@@ -1033,8 +1017,15 @@ creating.trait <- function(population,
   store11 <- population$info$pheno.correlation
   store12 <- population$info$bv.correlation
 
-  if(bv.total>0 && (length(population$info$pheno.correlation)==0 || nrow(population$info$pheno.correlation)<bv.total)){
-    population$info$pheno.correlation <- diag(1L, bv.total)
+  store14 <- population$info$litter.effect.covariance
+  store15 <- population$info$pen.effect.covariance
+
+  store16 <- population$info$litter.effect.active
+  store17 <- population$info$pen.effect.active
+
+
+  if(n.traits>0 && (length(population$info$pheno.correlation)==0 || nrow(population$info$pheno.correlation)<n.traits)){
+    population$info$pheno.correlation <- diag(1L, n.traits)
   }
   if(length(new.residual.correlation)>0){
 
@@ -1049,13 +1040,37 @@ creating.trait <- function(population,
 
     population$info$pheno.correlation <- t(chol(new.residual.correlation))
   }
-  if(bv.total>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<bv.total)){
-    population$info$bv.correlation <- diag(1L, bv.total)
+  if(n.traits>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<n.traits)){
+    population$info$bv.correlation <- diag(1L, n.traits)
   }
   if(length(new.breeding.correlation)>0){
     population$info$bv.correlation <- new.breeding.correlation
   }
 
+  if(n.traits>0 && (length(population$info$litter.effect.covariance)==0 || nrow(population$info$litter.effect.covariance)<n.traits)){
+    population$info$litter.effect.covariance <- diag(0L, n.traits)
+  }
+  if(length(litter.effect.covariance)>0){
+    population$info$litter.effect.covariance <- t(chol(litter.effect.covariance))
+  }
+  if(n.traits>0 && (length(population$info$pen.effect.covariance)==0 || nrow(population$info$pen.effect.covariance)<n.traits)){
+    population$info$pen.effect.covariance <- diag(0L, n.traits)
+  }
+  if(length(pen.effect.covariance)>0){
+    population$info$pen.effect.covariance <- t(chol(pen.effect.covariance))
+  }
+
+  if(length( population$info$litter.effect.covariance)==0 || sum( abs(population$info$litter.effect.covariance))==0){
+    population$info$litter.effect.active <- FALSE
+  } else{
+    population$info$litter.effect.active <- TRUE
+  }
+
+  if(length( population$info$pen.effect.covariance)==0 || sum( abs(population$info$pen.effect.covariance))==0){
+    population$info$pen.effect.active <- FALSE
+  } else{
+    population$info$pen.effect.active <- TRUE
+  }
 
   if(replace.traits==FALSE){
     if(length(store1)>0){
@@ -1094,6 +1109,26 @@ creating.trait <- function(population,
     if(length(store12)>0){
       population$info$bv.correlation[1:nrow(store12), 1:nrow(store12)] <- store12
     }
+
+    if(length(store14)>0){
+      population$info$litter.effect.covariance[1:nrow(store14), 1:nrow(store14)] <- store14
+    }
+
+    if(length(store15)>0){
+      population$info$pen.effect.covariance[1:nrow(store15), 1:nrow(store15)] <- store15
+    }
+
+    if(length(store16)>0 && store16){
+      population$info$litter.effect.active <- store16
+    }
+
+    if(length(store17)>0 && store17){
+      population$info$pen.effect.active <- store17
+    }
+
+    if(length(store13)>0){
+      population$info$is.lis[1:length(store13)] <- store13
+    }
   }
 
 
@@ -1108,6 +1143,10 @@ creating.trait <- function(population,
       population$info$last.sigma.e.database <- NULL
       population$info$last.sigma.e.value <- NULL
 
+      population$info$pool_effects_calc = FALSE
+      population$info$pool_list = NULL
+      population$info$bypool_list = NULL
+
       for(index in c(3,4,7:10, 19:22, 27:30)){
 
         sex_temp = 2-index%%2
@@ -1120,9 +1159,21 @@ creating.trait <- function(population,
         # offspring phenotype 27,28
         # number of offspring used 29,30
       }
+
+      for(index in c(49:54)){
+
+        sex_temp = 2-index%%2
+        population$breeding[[generation]][[index]] <-  matrix(if(index==9 || index==10) {NA} else{0L}, nrow= to_add, ncol=0) # estimated breeding value
+
+        # underlying true breeding value 49, 50
+        # MSV term 51,52
+      }
+
     } else{
 
-      to_add = population$info$bv.nr - if(length(population$breeding[[generation]][[3]])>0){nrow(population$breeding[[generation]][[3]])} else {0}
+      to_add = population$info$bv.nr - if(length(population$breeding[[generation]][[3]])>0 ||
+                                          length(population$breeding[[generation]][[4]])>0){max(nrow(population$breeding[[generation]][[3]]),
+                                                                                                nrow(population$breeding[[generation]][[4]]))} else {0}
       for(index in c(3,4,7:10, 19:22, 27:30)){
         sex_temp = 2-index%%2
 
@@ -1136,36 +1187,47 @@ creating.trait <- function(population,
         # offspring phenotype 27,28
         # number of offspring used 29,30
       }
+
+      for(index in c(49:54)){
+        sex_temp = 2-index%%2
+
+        if(length(population$breeding[[generation]][[index]])>0){
+          population$breeding[[generation]][[index]] <- rbind( population$breeding[[generation]][[index]],
+                                                               matrix(if(index==9 || index==10) {NA} else{0L}, nrow= to_add, ncol=counter[sex_temp]-1)) # estimated breeding value
+
+        }
+
+      }
     }
 
   }
 
-  if(bv.total>0){
+  if(n.traits>0){
     if(length(population$info$trait.name)>0 & replace.traits==FALSE){
       trait.name <- c(population$info$trait.name, trait.name)
     }
     population$info$trait.name <- trait.name
-    if(length(trait.name)<bv.total){
-      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+    if(length(trait.name)<n.traits){
+      population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):n.traits))
     }
   }
 
-  if(length(shuffle.traits)==0){
-    if(length(shuffle.cor)>0){
+  if(length(trait.cor.include)==0){
+    if(length(trait.cor)>0){
 
-      if(ncol(shuffle.cor)==population$info$bv.calc){
-        shuffle.traits <- 1:population$info$bv.calc
+      if(ncol(trait.cor)==population$info$bv.calc){
+        trait.cor.include <- 1:population$info$bv.calc
       } else{
-        shuffle.traits <- 1:ncol(shuffle.cor)
-        warning(paste0("shuffle.traits not specified! use the first ", ncol(shuffle.cor), " traits"))
+        trait.cor.include <- 1:ncol(trait.cor)
+        warning(paste0("trait.cor.include not specified! use the first ", ncol(trait.cor), " traits"))
       }
     }
   }
 
 
-  if(length(shuffle.traits)>0){
-    if(length(shuffle.traits)==1){
-      shuffle.traits <- which(population$info$bv.random==FALSE)
+  if(length(trait.cor.include)>0){
+    if(length(trait.cor.include)==1){
+      trait.cor.include <- which(population$info$bv.random==FALSE)
     }
 
     if(population$info$founder_multi){
@@ -1187,7 +1249,7 @@ creating.trait <- function(population,
 
     bvs <- get.bv(population, gen=1)
     scalings <- sqrt(diag(stats::var(t(bvs))))
-    for(bvnr in shuffle.traits){
+    for(bvnr in trait.cor.include){
       if(length(population$info$real.bv.add[[bvnr]])>0){
         population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
       }
@@ -1206,7 +1268,7 @@ creating.trait <- function(population,
     population$info$bv.calculated <- FALSE
     population$info$bv.calculated.partly <- NULL
 
-    eigen_gen <- eigen(shuffle.cor)
+    eigen_gen <- eigen(trait.cor)
     if(sum(eigen_gen$values<0)>0){
       if(verbose){
         warning("Genetic covariance matrix is not positive definit.")
@@ -1226,20 +1288,20 @@ creating.trait <- function(population,
       diag(newA) <- diag(newA) + 0.001 # Avoid numerical issues with inversion
       newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
       if(verbose) cat("new suggested genetic correlation matrix:\n")
-      shuffle.cor <- newA
-      if(verbose) print(round(shuffle.cor, digits=3))
+      trait.cor <- newA
+      if(verbose) print(round(trait.cor, digits=3))
     }
 
-    if(sum(shuffle.cor==1) > ncol(shuffle.cor)){
+    if(sum(trait.cor==1) > ncol(trait.cor)){
 
       if (requireNamespace("Matrix", quietly = TRUE)) {
         if(verbose) cat("Genetic correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
-        shuffle.cor = as.matrix(Matrix::nearPD(shuffle.cor)$mat)
+        trait.cor = as.matrix(Matrix::nearPD(trait.cor)$mat)
       }
 
     }
 
-    LT <- chol(shuffle.cor)
+    LT <- chol(trait.cor)
 
     if(whitening){
       prior_cor = stats::cor(t(get.bv(population, gen = 1)))
@@ -1259,17 +1321,17 @@ creating.trait <- function(population,
     }
 
 
-    if(nrow(LT)!=length(shuffle.traits)){
-      stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
+    if(nrow(LT)!=length(trait.cor.include)){
+      stop("Dimension of trait.cor doesnt match with traits.cor.include input")
     } else{
 
       if(whitening){
-        population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% prior_cor %*% LT
+        population$info$bv.correlation[trait.cor.include,trait.cor.include] <- t(LT) %*% prior_cor %*% LT
       } else{
-        population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+        population$info$bv.correlation[trait.cor.include,trait.cor.include] <- t(LT) %*% LT
       }
 
-      if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
+      if(sum(abs(population$info$bv.correlation[trait.cor.include,trait.cor.include]- trait.cor))>0.0001){
         warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
       }
 
@@ -1279,11 +1341,11 @@ creating.trait <- function(population,
 
 
       col <- 1
-      for(index in shuffle.traits){
+      for(index in trait.cor.include){
         new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
         row <- 1
         add.list = mult.list = list()
-        for(index2 in shuffle.traits){
+        for(index2 in trait.cor.include){
           if(length(store.add[[index2]])>0){
 
             if(LT[row,col]!=0){
@@ -1346,7 +1408,7 @@ creating.trait <- function(population,
 
     }
 
-    for(index in shuffle.traits){
+    for(index in trait.cor.include){
       population$info$real.bv.length[1] <- max(population$info$real.bv.length[1], if(length(population$info$real.bv.add[[index]])>0){index} else{0})
       population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
       population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
@@ -1380,7 +1442,7 @@ creating.trait <- function(population,
 
 
   if(length(fixed.effects)==0){
-    fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=0)
+    fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=if(length(population$info$fixed.effects)>0){ncol(population$info$fixed.effects)} else {0})
     temp1 <- TRUE
   } else{
     temp1 <- FALSE
@@ -1486,7 +1548,7 @@ creating.trait <- function(population,
 
 
   population$info$bv.calculated = FALSE
-  population = breeding.diploid(population, verbose=FALSE, use.recalculate.manual = use.recalculate.manual)
+  population = breeding.diploid(population, verbose=FALSE, use.recalculate.manual = NULL)
 
 
   population$info$pool_effects_calc = FALSE
@@ -1494,6 +1556,15 @@ creating.trait <- function(population,
   population$info$bypool_list = NULL
 
   if(bv.standard){
+
+    if(prior_traits > 0 && length(var.target)== (population$info$bv.nr - prior_traits)){
+      var.target = c(rep(NA, prior_traits), var.target)
+    }
+
+    if(prior_traits > 0 && length(mean.target)== (population$info$bv.nr - prior_traits)){
+      mean.target = c(rep(NA, prior_traits), mean.target)
+    }
+
     population <- bv.standardization(population, mean.target = mean.target, var.target = var.target, set.zero = set.zero)
 
       population$info$bv.calculated = FALSE
@@ -1512,6 +1583,12 @@ creating.trait <- function(population,
     for(index in traits){
       population <- combine.traits(population, combine.traits = which(trait_nr == index))
     }
+  }
+
+  if(verbose && length(trait.cor.include)>0){
+    realized_cor = stats::cor(t(get.bv(population, gen = 1)))
+    cat("Realized genetic correlations in founders:/n")
+    print(realized_cor)
   }
 
   return(population)

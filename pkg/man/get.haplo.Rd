@@ -15,7 +15,8 @@ get.haplo(
   non.genotyped.as.missing = FALSE,
   use.id = TRUE,
   array = NULL,
-  remove.missing = TRUE
+  remove.missing = TRUE,
+  mixblup.last = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,8 @@ get.haplo(
 \item{array}{Use only markers available on the array}
 
 \item{remove.missing}{Remove markers not genotyped in any individual from the export}
+
+\item{mixblup.last}{Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)}
 }
 \value{
 Haplotype data for in gen/database/cohorts selected individuals

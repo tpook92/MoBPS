@@ -16,7 +16,10 @@ get.plink(
   fam.id = FALSE,
   type = 0,
   use.id = TRUE,
-  bve.pedigree.error = TRUE
+  bve.pedigree.error = TRUE,
+  array = NULL,
+  remove.missing = TRUE,
+  mixblup.last = FALSE
 )
 }
 \arguments{
@@ -38,11 +41,17 @@ get.plink(
 
 \item{fam.id}{Set TRUE to set the fam-ID to the individual ID}
 
-\item{type}{Set 1 to only write paternal haplotype, set 2 to only write maternal haplotype, set 0 for both (default)}
+\item{type}{Set 1 to only write paternal haplotype, set 2 to only write maternal haplotype, set 0 for both (default). Type 3/4 for inverse of parental haplotype}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{bve.pedigree.error}{Set to FALSE to ignore/correct for any pedigree errors}
+
+\item{array}{Use only markers available on the array}
+
+\item{remove.missing}{Remove markers not genotyped in any individual from the export}
+
+\item{mixblup.last}{Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)}
 }
 \value{
 binary plink-file for in gen/database/cohorts selected individuals

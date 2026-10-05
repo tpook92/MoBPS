@@ -49,8 +49,7 @@ get.is.first <- function(population, database=NULL, gen=NULL, cohorts=NULL, id =
     if(nanimals > 0){
       for(index2 in database[row,3]:database[row,4]){
 
-        copies = population$breeding[[animals[1]]][[animals[2]]][[index2]][[21]]
-        copies = copies[1,]
+        copies = population$breeding[[animals[1]]][[animals[2]]][[index2]][[21]][1:3]
 
         if(prod(copies == c(animals[1:2], index2))==1){
           data[before + 1] = TRUE

@@ -26,20 +26,17 @@ pedigree.simulation(
   real.bv.mult = NULL,
   real.bv.dice = NULL,
   snps.equidistant = NULL,
-  bv.total = 0,
+  n.traits = 0,
   polygenic.variance = 100,
   bve.mult.factor = NULL,
   bve.poly.factor = NULL,
   base.bv = NULL,
   add.chromosome.ends = TRUE,
-  new.phenotype.correlation = NULL,
   new.residual.correlation = NULL,
   new.breeding.correlation = NULL,
   add.architecture = NULL,
   snp.position = NULL,
   position.scaling = FALSE,
-  bit.storing = FALSE,
-  nbits = 30,
   randomSeed = NULL,
   miraculix = TRUE,
   miraculix.dataset = TRUE,
@@ -53,8 +50,6 @@ pedigree.simulation(
   var.quantitative.l = NULL,
   exclude.snps = NULL,
   replace.real.bv = FALSE,
-  shuffle.traits = NULL,
-  shuffle.cor = NULL,
   skip.rest = FALSE,
   enter.bv = TRUE,
   name.cohort = NULL,
@@ -125,7 +120,7 @@ pedigree.simulation(
 
 \item{snps.equidistant}{Use equidistant markers (computationally faster! ; default: TRUE)}
 
-\item{bv.total}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
+\item{n.traits}{Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
 \item{polygenic.variance}{Genetic variance of traits with no underlying QTL}
 
@@ -137,8 +132,6 @@ pedigree.simulation(
 
 \item{add.chromosome.ends}{Add chromosome ends as recombination points}
 
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
-
 \item{new.residual.correlation}{Correlation of the simulated enviromental variance}
 
 \item{new.breeding.correlation}{Correlation of the simulated genetic variance (child share! heritage is not influenced!}
@@ -148,10 +141,6 @@ pedigree.simulation(
 \item{snp.position}{Location of each marker on the genetic map}
 
 \item{position.scaling}{Manual scaling of snp.position}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{randomSeed}{Set random seed of the process}
 
@@ -178,10 +167,6 @@ pedigree.simulation(
 \item{exclude.snps}{Marker were no QTL are simulated on}
 
 \item{replace.real.bv}{If TRUE delete the simulated traits added before}
-
-\item{shuffle.traits}{Combine different traits into a joined trait}
-
-\item{shuffle.cor}{Target Correlation between shuffled traits}
 
 \item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
 

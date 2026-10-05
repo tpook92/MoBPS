@@ -28,6 +28,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
 #' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: FALSE)
+#' @param intern Set to TRUE to skip naming of matrix colums/rows
 #' @examples
 #' data(ex_pop)
 #' population <- add.fixed.effects(ex_pop, fixed.effects = cbind(1,5))
@@ -37,7 +38,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @return Estimated breeding value of in gen/database/cohorts selected individuals
 #' @export
 
-get.fixed.effects.p <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE){
+get.fixed.effects.p <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, intern = FALSE){
 
   database <- get.database(population, gen, database, cohorts, id = id)
 
@@ -45,21 +46,37 @@ get.fixed.effects.p <- function(population, database=NULL, gen=NULL, cohorts=NUL
   data <- matrix(0, nrow=n.animals, ncol=ncol(population$info$fixed.effects))
   before <- 1
   names <- numeric(n.animals)
-  for(row in 1:nrow(database)){
-    animals <- database[row,]
-    for(index in database[row,3]:database[row,4]){
-      data[before,] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[28]]
-      names[before] <- paste(if(animals[2]==1) "M" else "F", index ,"_", animals[1], sep="")
-      before <- before +1
+  if(ncol(population$info$fixed.effects) > 0){
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      for(index in database[row,3]:database[row,4]){
+        data[before,] <- population$breeding[[animals[1]]][[animals[2]]][[index]][[28]]
+        before <- before +1
+      }
     }
-
   }
 
-  if(use.id){
-    rownames(data) <- get.id(population, database = database)
-  } else{
-    rownames(data) <- names
+  if(!use.id){
+    before <- 1
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      nanimals <- database[row,4] - database[row,3] +1
+      if(nanimals>0){
+        names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4], "_", animals[1], sep="")
+      }
+      before <- before + nanimals
+    }
   }
+
+
+  if(!intern){
+    if(use.id){
+      rownames(data) <- get.id(population, database = database)
+    } else{
+      rownames(data) <- names
+    }
+  }
+
 
   return(data)
 }

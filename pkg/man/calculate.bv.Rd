@@ -13,9 +13,6 @@ calculate.bv(
   import.position.calculation = NULL,
   decodeOriginsU = decodeOriginsR,
   store.effect.freq = FALSE,
-  bit.storing = FALSE,
-  nbits = 30,
-  output_compressed = FALSE,
   bv.ignore.traits = NULL
 )
 }
@@ -35,12 +32,6 @@ calculate.bv(
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
 
 \item{store.effect.freq}{If TRUE store the allele frequency of effect markers per generation}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
-
-\item{output_compressed}{Set to TRUE to get a miraculix-compressed genotype/haplotype}
 
 \item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 }

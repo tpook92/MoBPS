@@ -41,8 +41,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param length.behind Length after the last SNP of the dataset (default: 5)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
 #' @param snp.position Location of each marker on the genetic map
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
@@ -85,9 +83,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                chromosome.length=NULL,length.before=5, length.behind=5,
                                snps.equidistant=NULL,
                                snp.position=NULL,
-                               position.scaling=FALSE,
-                               bit.storing=FALSE,
-                               nbits=30, randomSeed=NULL,
+                               position.scaling=FALSE, randomSeed=NULL,
                                miraculix=TRUE,
                                miraculix.dataset=TRUE,
                                template.chip=NULL,
@@ -135,8 +131,7 @@ founder.simulation <- function(nindi=100, sex.quota=0.5, nsnp = 0, n.gen=100, nf
                                  length.before = length.before, length.behind = length.behind,
                                  snps.equidistant = snps.equidistant,
                                  snp.position = snp.position,
-                                 bit.storing = bit.storing,
-                                 nbits = nbits, randomSeed = randomSeed,
+                                 randomSeed = randomSeed,
                                  miraculix = miraculix,
                                  miraculix.dataset = miraculix.dataset,
                                  template.chip = template.chip,

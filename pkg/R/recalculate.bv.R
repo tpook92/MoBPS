@@ -45,8 +45,6 @@ recalculate.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bv
   database <- get.database(population, gen=gen, database = database, cohorts=cohorts)
   store.effect.freq <- FALSE
   import.position.calculation <- NULL
-  bit.storing <- FALSE
-  nbits <- 30
 
   if(population$info$miraculix){
     if (requireNamespace("miraculix", quietly = TRUE)) {
@@ -77,7 +75,6 @@ recalculate.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bv
                                  activ_bv, import.position.calculation=import.position.calculation,
                                  decodeOriginsU=decodeOriginsU,
                                  store.effect.freq=store.effect.freq,
-                                 bit.storing=bit.storing, nbits=nbits, output_compressed=FALSE,
                                  bv.ignore.traits=bv.ignore.traits)
         population$breeding[[index]][[6+sex]][activ_bv,nr.animal] <- temp_out[[1]]
         population$breeding[[index]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0

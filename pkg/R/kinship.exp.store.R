@@ -34,21 +34,23 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param elements.copy Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)
 #' @param include.error Set to FALSE to ignore/correct any errors in the pedigree
 #' @param verbose Set to FALSE to not display any prints
+#' @param export.pedigree Set to TRUE export the pedigree (including individuals added through pedigree-depth)
 #' @examples
 #' data(ex_pop)
-#' kinship <- kinship.exp(population=ex_pop, gen=2)
+#' kinship <- get.kinship.exp(population=ex_pop, gen=2)
 #' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
 #' @export
 #'
 
-kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+get.kinship.exp <-  function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                                start.kinship=NULL,
                                elements = NULL,
                                mult = 1,
                                storage.save=1.05,
                                verbose=TRUE,
                         include.error = TRUE,
-                        elements.copy = FALSE){
+                        elements.copy = FALSE,
+                        export.pedigree = FALSE){
 
   t1 <- as.numeric(Sys.time())
   int_mult <- as.integer(2^29)
@@ -173,6 +175,16 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
     pedigree.database <- get.database(population, database = unique(pedigree.database))
   }
+
+  if(export.pedigree){
+
+    ped = get.pedigree(population, database=pedigree.database, use.id=TRUE, include.error = include.error)
+    ped = unique(ped)
+    ped = ped[order(ped[,1]),]
+
+    return(ped)
+  }
+
 
   ids_database <- get.id(population, database = database)
   ids_database_unique <- unique(ids_database)
@@ -304,6 +316,29 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 
 }
 
+#' Derive expected kinship
+#'
+#' Function to derive expected kinship
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param depth.pedigree Depth of the pedigree in generations
+#' @param start.kinship Relationship matrix of the individuals in the first considered generation
+#' @param elements Vector of individuals from the database to include in pedigree matrix
+#' @param mult Multiplicator of kinship matrix (default: 1; set to 2 for a pedigree relationship matrix)
+#' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @param elements.copy Set to TRUE to automatically remove duplicated entries for individuals/database from the output matrix (default: FALSE)
+#' @param include.error Set to FALSE to ignore/correct any errors in the pedigree
+#' @param verbose Set to FALSE to not display any prints
+#' @param export.pedigree Set to TRUE export the pedigree (including individuals added through pedigree-depth)
+#' @examples
+#' data(ex_pop)
+#' kinship <- kinship.exp(population=ex_pop, gen=2)
+#' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
+#' @export
+#'
+kinship.exp <- get.kinship.exp
 
 #' Derive pedigree relationship matrix
 #'
@@ -319,12 +354,12 @@ kinship.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
-#' pedigree_matrix <- pedigree.matrix(population=ex_pop, gen=2)
+#' A <- get.A(population=ex_pop, gen=2)
 #' @return Pedigree-based kinship matrix for in gen/database/cohort selected individuals
 #' @export
 #'
 
-pedigree.matrix <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+get.A <- pedigree.matrix <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                         start.kinship=NULL,
                         elements = NULL,
                         storage.save=1.05,

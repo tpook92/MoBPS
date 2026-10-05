@@ -35,6 +35,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param blupf90 FALSE for mixblup; TRUE for MixBLUP
 #' @param include.error AA
 #' @return pedigree table
+#' @export
 
 
 write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NULL , id = NULL, depth.pedigree=7,
@@ -153,5 +154,7 @@ write.pedigree <- function(population, path, gen=NULL, database=NULL, cohorts=NU
     utils::write.table(file=path, pedigree_table, col.names = FALSE, row.names = FALSE,
                        quote = FALSE, sep = if(blupf90){" "} else{","})
   }
+
+  return(nrow(pedigree_table))
 
 }

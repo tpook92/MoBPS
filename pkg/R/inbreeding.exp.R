@@ -33,12 +33,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param verbose Set to FALSE to not display any prints
 #' @examples
 #' data(ex_pop)
-#' inbreeding <- inbreeding.exp(population=ex_pop, gen=5)
+#' inbreeding <- get.inbreeding.exp(population=ex_pop, gen=5)
 #' @return Pedigree-based inbreeding in gen/database/cohort selected individuals
 #' @export
 #'
 
-inbreeding.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
+get.inbreeding.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, depth.pedigree=7,
                            start.kinship=NULL,
                            elements = NULL,
                            storage.save=1.5,
@@ -55,3 +55,24 @@ inbreeding.exp <- function(population, gen=NULL, database=NULL, cohorts=NULL, de
   inbreeding = (diag(A)-1)
   return(inbreeding)
 }
+
+#' Expected inbreeding
+#'
+#' Function to derive pedigree based inbreeding
+#' @param population Population list
+#' @param database Groups of individuals to consider for the export
+#' @param gen Quick-insert for database (vector of all generations to export)
+#' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param depth.pedigree Depth of the pedigree in generations
+#' @param start.kinship Relationship matrix of the individuals in the first considered generation
+#' @param elements Vector of individuals from the database to include in pedigree matrix
+#' @param storage.save Lower numbers will lead to less memory but slightly higher computing time (default: 1.5, min: 1)
+#' @param verbose Set to FALSE to not display any prints
+#' @examples
+#' data(ex_pop)
+#' inbreeding <- inbreeding.exp(population=ex_pop, gen=5)
+#' @return Pedigree-based inbreeding in gen/database/cohort selected individuals
+#' @export
+#'
+
+inbreeding.exp <- get.inbreeding.exp

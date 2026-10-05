@@ -11,7 +11,8 @@ get.npheno(
   cohorts = NULL,
   id = NULL,
   use.all.copy = FALSE,
-  use.id = TRUE
+  use.id = TRUE,
+  intern = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.npheno(
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
 
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
+
+\item{intern}{Set to TRUE to skip naming of matrix colums/rows}
 }
 \value{
 Phenotypes for in gen/database/cohorts selected individuals

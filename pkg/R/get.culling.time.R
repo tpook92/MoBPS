@@ -52,7 +52,7 @@ get.culling.time <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
       if(diff(database[row,3:4])>(-1)){
         for(index in database[row,3]:database[row,4]){
           names[rindex] <- paste(if(animals[2]==1) "M" else "F", index,"_", animals[1],sep="")
-          copies <- population$breeding[[animals[1]]][[animals[2]]][[index]][[21]]
+          copies <- mat3(population$breeding[[animals[1]]][[animals[2]]][[index]][[21]])
           for(rows in 1:nrow(copies)){
             if(!is.na(population$breeding[[copies[rows,1]]][[38 + copies[rows,2]]][copies[rows,3]])){
               data[rindex] <- min(data[rindex], population$breeding[[copies[rows,1]]][[38 + copies[rows,2]]][copies[rows,3]], na.rm = TRUE)

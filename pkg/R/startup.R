@@ -11,15 +11,15 @@
   )
 
   if (miraculix_loaded) {
-    miraculix_info <- utils::sessionInfo()$otherPkgs$miraculix
+    miraculix_info <- utils::packageVersion("miraculix")
     msg <- paste0(
       msg,
       "######## Miraculix detected and successfully loaded #########\n",
-      "##################### Version: ", miraculix_info$Version, " ######################\n"
+      "##################### Version: ", miraculix_info, " ######################\n"
     )
 
-    if (length(miraculix_info$Version) != 1 || miraculix_info$Version != "1.6.0.2") {
-      msg <- paste0(msg, "###### Consider upgrading miraculix to version 1.6.0.2 ######\n")
+    if (length(miraculix_info) != 1 || miraculix_info != "1.6.0.4") {
+      msg <- paste0(msg, "###### Consider upgrading miraculix to version 1.6.0.4 ######\n")
     }
   } else {
     msg <- paste0(

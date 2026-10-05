@@ -29,13 +29,14 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param id Individual IDs to search/collect in the database
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param keep.order To not change order of individuals when ids are provided (default: FALSE)
+#' @param intern Set to TRUE to skip naming of matrix colums/rows
 #' @examples
 #' data(ex_pop)
 #' get.id(ex_pop, gen=2)
 #' @return Individual ID for in gen/database/cohorts selected individuals
 #' @export
 
-get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, keep.order = FALSE){
+get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, use.id=TRUE, keep.order = FALSE, intern = FALSE){
 
   database <- get.database(population, gen, database, cohorts, id = id, keep.order = keep.order)
 
@@ -48,15 +49,31 @@ get.id <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL,
     nanimals <- database[row,4] - database[row,3] +1
     if(nanimals>0){
       data[(before+1):(before+nanimals)] <- population$breeding[[animals[1]]][[14+ animals[2]]][animals[3]:animals[4]]
-      names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1], sep="")
       before <- before + nanimals
     }
   }
-  if(use.id){
-    names(data) <- data
-  } else{
-    names(data) <- names
+
+  if(!use.id){
+
+    before = 0
+    for(row in 1:nrow(database)){
+      animals <- database[row,]
+      nanimals <- database[row,4] - database[row,3] +1
+      if(nanimals>0){
+        names[(before+1):(before+nanimals)] <- paste0(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1])
+        before <- before + nanimals
+      }
+    }
+
   }
+  if(!intern){
+    if(use.id){
+      names(data) <- data
+    } else{
+      names(data) <- names
+    }
+  }
+
 
   return(data)
 }

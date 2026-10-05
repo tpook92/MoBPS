@@ -33,6 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param array Use only markers available on the array
 #' @param remove.missing Remove markers not genotyped in any individual from the export
+#' @param mixblup.last Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)
 #' @examples
 #' data(ex_pop)
 #' geno <- get.geno(ex_pop, gen=2)
@@ -40,13 +41,17 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NULL, chromosome="all", export.alleles=FALSE,
-                      non.genotyped.as.missing=FALSE, use.id=TRUE, array = NULL, remove.missing = TRUE){
+                      non.genotyped.as.missing=FALSE, use.id=TRUE, array = NULL, remove.missing = TRUE,
+                     mixblup.last = FALSE){
 
   if(length(chromosome)==1 && chromosome=="all"){
-    subsetting <- FALSE
     chromosome <- 1:length(population$info$snp)
+  }
+
+  if(length(chromosome)==length(population$info$snp) && prod((1:length(population$info$snp))==chromosome)==1){
+    subsetting = FALSE
   } else{
-    subsetting <- TRUE
+    subsetting = TRUE
   }
 
 
@@ -99,6 +104,20 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NUL
     }
   }
 
+  if(mixblup.last & length(population$info$mixblup_lastfreq) > 0){
+
+    if(length(array)>0){
+      tmp11 = length(relevant.snps)
+      relevant.snps = relevant.snps[population$info$array.markers[[array]]]
+      if(tmp11 > length(relevant.snps)){
+        subsetting = TRUE
+
+      }
+    }
+
+    relevant.snps = intersect(relevant.snps, population$info$mixblup_lastfreq[,1])
+  }
+
   nsnp <- length(relevant.snps)
 
   titel <- t(population$info$snp.base[,relevant.snps])
@@ -115,11 +134,14 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NUL
 
     if(nanimals>0){
       if(population$info$miraculix){
+
+        tmp111 = check.copy(population, cbind(rep(animals[1], nanimals), rep(animals[2], nanimals),  animals[3]:animals[4]))
+
         if(subsetting){
-          data[, (before+1):(before+nanimals)] <- miraculix::computeSNPS(population,rep(animals[1], nanimals), rep(animals[2], nanimals) ,animals[3]:animals[4], what="geno")[relevant.snps,]
+          data[, (before+1):(before+nanimals)] <- miraculix::computeSNPS(population, tmp111[,1], tmp111[,2], tmp111[,3], what="geno")[relevant.snps,]
 
         } else{
-          data[, (before+1):(before+nanimals)] <- miraculix::computeSNPS(population,rep(animals[1], nanimals), rep(animals[2], nanimals) ,animals[3]:animals[4], what="geno")
+          data[, (before+1):(before+nanimals)] <- miraculix::computeSNPS(population, tmp111[,1], tmp111[,2], tmp111[,3], what="geno")
         }
       }
       names[(before+1):(before+nanimals)] <- paste(if(animals[2]==1) "M" else "F", animals[3]:animals[4], "_", animals[1], sep="")
@@ -136,21 +158,21 @@ get.geno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = NUL
 
   rownames(data) <- population$info$snp.name[relevant.snps]
 
-
   if(non.genotyped.as.missing){
     is_genotyped <- get.genotyped.snp(population, database = database)[relevant.snps,]
-  } else{
-    is_genotyped = TRUE
-  }
-  if(length(array)>0){
-    if(!non.genotyped.as.missing){
-      is_genotyped <- matrix(TRUE, nrow=nrow(data), ncol=ncol(data))
+
+    if(sum(!is_genotyped)>0){
+      data[!is_genotyped] <- NA
     }
-    is_genotyped[!population$info$array.markers[[array]], ] <- FALSE
+
   }
-  if(sum(!is_genotyped)>0){
-    data[!is_genotyped] <- NA
+
+  if(length(array)>0){
+    data[!population$info$array.markers[[array]][relevant.snps],] <- NA
   }
+
+
+
   if(remove.missing && sum(is.na(data[,1]))>0){
     data <- data[rowMeans(is.na(data))<1,,drop=FALSE]
   }

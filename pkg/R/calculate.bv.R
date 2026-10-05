@@ -30,9 +30,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param decodeOriginsU Used function for the decoding of genetic origins [[5]]/[[6]]
 #' @param import.position.calculation Function to calculate recombination point into adjacent/following SNP
 #' @param store.effect.freq If TRUE store the allele frequency of effect markers per generation
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in MoBPS-bit-storing
-#' @param output_compressed Set to TRUE to get a miraculix-compressed genotype/haplotype
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @return [[1]] true genomic value [[2]] allele frequency at QTL markers
 #' @examples
@@ -42,7 +39,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.calculation=NULL,
                           decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
-                          bit.storing=FALSE, nbits=30, output_compressed=FALSE,
                           bv.ignore.traits=NULL){
 
 
@@ -59,33 +55,47 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
   activ_pools = activ_pools1 = 0
   two_pool_mode = FALSE
   if(multi_pool){
-    to_decode1 = unique(population$breeding[[gen]][[sex]][[nr]][[5]])
-    to_decode2 = unique(population$breeding[[gen]][[sex]][[nr]][[6]])
-    to_decode = c(to_decode1, to_decode2)
-    temp1 = numeric(length(to_decode))
-    for(index2 in 1:length(to_decode)){
-      temp2 = decodeOriginsU(to_decode, index2)
-      temp1[index2] = population$breeding[[temp2[1]]][[temp2[2]+36]][[temp2[3]]]
-    }
-    activ_pools1 = unique(temp1)
-    if(length(activ_pools1)==2){
-      h1_pool = unique(temp1[1:length(to_decode1)])
-      h2_pool = unique(temp1[-(1:length(to_decode1))])
-      if(length(h1_pool)==1 && length(h2_pool)==1){
-        two_pool_mode = TRUE
+
+    if(length(population$info$class_as_pools)>0 && population$info$class_as_pools){
+
+      h1_pool = h2_pool = population$breeding[[gen]][[sex+4]][nr]
+      temp1 = to_decode1 = c(h1_pool,h2_pool)
+    } else{
+
+      to_decode1 = unique(population$breeding[[gen]][[sex]][[nr]][[5]])
+      to_decode2 = unique(population$breeding[[gen]][[sex]][[nr]][[6]])
+      to_decode = c(to_decode1, to_decode2)
+      temp1 = numeric(length(to_decode))
+      for(index2 in 1:length(to_decode)){
+        temp2 = decodeOriginsU(to_decode, index2)
+        temp1[index2] = population$breeding[[temp2[1]]][[temp2[2]+36]][[temp2[3]]]
       }
     }
-    activ_pools = unique(c(activ_pools, activ_pools1))
-  }
+      activ_pools1 = unique(temp1)
+      if(length(activ_pools1)<=2){
+        h1_pool = unique(temp1[1:length(to_decode1)])
+        h2_pool = unique(temp1[-(1:length(to_decode1))])
+        if(length(h1_pool)==1 && length(h2_pool)==1){
+          two_pool_mode = TRUE
+        }
+      }
+      activ_pools = unique(c(activ_pools, activ_pools1))
+
+    }
+
+
 
   if(length(bv.ignore.traits)!=length(activ_bv)){
     # Falls noetig koennten Haplotypen hier erst bestimmt werden.
     if(population$info$miraculix){
       if (requireNamespace("miraculix", quietly = TRUE)) {
-        geno_self <- miraculix::computeSNPS(population, gen, sex, nr, what="geno")
+
+        tmp111 = check.copy(population, c(gen,sex,nr))
+
+        geno_self <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], what="geno")
 
         if(multi_pool){
-          haplo_self <- miraculix::computeSNPS(population, gen, sex, nr, what="haplo")
+          haplo_self <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], what="haplo")
 
         }
 
@@ -93,7 +103,7 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
         stop("Usage of miraculix without being installed!")
       }
     } else{
-      hap <- computing.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU, bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+      hap <- computing.snps(population, gen, sex, nr, import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU)
       geno_self <- colSums(hap)
       if(multi_pool){
         haplo_self <- hap
@@ -116,33 +126,34 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
 
 
     if(sum(population$info$is.maternal)>0){
-      index_mother <- population$breeding[[gen]][[sex]][[nr]][[8]]
+      index_mother <- population$breeding[[gen]][[sex]][[nr]][[7]][4:6]
       if(population$info$miraculix){
         if (requireNamespace("miraculix", quietly = TRUE)) {
-          geno_mother <- miraculix::computeSNPS(population, index_mother[1], index_mother[2], index_mother[3], what="geno")
+          tmp111 = check.copy(population, index_mother[1:3])
+          geno_mother <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], what="geno")
         } else{
           stop("Usage of miraculix without being installed!")
         }
       } else{
         hap <- computing.snps(population, index_mother[1], index_mother[2], index_mother[3],
-                            import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
-                            bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+                            import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU)
         geno_mother <- colSums(hap)
       }
     }
 
     if(sum(population$info$is.paternal)>0){
-      index_father <- population$breeding[[gen]][[sex]][[nr]][[7]]
+      index_father <- population$breeding[[gen]][[sex]][[nr]][[7]][1:3]
       if(population$info$miraculix){
         if (requireNamespace("miraculix", quietly = TRUE)) {
-          geno_father <- miraculix::computeSNPS(population, index_father[1], index_father[2], index_father[3], what="geno")
+          tmp111 = check.copy(population, index_father[1:3])
+
+          geno_father <- miraculix::computeSNPS(population, tmp111[1], tmp111[2], tmp111[3], what="geno")
         } else{
           stop("Usage of miraculix without being installed!")
         }
       } else{
         hap <- computing.snps(population, index_father[1], index_father[2], index_father[3],
-                            import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU,
-                            bit.storing=bit.storing, nbits=nbits, output_compressed=output_compressed)
+                            import.position.calculation=import.position.calculation, decodeOriginsU=decodeOriginsU)
         geno_father <- colSums(hap)
       }
     }

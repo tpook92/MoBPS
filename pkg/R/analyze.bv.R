@@ -26,9 +26,10 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param database Groups of individuals to consider for the export
 #' @param gen Quick-insert for database (vector of all generations to export)
 #' @param cohorts Quick-insert for database (vector of names of cohorts to export)
+#' @param id Individual IDs to search/collect in the database
 #' @param bvrow Which traits to display
 #' @param use.all.copy Set to TRUE to extract phenotyping
-#' @param advanced Set to TRUE to also look at offspring pheno
+#' @param add Set to "stored", "msv", "offpheno", "empirical" to also include this metric in the calculation
 #' @examples
 #' data(ex_pop)
 #' analyze.bv(ex_pop,gen=1)
@@ -36,21 +37,32 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 #'
 
-analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow="all", advanced=FALSE,
+analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, id = NULL, bvrow="all", add="none",
                        use.all.copy = FALSE){
 
   if(length(bvrow)==1 && bvrow=="all"){
     bvrow <- 1:population$info$bv.nr
   }
-  bv <- get.bv(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
-  bve <- get.bve(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
-  pheno <-get.pheno(population, gen=gen, database = database, cohorts = cohorts, use.all.copy = use.all.copy)[bvrow,,drop=FALSE]
-  if(advanced){
-    offpheno <- get.pheno.off(population, gen=gen, database = database, cohorts = cohorts)[bvrow,,drop=FALSE]
+
+  database = get.database(population, gen, database, cohorts, id = id)
+  bv <- get.bv(population, database = database)[bvrow,,drop=FALSE]
+  bve <- get.bve(population, database = database)[bvrow,,drop=FALSE]
+  pheno <-get.pheno(population, database = database, use.all.copy = use.all.copy)[bvrow,,drop=FALSE]
+  if(add == "offpheno"){
+    offpheno <- get.pheno.off(population, database = database)[bvrow,,drop=FALSE]
+  } else if(add == "msv"){
+    offpheno <- get.msv(population, database = database)[bvrow,,drop=FALSE]
+
+  } else if(add == "stored"){
+    offpheno <- get.bve.stored(population, database = database)[bvrow,,drop=FALSE]
+
+  } else if(add == "empirical"){
+    offpheno <- get.empirical.bv(population, database = database)[bvrow,,drop=FALSE]
+
   }
 
 
-  if(advanced){
+  if(add != "none"){
     cor_matrix <- matrix(0, nrow=6, ncol=length(bvrow))
     var_vector <- numeric(length(bvrow))
     for(index in 1:length(bvrow)){
@@ -64,7 +76,7 @@ analyze.bv <- function(population, gen=NULL, database=NULL, cohorts=NULL, bvrow=
     }
     names(var_vector) <- population$info$trait.name
     colnames(cor_matrix) <- population$info$trait.name
-    rownames(cor_matrix) <- c("BV / BVE", "BV / Pheno", "BVE / Pheno", "BV / Offpheno", "BVE / Offpheno", "Pheno / Offpheno")
+    rownames(cor_matrix) <- c("BV / BVE", "BV / Pheno", "BVE / Pheno", "BV / ADD", "BVE / ADD", "Pheno / ADD")
     return(list(cor_matrix, var_vector))
   } else{
     cor_matrix <- matrix(0, nrow=3, ncol=length(bvrow))

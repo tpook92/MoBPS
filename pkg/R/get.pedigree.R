@@ -181,7 +181,7 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
     use.id = id
   }
   if(include.error){
-    add = 30
+    add = 6
   } else{
     add = 0
   }
@@ -209,12 +209,12 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7 + add]][1:3]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8 + add]][1:3]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3+add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6+add]
 
         if(use.first.copy){
-          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1,]
-          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1,]
+          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1:3]
+          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1:3]
         }
         pedigree[rindex,] <- c(database[row,1:2], index, father, mother)
         rindex <- rindex + 1
@@ -241,12 +241,12 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
 
             animal = pedigree[index, 1:3 + (index2-1) * 3]
 
-            father <- population$breeding[[animal[1]]][[animal[2]]][[animal[3]]][[7 + add]][1:3]
-            mother <- population$breeding[[animal[1]]][[animal[2]]][[animal[3]]][[8 + add]][1:3]
+            father <- population$breeding[[animal[1]]][[animal[2]]][[animal[3]]][[7]][1:3+add]
+            mother <- population$breeding[[animal[1]]][[animal[2]]][[animal[3]]][[7]][4:6+add]
 
             if(use.first.copy){
-              father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1,]
-              mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1,]
+              father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1:3]
+              mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1:3]
             }
 
             pedigree_next[index, (index2-prior) * 6 + 1:3 -6] = father
@@ -318,8 +318,8 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
         tmp = population$breeding[[database[row,1]]][[database[row,2]]][[index]]
-        father <- tmp[[7 + add]]
-        mother <- tmp[[8 + add]]
+        father <- tmp[[7]][1:3 + add]
+        mother <- tmp[[7]][4:6 + add]
         if(length(population$breeding[[father[1]]])>1){
           father_t <- population$breeding[[father[1]]][[father[2]+14]][father[3]]
         } else{
@@ -346,12 +346,12 @@ get.pedigree_old <- function(population, database=NULL, gen=NULL, cohorts=NULL, 
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7+ add]]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8+ add]]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3 + add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6 + add]
 
         if(use.first.copy){
-          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1,]
-          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1,]
+          father = population$breeding[[father[1]]][[father[[2]]]][[father[[3]]]][[21]][1:3]
+          mother = population$breeding[[mother[1]]][[mother[[2]]]][[mother[[3]]]][[21]][1:3]
         }
 
         father_t <- paste(if(father[2]==1) "M" else "F", father[3], "_", father[1], sep="")
@@ -406,7 +406,7 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
   n.animals <- sum(database[,4] - database[,3] +1)
 
   if(include.error){
-    add = 30
+    add = 6
   } else{
     add = 0
   }
@@ -423,15 +423,15 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7 + add]][1:3]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8 + add]][1:3]
-        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7 + add]][1:3]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3 + add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6 + add]
+        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][1:3 + add]
         grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8 + add]][1:3]
+        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][4:6+add]
         grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7 + add]][1:3]
+        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][1:3+add]
         grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
-        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8 + add]][1:3]
+        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][4:6+add]
         grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
 
         grandf1_t <- paste(if(grandf1[2]==1) "M" else "F", grandf1[3], "_", grandf1[1], sep="")
@@ -483,15 +483,15 @@ get.pedigree2 <- function(population, database=NULL, gen=NULL, cohorts=NULL, sha
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7+ add]][1:3]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8+ add]][1:3]
-        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7+ add]][1:3]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3+add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6+add]
+        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][1:3+add]
         grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8+ add]][1:3]
+        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][4:6+add]
         grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7+ add]][1:3]
+        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][1:3+add]
         grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
-        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8+ add]][1:3]
+        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][4:6+add]
         grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
 
         grandf1_t <- paste(if(grandf1[2]==1) "M" else "F", grandf1[3], "_", grandf1[1], sep="")
@@ -594,7 +594,7 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
   rindex <- 1
 
   if(include.error){
-    add = 30
+    add = 6
   } else{
     add = 0
   }
@@ -603,15 +603,15 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7+ add]][1:3]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8+ add]][1:3]
-        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7+ add]][1:3]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3 + add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6 + add]
+        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][1:3 + add]
         grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8+ add]][1:3]
+        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][4:6 + add]
         grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7+ add]][1:3]
+        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][1:3 + add]
         grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
-        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8+ add]][1:3]
+        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][4:6 + add]
         grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
 
 
@@ -630,15 +630,15 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7+ add]]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8+ add]]
-        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7+ add]]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3 + add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6 + add]
+        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][1:3 + add]
         grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8+ add]]
+        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][4:6 + add]
         grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7+ add]]
+        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][1:3 + add]
         grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
-        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8+ add]]
+        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][4:6 + add]
         grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
 
         if(length(population$breeding[[father[1]]])>1){
@@ -693,15 +693,15 @@ get.pedigree3 <- function(population, database=NULL, gen=NULL, cohorts=NULL, fou
     for(row in 1:nrow(database)){
       animals <- database[row,]
       for(index in database[row,3]:database[row,4]){
-        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7+ add]]
-        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[8+ add]]
-        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7+ add]]
+        father <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][1:3 + add]
+        mother <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[7]][4:6 + add]
+        grandf1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][1:3 + add]
         grandf1share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[8+ add]]
+        grandm1 <- population$breeding[[father[[1]]]][[father[[2]]]][[father[[3]]]][[7]][4:6 + add]
         grandm1share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[19]]
-        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7+ add]]
+        grandf2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][1:3 + add]
         grandf2share <- population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
-        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[8+ add]]
+        grandm2 <- population$breeding[[mother[[1]]]][[mother[[2]]]][[mother[[3]]]][[7]][4:6 + add]
         grandm2share <- 1 - population$breeding[[database[row,1]]][[database[row,2]]][[index]][[20]]
 
         f1_t <- paste(if(father[2]==1) "M" else "F", father[3], "_", father[1], sep="")

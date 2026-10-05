@@ -149,7 +149,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
       database_list <- list()
 
       for(index in 1:nrow(database)){
-        database_list[[index]] <- population$breeding[[database[index,1]]][[database[index,2]]][[database[index,3]]][[21]]
+        database_list[[index]] <- mat3(population$breeding[[database[index,1]]][[database[index,2]]][[database[index,3]]][[21]])
       }
 
       return(database_list)
@@ -309,13 +309,13 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
   }
 
   if(sex.filter != 0){
-    database = database[database[,2] == sex.filter]
+    database = database[database[,2] == sex.filter,,drop = FALSE]
   }
 
   database <- unique(database)
 
   #removed
-  if(length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0){
+  if(length(database) > 0 && (length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0)){
 
     database = get.database(population, database= database, per.individual = TRUE)
 
@@ -342,12 +342,12 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
 
     keep = geno_typed & class_type & pheno_type
 
-    database = database[keep,]
+    database = database[keep,,drop = FALSE]
     database = get.database(population, database = database)
 
   }
 
-  if(per.individual){
+  if(per.individual & length(database) > 0){
     n_animal = sum(database[,4] - database[,3] + 1)
 
     database_full = matrix(0, nrow = n_animal, ncol = 4)
@@ -362,7 +362,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     database = database_full
   }
 
-  if((length(id.first) > 0 && id.first)|| id.last){
+  if(length(database) > 0 && ((length(id.first) > 0 && id.first)|| id.last)){
 
     ids = get.id(population, database = database)
     if(sum(duplicated(ids)) > 0 ){
@@ -384,7 +384,7 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     database_list <- list()
 
     for(index in 1:nrow(database)){
-      database_list[[index]] <- t(population$breeding[[database[index,1]]][[database[index,2]]][[database[index,3]]][[21]])
+      database_list[[index]] <- (population$breeding[[database[index,1]]][[database[index,2]]][[database[index,3]]][[21]])
     }
 
     database_tmp = matrix(unlist(database_list), ncol = 3, byrow = TRUE)

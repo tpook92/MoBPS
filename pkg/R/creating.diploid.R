@@ -36,6 +36,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param sex.quota Share of newly added female individuals (deterministic if sex.s="fixed", alt: sex.s="random")
 #' @param class Migration level of the newly added individuals (default: 0)
 #' @param verbose Set to FALSE to not display any prints
+#' @param progress.bar Set to FALSE to not use progress bars in any application of breeding.diploid() downstream (Keep log-files lean!)
+#' @param verbose.all Set to FALSE to not provide prints in any application of breeding.diploid() downstream (Keep log-files lean!)
 ###### Genome architecture
 #' @param map map-file that contains up to 5 colums (chromosome, SNP-id, M-position, Bp-position, allele freq - Everything not provides it set to NA). A map can be imported via MoBPSmaps::ensembl.map()
 #' @param chromosome.length Length of the newly added chromosome in Morgan; can be a vector when generating multiple chromosomes (default: 5)
@@ -59,6 +61,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param qtl.beta.shape2 Second parameter of the beta distribution for simulating allele frequencies for SNPs
 #' @param macs.ne Target effective population size when using MaCS simulator (default: 100)
 #' @param macs.freq.correction Set to FALSE to not obtain target allele frequency distribution (default: TRUE)
+#' @param macs.freq.correction.precision Window size of allele frequencies to consider when correcting allele frequency spectrum for splitting QTL & SNPs (default: 0.025)
 #' @param share.genotyped Share of individuals genotyped in the founders
 #' @param genotyped.s Specify with newly added individuals are genotyped (1) or not (0)
 #' @param vcf Path to a vcf-file used as input genotypes (correct haplotype phase is assumed!)
@@ -128,13 +131,16 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param time.point Time point at which the new individuals are generated
 #' @param creating.type Technique to generate new individuals (usage in web-based application)
 #' @param size.scaling Set to value to scale all input for breeding.size / selection.size (This will not work for all breeding programs / less general than json.simulation)
-#' @param progress.bar Set to FALSE to not use progress bars in any application of breeding.diploid() downstream (Keep log-files lean!)
+#' @param tracking Set to TRUE to start performance tracking (default; FALSE)
+#' @param tracking.file Directory to where to write tracking file (mobps_performance_log.tsv)
+#' @param tracking.interval Perform tracking every X seconds (default: 10)
 ###### Data storage
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactivate miraculix package for dataset generation
 #' @param add.chromosome.ends Add chromosome ends as recombination points
 #' @param use.recalculate.manual Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)
 #' @param store.comp.times Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating
+#' @param recombination.precision Precision factor under which recombination points are stored (default: 2^20 ; set to 1 to store recombination as regular numeric (as before v1.15))
 ###### Internal
 #' @param skip.rest Internal variable needed when adding multiple chromosomes jointly
 #' @param enter.bv Internal parameter
@@ -142,15 +148,9 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param internal.geno Do not touch!
 #' @param internal.dataset Do not touch!
 # OLD
-#' @param nbits Bits available in MoBPS-bit-storing
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
 #' @param length.before Length before the first SNP of the dataset (default: 5)
 #' @param length.behind Length after the last SNP of the dataset (default: 5)
 #' @param position.scaling Manual scaling of snp.position
-#' @param shuffle.cor OLD! Use trait.cor - Target Correlation between traits
-#' @param shuffle.traits OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)
-#' @param bv.total OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @examples
 #' population <- creating.diploid(nsnp=1000, nindi=100)
 #' @return Population-list
@@ -194,6 +194,7 @@ creating.diploid <- function(population=NULL,
                              qtl.beta.shape2 = NULL,
                              macs.ne = 100,
                              macs.freq.correction = TRUE,
+                             macs.freq.correction.precision = 0.025,
                              share.genotyped=0,
                              genotyped.s=NULL,
                              vcf=NULL,
@@ -264,12 +265,19 @@ creating.diploid <- function(population=NULL,
                              creating.type=0,
                              size.scaling = 1,
                              progress.bar = TRUE,
+                             verbose.all = NULL,
+
+                             tracking = FALSE,
+                             tracking.file = "mobps_performance_log.tsv",
+                             tracking.interval = 10,
+
                              #### Data storage
                              miraculix=TRUE,
                              miraculix.dataset=TRUE,
                              add.chromosome.ends=TRUE,
                              use.recalculate.manual = FALSE,
                              store.comp.times = TRUE,
+                             recombination.precision = 2^20,
                              #### Internal
                              skip.rest=FALSE,
                              enter.bv=TRUE,
@@ -277,34 +285,39 @@ creating.diploid <- function(population=NULL,
                              internal.geno=TRUE,
                              internal.dataset = NULL,
                              #### Old
-                             nbits=30,
-                             bit.storing=FALSE,
-                             new.phenotype.correlation=NULL,
                              length.before=5,
                              length.behind=5,
                              position.scaling=FALSE,
-                             shuffle.cor=NULL,
-                             shuffle.traits=NULL,
-                             bv.total=0,
                              whitening = FALSE
                              ){
 
 
+  if(tracking){
+
+    if(length(population$info$tracking)>0){
+      if(length(population$info$tracking_stop)>0){
+        system(population$info$tracking_stop)
+      }
+    }
+
+
+    monitor_pid = track.performance(tracking.file, tracking.interval)
+
+    to_kill = sprintf("kill %d", monitor_pid)
+
+
+  }
+  if(length(verbose.all) ==1 && verbose.all == FALSE){
+    verbose = FALSE
+  }
   if(length(vcf.maxindi)==2 && length(nindi)==1 && (nindi ==0 | nindi == sum(vcf.maxindi))){
     nindi = vcf.maxindi
     vcf.maxindi = sum(vcf.maxindi)
   }
-  if(n.traits>0){
-    if(bv.total>0){
-      warning("bv.total has been overwritten with value from n.traits")
-    }
-    bv.total = n.traits
-  }
-  if(length(trait.cor)>0){
-    shuffle.cor = trait.cor
-  }
-  if(length(trait.cor.include)>0){
-    shuffle.traits = trait.cor.include
+
+  if(length(trait.cor)==1){
+    trait.cor = matrix(c(1, trait.cor,
+                         trait.cor, 1), ncol = 2)
   }
 
   qtl_position = NULL
@@ -374,16 +387,16 @@ creating.diploid <- function(population=NULL,
 
     # GxE will always result in a multi-trait model
 
-    if(length(shuffle.cor)==0){
-      shuffle.cor = diag(1, n_traits)
-      shuffle.traits = 1:n_traits
+    if(length(trait.cor)==0){
+      trait.cor = diag(1, n_traits)
+      trait.cor.include = 1:n_traits
     }
     n.locations = ncol(gxe.correlation)
-    if(length(shuffle.cor)>0){
+    if(length(trait.cor)>0){
 
-      shuffle.cor =   gxe.correlation  %x% shuffle.cor
-      if(length(shuffle.traits)>0){
-        shuffle.traits = rep(shuffle.traits, n.locations) + sort(rep(1:n.locations*n_traits - n_traits, length(shuffle.traits)))
+      trait.cor =   gxe.correlation  %x% trait.cor
+      if(length(trait.cor.include)>0){
+        trait.cor.include = rep(trait.cor.include, n.locations) + sort(rep(1:n.locations*n_traits - n_traits, length(trait.cor.include)))
       }
     }
 
@@ -395,10 +408,10 @@ creating.diploid <- function(population=NULL,
     trait_location = rep(1:n.locations, each = n_traits)
     trait_nr =  rep(1:n_traits, n.locations)
 
-    colnames(shuffle.cor) = rownames(shuffle.cor) = trait.name
+    colnames(trait.cor) = rownames(trait.cor) = trait.name
     if(verbose && n.locations > 1 && n_traits > 1){
       cat("Used genetic correlation matrix:\n")
-      print(shuffle.cor)
+      print(trait.cor)
     }
 
   }
@@ -458,10 +471,6 @@ creating.diploid <- function(population=NULL,
     }
     if(sum(set.zero)>0){
       bv.standard <- TRUE
-    }
-
-    if(length(new.phenotype.correlation)>0){
-      new.residual.correlation <- new.phenotype.correlation
     }
 
     if(length(population)>0 & length(chr.nr)>0 & add.chromosome==FALSE){
@@ -1344,422 +1353,8 @@ creating.diploid <- function(population=NULL,
         if(length(exclude.snps)==0 && length(population) > 0 && length(population$info$nonqtl_position) > 0){
           exclude.snps = population$info$nonqtl_position
         }
-
-        if(qtl.position.shared){
-
-          n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2+ n.overdominant+ n.equal.overdominant)
-
-          so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-          n_qtls_sofar = numeric(so_far)
-          if(length(real.bv.add)>0){
-            for(index in 1:length(real.bv.add)){
-              n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.add[[index]])
-            }
-          }
-          if(length(real.bv.mult)>0){
-            for(index in 1:length(real.bv.mult)){
-              n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.mult[[index]]) * 2
-            }
-          }
-
-          effect_marker <- (1:sum(snpdata))
-          if(length(exclude.snps)>0){
-            effect_marker <- effect_marker[-exclude.snps]
-          }
-
-          max_qtls = max(c(n_qtls, n_qtls_sofar))
-          effect_marker = sample(effect_marker, max_qtls)
-
-        } else{
-          so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-          effect_marker <- (1:sum(snpdata))
-          if(length(exclude.snps)>0){
-            effect_marker <- effect_marker[-exclude.snps]
-          }
-        }
-
-        if(length(real.bv.add)>0){
-          for(index in 1:length(real.bv.add)){
-            while(sum(is.na(real.bv.add[[index]][,c(1:2,6)]))>0){
-
-              add_marker <- sample(effect_marker, nrow(real.bv.add[[index]]), replace=if(nrow(real.bv.add[[index]])>length(effect_marker)){TRUE} else{FALSE})
-              add_snp <- real.bv.add[[index]][,1]
-              add_chromo <- real.bv.add[[index]][,2]
-
-              for(index2 in (1:nrow(real.bv.add[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
-                add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
-                add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
-              }
-
-
-              if(sum(is.na(real.bv.add[[index]][,6]))>0){
-                add_marker = add_snp + c(0,cum_snp)[add_chromo]
-              }
-
-              enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])| is.na(real.bv.add[[index]][,1]) | is.na(real.bv.add[[index]][,6])
-
-              real.bv.add[[index]][enter,c(1:2, 6)] <- cbind(add_snp, add_chromo, add_marker)[enter,]
-            }
-          }
-        }
-
-        if(length(real.bv.mult)>0){
-          for(index in 1:length(real.bv.mult)){
-            for(columns in c(0,2)){
-              while(sum(is.na(real.bv.mult[[index]][,1:2+columns]))>0){
-
-                add_marker <- sample(effect_marker, nrow(real.bv.mult[[index]]), replace=if(nrow(real.bv.mult[[index]])>length(effect_marker)){TRUE} else{FALSE})
-                add_snp <- real.bv.mult[[index]][,1]
-                add_chromo <- real.bv.mult[[index]][,2]
-
-                for(index2 in (1:nrow(real.bv.mult[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
-                  add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
-                  add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
-                }
-
-                enter <- add_chromo==real.bv.mult[[index]][,2+columns] | is.na(real.bv.mult[[index]][,2])
-
-                real.bv.mult[[index]][enter,1:2+columns] <- cbind(add_snp, add_chromo)[enter,]
-              }
-            }
-
-          }
-        }
       }
 
-      if(qtl.position.shared){
-        sofar_positions = NULL
-
-        if(length(real.bv.add)>0){
-          for(index in 1:length(real.bv.add)){
-            if(length(real.bv.add[[index]])>0){
-              sofar_positions = c(sofar_positions, real.bv.add[[index]][,6])
-            }
-          }
-        }
-
-        sofar_positions = sofar_positions[!is.na(sofar_positions)]
-        sofar_positions = setdiff(sofar_positions, effect_marker)
-        if(length(sofar_positions)>0 && length(sofar_positions)<= length(effect_marker)){
-          effect_marker[1:length(sofar_positions)] = sofar_positions
-        }
-      }
-
-
-      if(length(dominant.only.positive)<length(trait_sum)){
-        dominant.only.positive <- rep(dominant.only.positive, length.out = length(trait_sum))
-      }
-      so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
-
-      if(length(trait.pool)< length(trait_sum)){
-        trait.pool = rep(trait.pool, length.out = length(trait_sum))
-      }
-
-      if(length(trait_sum)>0){
-        for(index_trait in 1:length(trait_sum)){
-          var_additive <- var.additive.l[[index_trait]]
-          var_dominant <- var.dominant.l[[index_trait]]
-          var_overdominant <- var.overdominant.l[[index_trait]]
-
-          var_qualitative <- var.qualitative.l[[index_trait]]
-          var_quantitative <- var.quantitative.l[[index_trait]]
-          if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
-            if(length(var_additive)==0){
-              var_additive <- 1
-            }
-            var_additive <- rep(var_additive, length.out=n.additive[index_trait])
-            var.additive.l[[index_trait]] <- var_additive
-          }
-          if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
-            if(length(var_dominant)==0){
-              var_dominant <- 1
-            }
-            var_dominant <- rep(var_dominant, length.out=n.dominant[index_trait])
-            var.dominant.l[[index_trait]] <- var_dominant
-          }
-
-          if(n.overdominant[index_trait]>0 && length(var_overdominant)<n.overdominant[index_trait]){
-            if(length(var_overdominant)==0){
-              var_overdominant <- 1
-            }
-            var_overdominant <- rep(var_overdominant, length.out=n.overdominant[index_trait])
-            var.overdominant.l[[index_trait]] <- var_overdominant
-          }
-
-          if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
-            if(length(var_qualitative)==0){
-              var_qualitative <- 1
-            }
-            var_qualitative <- rep(var_qualitative, length.out=n.qualitative[index_trait])
-            var.qualitative.l[[index_trait]] <- var_qualitative
-          }
-          if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
-            if(length(var_quantitative)==0){
-              var_quantitative <- 1
-            }
-            var_quantitative <- rep(var_quantitative, length.out=n.quantitative[index_trait])
-            var.quantitative.l[[index_trait]] <- var_quantitative
-
-          }
-
-          if(length(var_additive)!= n.additive[index_trait]){
-            n.additive[index_trait] <- length(var_additive)
-          }
-          if(length(var_dominant)!= n.dominant[index_trait]){
-            n.dominant[index_trait] <- length(var_dominant)
-          }
-          if(length(var_overdominant)!= n.overdominant[index_trait]){
-            n.overdominant[index_trait] <- length(var_overdominant)
-          }
-          if(length(var_qualitative)!= n.qualitative[index_trait]){
-            n.qualitative[index_trait] <- length(var_qualitative)
-          }
-          if(length(var_quantitative)!= n.quantitative[index_trait]){
-            n.quantitative[index_trait] <- length(var_quantitative)
-          }
-
-
-
-
-
-
-          #stop()
-          #This part is only needed in creating.diploid
-          if(sum(nsnp)>0){
-            snpdata <- c(snpdata, nsnp)
-          } else if((is.matrix(dataset) && nrow(dataset)>0 ) || is.list(dataset)){
-            if(length(chr.nr)>0 && length(unique(chr.nr))>1){
-              rindex <- 1
-              for(chr.index in unique(chr.nr)){
-                if(is.list(dataset)){
-
-                  if(new_miraculix){
-                    snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[3])
-                  } else{
-                    snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[2])
-                  }
-
-                  rindex <- rindex + 1
-                } else{
-                  snpdata <- c(snpdata, sum(chr.nr==chr.index))
-                }
-              }
-            } else{
-              if(sum(class(dataset)  %in% "haplomatrix")>0){
-                if(new_miraculix){
-                  snpdata <- c(snpdata, attr(dataset[[1]], "information")[3])
-                } else{
-                  snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
-                }
-
-              } else{
-                snpdata <- c(snpdata, nrow(dataset))
-              }
-
-            }
-          }
-
-          # Generating additive
-
-          add_marker <- sample(effect_marker, n.additive[index_trait], replace=if(n.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-          dom_marker <- sample(effect_marker, n.dominant[index_trait], replace=if(n.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-          over_marker <- sample(effect_marker, n.overdominant[index_trait], replace=if(n.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-
-          add_marker1 <- sample(effect_marker, n.equal.additive[index_trait], replace=if(n.equal.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-          dom_marker1 <- sample(effect_marker, n.equal.dominant[index_trait], replace=if(n.equal.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-          over_marker1 <- sample(effect_marker, n.equal.overdominant[index_trait], replace=if(n.equal.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
-
-          epi1_marker <- sample(effect_marker, n.quantitative[index_trait]*2, replace=if(n.quantitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
-          epi2_marker <- sample(effect_marker, n.qualitative[index_trait]*2, replace=if(n.qualitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
-
-
-
-          cum_snp <- cumsum(snpdata)
-          real.bv.add.new <- NULL
-          real.bv.mult.new <- NULL
-          if(n.additive[index_trait]>0){
-            add_snp <- add_chromo <- numeric(n.additive[index_trait])
-            for(index in 1:n.additive[index_trait]){
-              add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
-              add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
-            }
-            if(effect.distribution == "gauss"){
-              add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
-            } else{
-              add_effect <- stats::rgamma(n.additive[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.additive[index_trait], replace = TRUE)
-            }
-
-            real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait], FALSE)
-          }
-
-          if(n.equal.additive[index_trait]>0){
-            add_snp1 <- add_chromo1 <- numeric(n.equal.additive[index_trait])
-            for(index in 1:n.equal.additive[index_trait]){
-              add_chromo1[index] <- sum(add_marker1[index] > cum_snp) + 1
-              add_snp1[index] <- add_marker1[index] - c(0,cum_snp)[add_chromo1[index]]
-            }
-            add_effect1 <- effect.size.equal.add
-            real.bv.add.new <- rbind(real.bv.add.new, cbind(add_snp1, add_chromo1,  -add_effect1, 0, add_effect1, add_marker1, trait.pool[index_trait], FALSE))
-
-          }
-
-          if(n.dominant[index_trait]>0){
-            dom_snp <- dom_chromo <- numeric(n.dominant[index_trait])
-            for(index in 1:n.dominant[index_trait]){
-              dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
-              dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
-            }
-
-            if(effect.distribution == "gauss"){
-              dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
-            } else{
-              dom_effect <- stats::rgamma(n.dominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.dominant[index_trait], replace = TRUE)
-            }
-
-            if(dominant.only.positive[index_trait]){
-              temp1 <- dom_effect
-              temp1[temp1<0] <- 0
-            } else{
-              temp1 <- dom_effect
-            }
-            real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect, dom_marker, trait.pool[index_trait], FALSE))
-
-          }
-
-          if(n.equal.dominant[index_trait]>0){
-            dom_snp1 <- dom_chromo1 <- numeric(n.equal.dominant[index_trait])
-            for(index in 1:n.equal.dominant[index_trait]){
-              dom_chromo1[index] <- sum(dom_marker1[index] > cum_snp) + 1
-              dom_snp1[index] <- dom_marker1[index] - c(0,cum_snp)[dom_chromo1[index]]
-            }
-            dom_effect1 <- effect.size.equal.dom
-            real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1, dom_marker1, trait.pool[index_trait], FALSE))
-
-          }
-
-          if(n.overdominant[index_trait]>0){
-            over_snp <- over_chromo <- numeric(n.overdominant[index_trait])
-            for(index in 1:n.overdominant[index_trait]){
-              over_chromo[index] <- sum(over_marker[index] > cum_snp) + 1
-              over_snp[index] <- over_marker[index] - c(0,cum_snp)[over_chromo[index]]
-            }
-
-            if(effect.distribution == "gauss"){
-              over_effect <- abs(stats::rnorm(n.overdominant[index_trait], 0, var_overdominant))
-            } else{
-              over_effect <- abs(stats::rgamma(n.overdominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.overdominant[index_trait], replace = TRUE))
-            }
-
-            temp1 <- over_effect
-
-            real.bv.add.new <- rbind(real.bv.add.new, cbind(over_snp, over_chromo, 0 ,temp1,0, over_marker, trait.pool[index_trait], FALSE))
-
-          }
-
-          if(n.equal.overdominant[index_trait]>0){
-            over_snp1 <- over_chromo1 <- numeric(n.equal.overdominant[index_trait])
-            for(index in 1:n.equal.overdominant[index_trait]){
-              over_chromo1[index] <- sum(over_marker1[index] > cum_snp) + 1
-              over_snp1[index] <- over_marker1[index] - c(0,cum_snp)[over_chromo1[index]]
-            }
-            over_effect1 <- effect.size.equal.over
-            real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,over_effect1, 0, over_marker1, trait.pool[index_trait], FALSE))
-
-          }
-
-          if(n.quantitative[index_trait]){
-            epi1_snp <- epi1_chromo <- numeric(n.quantitative[index_trait]*2)
-            for(index in 1:(n.quantitative[index_trait]*2)){
-              epi1_chromo[index] <- sum(epi1_marker[index] > cum_snp) + 1
-              epi1_snp[index] <- epi1_marker[index] - c(0,cum_snp)[epi1_chromo[index]]
-            }
-
-            effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
-            for(index in 1:n.quantitative[index_trait]){
-
-
-              if(effect.distribution == "gauss"){
-                d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
-                d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
-              } else{
-                d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
-                d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
-              }
-
-              effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
-            }
-            real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
-                                      epi1_snp[-(1:n.quantitative[index_trait])], epi1_chromo[-(1:n.quantitative[index_trait])],
-                                      effect_matrix)
-          }
-
-          if(n.qualitative[index_trait]>0){
-            epi2_snp <- epi2_chromo <- numeric(n.qualitative[index_trait]*2)
-            for(index in 1:(n.qualitative[index_trait]*2)){
-              epi2_chromo[index] <- sum(epi2_marker[index] > cum_snp) + 1
-              epi2_snp[index] <- epi2_marker[index] - c(0,cum_snp)[epi2_chromo[index]]
-            }
-
-            effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
-            for(index in 1:n.qualitative[index_trait]){
-
-              if(effect.distribution == "gauss"){
-                d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
-              } else{
-                d1 <- - stats::rgamma(9, gamma.shape1, gamma.shape2)
-              }
-
-              d1[c(3,7)] <- -d1[c(3,7)]
-              effect_matrix[index,] <- d1
-            }
-            real.bv.mult.new <- rbind(real.bv.mult.new, cbind(epi2_snp[1:n.qualitative[index_trait]], epi2_chromo[1:n.qualitative[index_trait]],
-                                                              epi2_snp[-(1:n.qualitative[index_trait])], epi2_chromo[-(1:n.qualitative[index_trait])],
-                                                              effect_matrix))
-          }
-
-          real.bv.add[[index_trait+so_far]] <- real.bv.add.new
-          real.bv.mult[[index_trait+so_far]] <- real.bv.mult.new
-
-        }
-      }
-
-
-
-
-
-
-
-      if(length(population)>0 && length(population$info$bitstoring)>0){
-        nbits <- population$info$bitstoring
-        leftover <- population$info$leftover
-        bit.storing <- TRUE
-      }
-      if(length(population)>0 && length(population$info$miraculix)>0 && population$info$miraculix){
-        miraculix <- TRUE
-      }
-
-
-
-      nbv <- max(if(is.list(real.bv.add)){length(real.bv.add)} else{as.numeric(length(real.bv.add)>0)},
-                 if(is.list(real.bv.mult)){length(real.bv.mult)} else{as.numeric(length(real.bv.mult)>0)},
-                 if(is.list(real.bv.dice)){length(real.bv.dice)} else{as.numeric(length(real.bv.dice)>0)},
-                 if(length(trait_sum)>1){length(trait_sum)} else{0})
-
-      if(nbv >= bv.total){
-        bv.total <- nbv
-        bv.calc <- nbv
-        bv.random <- rep(FALSE, bv.total)
-        bv.random.variance <- c(rep(0, nbv))
-      }
-      if(bv.total > nbv){
-        if(length(polygenic.variance)< (bv.total - nbv)){
-          polygenic.variance <- rep(polygenic.variance, bv.total - nbv)
-        }
-        bv.random <- c(rep(FALSE, nbv), rep(TRUE, bv.total - nbv))
-
-        bv.random.variance <- c(rep(0, nbv), polygenic.variance)
-        bv.calc <- nbv +1 ## WARUM STEHT HIER +1 SINN ist calc nicht gerade anzahl der ZW mit berechenbaren wert? # ALLES SO RICHTIG in breeding.diploid!
-      }
 
       if(length(chr.nr)>0){
         chr.opt <- unique(chr.nr)
@@ -1786,10 +1381,7 @@ creating.diploid <- function(population=NULL,
       if(length(dataset)==1 && !is.list(dataset) && dataset=="macs"){
 
         if (requireNamespace("AlphaSimR", quietly = TRUE)) {
-
-
           output = AlphaSimR::runMacs2(nInd = nindi, nChr = length(nsnp), segSites = nsnp, Ne = macs.ne)
-
           dataset_macs = t(AlphaSimR::pullSegSiteHaplo(output))
 
           if(!macs.freq.correction){
@@ -1797,9 +1389,8 @@ creating.diploid <- function(population=NULL,
             dataset = dataset_macs
 
           } else{
+
             sampling_freq = rowMeans(dataset_macs)/2
-
-
 
             if(sum(freq > 0.5) > 0){
               turn_around = freq > 0.5
@@ -1808,8 +1399,8 @@ creating.diploid <- function(population=NULL,
               turn_around = rep(FALSE, length(freq))
             }
 
-            aa = graphics::hist(sampling_freq,  breaks = seq(0,0.5,by =0.025), plot = FALSE)
-            bb = graphics::hist(freq, breaks = seq(0,0.5,by =0.025), plot = FALSE)
+            aa = graphics::hist(sampling_freq,  breaks = seq(0,0.5,by =macs.freq.correction.precision), plot = FALSE)
+            bb = graphics::hist(freq, breaks = seq(0,0.5,by =macs.freq.correction.precision), plot = FALSE)
 
             ratio_macs = aa$density / bb$density
             factor_macs = 1 / min(ratio_macs) * 1.1 ## some buffer to simulate enough sites
@@ -1821,7 +1412,7 @@ creating.diploid <- function(population=NULL,
 
             acceptance = rep(0, nrow(dataset_macs))
             for(index in 1:nrow(dataset_macs)){
-              window = ceiling(new_freq[index] / 0.025)
+              window = ceiling(new_freq[index] / macs.freq.correction.precision)
               acceptance[index] = min(ratio_macs) / ratio_macs[window]
             }
 
@@ -1842,7 +1433,6 @@ creating.diploid <- function(population=NULL,
                   n_fail = n_fail + 1
                 }
               }
-              print(n_fail)
               failed = failed + 1
 
               if(failed%%100 == 0){
@@ -1867,18 +1457,45 @@ creating.diploid <- function(population=NULL,
             }
 
 
+            if(TRUE){
+
+              if(nqtl > 0 & length(beta.shape1) > 0 & length(beta.shape2) > 0 & (beta.shape1 != qtl.beta.shape1 || beta.shape2 != qtl.beta.shape2)){
+
+                cc = graphics::hist(freq[qtl_position], breaks = seq(0,0.5,by =macs.freq.correction.precision), plot = FALSE)
+                dd = graphics::hist(freq[-qtl_position], breaks = seq(0,0.5,by =macs.freq.correction.precision), plot = FALSE)
+
+                likelihood_ratio = cc$density / dd$density
+
+                pp = rowMeans(dataset)
+                pp[pp>0.5] = 1 - pp[pp>0.5]
+                tmp = floor(pp * 1/macs.freq.correction.precision) + 1
+                tmp[tmp > length(likelihood_ratio)] = length(likelihood_ratio)
+                qtl_position = sort(sample(1:length(freq),size = length(qtl_position), replace = FALSE, prob = likelihood_ratio[tmp]))
+                nonqtl_position = (1:length(freq))[-qtl_position]
+                exclude.snps = nonqtl_position
+
+              }
+              if(FALSE){
+                hist(sampling_freq)
+                hist(pp)
+                hist(pp[-qtl_position])
+                hist(pp[qtl_position])
+              }
+
+            }
+
           }
 
           storage.mode(dataset) = "integer"
 
 
           if(miraculix && length(chr.nr)==0 && miraculix.dataset){
-            suppressWarnings(dataset <- list(miraculix::as.matrix.haplomatrix(dataset)))
+            suppressWarnings(dataset <- list(miraculix::haplomatrix(dataset)))
           } else if(miraculix && miraculix.dataset){
             dataset_tmp = dataset
             dataset <- list()
             for(chr_index in 1:length(chr.opt)){
-              suppressWarnings(dataset[[chr_index]] <- miraculix::as.matrix.haplomatrix(dataset_tmp[chr.nr==chr.opt[chr_index],]))
+              suppressWarnings(dataset[[chr_index]] <- miraculix::haplomatrix(dataset_tmp[chr.nr==chr.opt[chr_index],]))
             }
           }
 
@@ -2067,6 +1684,417 @@ creating.diploid <- function(population=NULL,
         hom1 <- rep(1L,sum(nsnp))
       }
 
+      {
+        {
+
+
+          if(qtl.position.shared){
+
+            n_qtls = max(n.additive + n.dominant + n.equal.additive+ n.equal.dominant+ n.quantitative*2+ n.qualitative*2+ n.overdominant+ n.equal.overdominant)
+
+            so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
+            n_qtls_sofar = numeric(so_far)
+            if(length(real.bv.add)>0){
+              for(index in 1:length(real.bv.add)){
+                n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.add[[index]])
+              }
+            }
+            if(length(real.bv.mult)>0){
+              for(index in 1:length(real.bv.mult)){
+                n_qtls_sofar[index] = n_qtls_sofar[index] + nrow(real.bv.mult[[index]]) * 2
+              }
+            }
+
+            effect_marker <- (1:sum(snpdata))
+            if(length(exclude.snps)>0){
+              effect_marker <- effect_marker[-exclude.snps]
+            }
+
+            max_qtls = max(c(n_qtls, n_qtls_sofar))
+            effect_marker = sample(effect_marker, max_qtls)
+
+          } else{
+            so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
+            effect_marker <- (1:sum(snpdata))
+            if(length(exclude.snps)>0){
+              effect_marker <- effect_marker[-exclude.snps]
+            }
+          }
+
+          if(length(real.bv.add)>0){
+            for(index in 1:length(real.bv.add)){
+              while(sum(is.na(real.bv.add[[index]][,c(1:2,6)]))>0){
+
+                add_marker <- sample(effect_marker, nrow(real.bv.add[[index]]), replace=if(nrow(real.bv.add[[index]])>length(effect_marker)){TRUE} else{FALSE})
+                add_snp <- real.bv.add[[index]][,1]
+                add_chromo <- real.bv.add[[index]][,2]
+
+                for(index2 in (1:nrow(real.bv.add[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+                  add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
+                  add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
+                }
+
+
+                if(sum(is.na(real.bv.add[[index]][,6]))>0){
+                  add_marker = add_snp + c(0,cum_snp)[add_chromo]
+                }
+
+                enter <- add_chromo==real.bv.add[[index]][,2] | is.na(real.bv.add[[index]][,2])| is.na(real.bv.add[[index]][,1]) | is.na(real.bv.add[[index]][,6])
+
+                real.bv.add[[index]][enter,c(1:2, 6)] <- cbind(add_snp, add_chromo, add_marker)[enter,]
+              }
+            }
+          }
+
+          if(length(real.bv.mult)>0){
+            for(index in 1:length(real.bv.mult)){
+              for(columns in c(0,2)){
+                while(sum(is.na(real.bv.mult[[index]][,1:2+columns]))>0){
+
+                  add_marker <- sample(effect_marker, nrow(real.bv.mult[[index]]), replace=if(nrow(real.bv.mult[[index]])>length(effect_marker)){TRUE} else{FALSE})
+                  add_snp <- real.bv.mult[[index]][,1]
+                  add_chromo <- real.bv.mult[[index]][,2]
+
+                  for(index2 in (1:nrow(real.bv.mult[[index]]))[is.na(add_snp) | is.na(add_chromo)]){
+                    add_chromo[index2] <- sum(add_marker[index2] > cum_snp) + 1
+                    add_snp[index2] <- add_marker[index2] - c(0,cum_snp)[add_chromo[index2]]
+                  }
+
+                  enter <- add_chromo==real.bv.mult[[index]][,2+columns] | is.na(real.bv.mult[[index]][,2])
+
+                  real.bv.mult[[index]][enter,1:2+columns] <- cbind(add_snp, add_chromo)[enter,]
+                }
+              }
+
+            }
+          }
+        }
+
+        if(qtl.position.shared){
+          sofar_positions = NULL
+
+          if(length(real.bv.add)>0){
+            for(index in 1:length(real.bv.add)){
+              if(length(real.bv.add[[index]])>0){
+                sofar_positions = c(sofar_positions, real.bv.add[[index]][,6])
+              }
+            }
+          }
+
+          sofar_positions = sofar_positions[!is.na(sofar_positions)]
+          sofar_positions = setdiff(sofar_positions, effect_marker)
+          if(length(sofar_positions)>0 && length(sofar_positions)<= length(effect_marker)){
+            effect_marker[1:length(sofar_positions)] = sofar_positions
+          }
+        }
+
+
+        if(length(dominant.only.positive)<length(trait_sum)){
+          dominant.only.positive <- rep(dominant.only.positive, length.out = length(trait_sum))
+        }
+        so_far <- max(length(real.bv.dice), length(real.bv.add), length(real.bv.mult))
+
+        if(length(trait.pool)< length(trait_sum)){
+          trait.pool = rep(trait.pool, length.out = length(trait_sum))
+        }
+
+        if(length(trait_sum)>0){
+          for(index_trait in 1:length(trait_sum)){
+            var_additive <- var.additive.l[[index_trait]]
+            var_dominant <- var.dominant.l[[index_trait]]
+            var_overdominant <- var.overdominant.l[[index_trait]]
+
+            var_qualitative <- var.qualitative.l[[index_trait]]
+            var_quantitative <- var.quantitative.l[[index_trait]]
+            if(n.additive[index_trait]>0 && length(var_additive)<n.additive[index_trait]){
+              if(length(var_additive)==0){
+                var_additive <- 1
+              }
+              var_additive <- rep(var_additive, length.out=n.additive[index_trait])
+              var.additive.l[[index_trait]] <- var_additive
+            }
+            if(n.dominant[index_trait]>0 && length(var_dominant)<n.dominant[index_trait]){
+              if(length(var_dominant)==0){
+                var_dominant <- 1
+              }
+              var_dominant <- rep(var_dominant, length.out=n.dominant[index_trait])
+              var.dominant.l[[index_trait]] <- var_dominant
+            }
+
+            if(n.overdominant[index_trait]>0 && length(var_overdominant)<n.overdominant[index_trait]){
+              if(length(var_overdominant)==0){
+                var_overdominant <- 1
+              }
+              var_overdominant <- rep(var_overdominant, length.out=n.overdominant[index_trait])
+              var.overdominant.l[[index_trait]] <- var_overdominant
+            }
+
+            if(n.qualitative[index_trait]>0 && length(var_qualitative)<n.qualitative[index_trait]){
+              if(length(var_qualitative)==0){
+                var_qualitative <- 1
+              }
+              var_qualitative <- rep(var_qualitative, length.out=n.qualitative[index_trait])
+              var.qualitative.l[[index_trait]] <- var_qualitative
+            }
+            if(n.quantitative[index_trait]>0 && length(var_quantitative)<n.quantitative[index_trait]){
+              if(length(var_quantitative)==0){
+                var_quantitative <- 1
+              }
+              var_quantitative <- rep(var_quantitative, length.out=n.quantitative[index_trait])
+              var.quantitative.l[[index_trait]] <- var_quantitative
+
+            }
+
+            if(length(var_additive)!= n.additive[index_trait]){
+              n.additive[index_trait] <- length(var_additive)
+            }
+            if(length(var_dominant)!= n.dominant[index_trait]){
+              n.dominant[index_trait] <- length(var_dominant)
+            }
+            if(length(var_overdominant)!= n.overdominant[index_trait]){
+              n.overdominant[index_trait] <- length(var_overdominant)
+            }
+            if(length(var_qualitative)!= n.qualitative[index_trait]){
+              n.qualitative[index_trait] <- length(var_qualitative)
+            }
+            if(length(var_quantitative)!= n.quantitative[index_trait]){
+              n.quantitative[index_trait] <- length(var_quantitative)
+            }
+
+
+
+
+
+
+#            stop()
+            #This part is only needed in creating.diploid
+            if(sum(nsnp)>0){
+              snpdata <- c(snpdata, nsnp) ## seems not to harm but not necessary to increase when adding multiple chromosomes jointly
+            } else if((is.matrix(dataset) && nrow(dataset)>0 ) || is.list(dataset)){
+              if(length(chr.nr)>0 && length(unique(chr.nr))>1){
+                rindex <- 1
+                for(chr.index in unique(chr.nr)){
+                  if(is.list(dataset)){
+
+                    if(new_miraculix){
+                      snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[3])
+                    } else{
+                      snpdata <- c(snpdata, attr(dataset[[rindex]], "information")[2])
+                    }
+
+                    rindex <- rindex + 1
+                  } else{
+                    snpdata <- c(snpdata, sum(chr.nr==chr.index))
+                  }
+                }
+              } else{
+                if(sum(class(dataset)  %in% "haplomatrix")>0){
+                  if(new_miraculix){
+                    snpdata <- c(snpdata, attr(dataset[[1]], "information")[3])
+                  } else{
+                    snpdata <- c(snpdata, attr(dataset[[1]], "information")[2])
+                  }
+
+                } else{
+                  snpdata <- c(snpdata, nrow(dataset))
+                }
+
+              }
+            }
+
+            # Generating additive
+
+            add_marker <- sample(effect_marker, n.additive[index_trait], replace=if(n.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+            dom_marker <- sample(effect_marker, n.dominant[index_trait], replace=if(n.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+            over_marker <- sample(effect_marker, n.overdominant[index_trait], replace=if(n.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
+            add_marker1 <- sample(effect_marker, n.equal.additive[index_trait], replace=if(n.equal.additive[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+            dom_marker1 <- sample(effect_marker, n.equal.dominant[index_trait], replace=if(n.equal.dominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+            over_marker1 <- sample(effect_marker, n.equal.overdominant[index_trait], replace=if(n.equal.overdominant[index_trait]>length(effect_marker)){TRUE} else{FALSE})
+
+            epi1_marker <- sample(effect_marker, n.quantitative[index_trait]*2, replace=if(n.quantitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
+            epi2_marker <- sample(effect_marker, n.qualitative[index_trait]*2, replace=if(n.qualitative[index_trait]*2>length(effect_marker)){TRUE} else{FALSE})
+
+
+
+            cum_snp <- cumsum(snpdata)
+            real.bv.add.new <- NULL
+            real.bv.mult.new <- NULL
+            if(n.additive[index_trait]>0){
+              add_snp <- add_chromo <- numeric(n.additive[index_trait])
+              for(index in 1:n.additive[index_trait]){
+                add_chromo[index] <- sum(add_marker[index] > cum_snp) + 1
+                add_snp[index] <- add_marker[index] - c(0,cum_snp)[add_chromo[index]]
+              }
+              if(effect.distribution == "gauss"){
+                add_effect <- stats::rnorm(n.additive[index_trait], 0, var_additive)
+              } else{
+                add_effect <- stats::rgamma(n.additive[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.additive[index_trait], replace = TRUE)
+              }
+
+              real.bv.add.new <- cbind(add_snp, add_chromo, add_effect,0,-add_effect, add_marker, trait.pool[index_trait], FALSE)
+            }
+
+            if(n.equal.additive[index_trait]>0){
+              add_snp1 <- add_chromo1 <- numeric(n.equal.additive[index_trait])
+              for(index in 1:n.equal.additive[index_trait]){
+                add_chromo1[index] <- sum(add_marker1[index] > cum_snp) + 1
+                add_snp1[index] <- add_marker1[index] - c(0,cum_snp)[add_chromo1[index]]
+              }
+              add_effect1 <- effect.size.equal.add
+              real.bv.add.new <- rbind(real.bv.add.new, cbind(add_snp1, add_chromo1,  -add_effect1, 0, add_effect1, add_marker1, trait.pool[index_trait], FALSE))
+
+            }
+
+            if(n.dominant[index_trait]>0){
+              dom_snp <- dom_chromo <- numeric(n.dominant[index_trait])
+              for(index in 1:n.dominant[index_trait]){
+                dom_chromo[index] <- sum(dom_marker[index] > cum_snp) + 1
+                dom_snp[index] <- dom_marker[index] - c(0,cum_snp)[dom_chromo[index]]
+              }
+
+              if(effect.distribution == "gauss"){
+                dom_effect <- stats::rnorm(n.dominant[index_trait], 0, var_dominant)
+              } else{
+                dom_effect <- stats::rgamma(n.dominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.dominant[index_trait], replace = TRUE)
+              }
+
+              if(dominant.only.positive[index_trait]){
+                temp1 <- dom_effect
+                temp1[temp1<0] <- 0
+              } else{
+                temp1 <- dom_effect
+              }
+              real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp, dom_chromo, 0 ,temp1,dom_effect, dom_marker, trait.pool[index_trait], FALSE))
+
+            }
+
+            if(n.equal.dominant[index_trait]>0){
+              dom_snp1 <- dom_chromo1 <- numeric(n.equal.dominant[index_trait])
+              for(index in 1:n.equal.dominant[index_trait]){
+                dom_chromo1[index] <- sum(dom_marker1[index] > cum_snp) + 1
+                dom_snp1[index] <- dom_marker1[index] - c(0,cum_snp)[dom_chromo1[index]]
+              }
+              dom_effect1 <- effect.size.equal.dom
+              real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,dom_effect1, dom_effect1, dom_marker1, trait.pool[index_trait], FALSE))
+
+            }
+
+            if(n.overdominant[index_trait]>0){
+              over_snp <- over_chromo <- numeric(n.overdominant[index_trait])
+              for(index in 1:n.overdominant[index_trait]){
+                over_chromo[index] <- sum(over_marker[index] > cum_snp) + 1
+                over_snp[index] <- over_marker[index] - c(0,cum_snp)[over_chromo[index]]
+              }
+
+              if(effect.distribution == "gauss"){
+                over_effect <- abs(stats::rnorm(n.overdominant[index_trait], 0, var_overdominant))
+              } else{
+                over_effect <- abs(stats::rgamma(n.overdominant[index_trait], gamma.shape1, gamma.shape2) * sample( c(-1,1), n.overdominant[index_trait], replace = TRUE))
+              }
+
+              temp1 <- over_effect
+
+              real.bv.add.new <- rbind(real.bv.add.new, cbind(over_snp, over_chromo, 0 ,temp1,0, over_marker, trait.pool[index_trait], FALSE))
+
+            }
+
+            if(n.equal.overdominant[index_trait]>0){
+              over_snp1 <- over_chromo1 <- numeric(n.equal.overdominant[index_trait])
+              for(index in 1:n.equal.overdominant[index_trait]){
+                over_chromo1[index] <- sum(over_marker1[index] > cum_snp) + 1
+                over_snp1[index] <- over_marker1[index] - c(0,cum_snp)[over_chromo1[index]]
+              }
+              over_effect1 <- effect.size.equal.over
+              real.bv.add.new <- rbind(real.bv.add.new, cbind(dom_snp1, dom_chromo1, 0 ,over_effect1, 0, over_marker1, trait.pool[index_trait], FALSE))
+
+            }
+
+            if(n.quantitative[index_trait]){
+              epi1_snp <- epi1_chromo <- numeric(n.quantitative[index_trait]*2)
+              for(index in 1:(n.quantitative[index_trait]*2)){
+                epi1_chromo[index] <- sum(epi1_marker[index] > cum_snp) + 1
+                epi1_snp[index] <- epi1_marker[index] - c(0,cum_snp)[epi1_chromo[index]]
+              }
+
+              effect_matrix <- matrix(0,nrow=n.quantitative[index_trait], ncol=9)
+              for(index in 1:n.quantitative[index_trait]){
+
+
+                if(effect.distribution == "gauss"){
+                  d1 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                  d2 <- sort(abs(stats::rnorm(3, 0, var_quantitative[index])), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                } else{
+                  d1 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                  d2 <- sort(stats::rgamma(3, gamma.shape1, gamma.shape2), decreasing = as.logical(stats::rbinom(1,1,0.5)))
+                }
+
+                effect_matrix[index,] <- c(d1*d2[1], d1*d2[2], d1*d2[3])
+              }
+              real.bv.mult.new <- cbind(epi1_snp[1:n.quantitative[index_trait]], epi1_chromo[1:n.quantitative[index_trait]],
+                                        epi1_snp[-(1:n.quantitative[index_trait])], epi1_chromo[-(1:n.quantitative[index_trait])],
+                                        effect_matrix)
+            }
+
+            if(n.qualitative[index_trait]>0){
+              epi2_snp <- epi2_chromo <- numeric(n.qualitative[index_trait]*2)
+              for(index in 1:(n.qualitative[index_trait]*2)){
+                epi2_chromo[index] <- sum(epi2_marker[index] > cum_snp) + 1
+                epi2_snp[index] <- epi2_marker[index] - c(0,cum_snp)[epi2_chromo[index]]
+              }
+
+              effect_matrix <- matrix(0,nrow=n.qualitative[index_trait], ncol=9)
+              for(index in 1:n.qualitative[index_trait]){
+
+                if(effect.distribution == "gauss"){
+                  d1 <- -abs(stats::rnorm(9, 0, var_qualitative[index]))
+                } else{
+                  d1 <- - stats::rgamma(9, gamma.shape1, gamma.shape2)
+                }
+
+                d1[c(3,7)] <- -d1[c(3,7)]
+                effect_matrix[index,] <- d1
+              }
+              real.bv.mult.new <- rbind(real.bv.mult.new, cbind(epi2_snp[1:n.qualitative[index_trait]], epi2_chromo[1:n.qualitative[index_trait]],
+                                                                epi2_snp[-(1:n.qualitative[index_trait])], epi2_chromo[-(1:n.qualitative[index_trait])],
+                                                                effect_matrix))
+            }
+
+            real.bv.add[[index_trait+so_far]] <- real.bv.add.new
+            real.bv.mult[[index_trait+so_far]] <- real.bv.mult.new
+
+          }
+        }
+
+
+        if(length(population)>0 && length(population$info$miraculix)>0 && population$info$miraculix){
+          miraculix <- TRUE
+        }
+
+
+
+        nbv <- max(if(is.list(real.bv.add)){length(real.bv.add)} else{as.numeric(length(real.bv.add)>0)},
+                   if(is.list(real.bv.mult)){length(real.bv.mult)} else{as.numeric(length(real.bv.mult)>0)},
+                   if(is.list(real.bv.dice)){length(real.bv.dice)} else{as.numeric(length(real.bv.dice)>0)},
+                   if(length(trait_sum)>1){length(trait_sum)} else{0})
+
+        if(nbv >= n.traits){
+          n.traits <- nbv
+          bv.calc <- nbv
+          bv.random <- rep(FALSE, n.traits)
+          bv.random.variance <- c(rep(0, nbv))
+        }
+        if(n.traits > nbv){
+          if(length(polygenic.variance)< (n.traits - nbv)){
+            polygenic.variance <- rep(polygenic.variance, n.traits - nbv)
+          }
+          bv.random <- c(rep(FALSE, nbv), rep(TRUE, n.traits - nbv))
+
+          bv.random.variance <- c(rep(0, nbv), polygenic.variance)
+          bv.calc <- nbv +1 ## WARUM STEHT HIER +1 SINN ist calc nicht gerade anzahl der ZW mit berechenbaren wert? # ALLES SO RICHTIG in breeding.diploid!
+        }
+      }
+
     } else{
 
       nindi_prior = nindi
@@ -2204,7 +2232,7 @@ creating.diploid <- function(population=NULL,
 
         ## KEINE EDITS ZWISCHEN [[1]] und [[18]] snps.equidistant ++ Miraculix aenderungen sonst erforderlich!
         population$info <- list()
-        population$info$schlather.slot1 <- "miraculix_not_activated"
+        population$info$schlather.slot1 <- "miraculix_version_not_traced"
         population$info$chromosome <- 1L
         population$info$snp <- as.integer(nsnp)
         population$info$position <- list()
@@ -2219,7 +2247,7 @@ creating.diploid <- function(population=NULL,
         population$info$bv.calculated <- FALSE
         population$info$breeding.totals <- list()
         population$info$bve.data <- list()
-        population$info$bv.nr <- bv.total
+        population$info$bv.nr <- n.traits
         population$info$bv.random <- bv.random
         population$info$bv.random.variance <- bv.random.variance
         population$info$snps.equidistant <- snps.equidistant
@@ -2233,11 +2261,17 @@ creating.diploid <- function(population=NULL,
         population$info$next.animal <- 1
         population$info$next.litter <- 1
         population$info$next.pen <- 1
-        population$info$phenotypic.transform <- rep(FALSE, bv.total)
+        population$info$phenotypic.transform <- rep(FALSE, n.traits)
         population$info$phenotypic.transform.function <- list()
         population$info$culling.stats <- list()
         population$info$version_MoBPS <- utils::sessionInfo()$otherPkgs$MoBPS
-        population$info$version_miraculix <- utils::sessionInfo()$otherPkgs$miraculix
+
+        if(miraculix && length(utils::packageVersion("miraculix")) > 0){
+          population$info$schlather.slot1 <- utils::packageVersion("miraculix")
+        }
+        if(length(utils::sessionInfo()$otherPkgs$miraculix)>0){
+          population$info$schlather.slot1 <- utils::sessionInfo()$otherPkgs$miraculix
+        }
         population$info$cohort.index <- 1
         population$info$array.name = "Full_Array"
         population$info$array.markers = list(rep(TRUE,nsnp))
@@ -2268,6 +2302,21 @@ creating.diploid <- function(population=NULL,
 
 
         if(miraculix){
+          miraculix_info <- utils::packageVersion("miraculix")
+          if(miraculix_info != "1.6.0.4"){
+            recombination.precision = 1
+            warning("Old version of miraculix. Automatically deactivate memory-efficient recombination point storage")
+          }
+        }
+        population$info$recombination.precision = recombination.precision
+        population$info$snp.position.precision <- position * recombination.precision
+        if(recombination.precision!=1){
+          population$info$snp.position.precision = as.integer(population$info$snp.position.precision)
+        }
+        population$info$length.total.precision = if(recombination.precision!=1) {as.integer(population$info$length.total * recombination.precision)} else{
+          population$info$length.total * recombination.precision}
+
+        if(miraculix){
           test_matrix = matrix(stats::rbinom(5000, 1, 0.5), ncol = 2)
           population$info$miraculix_test_coded = miraculix::haplomatrix(test_matrix)
           population$info$miraculix_test_decoded = test_matrix
@@ -2283,61 +2332,69 @@ creating.diploid <- function(population=NULL,
 
 
         if(length(is.maternal)==0){
-          population$info$is.maternal <- rep(FALSE, bv.total)
+          population$info$is.maternal <- rep(FALSE, n.traits)
         } else{
-          if(length(is.maternal)==bv.total){
+          if(length(is.maternal)==n.traits){
             population$info$is.maternal <- is.maternal
           } else {
-            population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = bv.total - length(population$info$is.materal)))
+            population$info$is.maternal <- c(population$info$is.materal, rep(is.maternal, length.out = n.traits - length(population$info$is.materal)))
           }
 
         }
         if(length(is.paternal)==0){
-          population$info$is.paternal <- rep(FALSE, bv.total)
+          population$info$is.paternal <- rep(FALSE, n.traits)
         } else{
-          if(length(is.paternal)==bv.total){
+          if(length(is.paternal)==n.traits){
             population$info$is.paternal <- is.paternal
           } else {
-            population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = bv.total - length(population$info$is.paternal)))
+            population$info$is.paternal <- c(population$info$is.paternal, rep(is.paternal, length.out = n.traits - length(population$info$is.paternal)))
           }
         }
 
 
 
-        population$info$is.combi <- rep(FALSE, bv.total)
+        population$info$is.combi <- rep(FALSE, n.traits)
+        population$info$is.lis <- rep(FALSE, n.traits)
         population$info$progress.bar = progress.bar
+        population$info$verbose.all = verbose.all
         population$info$database.sex.mode = FALSE
+        population$info$tracking = FALSE
+
+        population$info$nsnp <- sum(population$info$nsnp)
+
+        population$info$bv.ignore.traits.ever = length(bv.ignore.traits) > 0
+
 
         if(length(bve.mult.factor)==0){
-          population$info$bve.mult.factor <- rep(1L, bv.total)
+          population$info$bve.mult.factor <- rep(1L, n.traits)
         } else{
 
-          if(length(bve.mult.factor)==bv.total){
+          if(length(bve.mult.factor)==n.traits){
             population$info$bve.mult.factor <- bve.mult.factor
           } else {
-            population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = bv.total - length(population$info$bve.mult.factor)))
+            population$info$bve.mult.factor <- c(population$info$bve.mult.factor, rep(bve.mult.factor, length.out = n.traits - length(population$info$bve.mult.factor)))
           }
         }
 
         if(length(bve.poly.factor)==0){
-          population$info$bve.poly.factor <- rep(1L, bv.total)
+          population$info$bve.poly.factor <- rep(1L, n.traits)
         } else{
 
-          if(length(bve.poly.factor)==bv.total){
+          if(length(bve.poly.factor)==n.traits){
             population$info$bve.poly.factor <- bve.poly.factor
           } else {
-            population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = bv.total - length(population$info$bve.poly.factor)))
+            population$info$bve.poly.factor <- c(population$info$bve.poly.factor, rep(bve.poly.factor, length.out = n.traits - length(population$info$bve.poly.factor)))
           }
 
         }
         if(length(base.bv)==0){
-          population$info$base.bv <- rep(100L, bv.total)
+          population$info$base.bv <- rep(100L, n.traits)
         } else{
 
-          if(length(base.bv)==bv.total){
+          if(length(base.bv)==n.traits){
             population$info$base.bv <- base.bv
           } else {
-            population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = bv.total - length(population$info$base.bv)))
+            population$info$base.bv <- c(population$info$base.bv, rep(base.bv, length.out = n.traits - length(population$info$base.bv)))
           }
         }
 
@@ -2349,10 +2406,25 @@ creating.diploid <- function(population=NULL,
         }
         population$info$chromosome <- population$info$chromosome + 1L
         population$info$snp <- c(population$info$snp, as.integer(nsnp))
+        population$info$nsnp = sum(population$info$snp)
         population$info$position[[length(population$info$position)+1]] <- position
-        population$info$snp.position <- c(population$info$snp.position, position + max(population$info$length.total))
+        population$info$snp.position <- c(population$info$snp.position,  position + max(population$info$length.total))
+
+        if(recombination.precision!=1){
+          population$info$snp.position.precision <- c(population$info$snp.position.precision, population$info$recombination.precision * position + as.integer(population$info$recombination.precision * max(population$info$length.total)))
+        } else{
+          population$info$snp.position.precision <- population$info$snp.position
+        }
+
         population$info$length <- c(population$info$length, chromosome.length)
         population$info$length.total <- cumsum(c(0,population$info$length))
+
+        if(recombination.precision!=1){
+          population$info$length.total.precision = as.integer(population$info$length.total * recombination.precision)
+        } else{
+          population$info$length.total.precision = population$info$length.total
+        }
+
         population$info$snp.base <- cbind(population$info$snp.base , rbind(hom0,hom1, deparse.level = 0), deparse.level = 0)
         population$info$cumsnp <- c(population$info$cumsnp, sum(population$info$snp))
         population$info$bp <- c(population$info$bp, bp)
@@ -2445,23 +2517,40 @@ creating.diploid <- function(population=NULL,
 
       if(add.chromosome==FALSE){
 
+
+
+        bv_tmp = !population$info$bv.ignore.traits.ever
+
         for(index in 1:length(sex.s)){
           sex <- sex.s[index]
           genotyped <- genotyped.s[index]
 
           population$breeding[[generation]][[sex]][[counter[sex]]] <- list()
-          population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- c(0, sum(population$info$length))
-          population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- c(0,sum(population$info$length))
+
+          if(population$info$recombination.precision != 1){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- as.integer(c(0, sum(population$info$length)) * population$info$recombination.precision)
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- as.integer(c(0,sum(population$info$length)) * population$info$recombination.precision)
+          } else{
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- c(0, sum(population$info$length))
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- c(0,sum(population$info$length))
+          }
+
           if(add.chromosome.ends==TRUE){
-            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- population$info$length.total
-            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- population$info$length.total
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- (population$info$length.total.precision)
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- (population$info$length.total.precision)
           }
           population$breeding[[generation]][[sex]][[counter[sex]]][[3]] <- NULL
           population$breeding[[generation]][[sex]][[counter[sex]]][[4]] <- NULL
           population$breeding[[generation]][[sex]][[counter[sex]]][[5]] <- codeOriginsU(matrix(c(origin_code, sex, counter[sex], 1),nrow=(length(population$breeding[[generation]][[sex]][[counter[sex]]][[1]])-1), ncol=4, byrow=TRUE))
           population$breeding[[generation]][[sex]][[counter[sex]]][[6]] <- codeOriginsU(matrix(c(origin_code, sex, counter[sex], 2),nrow=(length(population$breeding[[generation]][[sex]][[counter[sex]]][[2]])-1), ncol=4, byrow=TRUE))
-          population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex])
-          population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
+
+          # This contains data previously stored in 7,8,37,38 for memory efficency
+          population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex])
+
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
 
           if(internal.geno){
             if(miraculix && miraculix.dataset){
@@ -2475,9 +2564,6 @@ creating.diploid <- function(population=NULL,
             } else if(miraculix){
               population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(dataset[,(index*2-c(1,0))])
               population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-            } else if(bit.storing){
-              population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- bit.storing(dataset[,(index*2-1)], nbits)
-              population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- bit.storing(dataset[,(index*2)], nbits)
             } else{
               population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- dataset[,(index*2-1)]
               population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- dataset[,(index*2)]
@@ -2490,20 +2576,20 @@ creating.diploid <- function(population=NULL,
           #      population$breeding[[generation]][[sex]][[counter[sex]]][[13]] <- "test"
           population$breeding[[generation]][[sex]][[counter[sex]]][[15]] <- rep(0L, population$info$bv.nr)
           population$breeding[[generation]][[sex]][[counter[sex]]][[16]] <- genotyped
-          population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- cbind(generation, sex, counter[sex], deparse.level = 0)
-          storage.mode(population$breeding[[generation]][[sex]][[counter[sex]]][[21]]) <- "integer"
+          population$breeding[[generation]][[sex]][[counter[sex]]][[21]] <- as.integer(c(generation, sex, counter[sex]))
 
           population$breeding[[generation]][[sex]][[counter[sex]]][[22]] <- if(genotyped>0){1} else{NULL}
 
           population$breeding[[generation]][[sex]][[counter[sex]]][[23]] <- NULL ## permanent environmental effects
           population$breeding[[generation]][[sex]][[counter[sex]]][[24]] <- NULL ## random environmental effects
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- FALSE ## has BV been calculated
+          population$breeding[[generation]][[sex]][[counter[sex]]][[25]] <- bv_tmp ## has BV been calculated
           population$breeding[[generation]][[sex]][[counter[sex]]][[26]] <- NULL ## for which BV has been calculated
 
           population$breeding[[generation]][[sex]][[counter[sex]]][[27]] <- list() ## List containing each individual phenotypic observation
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[28]] <- numeric(0)
+          # not nessecarry to initialize to save memory
+          # population$breeding[[generation]][[sex]][[counter[sex]]][[28]] <- numeric(0)
 
           if(population$info$litter.effect.active){
             population$breeding[[generation]][[sex]][[counter[sex]]][[29]]  <- rep(0L, population$info$bv.nr) ## Litter effect
@@ -2515,25 +2601,28 @@ creating.diploid <- function(population=NULL,
             population$breeding[[generation]][[sex]][[counter[sex]]][[32]]  <- 0L ## Pen nr
           }
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[33]] = numeric(0)
-          population$breeding[[generation]][[sex]][[counter[sex]]][[34]] = numeric(0)
+          # not nessecarry to initialize to save memory
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[33]] = numeric(0)
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[34]] = numeric(0)
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[35]] = numeric(0) # Recriprocal translocation (RT)
-          population$breeding[[generation]][[sex]][[counter[sex]]][[36]] = numeric(0) #
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[35]] = numeric(0) # Recriprocal translocation (RT)
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[36]] = numeric(0) #
 
+## Slot 37,38 are now Free!
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- c(generation, sex, counter[sex]) # Pedigree with errors
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[38]] <- c(generation, sex, counter[sex]) #
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[37]] <- c(generation, sex, counter[sex]) # Pedigree with errors
-          population$breeding[[generation]][[sex]][[counter[sex]]][[38]] <- c(generation, sex, counter[sex]) #
+          # not necessary to initialize to save memory
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[39]] = numeric(0) ## parameter in generation of phenotypic transformation
 
-          population$breeding[[generation]][[sex]][[counter[sex]]][[39]] = numeric(0) ## parameter in generation of phenotypic transformation
-
-          population$breeding[[generation]][[sex]][[counter[sex]]][[40]] <- "placeholder"
+          population$breeding[[generation]][[sex]][[counter[sex]]][[40]] <- list()
           population$info$size[generation,sex] <- population$info$size[generation,sex] +1L
           counter[sex] <- counter[sex] + 1L
         }
 
         if(length(population$breeding[[generation]])==2){
-          population$breeding[[generation]][[3]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # Selektionsfunktion
+          #stop()
+          population$breeding[[generation]][[3]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-1) # Selection function
           population$breeding[[generation]][[4]] <- matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-1)
           population$breeding[[generation]][[5]] <- rep(class,counter[1]-1) # Migrationslevel
           population$breeding[[generation]][[6]] <- rep(class,counter[2]-1)
@@ -2595,6 +2684,8 @@ creating.diploid <- function(population=NULL,
                                                              population$breeding[[generation]][[15]],
                                                              population$breeding[[generation]][[15]]) # pedigree (no errors)
 
+            storage.mode(population$breeding[[generation]][[47]] ) = "integer"
+            #attributes(population$breeding[[generation]][[47]]) = NULL
           } else{
             population$breeding[[generation]][[47]]  = matrix(0L, nrow= 12, ncol=counter[1] -1)
           }
@@ -2606,11 +2697,20 @@ creating.diploid <- function(population=NULL,
                                                              population$breeding[[generation]][[16]],
                                                              population$breeding[[generation]][[16]])
 
+            storage.mode(population$breeding[[generation]][[48]] ) = "integer"
+            #attributes(population$breeding[[generation]][[48]]) = NULL
+
           } else{
             population$breeding[[generation]][[48]] = matrix(0L, nrow= 12, ncol=counter[2] -1)
           }
 
-
+          ## To do rare use of the 49-52, they are only initialized with correct-size matrices when calculated
+          population$breeding[[generation]][[49]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # Underlying true breeding value males
+          population$breeding[[generation]][[50]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # Underlying true breeding value females
+          population$breeding[[generation]][[51]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # MSV males
+          population$breeding[[generation]][[52]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # MSV females
+          population$breeding[[generation]][[53]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # Stored estimated breeding value males
+          population$breeding[[generation]][[54]] <- matrix(0L, nrow= population$info$bv.nr, ncol=0) # Stored estimated breeding value males
 
           # calculate Real-ZW
         } else{
@@ -2679,6 +2779,9 @@ creating.diploid <- function(population=NULL,
                                                                                                             tmp111,
                                                                                                             tmp111,
                                                                                                             tmp111)) # pedigree (no errors)
+
+            storage.mode(population$breeding[[generation]][[47]] ) = "integer"
+            #attributes(population$breeding[[generation]][[47]]) = NULL
           }
 
           if(counter[2] > counter.start[2]){
@@ -2688,8 +2791,31 @@ creating.diploid <- function(population=NULL,
                                                                                                             tmp222,
                                                                                                             tmp222,
                                                                                                             tmp222))
+
+            storage.mode(population$breeding[[generation]][[48]] ) = "integer"
+            #attributes(population$breeding[[generation]][[48]]) = NULL
           }
 
+          if(length(population$breeding[[generation]][[49]])>0){
+            population$breeding[[generation]][[49]] <- cbind(population$breeding[[generation]][[49]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1]))
+          }
+          if(length(population$breeding[[generation]][[50]])>0){
+            population$breeding[[generation]][[50]] <- cbind(population$breeding[[generation]][[50]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          }
+
+          if(length(population$breeding[[generation]][[51]])>0){
+            population$breeding[[generation]][[51]] <- cbind(population$breeding[[generation]][[51]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1]))
+          }
+          if(length(population$breeding[[generation]][[52]])>0){
+            population$breeding[[generation]][[52]] <- cbind(population$breeding[[generation]][[52]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          }
+
+          if(length(population$breeding[[generation]][[53]])>0){
+            population$breeding[[generation]][[53]] <- cbind(population$breeding[[generation]][[53]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[1]-counter.start[1]))
+          }
+          if(length(population$breeding[[generation]][[54]])>0){
+            population$breeding[[generation]][[54]] <- cbind(population$breeding[[generation]][[54]], matrix(0L, nrow= population$info$bv.nr, ncol=counter[2]-counter.start[2]))
+          }
 
           population$info$founder_pools = unique(c(population$info$founder_pools, founder.pool))
           population$info$founder_multi = if(length(population$info$founder_pools)>1){TRUE} else{FALSE}
@@ -2704,17 +2830,27 @@ creating.diploid <- function(population=NULL,
         for(index in 1:length(sex.s)){
           sex <- sex.s[index]
           genotyped <- genotyped.s[index]
-          population$breeding[[generation]][[sex]][[counter[sex]]][[1]][2] <- sum(population$info$length)
-          population$breeding[[generation]][[sex]][[counter[sex]]][[2]][2] <- sum(population$info$length)
+
+          if(population$info$recombination.precision != 1){
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]][2] <- as.integer( sum(population$info$length) * population$info$recombination.precision)
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]][2] <- as.integer( sum(population$info$length) * population$info$recombination.precision)
+          } else{
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]][2] <- sum(population$info$length)
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]][2] <- sum(population$info$length)
+          }
+
           if(add.chromosome.ends==TRUE){
-            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- population$info$length.total
-            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- population$info$length.total
+            population$breeding[[generation]][[sex]][[counter[sex]]][[1]] <- population$info$length.total.precision
+            population$breeding[[generation]][[sex]][[counter[sex]]][[2]] <- population$info$length.total.precision
             population$breeding[[generation]][[sex]][[counter[sex]]][[5]] <- codeOriginsU(matrix(c(origin_code, sex, counter[sex], 1),nrow=(length(population$breeding[[generation]][[sex]][[counter[sex]]][[1]])-1), ncol=4, byrow=TRUE))
             population$breeding[[generation]][[sex]][[counter[sex]]][[6]] <- codeOriginsU(matrix(c(origin_code, sex, counter[sex], 2),nrow=(length(population$breeding[[generation]][[sex]][[counter[sex]]][[2]])-1), ncol=4, byrow=TRUE))
 
           }
-          population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex])
-          population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
+          population$breeding[[generation]][[sex]][[counter[sex]]][[7]] <- c(generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex],
+                                                                             generation, sex, counter[sex])
+          #population$breeding[[generation]][[sex]][[counter[sex]]][[8]] <- c(generation, sex, counter[sex])
 
           if(internal.geno){
             if(miraculix && miraculix.dataset){
@@ -2741,17 +2877,6 @@ creating.diploid <- function(population=NULL,
             } else if(miraculix){
               population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- miraculix::haplomatrix(rbind(as.matrix(population$breeding[[generation]][[sex]][[counter[sex]]][[9]]),dataset[,(index*2-c(1,0))]))
               population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- "Placeholder_Pointer_Martin"
-            } else if(bit.storing){
-              if(leftover==0){
-                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], bit.storing(dataset[,(index*2-1)]),nbits)
-                population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], bit.storing(dataset[,(index*2)]), nbits)
-              } else{
-                population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])],
-                                                                                   bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[9]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[9]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2-1)]),nbits))
-                population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][-length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])],
-                                                                                    bit.storing(c(bit.snps(population$breeding[[generation]][[sex]][[counter[sex]]][[10]][length(population$breeding[[generation]][[sex]][[counter[sex]]][[10]])], nbits)[(nbits-leftover+1):nbits],dataset[,(index*2)]),nbits))
-
-              }
             } else{
               population$breeding[[generation]][[sex]][[counter[sex]]][[9]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[9]], dataset[,(index*2-1)])
               population$breeding[[generation]][[sex]][[counter[sex]]][[10]] <- c(population$breeding[[generation]][[sex]][[counter[sex]]][[10]], dataset[,(index*2)])
@@ -2882,8 +3007,8 @@ creating.diploid <- function(population=NULL,
           enter.bv_temp <- FALSE
 
 
-          shuffle.traits_temp <- NULL
-          shuffle.cor_temp <- NULL
+          trait.cor.include_temp <- NULL
+          trait.cor_temp <- NULL
           real.bv.add_temp <- NULL
           real.bv.mult_temp <- NULL
           real.bv.dice_temp <- NULL
@@ -2919,14 +3044,16 @@ creating.diploid <- function(population=NULL,
                                          freq = freq_activ,
                                          bpcm.conversion = bpcm.conversion[chr_index],
                                          remove.invalid.qtl=FALSE,
-                                         shuffle.traits = shuffle.traits,
-                                         shuffle.cor = shuffle.cor,
+                                         trait.cor.include = trait.cor.include,
+                                         trait.cor = trait.cor,
                                          verbose = verbose,
                                          internal=TRUE,
                                          progress.bar = progress.bar,
+                                         verbose.all = verbose.all,
                                    internal.geno=if(chr_index == length(chr.opt) || !(miraculix && miraculix.dataset)){TRUE} else {FALSE},
                                    internal.dataset = dataset_full,
-                                   size.scaling = size.scaling)
+                                   size.scaling = size.scaling,
+                                   recombination.precision = recombination.precision)
         }
       } else{
 
@@ -2986,13 +3113,15 @@ creating.diploid <- function(population=NULL,
                                        hom0 =population$info$snp.base[1,],
                                        hom1 =population$info$snp.base[2,],
                                        remove.invalid.qtl =FALSE,
-                                       shuffle.traits = shuffle.traits,
-                                       shuffle.cor = shuffle.cor,
+                                       trait.cor.include = trait.cor.include,
+                                       trait.cor = trait.cor,
                                        verbose = verbose,
                                        internal=TRUE,
                                        progress.bar = progress.bar,
+                                       verbose.all = verbose.all,
                                        size.scaling = size.scaling,
-                                       founder.pool = founder.pool)
+                                       founder.pool = founder.pool,
+                                       recombination.precision = recombination.precision)
       }
 
     }
@@ -3005,7 +3134,7 @@ creating.diploid <- function(population=NULL,
       times_comp[5] <- as.numeric(Sys.time())
     }
     if(enter.bv ){
-      if(bv.total>0 || length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
+      if(n.traits>0 || length(real.bv.add)>0  || length(real.bv.mult) >0 || length(real.bv.dice)>0){
         population$info$bve <- TRUE
         if(is.list(real.bv.add)){
           population$info$real.bv.add <- real.bv.add
@@ -3028,10 +3157,10 @@ creating.diploid <- function(population=NULL,
 
 
         if(skip.rest==FALSE){
-          population$info$bv.nr <- bv.total
+          population$info$bv.nr <- n.traits
           population$info$bv.calc <- bv.calc
         } else{
-          bv.total = population$info$bv.nr
+          n.traits = population$info$bv.nr
           bv.calc = population$info$bv.calc
           nbv = bv.calc
           population$info$bv.calculated = FALSE
@@ -3055,18 +3184,14 @@ creating.diploid <- function(population=NULL,
         population$info$real.bv.length <- c(0,0,0)
       }
 
-      if(bit.storing){
-        population$info$bitstoring <- nbits
-        population$info$leftover <-  sum(population$info$snp)%%nbits
-      }
       if(miraculix || miraculix.dataset){
         population$info$miraculix <- TRUE
       } else{
         population$info$miraculix <- FALSE
       }
 
-      if(bv.total>0 && (length(population$info$pheno.correlation)==0 || nrow(population$info$pheno.correlation)<bv.total)){
-        population$info$pheno.correlation <- diag(1L, bv.total)
+      if(n.traits>0 && (length(population$info$pheno.correlation)==0 || nrow(population$info$pheno.correlation)<n.traits)){
+        population$info$pheno.correlation <- diag(1L, n.traits)
       }
       if(length(new.residual.correlation)>0){
 
@@ -3080,21 +3205,21 @@ creating.diploid <- function(population=NULL,
         }
         population$info$pheno.correlation <- t(chol(new.residual.correlation))
       }
-      if(bv.total>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<bv.total)){
-        population$info$bv.correlation <- diag(1L, bv.total)
+      if(n.traits>0 && (length(population$info$bv.correlation)==0 || nrow(population$info$bv.correlation)<n.traits)){
+        population$info$bv.correlation <- diag(1L, n.traits)
       }
       if(length(new.breeding.correlation)>0){
         population$info$bv.correlation <- new.breeding.correlation
       }
 
-      if(bv.total>0 && (length(population$info$litter.effect.covariance)==0 || nrow(population$info$litter.effect.covariance)<bv.total)){
-        population$info$litter.effect.covariance <- diag(0L, bv.total)
+      if(n.traits>0 && (length(population$info$litter.effect.covariance)==0 || nrow(population$info$litter.effect.covariance)<n.traits)){
+        population$info$litter.effect.covariance <- diag(0L, n.traits)
       }
       if(length(litter.effect.covariance)>0){
         population$info$litter.effect.covariance <- t(chol(litter.effect.covariance))
       }
-      if(bv.total>0 && (length(population$info$pen.effect.covariance)==0 || nrow(population$info$pen.effect.covariance)<bv.total)){
-        population$info$pen.effect.covariance <- diag(0L, bv.total)
+      if(n.traits>0 && (length(population$info$pen.effect.covariance)==0 || nrow(population$info$pen.effect.covariance)<n.traits)){
+        population$info$pen.effect.covariance <- diag(0L, n.traits)
       }
       if(length(pen.effect.covariance)>0){
         population$info$pen.effect.covariance <- t(chol(pen.effect.covariance))
@@ -3113,29 +3238,34 @@ creating.diploid <- function(population=NULL,
       }
 
 
+      if(n.traits>0){
+        if(length(trait.name) == n.traits){
+          population$info$trait.name <- trait.name
+        }
+        if((length(trait.name) + length(population$info$trait.name)) == n.traits){
+          population$info$trait.name <- c(population$info$trait.name, trait.name)
+        }
 
-      if(bv.total>0){
-        population$info$trait.name <- trait.name
-        if(length(trait.name)<bv.total){
-          population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(trait.name)+1):bv.total))
+        if(length(population$info$trait.name)<n.traits){
+          population$info$trait.name <- c(population$info$trait.name, paste0("Trait ", (length(population$info$trait.name)+1):n.traits))
         }
       }
 
 
-      if(length(shuffle.traits)==0){
-        if(length(shuffle.cor)>0){
+      if(length(trait.cor.include)==0){
+        if(length(trait.cor)>0){
 
-          if(ncol(shuffle.cor)==population$info$bv.calc){
-            shuffle.traits <- 1:population$info$bv.calc
+          if(ncol(trait.cor)==population$info$bv.calc){
+            trait.cor.include <- 1:population$info$bv.calc
           } else{
-            shuffle.traits <- 1:ncol(shuffle.cor)
-            warning(paste0("shuffle.traits not specified! use the first ", ncol(shuffle.cor), " traits"))
+            trait.cor.include <- 1:ncol(trait.cor)
+            warning(paste0("trait.cor.include not specified! use the first ", ncol(trait.cor), " traits"))
           }
         }
       }
-      if(length(shuffle.traits)>0 ){
-        if(length(shuffle.traits)==1){
-          shuffle.traits <- which(population$info$bv.random==FALSE)
+      if(length(trait.cor.include)>0 ){
+        if(length(trait.cor.include)==1){
+          trait.cor.include <- which(population$info$bv.random==FALSE)
         }
         # scaling of QTL effects
         if(!population$info$bv.calculated){
@@ -3143,7 +3273,7 @@ creating.diploid <- function(population=NULL,
 
             ttt = length(population$info$bv.random.activ)==0
             if(ttt){
-              population$info$bv.random.activ = shuffle.traits
+              population$info$bv.random.activ = trait.cor.include
             }
             population = recalculate.manual(population, cohorts = name.cohort_temp)
             if(ttt){
@@ -3169,7 +3299,7 @@ creating.diploid <- function(population=NULL,
         if(sum(is.na(scalings))>0){
           stop("scaling problems!")
         }
-        for(bvnr in shuffle.traits){
+        for(bvnr in trait.cor.include){
           if(length(population$info$real.bv.add[[bvnr]])>0){
             population$info$real.bv.add[[bvnr]][,3:5] <- population$info$real.bv.add[[bvnr]][,3:5] / scalings[bvnr] * scalings[1]
           }
@@ -3187,17 +3317,14 @@ creating.diploid <- function(population=NULL,
         }
         population$info$bv.calculated <- FALSE
 
-        if(bit.storing){
-          population$info$bitstoring <- nbits
-          population$info$leftover <-  sum(population$info$snp)%%nbits
-        }
+
         if(miraculix || miraculix.dataset){
           population$info$miraculix <- TRUE
         } else{
           population$info$miraculix <- FALSE
         }
 
-        eigen_gen <- eigen(shuffle.cor)
+        eigen_gen <- eigen(trait.cor)
         if(sum(eigen_gen$values<0)>0){
           if(verbose){
             warning("Genetic covariance matrix is not positive definit.")
@@ -3217,20 +3344,20 @@ creating.diploid <- function(population=NULL,
           diag(newA) <- diag(newA) + 0.001 # Avoid numerical issues with inversion
           newA <- newA * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=TRUE) * matrix(1/sqrt(diag(newA)), nrow=nrow(newA), ncol=nrow(newA), byrow=FALSE)
           if(verbose) cat("new suggested genetic correlation matrix:\n")
-          shuffle.cor <- newA
-          if(verbose) print(round(shuffle.cor, digits=3))
+          trait.cor <- newA
+          if(verbose) print(round(trait.cor, digits=3))
         }
 
-        if(sum(shuffle.cor==1) > ncol(shuffle.cor)){
+        if(sum(trait.cor==1) > ncol(trait.cor)){
 
           if (requireNamespace("Matrix", quietly = TRUE)) {
             if(verbose) cat("Genetic correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
-            shuffle.cor = as.matrix(Matrix::nearPD(shuffle.cor)$mat)
+            trait.cor = as.matrix(Matrix::nearPD(trait.cor)$mat)
           }
 
         }
 
-        LT <- chol(shuffle.cor)
+        LT <- chol(trait.cor)
 
         if(whitening){
           prior_cor = stats::cor(t(get.bv(population, gen = 1)))
@@ -3250,17 +3377,17 @@ creating.diploid <- function(population=NULL,
         }
 
 
-        if(nrow(LT)!=length(shuffle.traits)){
-          stop("Dimension of shuffle correlation matrix doesnt work with traits to shuffle")
+        if(nrow(LT)!=length(trait.cor.include)){
+          stop("Dimension of trait.cor doesnt match with traits.cor.include input")
         } else{
 
           if(whitening){
-            population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% prior_cor %*% LT
+            population$info$bv.correlation[trait.cor.include,trait.cor.include] <- t(LT) %*% prior_cor %*% LT
           } else{
-            population$info$bv.correlation[shuffle.traits,shuffle.traits] <- t(LT) %*% LT
+            population$info$bv.correlation[trait.cor.include,trait.cor.include] <- t(LT) %*% LT
           }
 
-          if(sum(abs(population$info$bv.correlation[shuffle.traits,shuffle.traits]- shuffle.cor))>0.0001){
+          if(sum(abs(population$info$bv.correlation[trait.cor.include,trait.cor.include]- trait.cor))>0.0001){
             warning("No covariance matrix for genetic correlation given! Values above diagonal used.")
           }
 
@@ -3269,11 +3396,11 @@ creating.diploid <- function(population=NULL,
           store.dice <- population$info$real.bv.dice
 
           col <- 1
-          for(index in shuffle.traits){
+          for(index in trait.cor.include){
             new.add <- new.mult <- new.dice1 <- new.dice2 <- NULL
             row <- 1
             add.list = mult.list = list()
-            for(index2 in shuffle.traits){
+            for(index2 in trait.cor.include){
               if(length(store.add[[index2]])>0){
 
                 if(LT[row,col]!=0){
@@ -3336,7 +3463,7 @@ creating.diploid <- function(population=NULL,
 
         }
 
-        for(index in shuffle.traits){
+        for(index in trait.cor.include){
           population$info$real.bv.length[1] <- max(population$info$real.bv.length[1], if(length(population$info$real.bv.add[[index]])>0){index} else{0})
           population$info$real.bv.length[2] <- max(population$info$real.bv.length[2], if(length(population$info$real.bv.mult[[index]])>0){index} else{0})
           population$info$real.bv.length[3] <- max(population$info$real.bv.length[3], if(length(population$info$real.bv.dice[[index]][[1]])>0){index} else{0})
@@ -3468,7 +3595,9 @@ E.g. The entire human genome has a size of ~33 Morgan."))
     }
 
     if(length(fixed.effects)==0){
-      fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=0)
+
+      fixed.effects <- matrix(0, nrow= population$info$bv.nr, ncol=if(length(population$info$fixed.effects)>0){ncol(population$info$fixed.effects)} else {0})
+
     }
     population$info$fixed.effects <- fixed.effects
 
@@ -3489,20 +3618,26 @@ E.g. The entire human genome has a size of ~33 Morgan."))
         population = recalculate.manual(population, cohorts = name.cohort_temp, store.comp.times= store.comp.times)
 
       } else{
+
+        bv_tmp = population$info$bv.ignore.traits.ever
+        tmp123 = setdiff(population$info$bv.random.activ , bv.ignore.traits)
+        tmp234 = length(bv.ignore.traits)==0
+
         for(sex in 1:2){
           if(counter.start[sex]<counter[sex]){
             for(nr.animal in counter.start[sex]:(counter[sex]-1)){
 
               temp_out <- calculate.bv(population, generation, sex, nr.animal,
                                        decodeOriginsU=decodeOriginsU,
-                                       output_compressed=FALSE,
                                        activ_bv = activ_bv,
                                        bv.ignore.traits=bv.ignore.traits)
               population$breeding[[generation]][[6+sex]][,nr.animal] <- temp_out[[1]]
-              population$breeding[[generation]][[sex]][[nr.animal]][[25]] <- length(bv.ignore.traits)==0
+
+              if(bv_tmp){
+                population$breeding[[generation]][[sex]][[nr.animal]][[25]] <- tmp234
+                population$breeding[[generation]][[sex]][[nr.animal]][[26]] <- tmp123
+              }
             }
-
-
           }
         }
       }
@@ -3559,6 +3694,13 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
 
+  if(verbose && length(trait.cor.include)>0){
+    realized_cor = stats::cor(t(get.bv(population, gen = 1)))
+    cat("Realized genetic correlations in founders:/n")
+    print(realized_cor)
+  }
+
+
   if(length(qtl_position) > 0){
     population$info$nonqtl_position = nonqtl_position
     population$info$qtl_position = qtl_position
@@ -3578,6 +3720,19 @@ E.g. The entire human genome has a size of ~33 Morgan."))
 
 
   population$info$max.time.point = max(population$info$max.time.point, time.point)
+
+  if(tracking){
+
+    if (!grepl("^(?:[A-Za-z]:|/|\\\\\\\\)", tracking.file)) {
+      tracking.file <- file.path(getwd(), tracking.file)
+    }
+
+    population$info$tracking = tracking
+    population$info$tracking_interval = tracking.interval
+    population$info$tracking_file = tracking.file
+    population$info$tracking_stop = to_kill
+    population$info$tracking_stats = "initialized"
+  }
 
   if(one.sex.mode){
     population$info$one.sex.mode <- TRUE

@@ -32,8 +32,11 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param non.genotyped.as.missing Set to TRUE to replaced non-genotyped entries with "./."
 #' @param use.id Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)
 #' @param fam.id Set TRUE to set the fam-ID to the individual ID
-#' @param type Set 1 to only write paternal haplotype, set 2 to only write maternal haplotype, set 0 for both (default)
+#' @param type Set 1 to only write paternal haplotype, set 2 to only write maternal haplotype, set 0 for both (default). Type 3/4 for inverse of parental haplotype
 #' @param bve.pedigree.error Set to FALSE to ignore/correct for any pedigree errors
+#' @param array Use only markers available on the array
+#' @param remove.missing Remove markers not genotyped in any individual from the export
+#' @param mixblup.last Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)
 #' @examples
 #' data(ex_pop)
 #' data(ex_pop)
@@ -47,20 +50,34 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NULL, id = NULL, chromosome="all",
                       non.genotyped.as.missing=FALSE, fam.id = FALSE, type = 0, use.id = TRUE,
-                      bve.pedigree.error = TRUE){
+                      bve.pedigree.error = TRUE, array = NULL, remove.missing = TRUE,
+                      mixblup.last = FALSE){
 
   if (requireNamespace("miraculix", quietly = TRUE) & requireNamespace("genio", quietly = TRUE)) {
     database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
     nindi = get.nindi(population, database = database)
     if(type ==0){
-      geno <- get.geno(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id)
+      geno <- get.geno(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id,
+                       array = array, remove.missing = remove.missing, mixblup.last = mixblup.last)
 
     } else if(type ==1){
-      geno <- get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id)[,1:nindi*2-1]
+      geno <- get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id,
+                        array = array, remove.missing = remove.missing, mixblup.last = mixblup.last)[,1:nindi*2-1]
 
       colnames(geno) = substr(colnames(geno), start = 1, stop = nchar(colnames(geno))-5)
     } else if(type ==2){
-      geno <- get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id)[,1:nindi*2]
+      geno <- get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id,
+                        array = array, remove.missing = remove.missing, mixblup.last = mixblup.last)[,1:nindi*2]
+      colnames(geno) = substr(colnames(geno), start = 1, stop = nchar(colnames(geno))-5)
+
+    } else if(type ==3){
+      geno <- 2 - get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id,
+                        array = array, remove.missing = remove.missing, mixblup.last = mixblup.last)[,1:nindi*2-1]
+
+      colnames(geno) = substr(colnames(geno), start = 1, stop = nchar(colnames(geno))-5)
+    } else if(type ==4){
+      geno <- 2 - get.haplo(population, database=database, chromosome=chromosome, export.alleles=FALSE, use.id = use.id,
+                        array = array, remove.missing = remove.missing, mixblup.last = mixblup.last)[,1:nindi*2]
       colnames(geno) = substr(colnames(geno), start = 1, stop = nchar(colnames(geno))-5)
 
     }
@@ -100,7 +117,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
     alt[alt==1] <- "C"
 
     options("scipen"=999)
-    ped_tmp = get.pedigree(population, database = database, id = use.id, include.error = bve.pedigree.error)
+    ped_tmp = get.pedigree(population, database = database, use.id = use.id, include.error = bve.pedigree.error)
     sex_tmp = get.pedigree(population, database = database, raw = TRUE, include.error = bve.pedigree.error)[,2]
 
     if(fam.id){
@@ -114,6 +131,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
 
     map_tmp = cbind(get.map(population), ref , alt)
 
+    map_tmp = map_tmp[map_tmp[,2]%in% rownames(geno),,drop = FALSE]
 
     bim = data.frame(chr = map_tmp[,1], id = map_tmp[,2], posg = map_tmp[,3],
                      pos = map_tmp[,4], ref = rep("A", nrow(map_tmp)), alt = rep("C", nrow(map_tmp)))

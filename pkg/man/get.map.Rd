@@ -4,7 +4,13 @@
 \alias{get.map}
 \title{Map generation}
 \usage{
-get.map(population, use.snp.nr = FALSE, morgan.position.per.chromosome = TRUE)
+get.map(
+  population,
+  use.snp.nr = FALSE,
+  morgan.position.per.chromosome = TRUE,
+  array = NULL,
+  mixblup.last = FALSE
+)
 }
 \arguments{
 \item{population}{Population list}
@@ -12,6 +18,10 @@ get.map(population, use.snp.nr = FALSE, morgan.position.per.chromosome = TRUE)
 \item{use.snp.nr}{Set to TRUE to display SNP number and not SNP name}
 
 \item{morgan.position.per.chromosome}{Set to FALSE to Morgan position continuously over the genome}
+
+\item{array}{Use only markers available on the array}
+
+\item{mixblup.last}{Use only SNPs included in the last MiXBLUP evaluation (that were not filtered through MAF etc.)}
 }
 \value{
 Genomic map of the population list

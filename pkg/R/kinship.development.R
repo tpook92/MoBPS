@@ -33,7 +33,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param display.time.point Set TRUE to use time point of generated to sort groups
 #' @param equal.spacing Equal distance between groups (independent of time.point)
 #' @param time_reorder Set TRUE to order cohorts according to the time point of generation
-#' @param display.hbd Set to TRUE to also display HBD in plot
+#' @param display.inbreeding Set to TRUE to also display HBD in plot
 #' @examples
 #' data(ex_pop)
 #' kinship.development(ex_pop,gen=1:5)
@@ -41,12 +41,12 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @export
 
 kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NULL,
-                           json=FALSE, ibd.obs=50, hbd.obs=10,
+                           json=FALSE, ibd.obs=200, hbd.obs=200,
                            display.cohort.name=FALSE,
                            display.time.point=FALSE,
                            equal.spacing = FALSE,
                            time_reorder=FALSE,
-                           display.hbd=FALSE){
+                           display.inbreeding=TRUE){
 
   if(json){
     ids <- to_plot <- numeric(length(population$info$json[[1]]))
@@ -113,11 +113,13 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
     graphics::par(mar=c(4.1,4.1,2.1,0.1))
   }
 
-  graphics::plot(time_plot[reorder], inbred[reorder,1], main=paste("Kinship development"),
+  inbred[,2] = (inbred[,2]-0.5) /2
+  graphics::plot(time_plot[reorder], inbred[reorder,1], main=paste("Inbreeding / Kinship development"),
                  xaxt=if(display.cohort.name || equal.spacing){'n'}else {NULL},
-                 xlab=if(display.cohort.name){""}else{"time"}, ylim=c(0,max(inbred[reorder,c(1,1+display.hbd)])), col="red", lwd=2, type="l", ylab="")
-  if(display.hbd){
-    graphics::lines(time_plot[reorder], inbred[reorder,2], main=paste("Kinship development"), lwd=2, col="blue")
+                 xlab=if(display.cohort.name){""}else{"time"}, ylim=c(0,max(inbred[reorder,])), col="red", lwd=2, type="l", ylab="")
+  if(display.inbreeding){
+    graphics::lines(time_plot[reorder], inbred[reorder,2],
+                    xlab = "inbreeding level", main=paste("Inbreeding / Kinship development"), lwd=2, col="blue")
   }
 
   if(equal.spacing && !display.cohort.name){
@@ -140,16 +142,16 @@ kinship.development <- function(population, database=NULL, gen=NULL, cohorts=NUL
     row.names(inbred) <- display.names
   }
 
-  if(display.hbd){
-    graphics::legend("topleft",c("avg. kinship (based on IBD)", "avg. inbreeding (based on HBD)"), lty=c(1,1), col=c("red","blue"), lwd=c(2,2))
+  if(display.inbreeding){
+    graphics::legend("topleft",c("avg. empirical kinship", "avg. empirical inbreeding"), lty=c(1,1), col=c("red","blue"), lwd=c(2,2))
   } else{
-    graphics::legend("topleft",c("avg. kinship (based on IBD)"), lty=c(1), col=c("red"), lwd=c(2,2))
+    graphics::legend("topleft",c("avg. empirical kinship"), lty=c(1), col=c("red"), lwd=c(2,2))
   }
 
   inbred
 }
 
 
-
+inbreeding.development = kinship.development
 
 

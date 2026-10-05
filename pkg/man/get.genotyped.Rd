@@ -11,7 +11,8 @@ get.genotyped(
   cohorts = NULL,
   id = NULL,
   use.id = TRUE,
-  use.all.copy = FALSE
+  use.all.copy = FALSE,
+  intern = FALSE
 )
 }
 \arguments{
@@ -28,6 +29,8 @@ get.genotyped(
 \item{use.id}{Set to TRUE to use MoBPS ids instead of Sex_Nr_Gen based names (default: TRUE)}
 
 \item{use.all.copy}{Set to TRUE to extract phenotyping}
+
+\item{intern}{Set to TRUE to skip naming of matrix colums/rows}
 }
 \value{
 Check if in gen/database/cohorts selected individuals are genotyped

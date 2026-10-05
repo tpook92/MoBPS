@@ -31,8 +31,6 @@ founder.simulation(
   snps.equidistant = NULL,
   snp.position = NULL,
   position.scaling = FALSE,
-  bit.storing = FALSE,
-  nbits = 30,
   randomSeed = NULL,
   miraculix = TRUE,
   miraculix.dataset = TRUE,
@@ -108,10 +106,6 @@ founder.simulation(
 \item{snp.position}{Location of each marker on the genetic map}
 
 \item{position.scaling}{Manual scaling of snp.position}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
 
 \item{randomSeed}{Set random seed of the process}
 

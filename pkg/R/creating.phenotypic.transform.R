@@ -45,7 +45,7 @@ creating.phenotypic.transform <- function(population, phenotypic.transform.funct
                                           gen = NULL,
                                           database = NULL,
                                           cohorts = NULL,
-                                          h2 = seq(0.05,0.5, by = 0.05),
+                                          h2 = NULL,
                                           export.h2 = FALSE,
                                           n.sample = 1000){
 
@@ -57,8 +57,13 @@ creating.phenotypic.transform <- function(population, phenotypic.transform.funct
   if(test.h2 || export.h2){
 
     if(length(h2)==0){
-      h2 = 0
+      if(length(    population$info$last.sigma.e.heritability) > 0){
+        h2 =     population$info$last.sigma.e.heritability
+      } else{
+        h2 = seq(0.05,0.5, by = 0.05)
+      }
     }
+
     h2_obs = rep(0, length(h2))
     for(index in 1:length(h2)){
       n = 0
@@ -93,11 +98,18 @@ creating.phenotypic.transform <- function(population, phenotypic.transform.funct
       h2_obs[index] = stats::cor(pheno, bv)^2
     }
 
-    cat("Heritabilities provided downstream will be for underlying quantitative trait (not discrete phenotypes)\n")
-    cat("Expected heritabilities:\n")
-    tmp = cbind(h2, h2_obs)
-    colnames(tmp) = c("Underlying Quantitative Trait", "Observed Phenotype")
-
+    if(length(h2)==1){
+      cat("Phenotypic transformation will result in a trait with changed heritability\n")
+      cat(paste0("Empirical testing suggests heritabilities for transformed trait: ", round(h2_obs, digits = 4), " (based on h2 = ",
+                 round(h2, digits = 4)," in regular trait)\n"))
+      tmp = cbind(h2, h2_obs)
+      colnames(tmp) = c("Underlying Quantitative Trait", "Observed Phenotype")
+    } else{
+      cat("Heritabilities provided downstream will be for underlying quantitative trait (not discrete phenotypes)\n")
+      cat("Empirical testing suggests heritabilities:\n")
+      tmp = cbind(h2, h2_obs)
+      colnames(tmp) = c("Underlying Quantitative Trait", "Observed Phenotype")
+    }
 
     if(export.h2){
       return(tmp)

@@ -37,10 +37,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param length.behind Length after the last SNP of the dataset (default: 5)
 #' @param snps.equidistant Use equidistant markers (computationally faster! ; default: TRUE)
 #' @param snp.position Location of each marker on the genetic map
-#' @param bv.total Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
+#' @param n.traits Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)
 #' @param polygenic.variance Genetic variance of traits with no underlying QTL
-#' @param bit.storing Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)
-#' @param nbits Bits available in MoBPS-bit-storing
 #' @param randomSeed Set random seed of the process
 #' @param miraculix If TRUE use miraculix package for data storage, computations and dataset generation
 #' @param miraculix.dataset Set FALSE to deactive miraculix package for dataset generation
@@ -54,8 +52,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
 #' @param exclude.snps Marker were no QTL are simulated on
 #' @param replace.real.bv If TRUE delete the simulated traits added before
-#' @param shuffle.traits Combine different traits into a joined trait
-#' @param shuffle.cor Target Correlation between shuffled traits
 #' @param real.bv.add Single Marker effects
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
@@ -63,7 +59,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.poly.factor Potency trait value over this
 #' @param base.bv Average genetic value of a trait
 #' @param add.chromosome.ends Add chromosome ends as recombination points
-#' @param new.phenotype.correlation (OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance
 #' @param new.residual.correlation Correlation of the simulated enviromental variance
 #' @param new.breeding.correlation Correlation of the simulated genetic variance (child share! heritage is not influenced!
 #' @param add.architecture Add genetic architecture (marker positions)
@@ -120,16 +115,14 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                 nsnp=0, freq="beta", sex.s="fixed",
                                 chromosome.length=NULL,length.before=5, length.behind=5,
                                 real.bv.add=NULL, real.bv.mult=NULL, real.bv.dice=NULL, snps.equidistant=NULL,
-                                bv.total=0, polygenic.variance=100,
+                                n.traits=0, polygenic.variance=100,
                                 bve.mult.factor=NULL, bve.poly.factor=NULL,
                                 base.bv=NULL, add.chromosome.ends=TRUE,
-                                new.phenotype.correlation=NULL,
                                 new.residual.correlation = NULL,
                                 new.breeding.correlation=NULL,
                                 add.architecture=NULL, snp.position=NULL,
                                 position.scaling=FALSE,
-                                bit.storing=FALSE,
-                                nbits=30, randomSeed=NULL,
+                                randomSeed=NULL,
                                 miraculix=TRUE,
                                 miraculix.dataset=TRUE,
                                 n.additive=0,
@@ -142,8 +135,6 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                 var.quantitative.l=NULL,
                                 exclude.snps=NULL,
                                 replace.real.bv=FALSE,
-                                shuffle.traits=NULL,
-                                shuffle.cor=NULL,
                                 skip.rest=FALSE,
                                 enter.bv=TRUE,
                                 name.cohort=NULL,
@@ -336,16 +327,14 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                  length.behind=length.behind,
                                  real.bv.add=real.bv.add, real.bv.mult=real.bv.mult,
                                  real.bv.dice=real.bv.dice, snps.equidistant=snps.equidistant,
-                                 bv.total=bv.total, polygenic.variance=polygenic.variance,
+                                 n.traits=n.traits, polygenic.variance=polygenic.variance,
                                  bve.mult.factor=bve.mult.factor, bve.poly.factor=bve.poly.factor,
                                  base.bv=base.bv, add.chromosome.ends=add.chromosome.ends,
-                                 new.phenotype.correlation=new.phenotype.correlation,
                                  new.residual.correlation = new.residual.correlation,
                                  new.breeding.correlation=new.breeding.correlation,
                                  add.architecture=add.architecture, snp.position=snp.position,
                                  position.scaling=position.scaling,
-                                 bit.storing=bit.storing,
-                                 nbits=nbits, randomSeed=randomSeed,
+                                 randomSeed=randomSeed,
                                  miraculix=miraculix,
                                  miraculix.dataset=miraculix.dataset,
                                  n.additive=n.additive,
@@ -358,8 +347,6 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                  var.quantitative.l=var.quantitative.l,
                                  exclude.snps=exclude.snps,
                                  replace.real.bv=replace.real.bv,
-                                 shuffle.traits=shuffle.traits,
-                                 shuffle.cor=shuffle.cor,
                                  trait.cor = trait.cor,
                                  trait.cor.include = trait.cor.include,
                                  skip.rest=skip.rest,

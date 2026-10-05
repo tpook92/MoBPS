@@ -39,6 +39,7 @@ creating.diploid(
   qtl.beta.shape2 = NULL,
   macs.ne = 100,
   macs.freq.correction = TRUE,
+  macs.freq.correction.precision = 0.025,
   share.genotyped = 0,
   genotyped.s = NULL,
   vcf = NULL,
@@ -106,25 +107,24 @@ creating.diploid(
   creating.type = 0,
   size.scaling = 1,
   progress.bar = TRUE,
+  verbose.all = NULL,
+  tracking = FALSE,
+  tracking.file = "mobps_performance_log.tsv",
+  tracking.interval = 10,
   miraculix = TRUE,
   miraculix.dataset = TRUE,
   add.chromosome.ends = TRUE,
   use.recalculate.manual = FALSE,
   store.comp.times = TRUE,
+  recombination.precision = 2^20,
   skip.rest = FALSE,
   enter.bv = TRUE,
   internal = FALSE,
   internal.geno = TRUE,
   internal.dataset = NULL,
-  nbits = 30,
-  bit.storing = FALSE,
-  new.phenotype.correlation = NULL,
   length.before = 5,
   length.behind = 5,
   position.scaling = FALSE,
-  shuffle.cor = NULL,
-  shuffle.traits = NULL,
-  bv.total = 0,
   whitening = FALSE
 )
 }
@@ -196,6 +196,8 @@ creating.diploid(
 \item{macs.ne}{Target effective population size when using MaCS simulator (default: 100)}
 
 \item{macs.freq.correction}{Set to FALSE to not obtain target allele frequency distribution (default: TRUE)}
+
+\item{macs.freq.correction.precision}{Window size of allele frequencies to consider when correcting allele frequency spectrum for splitting QTL & SNPs (default: 0.025)}
 
 \item{share.genotyped}{Share of individuals genotyped in the founders}
 
@@ -331,6 +333,14 @@ creating.diploid(
 
 \item{progress.bar}{Set to FALSE to not use progress bars in any application of breeding.diploid() downstream (Keep log-files lean!)}
 
+\item{verbose.all}{Set to FALSE to not provide prints in any application of breeding.diploid() downstream (Keep log-files lean!)}
+
+\item{tracking}{Set to TRUE to start performance tracking (default; FALSE)}
+
+\item{tracking.file}{Directory to where to write tracking file (mobps_performance_log.tsv)}
+
+\item{tracking.interval}{Perform tracking every X seconds (default: 10)}
+
 \item{miraculix}{If TRUE use miraculix package for data storage, computations and dataset generation}
 
 \item{miraculix.dataset}{Set FALSE to deactivate miraculix package for dataset generation}
@@ -340,6 +350,8 @@ creating.diploid(
 \item{use.recalculate.manual}{Set to TRUE to use recalculate.manual to calculate genomic values (all individuals and traits jointly, default: FALSE)}
 
 \item{store.comp.times}{Set to FALSE to not store computing times needed to execute creating.diploid in $info$comp.times.creating}
+
+\item{recombination.precision}{Precision factor under which recombination points are stored (default: 2^20 ; set to 1 to store recombination as regular numeric (as before v1.15))}
 
 \item{skip.rest}{Internal variable needed when adding multiple chromosomes jointly}
 
@@ -351,23 +363,11 @@ creating.diploid(
 
 \item{internal.dataset}{Do not touch!}
 
-\item{nbits}{Bits available in MoBPS-bit-storing}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{new.phenotype.correlation}{(OLD! - use new.residual.correlation) Correlation of the simulated enviromental variance}
-
 \item{length.before}{Length before the first SNP of the dataset (default: 5)}
 
 \item{length.behind}{Length after the last SNP of the dataset (default: 5)}
 
 \item{position.scaling}{Manual scaling of snp.position}
-
-\item{shuffle.cor}{OLD! Use trait.cor - Target Correlation between traits}
-
-\item{shuffle.traits}{OLD! Use trait.cor.include - Vector of traits to be included for modelling of correlated traits (default: all - needs to match with shuffle.cor)}
-
-\item{bv.total}{OLD! Use n.traits instead. Number of traits (If more than traits via real.bv.X use traits with no directly underlying QTL)}
 
 \item{whitening}{Set TRUE modify initially simulated trait to be uncorrelated (primary for non-additive effects) before trait.cor is applied}
 }

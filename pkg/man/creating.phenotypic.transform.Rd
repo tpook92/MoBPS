@@ -12,7 +12,7 @@ creating.phenotypic.transform(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  h2 = seq(0.05, 0.5, by = 0.05),
+  h2 = NULL,
   export.h2 = FALSE,
   n.sample = 1000
 )

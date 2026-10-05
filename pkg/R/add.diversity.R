@@ -134,7 +134,7 @@ add.diversity = function(population,
                              breeding.size = c(sum(breeding.size),0),
                              selection.size = c(round(sum(breeding.size)* selection.rate),0),
                              selection.criteria = "bv",
-                             multiple.bve.weights.m = weights,
+                             selection.index.weights.m = weights,
                              verbose=FALSE,
                              use.recalculate.manual = use.recalculate.manual)
 

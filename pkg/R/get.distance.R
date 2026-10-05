@@ -100,7 +100,7 @@ get.distance <- function(population, type="nei", marker = "all", per.marker=FALS
       p2 <- p_i[[index2]][marker]
       temp1 <- NULL
       if(type=="nei"){
-        temp1 <-  -log( ( (p1*p2 + (1-p1)*(1-p2)) ) / sqrt((p1^2 + (1-p1)^2) * (p2^2+(1-p2)^2))     )
+        temp1 <-  ( ( (p1*p2 + (1-p1)*(1-p2)) ) / sqrt((p1^2 + (1-p1)^2) * (p2^2+(1-p2)^2))     )
       } else if(type=="cavalli"){
         temp1 <-  2 / pi * sqrt(2 * (1- sqrt(p1*p2) - sqrt((1-p1)*(1-p2)) ))
       } else if(type=="reynold"){
@@ -110,7 +110,14 @@ get.distance <- function(population, type="nei", marker = "all", per.marker=FALS
       } else if(type=="nei_distance"){
         temp1 <- 1 - sqrt(p1*p2) - sqrt((1-p1) * (1-p2))
       }
+
+      if(type == "nei"){
+        D[index,index2] <- D[index2,index] <- -log (sum(temp1, na.rm=TRUE)/ length(p1))
+
+      } else{
         D[index,index2] <- D[index2,index] <-sum(temp1, na.rm=TRUE) / length(p1)
+
+      }
     }
   }
 

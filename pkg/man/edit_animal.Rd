@@ -10,9 +10,7 @@ edit_animal(
   sex,
   nr,
   nr.edits,
-  decodeOriginsU = decodeOriginsR,
-  bit.storing = FALSE,
-  nbits = 30
+  decodeOriginsU = decodeOriginsR
 )
 }
 \arguments{
@@ -27,10 +25,6 @@ edit_animal(
 \item{nr.edits}{Number of edits to perform}
 
 \item{decodeOriginsU}{Used function for the decoding of genetic origins [[5]]/[[6]]}
-
-\item{bit.storing}{Set to TRUE if the MoBPS (not-miraculix! bit-storing is used)}
-
-\item{nbits}{Bits available in MoBPS-bit-storing}
 }
 \value{
 animal after genome editing

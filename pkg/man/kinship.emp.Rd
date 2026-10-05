@@ -10,7 +10,7 @@ kinship.emp(
   gen = NULL,
   database = NULL,
   cohorts = NULL,
-  sym = FALSE,
+  sym = TRUE,
   use.id = TRUE
 )
 }

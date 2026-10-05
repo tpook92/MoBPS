@@ -23,35 +23,35 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #'
 #' Function to relationship matrix for founder individuals that is used for any calculation of the pedigree
 #' @param population population list
-#' @param founder.kinship Default is to use vanRaden relationship. Alternative is to enter a pedigree-matrix (order of individuals is first male then female)
+#' @param founder.relationship Default is to use vanRaden relationship. Alternative is to enter a pedigree-matrix (order of individuals is first male then female)
 #' @param gen Generation for which to enter the pedigree-matrix
 #' @examples
 #' data(ex_pop)
-#' population <- add.founder.kinship(ex_pop)
+#' population <- add.founder.relationship(ex_pop)
 #' @return Population list
 #' @export
 
-add.founder.kinship <- function(population, founder.kinship = "GBLUP", gen=1){
+add.founder.relationship <- function(population, founder.relationship= "GBLUP", gen=1){
 
-  if(length(founder.kinship)==1 && founder.kinship=="GBLUP"){
-    founder.kinship = "vanRaden"
+  if(length(founder.relationship)==1 && founder.relationship=="GBLUP"){
+    founder.relationship = "vanRaden"
   }
-  if(length(founder.kinship)==1 && founder.kinship=="vanRaden"){
+  if(length(founder.relationship)==1 && founder.relationship=="vanRaden"){
     Zt <- get.geno(population, gen=gen)
     if(population$info$miraculix){
-      founder.kinship <- miraculix::relationshipMatrix(miraculix::genomicmatrix(Zt), centered = TRUE, normalized = TRUE)
+      founder.relationship <- miraculix::relationshipMatrix(miraculix::genomicmatrix(Zt), centered = TRUE, normalized = TRUE)
     } else{
       p_i <- rowMeans(Zt) / 2
       Ztm <- Zt - p_i * 2
-      founder.kinship <- crossprod(Ztm) / (2 * sum(p_i * (1-p_i)))
+      founder.relationship <- crossprod(Ztm) / (2 * sum(p_i * (1-p_i)))
     }
 
   }
 
   n.animals <- sum(population$info$size[gen,])
 
-  if(ncol(founder.kinship) != n.animals){
-    stop("Dimension of founder.kinship and individual number do not match!")
+  if(ncol(founder.relationship) != n.animals){
+    stop("Dimension of founder.relationship and individual number do not match!")
   }
 
   population$info$founder.kinship <- sort(unique(c(population$info$founder.kinship, gen)))
@@ -59,7 +59,7 @@ add.founder.kinship <- function(population, founder.kinship = "GBLUP", gen=1){
     population$info$kinship <- list()
   }
 
-  population$info$kinship[[gen]] = founder.kinship
+  population$info$kinship[[gen]] = founder.relationship
 
 
   return(population)

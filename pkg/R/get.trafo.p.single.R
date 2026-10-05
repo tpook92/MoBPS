@@ -52,11 +52,14 @@ get.trafo.p.single <- function(population, database=NULL, gen=NULL, cohorts=NULL
 
   }
 
-  if(use.id){
-    names(data) <- get.id(population, database = database)
-  } else{
-    names(data) <- names
+  if(length(data)>0){
+    if(use.id){
+      names(data) <- get.id(population, database = database)
+    } else{
+      names(data) <- names
+    }
   }
+
 
   return(data)
 }
