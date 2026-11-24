@@ -97,8 +97,8 @@ merging.trait <- function(population,
       real.bv.mult_temp = rbind(real.bv.mult_temp, population$info$real.bv.mult[[bven]])
     }
     if(length(population$info$real.bv.dice[[bven]][[1]])>0){
-      real.bv.dice_temp[[1]] == c(real.bv.dice_temp[[1]] , population$info$real.bv.dice[[bven]][[1]])
-      real.bv.dice_temp[[2]] == c(real.bv.dice_temp[[2]] , population$info$real.bv.dice[[bven]][[2]])
+      real.bv.dice_temp[[1]] <- c(real.bv.dice_temp[[1]] , population$info$real.bv.dice[[bven]][[1]])
+      real.bv.dice_temp[[2]] <- c(real.bv.dice_temp[[2]] , population$info$real.bv.dice[[bven]][[2]])
     }
 
   }
@@ -114,7 +114,7 @@ merging.trait <- function(population,
     population$info$real.bv.dice[[keep]] = real.bv.dice_temp
   }
 
-  for(bven in delete){
+  for(bven in sort(delete, decreasing = TRUE)){
     population$info$real.bv.add[[bven]] = NULL
     population$info$real.bv.mult[[bven]] = NULL
     population$info$real.bv.dice[[bven]] = NULL
@@ -181,10 +181,11 @@ merging.trait <- function(population,
   population$info$base.bv = population$info$base.bv[-delete]
 
 
+  P_new = diag(ntrait_before)
+  P_new[merge,keep] <- 1
+  P_new[,delete] = 0
+
   if(length(new.residual.correlation)==0){
-    P_new = diag(ntrait_before)
-    P_new[merge,keep] <- 1
-    P_new[,delete] = 0
 
     new.residual.correlation = (t(P_new) %*% population$info$pheno.correlation) %*% (t(population$info$pheno.correlation) %*% (P_new))
 
@@ -192,6 +193,17 @@ merging.trait <- function(population,
 
     new.residual.correlation = new.residual.correlation[-delete, -delete, drop = FALSE]
   }
+
+  if(sum(new.residual.correlation==1) > ncol(new.residual.correlation)){
+
+    if (requireNamespace("Matrix", quietly = TRUE)) {
+      if(verbose) cat("Residual correlation matrix is only semi-definit. Modify slightly to ensure chol() working.\n")
+      new.residual.correlation = as.matrix(Matrix::nearPD(new.residual.correlation)$mat)
+    }
+
+  }
+  population$info$pheno.correlation <- t(chol(new.residual.correlation))
+
 
 
 
@@ -205,7 +217,7 @@ merging.trait <- function(population,
 
   population$info$trait.name = population$info$trait.name[-delete]
   if(length(trait.name)==1){
-    population$info$trait.name[keep] == trait.name
+    population$info$trait.name[keep] = trait.name
   }
 
   for(generation in 1:nrow(population$info$size)){

@@ -122,7 +122,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param bve.poly.factor Potency trait value over this
 #' @param set.zero Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)
 #' @param bv.standard Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used
-#' @param replace.real.bv If TRUE delete the simulated traits added before
 #' @param bv.ignore.traits Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)
 #' @param remove.invalid.qtl Set to FALSE to deactive the automatic removal of QTLs on markers that do not exist
 ###### Other
@@ -255,7 +254,6 @@ creating.diploid <- function(population=NULL,
                              bve.poly.factor=NULL,
                              set.zero = FALSE,
                              bv.standard=FALSE,
-                             replace.real.bv=FALSE,
                              bv.ignore.traits = NULL,
                              remove.invalid.qtl=TRUE,
                              #### Other
@@ -1278,30 +1276,30 @@ creating.diploid <- function(population=NULL,
 
 
       if(length(population)>0){
-        if(length(real.bv.add)==0 && replace.real.bv==FALSE){
+        if(length(real.bv.add)==0){
           real.bv.add <- population$info$real.bv.add
           real.bv.add[[population$info$bv.calc+1]] <- NULL
-        } else if(replace.real.bv==FALSE){
+        } else{
           if(!is.list(real.bv.add)){
             real.bv.add <- list(real.bv.add)
           }
           real.bv.add <- c(population$info$real.bv.add, real.bv.add)
           real.bv.add[[population$info$bv.calc+1]] <- NULL
         }
-        if(length(real.bv.mult)==0 && replace.real.bv==FALSE){
+        if(length(real.bv.mult)==0){
           real.bv.mult <- population$info$real.bv.mult
           real.bv.mult[[population$info$bv.calc+1]] <- NULL
-        } else if(replace.real.bv==FALSE){
+        } else {
           if(!is.list(real.bv.mult)){
             real.bv.mult <- list(real.bv.mult)
           }
           real.bv.mult <- c(population$info$real.bv.mult, real.bv.mult)
           real.bv.mult[[population$info$bv.calc+1]] <- NULL
         }
-        if(length(real.bv.dice)==0 && replace.real.bv==FALSE){
+        if(length(real.bv.dice)==0){
           real.bv.dice <- population$info$real.bv.dice
           real.bv.dice[[population$info$bv.calc+1]] <- NULL
-        } else if(replace.real.bv==FALSE){
+        } else {
           if(!is.list(real.bv.dice)){
             real.bv.dice <- list(real.bv.dice)
           }
@@ -3360,7 +3358,7 @@ creating.diploid <- function(population=NULL,
         LT <- chol(trait.cor)
 
         if(whitening){
-          prior_cor = stats::cor(t(get.bv(population, gen = 1)))
+          prior_cor = stats::cor(t(get.bv(population, gen = 1)[trait.cor.include,,drop = FALSE]))
 
           eig <- eigen(prior_cor)
           # inverse square root of A

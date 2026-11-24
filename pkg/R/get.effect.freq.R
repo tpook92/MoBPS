@@ -40,7 +40,7 @@ get.effect.freq <- function(population, database=NULL, gen=NULL, cohorts=NULL, i
   if(sort){
     order <- sort(order)
   }
-  genos <- get.geno(population, gen = gen, database = database, cohorts = cohorts, id = id)[order,]
+  genos <- get.geno(population, gen = gen, database = database, cohorts = cohorts, id = id)[order,,drop = FALSE]
 
 
   effects <- cbind(rowSums(genos==0), rowSums(genos==1), rowSums(genos==2))

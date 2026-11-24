@@ -51,7 +51,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' @param var.qualitative.l Variance of qualitative epistatic QTL
 #' @param var.quantitative.l Variance of quantitative epistatic QTL
 #' @param exclude.snps Marker were no QTL are simulated on
-#' @param replace.real.bv If TRUE delete the simulated traits added before
 #' @param real.bv.add Single Marker effects
 #' @param real.bv.mult Two Marker effects
 #' @param real.bv.dice Multi-marker effects
@@ -134,7 +133,6 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                 var.qualitative.l=NULL,
                                 var.quantitative.l=NULL,
                                 exclude.snps=NULL,
-                                replace.real.bv=FALSE,
                                 skip.rest=FALSE,
                                 enter.bv=TRUE,
                                 name.cohort=NULL,
@@ -346,7 +344,6 @@ pedigree.simulation <- function(pedigree, keep.ids=FALSE, plot=TRUE,
                                  var.qualitative.l=var.qualitative.l,
                                  var.quantitative.l=var.quantitative.l,
                                  exclude.snps=exclude.snps,
-                                 replace.real.bv=replace.real.bv,
                                  trait.cor = trait.cor,
                                  trait.cor.include = trait.cor.include,
                                  skip.rest=skip.rest,

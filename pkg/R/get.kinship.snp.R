@@ -52,8 +52,8 @@ get.kinship.snp <-  function(population=NULL, gen=NULL, database=NULL, cohorts=N
 
 
 
-  tmp1 = founder_haplo[,(1:n)*2-1]
-  tmp2 = founder_haplo[,(1:n)*2]
+  tmp1 = founder_haplo[,(1:n)*2-1, drop = FALSE]
+  tmp2 = founder_haplo[,(1:n)*2, drop = FALSE]
 
 
   if(mode == 1){

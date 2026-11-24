@@ -17,7 +17,7 @@ breeding.diploid(
   max.selection.fullsib = Inf,
   max.selection.halfsib = Inf,
   class.m = 0L,
-  class.f = 0L,
+  class.f = NULL,
   add.class.cohorts = TRUE,
   multiple.bve = "add",
   selection.index.weights.m = 1,
@@ -54,7 +54,7 @@ breeding.diploid(
   miesenberger.trafo = 0,
   sort.selected.pos = FALSE,
   ocs = FALSE,
-  relationship.matrix.ocs = "pedigree",
+  relationship.matrix.ocs = "pBLUP",
   depth.pedigree.ocs = 7,
   ocs.target = "min.sKin",
   ocs.uniform = NULL,
@@ -71,6 +71,7 @@ breeding.diploid(
   ocs.plots = TRUE,
   ocs.weight = NULL,
   ocs.freq = NULL,
+  ocs.upper.limit.threshold = -0.01,
   selection.skip = FALSE,
   bve.store.candidates = FALSE,
   bve.store.selected = FALSE,
@@ -193,6 +194,7 @@ breeding.diploid(
   depth.pedigree = 7,
   singlestep.active = TRUE,
   bve.ignore.traits = NULL,
+  bve.include.traits = NULL,
   bve.array = NULL,
   bve.imputation = TRUE,
   bve.imputation.errorrate = 0,
@@ -200,6 +202,7 @@ breeding.diploid(
   bve.insert.gen = NULL,
   bve.insert.cohorts = NULL,
   bve.insert.database = NULL,
+  bve.insert.traits = NULL,
   variance.correction.bve = "none",
   bve.class = NULL,
   sigma.g = NULL,
@@ -238,7 +241,10 @@ breeding.diploid(
   bve.insert.all.copy = TRUE,
   bve.pedigree.error = TRUE,
   bve.gc = FALSE,
+  bve.validator = FALSE,
   mobps.bve = TRUE,
+  mobps.multi.bve = FALSE,
+  mobps.single.bve = FALSE,
   mixblup.bve = FALSE,
   blupf90.bve = FALSE,
   mixblup.reliability = FALSE,
@@ -269,6 +275,8 @@ breeding.diploid(
   blupf90.verbose = TRUE,
   mixblup.genetic.cov = NULL,
   mixblup.residual.cov = NULL,
+  mobps.genetic.cov = NULL,
+  mobps.residual.cov = NULL,
   mixblup.lambda = 1,
   mixblup.alpha = NULL,
   mixblup.beta = NULL,
@@ -302,6 +310,7 @@ breeding.diploid(
   mixblup.dgv.effect = NULL,
   mixblup.tmpdir = NULL,
   mixblup.sequential = 0,
+  mixblup.convergence = FALSE,
   blupf90.path = NULL,
   renumf90.path = NULL,
   blupf90.path.pedfile = NULL,
@@ -515,6 +524,8 @@ breeding.diploid(
 
 \item{ocs.freq}{Only applicable when B4F-version of OCS is available}
 
+\item{ocs.upper.limit.threshold}{Only applicable when B4F-version of OCS is available}
+
 \item{selection.skip}{Set to FALSE in case no selection of individuals should be performed (just skips some unneccessary computations)}
 
 \item{bve.store.candidates}{Set to TRUE to store the EBVs of selection candidates}
@@ -717,6 +728,8 @@ breeding.diploid(
 
 \item{bve.ignore.traits}{Vector of traits to ignore in the breeding value estimation (default: NULL, use: "zero" to not consider traits with 0 index weight in selection.index.weights.m/.w)}
 
+\item{bve.include.traits}{Vector of traits to include in the breeding value estimation (default: NULL - either use bve.include.traits or bve.ignore.traits)}
+
 \item{bve.array}{Array to use in the breeding value estimation (default: NULL; chose largest possible based on used individuals in BVE)}
 
 \item{bve.imputation}{Set to FALSE to not perform imputation up to the highest marker density of genotyping data that is available}
@@ -726,6 +739,8 @@ breeding.diploid(
 \item{bve.all.genotyped}{Set to TRUE to act as if every individual in the breeding value estimation has been genotyped}
 
 \item{bve.insert.gen, bve.insert.cohorts, bve.insert.database}{Generations/Groups/Cohorts of individuals to compute breeding values for (default: all groups in bve.database)}
+
+\item{bve.insert.traits}{EBVs for which traits to enter (default: all); Only applicable for multi-trait prediction models to include external information in prediction}
 
 \item{variance.correction.bve}{Correct for "parental.mean" or "generation.mean" in the estimation of  sigma.g for BVE / sigma.e estimation (default: "none")}
 
@@ -791,7 +806,13 @@ breeding.diploid(
 
 \item{bve.gc}{Set to TRUE to apply garbage collection before solving prediction model (default: FALSE)}
 
+\item{bve.validator}{Set to TRUE to generate validation statistics for your breeding value estimation}
+
 \item{mobps.bve}{If TRUE predict BVEs in direct estimation with assumed known heritability (default: TRUE; activating use of any other BVE method to TRUE will overwrite this)}
+
+\item{mobps.multi.bve}{If TRUE use multi-trait BVE model}
+
+\item{mobps.single.bve}{If TRUE use single-trait BVE model}
 
 \item{mixblup.bve}{Set to TRUE to activate breeding value estimation via MiXBLUP (requires MiXBLUP license!)}
 
@@ -852,6 +873,10 @@ breeding.diploid(
 \item{mixblup.genetic.cov}{Provide genetic covariance matrix to be used in MiXBLUP (lower-triangle is sufficent) (default: underlying true values)}
 
 \item{mixblup.residual.cov}{Provide residual covariance matrix to be used in MiXBLUP (lower-triangle is sufficent) (default: underlying true values)}
+
+\item{mobps.genetic.cov}{Provide genetic covariance matrix to be used in multi-trait mobps breeding value estimation (default: underlying true values)}
+
+\item{mobps.residual.cov}{Provide residual covariance matrix to be used in multi-trait mobps breeding value estimation (default: underlying true values)}
 
 \item{mixblup.lambda}{Lambda parameter in MiXBLUP (default: 1)}
 
@@ -918,6 +943,8 @@ breeding.diploid(
 \item{mixblup.tmpdir}{Path to write temporary files to (default: Working directory)}
 
 \item{mixblup.sequential}{Maximum number of individuals to process at the same time when generating Dense files for MiXBLUP (default: 0 (all))}
+
+\item{mixblup.convergence}{Set to TRUE to generate a convergence plot for MiXBLUP}
 
 \item{blupf90.path}{Provide path to blupf90 (default is your working directory: Windows: ./blupf90+.exe ; Linux ./blupf90+.exe)}
 

@@ -33,7 +33,7 @@ matrix.posdef <- function(A, verbose = TRUE, matrix.name = "Matrix", epsilon = 0
 
   test = eigen(A)
 
-  if(min(test$values) < 0){
+  if(min(test$values) <= 0){
     test$values[test$values<0] <- 0
 
     if(verbose){

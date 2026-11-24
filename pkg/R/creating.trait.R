@@ -1304,7 +1304,7 @@ creating.trait <- function(population,
     LT <- chol(trait.cor)
 
     if(whitening){
-      prior_cor = stats::cor(t(get.bv(population, gen = 1)))
+      prior_cor = stats::cor(t(get.bv(population, gen = 1)[trait.cor.include,,drop = FALSE]))
 
       eig <- eigen(prior_cor)
       # inverse square root of A

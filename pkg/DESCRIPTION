@@ -1,7 +1,7 @@
 Package: MoBPS
 Type: Package
 Title: Modular Breeding Program Simulator
-Version: 1.15.29
+Version: 1.15.40
 Authors@R: c(
     person(given = "Torsten", family = "Pook", role = c("aut", "cre"),
            email = "torsten.pook@wur.nl", comment = c(ORCID = "0000-0001-7874-8500")),
@@ -18,11 +18,11 @@ Imports:
     utils
 License: GPL ( >= 3)
 LazyData: TRUE
-Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer, optiSel, alstructure, NAM, gplots, phylogram, cPCG, VariantAnnotation, GenomicRanges, IRanges, MatrixGenerics, Rsamtools, visPedigree, data.table, methods, genio, AlphaSimR, parallelly, asreml, ps
+Suggests: EMMREML, BGLR, MASS, doMPI, doRNG, compiler, foreach, sommer, vcfR, jsonlite, rrBLUP, biomaRt, Matrix, doParallel, RColorBrewer, optiSel, alstructure, NAM, gplots, phylogram, cPCG, VariantAnnotation, GenomicRanges, IRanges, MatrixGenerics, Rsamtools, visPedigree, data.table, methods, genio, AlphaSimR, parallelly, asreml, ps, ggplot2, dplyr, tidyr, validatoR, patchwork, rlang
 Enhances: miraculix (>= 0.9.10), RandomFieldsUtils (>= 0.5.9), MoBPSmaps
 SystemRequirements: MiXBLUP (optional; used for multi-trait genomic evaluations); blupf90-family (optional; used for multi-trait genomic evaluations)
 Additional_repositories: https://tpook92.github.io/drat/
 RoxygenNote: 7.3.2
-Date: 2026-07-31
+Date: 2026-11-11
 LinkingTo: 
     Rcpp

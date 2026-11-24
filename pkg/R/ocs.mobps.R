@@ -25,7 +25,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #' Function to simulate a step in a breeding scheme
 #' @param population Population list
 #' @param animallist List of individuals to include in ocs
-#' @param ocs.target Target of OSC (default: "min.sKin" - minimize inbreeding; alt: "max.BV" / "min.BV" - maximize genetic gain; both under constrains selected below)
+#' @param ocs.target Target of OCS (default: "min.sKin" - minimize inbreeding; alt: "max.BV" / "min.BV" - maximize genetic gain; both under constrains selected below)
 #' @param ocs.uniform This corresponds to the uniform constrain in optiSel
 #' @param ocs.lb This corresponds to the lb constrain in optiSel
 #' @param ocs.ub This corresponds to the ub constrain in optiSel
@@ -79,7 +79,7 @@ ocs.mobps = function(population, animallist,
   n.animals <- nrow(animallist)
 
   if(sum(abs(animallist[,4]))==0){
-    if(verbose) cat("No breeding values stored for OSC Use breeding value of first trait as u!\n")
+    if(verbose) cat("No breeding values stored for OCS Use breeding value of first trait as u!\n")
     for(index in 1:nrow(animallist)){
       animallist[index,4] <- population$breeding[[animallist[index,1]]][[2+animallist[index,2]]][1,animallist[index,3]]
     }
@@ -260,26 +260,58 @@ ocs.mobps = function(population, animallist,
   if(length(ocs.lb)>0){
     con$lb = ocs.lb
   }
-  if(length(ocs.ub)>0){
 
-
+  if(length(ocs.ub)==1 && length(names(ocs.ub))==0){
     ocs.ub.vector = rep(ocs.ub[1]/2, length(Indiv))
-
     if(length(ocs.ub)==2){
       ocs.ub.vector[animallist[,6]==2] = ocs.ub[2]/2
     }
     names(ocs.ub.vector) = Indiv
 
+    keep = rep(TRUE, length(ocs.ub.vector))
+
     if(length(ocs.uniform) ==1 && ocs.uniform == "female"){
-      ocs.ub.vector = ocs.ub.vector[!(animallist[,6]==2)]
+
+      keep[animallist[,6]==2] = FALSE
     }
 
     if(length(ocs.uniform) ==1 && ocs.uniform == "male"){
-      ocs.ub.vector = ocs.ub.vector[!(animallist[,6]==1)]
+      keep[animallist[,6]==1] = FALSE
+    }
+
+    keep[!phen$isCandidate] = FALSE
+
+    if(prod(keep) != 1){
+      ocs.ub.vector = ocs.ub.vector[keep]
+    }
+    con$ub = ocs.ub.vector
+  } else if(length(ocs.ub)>0){
+
+    ocs.ub.vector = ocs.ub
+
+    keep = rep(TRUE, length(ocs.ub.vector))
+
+    if(length(ocs.uniform) ==1 && ocs.uniform == "female"){
+      keep[animallist[match(names(ocs.ub.vector), animallist[,8]) ,6]==2] = FALSE
+    }
+
+    if(length(ocs.uniform) ==1 && ocs.uniform == "male"){
+      keep[animallist[match(names(ocs.ub.vector), animallist[,8]) ,6]==1] = FALSE
+    }
+
+    keep[!phen$isCandidate[match(names(ocs.ub.vector), animallist[,8])]] = FALSE
+
+    if(prod(keep) != 1){
+      ocs.ub.vector = ocs.ub.vector[keep]
     }
 
     con$ub = ocs.ub.vector
+
+    if(length(names(ocs.ub.vector))==0){
+      stop("ocs.ub with multiple entries requires individual names as attributes (names())")
+    }
   }
+
   if(length(ocs.ub.sKin)>0){
     con$ub.sKin = ocs.ub.sKin
   }

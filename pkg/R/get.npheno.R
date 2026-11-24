@@ -74,12 +74,8 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = N
   } else{
     for(row in 1:nrow(database)){
       animals <- database[row,]
-      nanimals <- database[row,4] - database[row,3] +1
+      nanimals <- animals[4] - animals[3] +1
       indices <- animals[3]:animals[4]
-
-      if(nanimals>0){
-
-
         tmp <- population$breeding[[animals[1]]][[animals[2]]]
 
         vals <- lapply(tmp[indices], `[[`, 15L)
@@ -90,11 +86,7 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = N
           unlist(vals, use.names = FALSE),
           nrow = nrow(data)
         )
-
         before <- before + nanimals
-
-      }
-
     }
   }
 
@@ -102,13 +94,12 @@ get.npheno <- function(population, database=NULL, gen=NULL, cohorts=NULL, id = N
     before = 0
     for(row in 1:nrow(database)){
       animals <- database[row,]
-      nanimals <- database[row,4] - database[row,3] +1
-      if(nanimals>0){
+      nanimals <- animals[4] - animals[3] +1
 
         names[(before+1):(before+nanimals)] <- paste0(if(animals[2]==1) "M" else "F", animals[3]:animals[4],"_", animals[1])
         before <- before + nanimals
 
-      }
+
 
     }
   }

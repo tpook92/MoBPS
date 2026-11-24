@@ -56,7 +56,7 @@ insert <- function(population, bves, type="bve", na.override = FALSE,  count=NUL
   } else if(type=="pheno"){
     add <- 8
   } else if(type=="reli"){
-    add <- 16
+    add <- 18
   }
 
   # check if the old formatting is used:

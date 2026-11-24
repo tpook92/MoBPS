@@ -80,6 +80,8 @@ get.map <- function(population, use.snp.nr=FALSE, morgan.position.per.chromosome
     relevant.snps = intersect(which(population$info$array.markers[[array]]), relevant.snps)
   }
 
+  mapfile = mapfile[relevant.snps,,drop= FALSE]
+
   return(mapfile)
 }
 

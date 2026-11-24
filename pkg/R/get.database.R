@@ -245,64 +245,48 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     }
 
     # first very basic merging
-    first = which(c(TRUE, diff(tmp$x)!=1 | !tmp2 ))
-    last = which(c(diff(tmp$x)!=1 | !tmp2 , TRUE))
+    breaks = diff(tmp$x)!=1 | !tmp2
+    first = c(TRUE, breaks)
+    last = c(breaks , TRUE)
     database = cbind(database[first,1:3,drop = FALSE], database[last,4,drop = FALSE])
 
     if(nrow(database) > 1){
-      first_same <- 1
-      first_index <- 1
-      not_first = FALSE
-      for(index in 2:nrow(database)){
-        if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
-          first_index <- which(database[index,1]==database[,1] & database[index,2]==database[,2])[1]
-          first_same <- database[first_index,1]
-          not_first = FALSE
-        } else{
-          if(database[(index-1),1]!=0){
-            if(database[index-1,1]==database[index,1] & database[index-1,2] == database[index,2]){
-              checks <- (index-1)
-            } else{
-              checks <- NULL
-            }
-          } else if(database[(index-2),1]!=0 && first_index <= index-2){
-            if(database[(index-2),1]!=0){
-              if(database[index-2,1]==database[index,1] & database[index-2,2] == database[index,2]){
-                checks <- (index-2)
-              } else{
-                checks <- NULL
-              }
-            }
-          } else if(database[(index-3),1]!=0 && first_index <= index-3){
-            if(database[(index-3),1]!=0){
-              if(database[index-3,1]==database[index,1] & database[index-3,2] == database[index,2]){
-                checks <- (index-3)
-              } else{
-                checks <- NULL
-              }
-            }
+
+      skip = prod((!(duplicated(database[,1]*10 + database[,2])) | c(FALSE, database[-1,3] > database[-nrow(database),4]))) == 1 && sum(database==0) ==0
+
+      if(!skip){
+        first_same <- 1
+        first_index <- 1
+        not_first = FALSE
+        relevant_check = 1
+
+        for(index in 2:nrow(database)){
+          if(database[first_index,1]!=database[index,1] || database[first_index,2]!=database[index,2]){
+
+            first_index <- which(database[index,1]==database[,1] & database[index,2]==database[,2])[1]
+            first_same <- database[first_index,1]
+            not_first = FALSE
+            relevant_check = first_index
           } else{
-            if(not_first){
-              checks <- (which(database[first_index:(index-1),1]==database[index,1] & database[first_index:(index-1),2] == database[index,2])) + first_index - 1
-            } else{
-              checks <- first_index
 
+            if(!avoid.merging){
+
+              #checks = checks[database[index,3] <= (database[checks,4] + 1)]
+
+              if(database[index,3] <= (database[relevant_check,4] + 1)){
+                database[relevant_check,4] <- max(database[relevant_check,4], database[index,4])
+                database[index,] <- 0
+              } else{
+                relevant_check = index
+              }
+              not_first = TRUE
             }
-          }
-          if(!avoid.merging){
 
-            checks = checks[database[index,3] <= (database[checks,4] + 1)]
-
-            if(length(checks)>0){
-              database[checks,4] <- max(database[checks,4], database[index,4])
-              database[index,] <- 0
-            }
-            not_first = TRUE
           }
 
         }
-
       }
+
     }
 
     database <- database[database[,1]!=0,,drop=FALSE]
@@ -312,7 +296,11 @@ get.database<- function(population, gen=NULL, database=NULL, cohorts=NULL, avoid
     database = database[database[,2] == sex.filter,,drop = FALSE]
   }
 
-  database <- unique(database)
+  tmp  = sort(database[,1]*1e12 + database[,2]*1e7 + database[,3], index.return=TRUE)
+
+  if (anyDuplicated(database[,1] *1e12 + database[,2] *1e7 + database[,3])>0) {
+    database <- unique(database)
+  }
 
   #removed
   if(length(database) > 0 && (length(genotyped) > 0 || length(npheno) > 0 || length(class) > 0)){

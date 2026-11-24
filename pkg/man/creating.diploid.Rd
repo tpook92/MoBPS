@@ -98,7 +98,6 @@ creating.diploid(
   bve.poly.factor = NULL,
   set.zero = FALSE,
   bv.standard = FALSE,
-  replace.real.bv = FALSE,
   bv.ignore.traits = NULL,
   remove.invalid.qtl = TRUE,
   randomSeed = NULL,
@@ -314,8 +313,6 @@ creating.diploid(
 \item{set.zero}{Set to TRUE to have no effect on the 0 genotype (or 00 for QTLs with 2 underlying SNPs)}
 
 \item{bv.standard}{Set TRUE to standardize trait mean and variance via bv.standardization() - automatically set to TRUE when mean/var.target are used}
-
-\item{replace.real.bv}{If TRUE delete the simulated traits added before}
 
 \item{bv.ignore.traits}{Vector of traits to ignore in the calculation of the genomic value (default: NULL; Only recommended for high number of traits and experienced users!)}
 

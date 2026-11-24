@@ -112,8 +112,8 @@ computing.costs <- function(population, phenotyping.costs = 10, genotyping.costs
   for(index in 1:nrow(database)){
     activ <- database[index,]
     for(index2 in activ[3]:activ[4]){
-      costs_pheno[index] <- costs_pheno[index] + population$breeding[[activ[1]]][[activ[2]]][[index]][[15]] * phenotyping.costs[activ[1], activ[2]]
-      costs_geno[index] <- costs_geno[index] + population$breeding[[activ[1]]][[activ[2]]][[index]][[16]] * genotyping.costs[activ[1], activ[2]]
+      costs_pheno[index] <- costs_pheno[index] + population$breeding[[activ[1]]][[activ[2]]][[index2]][[15]] * phenotyping.costs[activ[1], activ[2]]
+      costs_geno[index] <- costs_geno[index] + population$breeding[[activ[1]]][[activ[2]]][[index2]][[16]] * genotyping.costs[activ[1], activ[2]]
       profit_bv[index] <- profit_bv[index] + population$breeding[[activ[1]]][[activ[2]+6]][1,index] * profit.per.bv[activ[1], activ[2]]
     }
   }
@@ -126,7 +126,7 @@ computing.costs <- function(population, phenotyping.costs = 10, genotyping.costs
   gains_year <- numeric(length(timest))
   t <- 1
   for(index in timest){
-    gains_year[t] <- sum(gains_group[which(database[,1]==index)]) + fix.costs.annual[index]
+    gains_year[t] <- sum(gains_group[which(database[,1]==index)]) - fix.costs.annual[index]
     t <- t + 1
   }
 

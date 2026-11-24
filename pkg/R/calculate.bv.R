@@ -41,7 +41,6 @@ calculate.bv <- function(population, gen, sex, nr, activ_bv, import.position.cal
                           decodeOriginsU=decodeOriginsR, store.effect.freq=FALSE,
                           bv.ignore.traits=NULL){
 
-
   multi_pool =   population$info$founder_multi_calc
   pool_effects = population$info$pool_effects & multi_pool
 

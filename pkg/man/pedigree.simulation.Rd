@@ -49,7 +49,6 @@ pedigree.simulation(
   var.qualitative.l = NULL,
   var.quantitative.l = NULL,
   exclude.snps = NULL,
-  replace.real.bv = FALSE,
   skip.rest = FALSE,
   enter.bv = TRUE,
   name.cohort = NULL,
@@ -165,8 +164,6 @@ pedigree.simulation(
 \item{var.quantitative.l}{Variance of quantitative epistatic QTL}
 
 \item{exclude.snps}{Marker were no QTL are simulated on}
-
-\item{replace.real.bv}{If TRUE delete the simulated traits added before}
 
 \item{skip.rest}{Internal variable needed when adding multipe chromosomes jointly}
 

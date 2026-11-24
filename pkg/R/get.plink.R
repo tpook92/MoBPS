@@ -53,7 +53,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
                       bve.pedigree.error = TRUE, array = NULL, remove.missing = TRUE,
                       mixblup.last = FALSE){
 
-  if (requireNamespace("miraculix", quietly = TRUE) & requireNamespace("genio", quietly = TRUE)) {
+  if (requireNamespace("genio", quietly = TRUE)) {
     database = get.database(population, gen = gen, database = database, cohorts = cohorts, id = id)
     nindi = get.nindi(population, database = database)
     if(type ==0){
@@ -139,7 +139,7 @@ get.plink <- function(population, path=NULL, database=NULL, gen=NULL, cohorts=NU
     genio::write_plink(file=path, X = geno, fam = fam, bim = bim)
 
   } else{
-    print("Use of get.plink() requires the R-package genio and miraculix! Please install before use.")
+    print("Use of get.plink() requires the R-package genio! Please install before use.")
   }
 
 }
